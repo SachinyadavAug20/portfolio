@@ -1,5 +1,6 @@
 import { words } from "../../constants/";
 import Button from "../components/Button";
+import HeroExperience from "../components/HeroModels/HeroExperience";
 const Hero = () => {
   return (
     <section id="hero" className="relative overflow-hidden">
@@ -38,9 +39,14 @@ const Hero = () => {
               Hi, I'm Sachin, a developer based in India with a passion for
               code.
             </p>
-            <Button text="See my work" className="md:w-80 md:h-16 w-60 h-12"/>
+            <Button text="See my work" className="md:w-80 md:h-16 w-60 h-12" />
           </div>
         </header>
+        <figure>
+          <div className="hero-3d-layout border-red-200 border-2">
+            <HeroExperience />
+          </div>
+        </figure>
       </div>
     </section>
   );
