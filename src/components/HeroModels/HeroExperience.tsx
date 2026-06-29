@@ -1,15 +1,24 @@
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useMediaQuery } from "react-responsive";
+import { useMemo } from "react";
 import { Room } from "./Room";
+import HeroLights from "./HeroLights";
+import { getTimeOfDay } from "../../lib/utils";
 
 const HeroExperience = () => {
   const isTablet = useMediaQuery({ query: "(max-width: 1024px)" });
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const tod = useMemo(() => getTimeOfDay(), []);
   return (
-    <Canvas camera={{ position: [0, 0, 15], fov: 45 }}>
-      <ambientLight intensity={0.2} color="#1a1a40" />
-      <directionalLight position={[1, 1, 1]} intensity={1} />
+    <Canvas camera={{ position: [0, 0, 15], fov: 45 }} id="hero-model">
+      <ambientLight intensity={0.05 + 0.25 * tod.factor} color={tod.color} />
+      <directionalLight
+        position={[5, 10, 5]}
+        intensity={1.5 * tod.factor}
+        color={tod.color}
+      />
+      <HeroLights />
       <OrbitControls
         enablePan={false}
         enableZoom={!isTablet}
