@@ -43,7 +43,7 @@ section {
   }
 
   .padding-x-lg {
-    @apply px-5 md:px-20;
+    @apply px-5! md:px-20!;
   }
 
   .section-padding {

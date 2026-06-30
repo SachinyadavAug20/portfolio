@@ -11,3 +11,15 @@ export const words: word[] = [
   { text: "State", imgPath: "/images/stack.svg" },
   { text: "Code", imgPath: "/images/terminal.svg" },
 ];
+interface counterItem {
+  url: string;
+  value: number;
+  text: string;
+  suffix: string;
+}
+export const counterItems: counterItem[] = [
+  { value: 300, text: "Problems Solved", suffix: "+", url: "" },
+  { value: 500, text: "Git Commits", suffix: "+", url: "https://github.com/SachinyadavAug20#contributions-calendar" },
+  { value: 4, text: "Production Systems", suffix: "+", url: "" },
+  { value: 2, text: "Games Built", suffix: "+", url: "" },
+];
