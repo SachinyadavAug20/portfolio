@@ -3,7 +3,7 @@ interface Props {
   className: string;
   id?: string; // scroll to key
 }
-const Button = ({ text, className, id = "/" }: Props) => {
+const Button = ({ text, className, id="" }: Props) => {
   return (
     <a
       className={`cta-wrapper ${className ?? ""}`}

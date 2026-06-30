@@ -6,18 +6,22 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
 const Hero = () => {
-  useGSAP(()=>{
-    gsap.fromTo('.hero-text h1',{
-      y:50,
-      opacity:0,
-    },{
-      y:0,
-      opacity:1,
-      stagger:0.2,
-      duration:1,
-      ease:"back.out(2)"
-    })
-  })
+  useGSAP(() => {
+    gsap.fromTo(
+      ".hero-text h1",
+      {
+        y: 50,
+        opacity: 0,
+      },
+      {
+        y: 0,
+        opacity: 1,
+        stagger: 0.2,
+        duration: 1,
+        ease: "back.out(2)",
+      },
+    );
+  });
   return (
     <section id="hero" className="relative overflow-hidden">
       <div className="absolute top-0 left-0 z-10">
@@ -55,16 +59,20 @@ const Hero = () => {
               Hi, I'm Sachin, a developer based in India with a passion for
               code.
             </p>
-            <Button text="See my work" className="md:w-80 md:h-16 w-60 h-12" />
+            <Button
+              text="See my work"
+              className="md:w-80 md:h-16 w-60 h-12"
+              id="counter"
+            />
           </div>
         </header>
         <figure>
-          <div className="hero-3d-layout border-gray-900  border-[1px]">
+          <div className="hero-3d-layout border-zinc-950 border-[1px] rounded-4xl mt-5 mr-2">
             <HeroExperience />
           </div>
         </figure>
       </div>
-      <AnimatedCounter/>
+      <AnimatedCounter />
     </section>
   );
 };
