@@ -5,13 +5,16 @@ import { useMemo } from "react";
 import { Room } from "./Room";
 import HeroLights from "./HeroLights";
 import { getTimeOfDay } from "../../lib/utils";
+import { useGSAP } from "@gsap/react";
+import { Partical } from "./Partical";
 
 const HeroExperience = () => {
   const isTablet = useMediaQuery({ query: "(max-width: 1024px)" });
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const tod = useMemo(() => getTimeOfDay(), []);
+  useGSAP(() => {});
   return (
-    <Canvas camera={{ position: [0, 0, 15], fov: 45 }} id="hero-model">
+    <Canvas camera={{ position: [0, 0, 15], fov: 45 }}>
       <ambientLight intensity={0.05 + 0.25 * tod.factor} color={tod.color} />
       <directionalLight
         position={[5, 10, 5]}
@@ -19,6 +22,7 @@ const HeroExperience = () => {
         color={tod.color}
       />
       <HeroLights />
+      <Partical count={50} />
       <OrbitControls
         enablePan={false}
         enableZoom={!isTablet}
