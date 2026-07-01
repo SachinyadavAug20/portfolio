@@ -18,8 +18,31 @@ interface counterItem {
   suffix: string;
 }
 export const counterItems: counterItem[] = [
-  { value: 300, text: "Problems Solved", suffix: "+", url: "" },
-  { value: 500, text: "Git Commits", suffix: "+", url: "https://github.com/SachinyadavAug20#contributions-calendar" },
-  { value: 4, text: "Production Systems", suffix: "+", url: "" },
+  { value: 150, text: "Problems Solved", suffix: "+", url: "https://leetcode.com/u/b2mIkNz0h5/" },
+  {
+    value: 500,
+    text: "Git Commits",
+    suffix: "+",
+    url: "https://github.com/SachinyadavAug20#contributions-calendar",
+  },
+  { value: 4, text: "Projects in Production", suffix: "+", url: "" },
   { value: 2, text: "Games Built", suffix: "+", url: "" },
+];
+export const navLinks = [
+  {
+    name: "Work",
+    link: "#work",
+  },
+  {
+    name: "Experience",
+    link: "#experience",
+  },
+  {
+    name: "Skills",
+    link: "#skills",
+  },
+  {
+    name: "Games",
+    link: "#games",
+  },
 ];
