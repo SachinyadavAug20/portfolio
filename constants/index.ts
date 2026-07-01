@@ -1,3 +1,18 @@
+import {
+  SiReact,
+  SiNextdotjs,
+  SiTailwindcss,
+  SiUnity,
+  SiMongodb,
+  SiNeovim,
+  SiZod,
+  SiNodedotjs,
+  SiGit,
+  SiCplusplus,
+  SiArchlinux,
+  SiSpringboot,
+} from "react-icons/si";
+
 interface word {
   text: string;
   imgPath: string;
@@ -18,7 +33,12 @@ interface counterItem {
   suffix: string;
 }
 export const counterItems: counterItem[] = [
-  { value: 150, text: "Problems Solved", suffix: "+", url: "https://leetcode.com/u/b2mIkNz0h5/" },
+  {
+    value: 150,
+    text: "Problems Solved",
+    suffix: "+",
+    url: "https://leetcode.com/u/b2mIkNz0h5/",
+  },
   {
     value: 500,
     text: "Git Commits",
@@ -44,5 +64,24 @@ export const navLinks = [
   {
     name: "Games",
     link: "#games",
+  },
+];
+
+export const logoIconsList = [
+  { Icon: SiReact, name: "React", link: "https://react.dev/" },
+  { Icon: SiNextdotjs, name: "Next.js", link: "https://nextjs.org/" },
+  { Icon: SiTailwindcss, name: "Tailwind", link: "https://tailwindcss.com/" },
+  { Icon: SiUnity, name: "Unity", link: "https://unity.com/" },
+  { Icon: SiMongodb, name: "MongoDB", link: "https://www.mongodb.com/" },
+  { Icon: SiNeovim, name: "Neovim", link: "https://neovim.io/" },
+  { Icon: SiZod, name: "Zod", link: "https://zod.dev/" },
+  { Icon: SiNodedotjs, name: "Node.js", link: "https://nodejs.org/" },
+  { Icon: SiGit, name: "Git", link: "https://git-scm.com/" },
+  { Icon: SiCplusplus, name: "C++", link: "https://isocpp.org/" },
+  { Icon: SiArchlinux, name: "Arch Linux", link: "https://archlinux.org/" },
+  {
+    Icon: SiSpringboot,
+    name: "Spring Boot",
+    link: "https://spring.io/projects/spring-boot",
   },
 ];
