@@ -16,7 +16,11 @@ const DEFAULT_KEYWORDS = [
   "middleware", "layout", "route", "server", "client",
 ];
 
-const COLORS = ["#4cc9f0", "#9d4edd", "#7209b7", "#ffffff", "#d90429"];
+const COLORS = [
+  "#00ff00", "#33ff33", "#66ff66",
+  "#00cc44", "#00aa33", "#008822",
+  "#39ff14", "#7fff00", "#00ff66",
+];
 
 interface ParticleDatum {
   keyword: string;
