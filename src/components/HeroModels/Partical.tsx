@@ -13,7 +13,7 @@ const DEFAULT_KEYWORDS = [
   "recursion", "memory",
   "BaseCase", "Dhun", "PriorityTask",
   "hook", "state", "effect", "props",
-  "middleware", "layout", "route", "server", "client",
+  "middleware", "layout", "route", "server", "client","Meow TUI","Meow Bank"
 ];
 
 const COLORS = [

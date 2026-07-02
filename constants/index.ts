@@ -85,3 +85,21 @@ export const logoIconsList = [
     link: "https://spring.io/projects/spring-boot",
   },
 ];
+
+export const abilities = [
+  {
+    imgPath: "/images/logic.svg",
+    title: "Algorithmic Problem Solving",
+    desc: "Thriving on rigorous logic. Consistently solving complex Data Structures and Algorithms (DSA) challenges to write highly optimized, efficient code."
+  },
+  {
+    imgPath: "/images/learn.svg",
+    title: "Rapid Skill Acquisition",
+    desc: "Highly adaptable and quick to master new technologies, languages, and system architectures to engineer the best possible solutions."
+  },
+  {
+    imgPath: "/images/compass.svg",
+    title: "Relentless Exploration",
+    desc: "Driven by curiosity to continuously explore new technical domains—from configuring custom Linux environments to experimenting with game engines and modern backends."
+  }
+];
