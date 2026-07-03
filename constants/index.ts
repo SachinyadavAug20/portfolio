@@ -86,23 +86,22 @@ export const logoIconsList = [
   },
 ];
 
-
 export const abilities = [
   {
     imgPath: "/images/logic.svg",
     title: "Algorithmic Problem Solving",
-    desc: "Thriving on rigorous logic. Consistently solving complex Data Structures and Algorithms (DSA) challenges to write highly optimized, efficient code."
+    desc: "Thriving on rigorous logic. Consistently solving complex Data Structures and Algorithms (DSA) challenges to write highly optimized, efficient code.",
   },
   {
     imgPath: "/images/learn.svg",
     title: "Rapid Skill Acquisition",
-    desc: "Highly adaptable and quick to master new technologies, languages, and system architectures to engineer the best possible solutions."
+    desc: "Highly adaptable and quick to master new technologies, languages, and system architectures to engineer the best possible solutions.",
   },
   {
     imgPath: "/images/compass.svg",
     title: "Relentless Exploration",
-    desc: "Driven by curiosity to continuously explore new technical domains—from configuring custom Linux environments to experimenting with game engines and modern backends."
-  }
+    desc: "Driven by curiosity to continuously explore new technical domains—from configuring custom Linux environments to experimenting with game engines and modern backends.",
+  },
 ];
 
 export interface expCardProps {
@@ -116,31 +115,34 @@ export interface expCardProps {
 
 export const expCards = [
   {
-    review: "Entering my 2nd year of Computer Science, transitioning into advanced backend systems, strict data architecture, and enterprise frameworks.",
-    imgPath: "/images/exp-college-2.svg", 
+    review:
+      "Entering my 2nd year of Computer Science, transitioning into advanced backend systems, strict data architecture, and enterprise frameworks.",
+    imgPath: "/images/exp-college-2.svg",
     logoPath: "/images/ltcoe-logo.svg",
     title: "B.Tech Computer Engineering — 2nd Year",
     date: "July 2026 - Present",
     responsibilities: [
       "Deepening core computer science fundamentals, data structures, and algorithmic optimization at Lokmanya Tilak College of Engineering.",
       "Architecting 'Meow Mega Corp Bank', a secure full-stack banking backend using Spring Boot to handle transactional states and robust validations.",
-      "Scaling backend systems with strict schema modeling and performance optimization across local and production databases."
+      "Scaling backend systems with strict schema modeling and performance optimization across local and production databases.",
     ],
   },
   {
-    review: "Completed major full-stack milestones, moving beyond simple layouts into complex database relationships and hackathon sprints.",
-    imgPath: "/images/exp-fullstack.svg", 
-    logoPath: "/images/logoIcons/2.svg", 
+    review:
+      "Completed major full-stack milestones, moving beyond simple layouts into complex database relationships and hackathon sprints.",
+    imgPath: "/images/exp-fullstack.svg",
+    logoPath: "/images/logoIcons/2.svg",
     title: "Full-Stack Development & Sprints",
     date: "Early 2026 - Mid 2026",
     responsibilities: [
       "Engineered 'BaseCase', a robust full-stack StackOverflow alternative featuring MDX rendering, complex MongoDB schemas, and an algorithmic recommendation system.",
       "Competed in the Genesis 1.0 Hackathon, developing 'Priority Task' under high-pressure conditions using NextAuth.js for clean authentication loops.",
-      "Refined low-level problem-solving approaches, using custom data structures to write efficient code on LeetCode and Codeforces."
+      "Refined low-level problem-solving approaches, using custom data structures to write efficient code on LeetCode and Codeforces.",
     ],
   },
   {
-    review: "Laid the programming foundations during my 1st year of college, mastering fundamental logic execution and interactive software mechanics.",
+    review:
+      "Laid the programming foundations during my 1st year of college, mastering fundamental logic execution and interactive software mechanics.",
     imgPath: "/images/exp-college-1.svg",
     logoPath: "/images/ltcoe-logo.svg",
     title: "B.Tech Computer Engineering — 1st Year",
@@ -148,23 +150,29 @@ export const expCards = [
     responsibilities: [
       "Mastered low-level systems programming foundations using C and C++ alongside core university mathematics.",
       "Developed a multi-platform 2D adventure game ('First-Game') in Unity/Godot, translating mathematical concepts into functional game physics loops.",
-      "Built 'Dhun', a custom folder-based local music player, and configured a high-performance, keyboard-driven Linux development workflow."
+      "Built 'Dhun', a custom folder-based local music player, and configured a high-performance, keyboard-driven Linux development workflow.",
     ],
   },
   {
-    review: "Began my self-taught development journey by reverse-engineering high-fidelity production interfaces.",
+    review:
+      "Began my self-taught development journey by reverse-engineering high-fidelity production interfaces.",
     imgPath: "/images/exp-frontend.svg",
-    logoPath: "/images/logoIcons/1.svg", 
+    logoPath: "/images/logoIcons/1.svg",
     title: "Frontend Explorations",
     date: "Mid 2025",
     responsibilities: [
       "Learned the absolute fundamentals of web architectures, mastering JavaScript, semantic layouts, and Tailwind CSS configuration.",
       "Built a pixel-perfect Netflix Clone, implementing high-fidelity styling patterns and working with external third-party streaming APIs.",
-      "Established a disciplined Git version control workflow, focusing on semantic commits and detailed documentation structures."
+      "Established a disciplined Git version control workflow, focusing on semantic commits and detailed documentation structures.",
     ],
-  }
+  },
 ];
-export const techStackImgs = [
+export interface techStackImgProps {
+  name: string;
+  imgPath: string;
+}
+
+export const techStackImgs: techStackImgProps[] = [
   {
     name: "React Developer",
     imgPath: "/images/logos/react.png",
@@ -194,7 +202,7 @@ export interface techStackIconsProps {
   rotation: [x: number, y: number, z: number];
 }
 
-export const techStackIcons = [
+export const techStackIcons: techStackIconsProps[] = [
   {
     name: "React Developer",
     modelPath: "/models/react_logo-transformed.glb",
@@ -224,5 +232,57 @@ export const techStackIcons = [
     modelPath: "/models/git-svg-transformed.glb",
     scale: 0.05,
     rotation: [0, -Math.PI / 4, 0],
+  },
+];
+
+export interface testimonialProps {
+  name: string;
+  mentions: string;
+  review: string;
+  imgPath: string;
+}
+// placeholder data
+export const testimonials:testimonialProps[] = [
+  {
+    name: "Esther Howard",
+    mentions: "@estherhoward",
+    review:
+      "I can’t say enough good things about Adrian. He was able to take our complex project requirements and turn them into a seamless, functional website. His problem-solving abilities are outstanding.",
+    imgPath: "/images/client1.png",
+  },
+  {
+    name: "Wade Warren",
+    mentions: "@wadewarren",
+    review:
+      "Working with Adrian was a fantastic experience. He transformed our outdated website into a modern, user-friendly platform. His attention to detail and commitment to quality are unmatched. Highly recommend him for any web dev projects.",
+    imgPath: "/images/client3.png",
+  },
+  {
+    name: "Guy Hawkins",
+    mentions: "@guyhawkins",
+    review:
+      "Collaborating with Adrian was an absolute pleasure. His professionalism, promptness, and dedication to delivering exceptional results were evident throughout our project. Adrian's enthusiasm for every facet of development truly stands out. If you're seeking to elevate your website and elevate your brand, Adrian is the ideal partner.",
+    imgPath: "/images/client2.png",
+  },
+  {
+    name: "Marvin McKinney",
+    mentions: "@marvinmckinney",
+    review:
+      "Adrian was a pleasure to work with. He turned our outdated website into a fresh, intuitive platform that’s both modern and easy to navigate. Fantastic work overall.",
+    imgPath: "/images/client5.png",
+  },
+  {
+    name: "Floyd Miles",
+    mentions: "@floydmiles",
+    review:
+      "Adrian’s expertise in web development is truly impressive. He delivered a robust and scalable solution for our e-commerce site, and our online sales have significantly increased since the launch. He’s a true professional!",
+    imgPath: "/images/client4.png",
+  },
+  {
+    name: "Albert Flores",
+    mentions: "@albertflores",
+    review:
+      "Adrian was a pleasure to work with. He understood our requirements perfectly and delivered a website that exceeded our expectations. His skills in both frontend and backend dev are top-notch.",
+    imgPath: "/images/client6.png",
   },
 ];

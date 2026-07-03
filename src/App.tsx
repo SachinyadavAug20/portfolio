@@ -9,13 +9,14 @@ import TechStack from "./sections/TechStack";
 const app = () => {
   return (
     <>
-    <Navbar/>
-    <Hero/>
-    <ShowCaseSection/>
-    <LogoSection/>
-    <FeatureCards/>
-    <ExperienceSection/>
-    <TechStack/>
+      <Navbar />
+      <Hero />
+      <ShowCaseSection />
+      <LogoSection />
+      <FeatureCards />
+      <ExperienceSection />
+      <TechStack />
+      {/*<Testimonials/>*/}
     </>
   );
 };

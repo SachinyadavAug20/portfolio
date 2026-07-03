@@ -1,5 +1,5 @@
 import type { JSX } from "react/jsx-dev-runtime";
-import type { expCardProps } from "../../constants";
+import type { expCardProps, testimonialProps } from "../../constants";
 import { useRef } from "react";
 
 const GlowCard = ({
@@ -7,7 +7,7 @@ const GlowCard = ({
   children,
   index,
 }: {
-  card: expCardProps;
+  card: expCardProps | testimonialProps;
   children: JSX.Element;
   index: number;
 }) => {
@@ -33,7 +33,7 @@ const GlowCard = ({
         cardRef.current[index] = el;
       }}
       onMouseMove={handleMouseMove(index)}
-      className="card card-border timeline-card rounded-xl p-10"
+      className="card card-border timeline-card rounded-xl p-10 mb-5 bread-inside-avoid-column"
     >
       <div className="glow" />
       <div className="flex items-center gap-1 mb-5">

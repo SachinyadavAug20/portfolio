@@ -7,15 +7,15 @@ import * as THREE from "three";
 
 const TechIcon = ({ model }: { model: techStackIconsProps }) => {
   const scene = useGLTF(model.modelPath);
-  useEffect(()=>{
-    if(model.name=='Interactive Developer'){
-      scene.scene.traverse((child)=>{
-        if(child.isMesh && child.name === 'Object_5'){
-          child.material=new THREE.MeshStandardMaterial({color:'white'})
+  useEffect(() => {
+    if (model.name == "Interactive Developer") {
+      scene.scene.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.name === "Object_5") {
+          child.material = new THREE.MeshStandardMaterial({ color: "white" });
         }
-      })
+      });
     }
-  })
+  });
   return (
     <Canvas>
       <ambientLight intensity={0.3} />

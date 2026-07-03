@@ -1,8 +1,10 @@
 # Portfolio
 
-#### 2 july 2026
+#### 3 july 2026
 - [x] TimeLine for Experience section using gsap
 - ![image](Documentation/ScreenShots/10.png)
+- [x] Tech stack 3d models
+- ![image](Documentation/ScreenShots/11.png)
 
 #### 2 july 2026
 - [x] UI for ablities and started experience section
