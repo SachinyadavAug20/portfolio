@@ -130,7 +130,7 @@ export const expCards = [
   {
     review: "Completed major full-stack milestones, moving beyond simple layouts into complex database relationships and hackathon sprints.",
     imgPath: "/images/exp-fullstack.svg", 
-    logoPath: "/images/logoIcons/2.png", 
+    logoPath: "/images/logoIcons/2.svg", 
     title: "Full-Stack Development & Sprints",
     date: "Early 2026 - Mid 2026",
     responsibilities: [
@@ -154,7 +154,7 @@ export const expCards = [
   {
     review: "Began my self-taught development journey by reverse-engineering high-fidelity production interfaces.",
     imgPath: "/images/exp-frontend.svg",
-    logoPath: "/images/logoIcons/1.png", 
+    logoPath: "/images/logoIcons/1.svg", 
     title: "Frontend Explorations",
     date: "Mid 2025",
     responsibilities: [
@@ -163,4 +163,66 @@ export const expCards = [
       "Established a disciplined Git version control workflow, focusing on semantic commits and detailed documentation structures."
     ],
   }
+];
+export const techStackImgs = [
+  {
+    name: "React Developer",
+    imgPath: "/images/logos/react.png",
+  },
+  {
+    name: "Python Developer",
+    imgPath: "/images/logos/python.svg",
+  },
+  {
+    name: "Backend Developer",
+    imgPath: "/images/logos/node.png",
+  },
+  {
+    name: "Interactive Developer",
+    imgPath: "/images/logos/three.png",
+  },
+  {
+    name: "Project Manager",
+    imgPath: "/images/logos/git.svg",
+  },
+];
+
+export interface techStackIconsProps {
+  name: string;
+  modelPath: string;
+  scale: number;
+  rotation: [x: number, y: number, z: number];
+}
+
+export const techStackIcons = [
+  {
+    name: "React Developer",
+    modelPath: "/models/react_logo-transformed.glb",
+    scale: 1,
+    rotation: [0, 0, 0],
+  },
+  {
+    name: "Python Developer",
+    modelPath: "/models/python-transformed.glb",
+    scale: 0.8,
+    rotation: [0, 0, 0],
+  },
+  {
+    name: "Backend Developer",
+    modelPath: "/models/node-transformed.glb",
+    scale: 5,
+    rotation: [0, -Math.PI / 2, 0],
+  },
+  {
+    name: "Interactive Developer",
+    modelPath: "/models/three.js-transformed.glb",
+    scale: 0.05,
+    rotation: [0, 0, 0],
+  },
+  {
+    name: "Project Manager",
+    modelPath: "/models/git-svg-transformed.glb",
+    scale: 0.05,
+    rotation: [0, -Math.PI / 4, 0],
+  },
 ];
