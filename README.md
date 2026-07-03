@@ -1,6 +1,10 @@
 # Portfolio
 
-#### 1 july 2026
+#### 2 july 2026
+- [x] TimeLine for Experience section using gsap
+- ![image](Documentation/ScreenShots/10.png)
+
+#### 2 july 2026
 - [x] UI for ablities and started experience section
 - ![image](Documentation/ScreenShots/9.png)
 
