@@ -1,5 +1,6 @@
 import LogoSection from "./components/LogoSection";
 import Navbar from "./components/Navbar";
+import Contact from "./sections/Contact";
 import ExperienceSection from "./sections/ExperienceSection";
 import FeatureCards from "./sections/FeatureCards";
 import Hero from "./sections/Hero";
@@ -17,6 +18,7 @@ const app = () => {
       <ExperienceSection />
       <TechStack />
       {/*<Testimonials/>*/}
+      <Contact/>
     </>
   );
 };
