@@ -14,6 +14,7 @@ const ContactLights = () => {
         angle={0.15}
         penumbra={0.2}
         color={tod.color}
+        castShadow
       />
       <spotLight
         position={[4, 5, 6]}
@@ -21,6 +22,7 @@ const ContactLights = () => {
         intensity={accent(1.5)}
         penumbra={0.5}
         color="#4cc9f0"
+        castShadow
       />
       <spotLight
         position={[-3, 5, 5]}
@@ -28,6 +30,7 @@ const ContactLights = () => {
         intensity={accent(2)}
         penumbra={1}
         color="#9d4edd"
+        castShadow
       />
       <rectAreaLight
         color={tod.color}

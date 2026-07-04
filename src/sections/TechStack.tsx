@@ -38,7 +38,7 @@ const TechStack = ({ isImage = false }: { isImage?: boolean }) => {
               <div className="tech-card-animated-bg" />{" "}
               {/*water filling animation*/}
               <div className="tech-card-content">
-                <div className="tech-icon-wrapper">
+                <div className="tech-icon-wrapper cursor-grab">
                   <TechIcon model={icon} />
                 </div>
                 <div className="padding-x w-full">
