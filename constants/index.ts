@@ -65,6 +65,10 @@ export const navLinks = [
     name: "Games",
     link: "#games",
   },
+  {
+    name: "Blog",
+    link: "/blog",
+  },
 ];
 
 export const logoIconsList = [

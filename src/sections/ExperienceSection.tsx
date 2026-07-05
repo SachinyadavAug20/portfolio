@@ -1,4 +1,4 @@
-import { expCards, type expCardProps } from "../../constants";
+import { expCards } from "../../constants";
 import GlowCard from "../components/GlowCard";
 import TitleHeader from "../components/TitleHeader";
 import gsap from "gsap";

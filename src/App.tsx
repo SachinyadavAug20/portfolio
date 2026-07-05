@@ -1,30 +1,19 @@
-import LogoSection from "./components/LogoSection";
-import Navbar from "./components/Navbar";
-import Contact from "./sections/Contact";
-import ExperienceSection from "./sections/ExperienceSection";
-import FeatureCards from "./sections/FeatureCards";
-import Hero from "./sections/Hero";
-import ShowCaseSection from "./sections/ShowCaseSection";
-import TechStack from "./sections/TechStack";
-import { Toaster } from "./components/ui/sonner";
-import Footer from "./sections/Footer";
+import { Routes, Route } from "react-router-dom";
+import RootLayout from "./layouts/RootLayout";
+import HomePage from "./pages/HomePage";
+import BlogList from "./pages/BlogList";
+import BlogPost from "./pages/BlogPost";
 
-const app = () => {
+const App = () => {
   return (
-    <>
-      <Navbar />
-      <Hero />
-      <ShowCaseSection />
-      <LogoSection />
-      <FeatureCards />
-      <ExperienceSection />
-      <TechStack />
-      {/*<Testimonials/>*/}
-      <Contact/>
-      <Toaster />
-      <Footer/>
-    </>
+    <Routes>
+      <Route element={<RootLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="blog" element={<BlogList />} />
+        <Route path="blog/:slug" element={<BlogPost />} />
+      </Route>
+    </Routes>
   );
 };
 
-export default app;
+export default App;

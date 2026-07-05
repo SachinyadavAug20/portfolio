@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 import { useGLTF } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
-import { useRef } from "react";
+import { useRef, type JSX } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
