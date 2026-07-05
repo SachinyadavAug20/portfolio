@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
-        <div className="flex flex-col justify-center items-center">
+        <div className="flex flex-col justify-center items-center md:items-center">
           <a href="/">Visit my blog</a>
         </div>
         <div className="socials">

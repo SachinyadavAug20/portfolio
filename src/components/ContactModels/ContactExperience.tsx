@@ -3,7 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { Computer } from "./Computer";
 import ContactLights from "./ContactLights";
 
-const ContactExperience = () => {
+const ContactExperience = ({ submitted }: { submitted: boolean }) => {
   return (
     <Canvas camera={{ position: [0, 1.5, 10], fov: 45 }} shadows>
       <ambientLight intensity={0.5} color="#fff4e6" />
@@ -24,7 +24,7 @@ const ContactExperience = () => {
         maxDistance={20}
       />
       <group scale={0.05} position={[0, -3, -4]} castShadow>
-        <Computer />
+        <Computer submitted={submitted} />
       </group>
       <group scale={[1, 1, 1]}>
         <mesh

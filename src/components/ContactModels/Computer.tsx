@@ -7,7 +7,9 @@ import * as THREE from "three";
 
 import { useGLTF } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
-import type { JSX } from "react";
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -20,10 +22,16 @@ type GLTFResult = GLTF & {
   };
 };
 
-export function Computer(props: JSX.IntrinsicElements["group"]) {
+export function Computer({
+  submitted,
+  ...props
+}: { submitted: boolean } & JSX.IntrinsicElements["group"]) {
   const { nodes, materials } = useGLTF(
     "/models/computer-optimized.glb",
   ) as unknown as GLTFResult;
+
+  const groupRef = useRef<THREE.Group>(null!);
+  const innerRef = useRef<THREE.Group>(null!);
 
   const deskMaterial = materials["ComputerDesk.001"].clone();
   deskMaterial.roughness = 0.35;
@@ -35,9 +43,50 @@ export function Computer(props: JSX.IntrinsicElements["group"]) {
   floppyMaterial.metalness = 0.6;
   floppyMaterial.envMapIntensity = 1.5;
 
+  const ogColor = new THREE.Color(floppyMaterial.color);
+
+  useGSAP(() => {
+    if (!submitted) return;
+
+    const tl = gsap.timeline();
+
+    tl.to(groupRef.current.rotation, {
+      y: groupRef.current.rotation.y + Math.PI * 2,
+      duration: 0.8,
+      ease: "power2.out",
+    })
+      .to(
+        groupRef.current.scale,
+        { x: 1.08, y: 1.08, z: 1.08, duration: 0.25, ease: "back.out(2)" },
+      )
+      .to(
+        groupRef.current.scale,
+        { x: 1, y: 1, z: 1, duration: 0.3, ease: "power2.in" },
+      )
+      .to(
+        floppyMaterial.color,
+        { r: 1, g: 0.84, b: 0, duration: 0.35, ease: "power2.out" },
+        "-=0.15",
+      )
+      .to(
+        floppyMaterial.color,
+        {
+          r: ogColor.r,
+          g: ogColor.g,
+          b: ogColor.b,
+          duration: 0.5,
+          ease: "power2.inOut",
+        },
+      );
+
+    return () => {
+      tl.kill();
+    };
+  }, { dependencies: [submitted] });
+
   return (
-    <group {...props} dispose={null}>
-      <group position={[-4.005, 67.549, 58.539]} castShadow receiveShadow>
+    <group ref={groupRef} {...props} dispose={null}>
+      <group ref={innerRef} position={[-4.005, 67.549, 58.539]} castShadow receiveShadow>
         <mesh
           geometry={nodes.Cube000_ComputerDesk_0001_1.geometry}
           castShadow

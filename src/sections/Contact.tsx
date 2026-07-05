@@ -12,6 +12,7 @@ const Contact = () => {
     message: "",
   });
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -47,6 +48,8 @@ const Contact = () => {
         import.meta.env.VITE_APP_EMAILJS_PUBLIC_KEY,
       );
       setFormData({ name: "", email: "", message: "" });
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 4000);
       toast.success("Message sent successfully!", {
         description: "I will reply you as soon as possible.",
       });
@@ -119,7 +122,7 @@ const Contact = () => {
           </div>
           <div className="xl:col-span-7 min-h-96">
             <div className="w-full h-full bg-[#cd7c2e] hover:cursor-grab rounded-3xl and overflow-hidden">
-              <ContactExperience />
+              <ContactExperience submitted={submitted} />
             </div>
           </div>
         </div>
