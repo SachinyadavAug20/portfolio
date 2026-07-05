@@ -7,6 +7,7 @@ import Hero from "./sections/Hero";
 import ShowCaseSection from "./sections/ShowCaseSection";
 import TechStack from "./sections/TechStack";
 import { Toaster } from "./components/ui/sonner";
+import Footer from "./sections/Footer";
 
 const app = () => {
   return (
@@ -21,6 +22,7 @@ const app = () => {
       {/*<Testimonials/>*/}
       <Contact/>
       <Toaster />
+      <Footer/>
     </>
   );
 };

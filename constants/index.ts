@@ -286,3 +286,31 @@ export const testimonials:testimonialProps[] = [
     imgPath: "/images/client6.png",
   },
 ];
+
+interface socialImgProps{
+  name:string,
+  link:string,
+  imgPath:string
+}
+export const socialImg:socialImgProps[]=[
+  {
+    name:"linkedin",
+    link:"https://www.linkedin.com/in/sachin-yadav-05a105374/",
+    imgPath:"/images/linkedin.png"
+  },
+  {
+    name:"github",
+    link:"https://github.com/SachinyadavAug20",
+    imgPath:"/images/github.png"
+  },
+  {
+    name:"leetcode",
+    link:"https://leetcode.com/u/b2mIkNz0h5/",
+    imgPath:"/images/leetcode.png"
+  },
+  {
+    name:"x",
+    link:"https://x.com/samtagon38824",
+    imgPath:"/images/x.png"
+  },
+]
