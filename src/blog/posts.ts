@@ -2,7 +2,7 @@ import type { BlogPost } from "./types";
 import fm from "front-matter";
 
 type PostMap = Record<string, string>;
-const postFiles = import.meta.glob("/src/content/blog/*.md", {
+const postFiles = import.meta.glob("/src/content/blog/**/*.md", {
   query: "?raw",
   import: "default",
   eager: true,
@@ -10,7 +10,10 @@ const postFiles = import.meta.glob("/src/content/blog/*.md", {
 
 export const posts: BlogPost[] = Object.entries(postFiles)
   .map(([path, raw]) => {
-    const slug = path.split("/").pop()!.replace(".md", "");
+    const segments = path.split("/");
+    const filename = segments.pop()!;
+    const slug = filename.replace(".md", "");
+    const dir = segments.slice(3).join("/");
     const { attributes, body } = fm<{
       title: string;
       date: string;
@@ -22,6 +25,7 @@ export const posts: BlogPost[] = Object.entries(postFiles)
       date: attributes.date ?? "",
       tags: attributes.tags ?? [],
       content: body,
+      dir,
     };
   })
   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

@@ -139,7 +139,7 @@ export const expCards = [
     title: "Full-Stack Development & Sprints",
     date: "Early 2026 - Mid 2026",
     responsibilities: [
-      "Engineered 'BaseCase', a robust full-stack StackOverflow alternative featuring MDX rendering, complex MongoDB schemas, and an algorithmic recommendation system.",
+      "Engineered 'BaseCase', a robust full-stack StackOverflow alternative featuring MDX rendering, complex MongoDB schemas, and an basic recommendation system.",
       "Competed in the Genesis 1.0 Hackathon, developing 'Priority Task' under high-pressure conditions using NextAuth.js for clean authentication loops.",
       "Refined low-level problem-solving approaches, using custom data structures to write efficient code on LeetCode and Codeforces.",
     ],
@@ -154,20 +154,20 @@ export const expCards = [
     responsibilities: [
       "Mastered low-level systems programming foundations using C and C++ alongside core university mathematics.",
       "Developed a multi-platform 2D adventure game ('First-Game') in Unity/Godot, translating mathematical concepts into functional game physics loops.",
-      "Built 'Dhun', a custom folder-based local music player, and configured a high-performance, keyboard-driven Linux development workflow.",
+      "Built 'Dhun', a custom folder-based local music player(local), and configured a high-performance, keyboard-driven Linux development workflow.",
     ],
   },
   {
     review:
-      "Began my self-taught development journey by reverse-engineering high-fidelity production interfaces.",
+      "Began my self-taught development journey by production interfaces.",
     imgPath: "/images/exp-frontend.svg",
     logoPath: "/images/logoIcons/1.svg",
     title: "Frontend Explorations",
     date: "Mid 2025",
     responsibilities: [
       "Learned the absolute fundamentals of web architectures, mastering JavaScript, semantic layouts, and Tailwind CSS configuration.",
-      "Built a pixel-perfect Netflix Clone, implementing high-fidelity styling patterns and working with external third-party streaming APIs.",
-      "Established a disciplined Git version control workflow, focusing on semantic commits and detailed documentation structures.",
+      "Built a pixel-perfect Netflix Clone",
+      "Established a disciplined Git version control workflow, focusing on semantic commits and detailed documentation structures with images and timeline.",
     ],
   },
 ];
