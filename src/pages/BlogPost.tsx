@@ -8,6 +8,8 @@ import remarkCallouts from "remark-callouts";
 import mermaid from "mermaid";
 import { getPostBySlug, getPostsInDir } from "../blog/posts";
 import remarkObsidianImages from "../blog/remark-obsidian-images";
+import rehypePrism from "rehype-prism-plus";
+import "prismjs/themes/prism-tomorrow.css";
 
 mermaid.initialize({ startOnLoad: false, theme: "dark" });
 
@@ -62,7 +64,7 @@ const BlogPost = () => {
         >
           &larr; Back
         </Link>
-        <article className="prose prose-invert max-w-none [&_img]:rounded-lg [&_img]:my-4 [&_pre]:bg-black-200 [&_pre]:p-4 [&_pre]:rounded-lg [&_code]:text-sm [&_blockquote]:border-l-4 [&_blockquote]:border-blue-50 [&_blockquote]:pl-4 [&_blockquote]:text-blue-50 [&_blockquote]:italic [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-5 [&_h3]:mb-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-1 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-black-50 [&_th]:p-2 [&_th]:bg-black-200 [&_td]:border [&_td]:border-black-50 [&_td]:p-2">
+        <article className="prose prose-invert max-w-none [&_img]:rounded-lg [&_img]:my-4 [&_pre]:bg-black-200 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:whitespace-pre-wrap [&_pre]:break-all [&_code]:text-sm [&_blockquote]:border-l-4 [&_blockquote]:border-blue-50 [&_blockquote]:pl-4 [&_blockquote]:text-blue-50 [&_blockquote]:italic [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-5 [&_h3]:mb-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-1 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-black-50 [&_th]:p-2 [&_th]:bg-black-200 [&_td]:border [&_td]:border-black-50 [&_td]:p-2">
           <ReactMarkdown
             remarkPlugins={[
               remarkGfm,
@@ -70,6 +72,7 @@ const BlogPost = () => {
               remarkCallouts,
               remarkObsidianImages,
             ]}
+            rehypePlugins={[rehypePrism]}
             components={{
               code({ className, children, ...props }) {
                 const isMermaid = className === "language-mermaid";

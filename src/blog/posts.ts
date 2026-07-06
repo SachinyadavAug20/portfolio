@@ -1,5 +1,6 @@
 import type { BlogPost } from "./types";
 import fm from "front-matter";
+import { naturalCompare } from "./tree";
 
 type PostMap = Record<string, string>;
 const postFiles = import.meta.glob("/src/content/blog/**/*.md", {
@@ -37,5 +38,5 @@ export function getPostBySlug(slug: string): BlogPost | undefined {
 export function getPostsInDir(dir: string): BlogPost[] {
   return posts
     .filter((p) => p.dir === dir)
-    .sort((a, b) => a.slug.localeCompare(b.slug));
+    .sort((a, b) => naturalCompare(a.slug, b.slug));
 }

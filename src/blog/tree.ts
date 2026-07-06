@@ -1,5 +1,15 @@
 import type { BlogPost } from "./types";
 
+export function naturalCompare(a: string, b: string): number {
+  const numA = a.match(/^\d+/)?.[0];
+  const numB = b.match(/^\d+/)?.[0];
+  if (numA !== undefined && numB !== undefined) {
+    const diff = parseInt(numA) - parseInt(numB);
+    if (diff !== 0) return diff;
+  }
+  return a.localeCompare(b);
+}
+
 export interface TreeNode {
   name: string;
   type: "folder" | "file";
@@ -46,7 +56,7 @@ function sortTree(node: TreeNode) {
   if (!node.children) return;
   node.children.sort((a, b) => {
     if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
-    return a.name.localeCompare(b.name);
+    return naturalCompare(a.name, b.name);
   });
   for (const child of node.children) {
     sortTree(child);
