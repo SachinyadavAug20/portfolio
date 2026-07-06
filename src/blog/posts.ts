@@ -33,3 +33,9 @@ export const posts: BlogPost[] = Object.entries(postFiles)
 export function getPostBySlug(slug: string): BlogPost | undefined {
   return posts.find((p) => p.slug === slug);
 }
+
+export function getPostsInDir(dir: string): BlogPost[] {
+  return posts
+    .filter((p) => p.dir === dir)
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+}

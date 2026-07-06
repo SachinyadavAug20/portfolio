@@ -68,7 +68,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
             ) : (
               <Link
                 key={node.slug}
-                to={`/blog/${node.slug}`}
+                to={`/blog/${node.slug}${currentPath ? `?from=${currentPath}` : ""}`}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg
                   hover:bg-black-200 transition-colors group"
               >
