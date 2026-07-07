@@ -15,7 +15,6 @@ export interface TreeNode {
   type: "folder" | "file";
   slug?: string;
   title?: string;
-  date?: string;
   children?: TreeNode[];
 }
 
@@ -40,11 +39,10 @@ export function buildTree(posts: BlogPost[]): TreeNode {
 
     current.children = current.children || [];
     current.children.push({
-      name: post.slug,
+      name: post.title,
       type: "file",
-      slug: post.slug,
+      slug: post.fullSlug,
       title: post.title,
-      date: post.date,
     });
   }
 

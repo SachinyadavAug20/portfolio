@@ -1,42 +1,44 @@
 import type { BlogPost } from "./types";
-import fm from "front-matter";
+import { listFiles, fetchContent } from "./github";
 import { naturalCompare } from "./tree";
 
-type PostMap = Record<string, string>;
-const postFiles = import.meta.glob("/src/content/blog/**/*.md", {
-  query: "?raw",
-  import: "default",
-  eager: true,
-}) as PostMap;
+let cachedFiles: BlogPost[] | null = null;
 
-export const posts: BlogPost[] = Object.entries(postFiles)
-  .map(([path, raw]) => {
-    const segments = path.split("/");
-    const filename = segments.pop()!;
-    const slug = filename.replace(".md", "");
-    const dir = segments.slice(3).join("/");
-    const { attributes, body } = fm<{
-      title: string;
-      date: string;
-      tags: string[];
-    }>(raw);
-    return {
-      slug,
-      title: attributes.title ?? slug,
-      date: attributes.date ?? "",
-      tags: attributes.tags ?? [],
-      content: body,
-      dir,
-    };
-  })
-  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-export function getPostBySlug(slug: string): BlogPost | undefined {
-  return posts.find((p) => p.slug === slug);
+function extractTitle(content: string, fallback: string): string {
+  const match = content.match(/^#{1,6}\s+(.+)$/m);
+  return match ? match[1].trim() : fallback;
 }
 
-export function getPostsInDir(dir: string): BlogPost[] {
+export async function getPosts(): Promise<BlogPost[]> {
+  if (cachedFiles) return cachedFiles;
+
+  const files = await listFiles();
+  cachedFiles = files.map((f) => ({
+    fullSlug: f.fullSlug,
+    title: f.name,
+    dir: f.dir,
+    content: null,
+  }));
+
+  return cachedFiles;
+}
+
+export async function getPostByFullSlug(fullSlug: string): Promise<BlogPost | undefined> {
+  const posts = await getPosts();
+  const post = posts.find((p) => p.fullSlug === fullSlug);
+  if (!post) return undefined;
+
+  if (post.content === null) {
+    post.content = await fetchContent(fullSlug);
+    post.title = extractTitle(post.content, post.title);
+  }
+
+  return post;
+}
+
+export async function getPostsInDir(dir: string): Promise<BlogPost[]> {
+  const posts = await getPosts();
   return posts
     .filter((p) => p.dir === dir)
-    .sort((a, b) => naturalCompare(a.slug, b.slug));
+    .sort((a, b) => naturalCompare(a.title, b.title));
 }

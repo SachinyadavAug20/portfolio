@@ -68,7 +68,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
             ) : (
               <Link
                 key={node.slug}
-                to={`/blog/${node.slug}${currentPath ? `?from=${currentPath}` : ""}`}
+                to={`/blog/post/${node.slug}${currentPath ? `?from=${currentPath}` : ""}`}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg
                   hover:bg-black-200 transition-colors group"
               >
@@ -77,9 +77,6 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
                   <span className="text-white-50 group-hover:text-white transition-colors block truncate">
                     {node.title ?? node.name}
                   </span>
-                  {node.date && (
-                    <span className="text-xs text-blue-50">{node.date}</span>
-                  )}
                 </div>
               </Link>
             ),
