@@ -36,13 +36,13 @@ export const counterItems: counterItem[] = [
   {
     value: 150,
     text: "Problems Solved",
-    suffix: "+",
+    suffix: "",
     url: "https://leetcode.com/u/b2mIkNz0h5/",
   },
   {
     value: 500,
     text: "Git Commits",
-    suffix: "+",
+    suffix: "",
     url: "https://github.com/SachinyadavAug20#contributions-calendar",
   },
   { value: 4, text: "Projects in Production", suffix: "+", url: "" },

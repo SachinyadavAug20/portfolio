@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { counterItems } from "../../constants";
+import { fetchLiveStats } from "../lib/stats";
 
 const CounterItem = ({
   value,
@@ -40,10 +41,30 @@ const CounterItem = ({
 };
 
 const AnimatedCounter = () => {
+  const [items, setItems] = useState(() =>
+    counterItems.map((item) =>
+      item.text === "Problems Solved" || item.text === "Git Commits"
+        ? { ...item, value: 0 }
+        : item,
+    ),
+  );
+
+  useEffect(() => {
+    fetchLiveStats().then((stats) => {
+      setItems((prev) =>
+        prev.map((item) => {
+          if (item.text === "Problems Solved") return { ...item, value: stats.leetcodeSolved };
+          if (item.text === "Git Commits") return { ...item, value: stats.gitCommits };
+          return item;
+        }),
+      );
+    });
+  }, []);
+
   return (
     <div id="counter" className="padding-x-lg xl:mt-0 mt-10">
       <div className="mx-auto grid-4-cols">
-        {counterItems.map((item) => (
+        {items.map((item) => (
           <CounterItem key={item.text} {...item} />
         ))}
       </div>
