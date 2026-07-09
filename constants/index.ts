@@ -72,21 +72,77 @@ export const navLinks = [
 ];
 
 export const logoIconsList = [
-  { Icon: SiReact, name: "React", link: "https://react.dev/" },
-  { Icon: SiNextdotjs, name: "Next.js", link: "https://nextjs.org/" },
-  { Icon: SiTailwindcss, name: "Tailwind", link: "https://tailwindcss.com/" },
-  { Icon: SiUnity, name: "Unity", link: "https://unity.com/" },
-  { Icon: SiMongodb, name: "MongoDB", link: "https://www.mongodb.com/" },
-  { Icon: SiNeovim, name: "Neovim", link: "https://neovim.io/" },
-  { Icon: SiZod, name: "Zod", link: "https://zod.dev/" },
-  { Icon: SiNodedotjs, name: "Node.js", link: "https://nodejs.org/" },
-  { Icon: SiGit, name: "Git", link: "https://git-scm.com/" },
-  { Icon: SiCplusplus, name: "C++", link: "https://isocpp.org/" },
-  { Icon: SiArchlinux, name: "Arch Linux", link: "https://archlinux.org/" },
+  { 
+    Icon: SiReact, 
+    name: "React", 
+    link: "https://github.com/SachinyadavAug20/Dhun", // Highlights custom UI and media state controls
+    proof: "Used in Dhun & frontend web applications" 
+  },
+  { 
+    Icon: SiNextdotjs, 
+    name: "Next.js", 
+    link: "https://github.com/SachinyadavAug20/BaseCase", // Flagship full-stack Q&A platform
+    proof: "Core framework for BaseCase & Hackathon sprints" 
+  },
+  { 
+    Icon: SiTailwindcss, 
+    name: "Tailwind", 
+    link: "https://github.com/SachinyadavAug20/BaseCase", // Responsive dark/light mode styling
+    proof: "Applied for scalable, responsive UI styling" 
+  },
+  { 
+    Icon: SiUnity, 
+    name: "Unity", 
+    link: "https://github.com/SachinyadavAug20/AlienBlaster", // Directs to your game dev explorations
+    proof: "Game mechanics & 2D physics controllers" 
+  },
+  { 
+    Icon: SiMongodb, 
+    name: "MongoDB", 
+    link: "https://github.com/SachinyadavAug20/Onedev-PriorityTask", // Genesis Hackathon persistent database
+    proof: "Relational schema modeling & persistent storage" 
+  },
+  { 
+    Icon: SiNeovim, 
+    name: "Neovim", 
+    link: "https://github.com/SachinyadavAug20/Arch-config", // Reflects your terminal-native commit history
+    proof: "Primary keyboard-driven development editor" 
+  },
+  { 
+    Icon: SiZod, 
+    name: "Zod", 
+    link: "https://github.com/SachinyadavAug20/BaseCase", // Strict data validation and auth schemas
+    proof: "Strict schema and authentication validation" 
+  },
+  { 
+    Icon: SiNodedotjs, 
+    name: "Node.js", 
+    link: "https://github.com/SachinyadavAug20/Onedev-PriorityTask", // Backend routing and authentication APIs
+    proof: "Backend API routing & server execution" 
+  },
+  { 
+    Icon: SiGit, 
+    name: "Git", 
+    link: "https://github.com/SachinyadavAug20/My-Obsidian-notes/tree/main/Notes", // Showcases your active commit history and clean workflows
+    proof: "Disciplined version control & documentation" 
+  },
+  { 
+    Icon: SiCplusplus, 
+    name: "C++", 
+    link: "https://github.com/SachinyadavAug20/My-Coding-Notes", // Points to your algorithmic problem solving
+    proof: "Data Structures, Algorithms & LeetCode logic" 
+  },
+  { 
+    Icon: SiArchlinux, 
+    name: "Arch Linux", 
+    link: "https://github.com/SachinyadavAug20/Arch-config", // Backed by your custom Linux terminal workflows
+    proof: "Custom Linux development environment" 
+  },
   {
     Icon: SiSpringboot,
     name: "Spring Boot",
-    link: "https://spring.io/projects/spring-boot",
+    link: "https://github.com/SachinyadavAug20/My-Obsidian-notes/tree/main/Notes", // Directs to Meow Mega Corp Bank backend architecture
+    proof: "Enterprise backend architecture & banking transactions" 
   },
 ];
 

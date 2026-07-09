@@ -67,7 +67,7 @@ const Hero = () => {
           </div>
         </header>
         <figure>
-          <div className="cursor-grab hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 mr-2">
+          <div className=" hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 mr-2 hidden md:block">
             <HeroExperience />
           </div>
         </figure>
