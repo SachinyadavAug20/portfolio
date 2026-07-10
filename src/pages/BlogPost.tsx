@@ -8,6 +8,7 @@ import remarkCallouts from "remark-callouts";
 import { getPostByFullSlug, getPostsInDir } from "../blog/posts";
 import type { BlogPost as BlogPostType } from "../blog/types";
 import remarkObsidianImages from "../blog/remark-obsidian-images";
+import { rehypeMermaid } from "../blog/rehype-mermaid";
 import rehypeRaw from "rehype-raw";
 import rehypePrism from "rehype-prism-plus";
 import "prismjs/themes/prism-tomorrow.css";
@@ -174,19 +175,21 @@ const BlogPost = () => {
                 remarkCallouts,
                 remarkPlugin,
               ]}
-              rehypePlugins={[rehypeRaw, rehypePrism]}
+              rehypePlugins={[rehypeMermaid, rehypeRaw, rehypePrism]}
               components={{
                 img: (props) => <ImageWithFallback {...props} />,
                 code({ className, children, ...props }) {
-                  const isMermaid = className === "language-mermaid";
-                  if (isMermaid) {
-                    return <MermaidChart chart={String(children)} />;
-                  }
                   return (
                     <code className={className} {...props}>
                       {children}
                     </code>
                   );
+                },
+                ...{
+                  "mermaid-diagram": ({ children }: any) => {
+                    const chart = typeof children === "string" ? children : String(children);
+                    return <MermaidChart chart={chart} />;
+                  },
                 },
               }}
             >
