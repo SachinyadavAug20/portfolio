@@ -1,13 +1,235 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/images/fav.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sachin Yadav &mdash;&mdash; Portfolio</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/images/fav.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sachin Yadav &mdash;&mdash; Portfolio</title>
+  <style>
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #0e0e10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: "SF Mono", "Fira Code", "Courier New", monospace;
+      transition: opacity 0.6s ease;
+    }
+
+    #splash.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #splash-ascii {
+      color: #62e0ff;
+      font-size: clamp(8px, 1.2vw, 14px);
+      line-height: 1.2;
+      white-space: pre;
+      text-align: center;
+      text-shadow: 0 0 8px rgba(98, 224, 255, 0.15);
+      margin-bottom: 24px;
+    }
+
+      #splash-filelist {
+        color: #56566a;
+        font-size: clamp(11px, 1.35vw, 14px);
+        line-height: 1.7;
+        margin-bottom: 20px;
+        white-space: pre;
+      }
+      #splash-filelist .section {
+        color: #404050;
+        margin-top: 4px;
+      }
+      #splash-filelist .idx {
+        color: #62e0ff;
+        opacity: 0.5;
+      }
+      #splash-filelist .active .idx {
+        opacity: 1;
+      }
+      #splash-filelist .active {
+        color: #c0c0d0;
+      }
+      #splash-filelist .active .idx {
+        color: #62e0ff;
+      }
+
+    #splash-filelist .cursor {
+      color: #62e0ff;
+    }
+
+    #splash-filelist .active {
+      color: #c0c0d0;
+    }
+
+      #splash-progress-wrap {
+      width: clamp(200px, 40vw, 400px);
+      height: 2px;
+      background: #1e1e22;
+      border-radius: 1px;
+      overflow: hidden;
+    }
+
+    #splash-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #62e0ff;
+      box-shadow: 0 0 8px rgba(98, 224, 255, 0.3);
+      border-radius: 1px;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="splash">
+    <div id="splash-ascii"></div>
+    <div id="splash-filelist"></div>
+    <div id="splash-progress-wrap">
+      <div id="splash-progress-bar"></div>
+    </div>
+  </div>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    (function () {
+      var splash = document.getElementById("splash");
+      var asciiEl = document.getElementById("splash-ascii");
+      var filelistEl = document.getElementById("splash-filelist");
+      var bar = document.getElementById("splash-progress-bar");
+
+      const ascii = [
+        "  ██████  █████   ██████ ██   ██ ██ ███    ██ ",
+        " ██      ██   ██ ██      ██   ██ ██ ████   ██ ",
+        " ███████ ███████ ██      ███████ ██ ██ ██  ██ ",
+        "      ██ ██   ██ ██      ██   ██ ██ ██  ██ ██ ",
+        " ██████  ██   ██  ██████ ██   ██ ██ ██   ████ ",
+      ].join("\n");
+
+      var entries = [
+        { type: "action", label: "New file", key: "e" },
+        { type: "sep" },
+        { type: "mru", path: "~/Projects/portfolio" },
+        { type: "sep" },
+        { type: "file", path: "src/sections/Hero.tsx" },
+        { type: "file", path: "src/components/Room.tsx" },
+        { type: "file", path: "src/components/Partical.tsx" },
+        { type: "file", path: "src/lib/stats.ts" },
+        { type: "file", path: "src/App.tsx" },
+        { type: "sep" },
+        { type: "file", path: "src/index.css" },
+        { type: "file", path: "index.html" },
+        { type: "file", path: "package.json" },
+        { type: "file", path: "wrangler.jsonc" },
+        { type: "sep" },
+        { type: "action", label: "quit", key: "q" },
+      ];
+
+      var fileIdx = [];
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].type === "file") fileIdx.push(i);
+      }
+
+      var cursorPos = 0;
+
+      function renderFileList() {
+        var html = "";
+        var fileCounter = 0;
+        for (var i = 0; i < entries.length; i++) {
+          var e = entries[i];
+          if (e.type === "sep") {
+            html += "\n";
+          } else if (e.type === "action") {
+            var isActive = i === fileIdx[cursorPos];
+            if (e.key === "q") {
+              html += isActive
+                ? '   <span class="active">[q] ' + e.label + '</span>'
+                : '   [q] ' + e.label;
+            } else {
+              html += isActive
+                ? '   <span class="active">[' + e.key + '] ' + e.label + '</span>'
+                : '   [' + e.key + '] ' + e.label;
+            }
+          } else if (e.type === "mru") {
+            html += '   <span class="section">MRU ' + e.path + "</span>";
+          } else if (e.type === "file") {
+            var isActive = i === fileIdx[cursorPos];
+            var idx = fileCounter;
+            var line = "   ";
+            if (isActive) {
+              line += '<span class="active"><span class="idx">[' + idx + "]</span>  " + e.path + "</span>";
+            } else {
+              line += '<span class="idx">[' + idx + "]</span>  " + e.path;
+            }
+            html += line + "\n";
+            fileCounter++;
+          }
+        }
+        filelistEl.innerHTML = html;
+      }
+
+      function cycleCursor() {
+        cursorPos = (cursorPos + 1) % fileIdx.length;
+        renderFileList();
+      }
+
+      asciiEl.textContent = ascii;
+      renderFileList();
+
+      var progress = 0;
+      var progInterval = setInterval(function () {
+        if (progress < 99) {
+          progress += Math.random() * 6 + 1;
+          if (progress > 99) progress = 99;
+          bar.style.width = progress + "%";
+        }
+      }, 250);
+
+      var cursorInterval = setInterval(cycleCursor, 600);
+
+      var startedAt = Date.now();
+
+      function dismiss() {
+        clearInterval(progInterval);
+        clearInterval(cursorInterval);
+        bar.style.width = "100%";
+
+        var elapsed = Date.now() - startedAt;
+        var remaining = Math.max(0, 3000 - elapsed);
+
+        setTimeout(function () {
+          splash.classList.add("fade-out");
+          setTimeout(function () {
+            splash.remove();
+          }, 650);
+        }, remaining);
+      }
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") dismiss();
+      });
+
+      var observer = new MutationObserver(function () {
+        if (document.getElementById("root").children.length > 0) {
+          setTimeout(dismiss, 500);
+          observer.disconnect();
+        }
+      });
+      if (document.getElementById("root").children.length > 0) {
+        setTimeout(dismiss, 500);
+      } else {
+        observer.observe(document.getElementById("root"), {
+          childList: true,
+        });
+      }
+    })();
+  </script>
+</body>
+
 </html>
