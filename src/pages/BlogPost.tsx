@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkWikiLink from "remark-wiki-link";
 import remarkCallouts from "remark-callouts";
+import SEOHead from "../seo/SEOHead";
 import { getPostByFullSlug, getPostsInDir } from "../blog/posts";
 import type { BlogPost as BlogPostType } from "../blog/types";
 import remarkObsidianImages from "../blog/remark-obsidian-images";
@@ -79,6 +80,21 @@ const Skeleton = () => (
   </section>
 );
 
+function extractExcerpt(markdown: string): string {
+  const cleaned = markdown
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/`[^`]*`/g, "")
+    .replace(/!\[.*?\]\(.*?\)/g, "")
+    .replace(/!\[\[.*?\]\]/g, "")
+    .replace(/[#*_~>|\[\]`-]/g, "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/\n{2,}/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (cleaned.length <= 160) return cleaned;
+  return cleaned.slice(0, 157).replace(/\s+\S*$/, "") + "...";
+}
+
 const BlogPost = () => {
   const { "*": fullSlug } = useParams();
   const [searchParams] = useSearchParams();
@@ -116,9 +132,16 @@ const BlogPost = () => {
     return () => { cancelled = true; };
   }, [fullSlug]);
 
-  useEffect(() => {
-    document.title = post ? `${post.title} — Blog — Sachin Yadav` : "Blog — Sachin Yadav";
-  }, [post?.title]);
+  const ogImage = useMemo(() => {
+    if (!post?.content) return undefined;
+    const match = post.content.match(/!\[.*?\]\((.+?)\)/);
+    return match ? match[1] : undefined;
+  }, [post?.content]);
+
+  const excerpt = useMemo(() => {
+    if (!post?.content) return "";
+    return extractExcerpt(post.content);
+  }, [post?.content]);
 
   const backTo = from ? `/blog?path=${from}` : "/blog";
 
@@ -145,6 +168,8 @@ const BlogPost = () => {
 
   if (error || !post) {
     return (
+      <>
+      <SEOHead title="Blog" description={excerpt || "Blog post not found"} path={`/blog/post/${fullSlug || ""}`} />
       <section className="section-padding pt-10 min-h-screen">
         <div className="w-full h-full md:px-10 px-5 text-center">
           <h1 className="text-3xl font-bold mb-4">Post not found</h1>
@@ -154,11 +179,20 @@ const BlogPost = () => {
           </Link>
         </div>
       </section>
+      </>
     );
   }
 
   return (
-    <section className="section-padding pt-5 min-h-screen">
+    <>
+      <SEOHead
+        title={`${post.title} — Blog`}
+        description={excerpt}
+        path={`/blog/post/${post.fullSlug}`}
+        type="article"
+        image={ogImage}
+      />
+      <section className="section-padding pt-5 min-h-screen">
       <div className="w-full h-full md:px-10 px-5 max-w-4xl mx-auto">
         <Link
           to={backTo}
@@ -223,6 +257,7 @@ const BlogPost = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 

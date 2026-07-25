@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import SEOHead from "../seo/SEOHead";
 import { getPosts } from "../blog/posts";
 import { buildTree, getFolderAtPath } from "../blog/tree";
 import type { BlogPost } from "../blog/types";
@@ -43,7 +44,13 @@ const BlogList = () => {
   };
 
   return (
-    <section className="section-padding pt-5 min-h-screen">
+    <>
+      <SEOHead
+        title="Blog"
+        description="Read about programming, full-stack development, and computer science from my Obsidian vault."
+        path="/blog"
+      />
+      <section className="section-padding pt-5 min-h-screen">
       <div className="w-full h-full md:px-10 px-5">
         <TitleHeader title="Blog" sub="Notes from my Obsidian vault" />
         <div className="max-w-3xl mx-auto">
@@ -77,6 +84,7 @@ const BlogList = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 
