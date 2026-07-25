@@ -33,6 +33,7 @@ export function MyComputer({
         geometry={nodes.Object_2.geometry}
         material={computerMaterial}
         rotation={[-Math.PI / 2, 0, 0]}
+        castShadow
       />
       <mesh position={[0.12, 0.35, 0.55]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[0.3, 0.2]} />

@@ -1,4 +1,4 @@
-import { OrbitControls, Environment } from "@react-three/drei";
+import { OrbitControls, Environment, Grid } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useMediaQuery } from "react-responsive";
 import { useMemo, useRef } from "react";
@@ -29,16 +29,32 @@ const HeroExperience = () => {
   });
 
   return (
-    <Canvas camera={{ position: [0, 1.5, 7], fov: 45 }}>
+    <Canvas camera={{ position: [0, 1.5, 7], fov: 45 }} shadows>
       <ambientLight intensity={0.05 + 0.25 * tod.factor} color={tod.color} />
       <directionalLight
         position={[5, 10, 5]}
         intensity={1.5 * tod.factor}
         color={tod.color}
+        castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
       />
       <HeroLights />
       <Environment preset="city" />
       {!isMobile && <Partical count={40} spread={3} />}
+
+      <Grid
+        position={[0, -1, 0]}
+        cellSize={0.5}
+        cellThickness={0.5}
+        cellColor={"#6b7280"}
+        sectionSize={2}
+        sectionThickness={1}
+        sectionColor={"#22d3ee"}
+        fadeDistance={20}
+        infiniteGrid
+      />
+
       <OrbitControls
         enablePan={false}
         enableZoom={!isTablet}
