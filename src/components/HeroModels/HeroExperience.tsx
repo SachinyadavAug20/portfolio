@@ -1,4 +1,4 @@
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, Environment } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useMediaQuery } from "react-responsive";
 import { useMemo, useRef } from "react";
@@ -37,6 +37,7 @@ const HeroExperience = () => {
         color={tod.color}
       />
       <HeroLights />
+      <Environment preset="city" />
       {!isMobile && <Partical count={40} spread={3} />}
       <OrbitControls
         enablePan={false}
@@ -52,7 +53,7 @@ const HeroExperience = () => {
         scale={isMobile ? 0.3 : 0.5}
         position={[0, -0.3, 0]}
       >
-        <MyComputer />
+        <MyComputer todFactor={tod.factor} />
       </group>
     </Canvas>
   );
