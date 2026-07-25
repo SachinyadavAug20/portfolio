@@ -23,6 +23,6 @@ export default {
       }
     }
 
-    return env.ASSETS.fetch(request);
+    return env.ASSETS?.fetch(request) ?? new Response(null, { status: 404 });
   },
 };

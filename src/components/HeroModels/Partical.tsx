@@ -62,7 +62,7 @@ export function Partical({
         startY: Math.random() * 8 + 3,
         speed: speed * (0.4 + Math.random() * 0.6),
         rotSpeed: (Math.random() - 0.5) * 0.5,
-        size: 0.15 + Math.random() * 0.2,
+        size: 0.08 + Math.random() * 0.1,
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
       });
     }
