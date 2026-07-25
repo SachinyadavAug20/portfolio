@@ -1,4 +1,6 @@
+import { useRef } from "react";
 import { logoIconsList } from "../../constants";
+import gsap from "gsap";
 
 interface Props {
   Icon: any;
@@ -6,8 +8,31 @@ interface Props {
   link: string;
 }
 const LogoIcon = ({ Icon, name, link }: Props) => {
+  const linkRef = useRef<HTMLAnchorElement>(null);
+
+  const handleMouseEnter = () => {
+    gsap.to(linkRef.current, {
+      color: "#60a5fa",
+      duration: 0.3,
+      ease: "power2.out",
+    });
+  };
+
+  const handleMouseLeave = () => {
+    gsap.to(linkRef.current, {
+      color: "#ffffff",
+      duration: 0.3,
+      ease: "power2.out",
+    });
+  };
+
   return (
-    <a href={link}>
+    <a
+      ref={linkRef}
+      href={link}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className="flex-none flex-center marquee-item">
         <Icon className="h-12 w-12" alt={name} />
         <p className="px-2">{name}</p>

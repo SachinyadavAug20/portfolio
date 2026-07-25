@@ -291,7 +291,7 @@ section {
   }
 
   .gradient-edge {
-    @apply w-36 h-full absolute bottom-0 z-20;
+    @apply w-36 h-full absolute bottom-0 z-20 pointer-events-none;
   }
 
   .tech-card-animated-bg {
@@ -457,6 +457,10 @@ section {
   }
 }
 /* marquee end */
+
+.marquee-box:has(.marquee-item:hover) {
+  animation-play-state: paused;
+}
 
 .card {
   --start: 0;

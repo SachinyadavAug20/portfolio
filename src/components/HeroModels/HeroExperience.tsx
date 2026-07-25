@@ -16,6 +16,20 @@ const HeroExperience = () => {
   const tod = useMemo(() => getTimeOfDay(), []);
   const groupRef = useRef<THREE.Group>(null!);
 
+  const cellColor = useMemo(() => {
+    const c = new THREE.Color("#6b7280")
+      .multiplyScalar(0.3 + 0.7 * tod.factor)
+      .lerp(new THREE.Color(tod.color), 0.1);
+    return c.getStyle();
+  }, [tod]);
+
+  const sectionColor = useMemo(() => {
+    const c = new THREE.Color("#22d3ee")
+      .multiplyScalar(0.4 + 0.6 * tod.factor)
+      .lerp(new THREE.Color(tod.color), 0.2);
+    return c.getStyle();
+  }, [tod]);
+
   useGSAP(() => {
     requestAnimationFrame(() => {
       if (!groupRef.current) return;
@@ -29,15 +43,12 @@ const HeroExperience = () => {
   });
 
   return (
-    <Canvas camera={{ position: [0, 1.5, 7], fov: 45 }} shadows>
+    <Canvas camera={{ position: [0, 1.5, 7], fov: 45 }}>
       <ambientLight intensity={0.05 + 0.25 * tod.factor} color={tod.color} />
       <directionalLight
         position={[5, 10, 5]}
         intensity={1.5 * tod.factor}
         color={tod.color}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
       />
       <HeroLights />
       <Environment preset="city" />
@@ -47,10 +58,10 @@ const HeroExperience = () => {
         position={[0, -1, 0]}
         cellSize={0.5}
         cellThickness={0.5}
-        cellColor={"#6b7280"}
+        cellColor={cellColor}
         sectionSize={2}
         sectionThickness={1}
-        sectionColor={"#22d3ee"}
+        sectionColor={sectionColor}
         fadeDistance={20}
         infiniteGrid
       />
