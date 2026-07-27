@@ -3,6 +3,7 @@ import { useParams, useSearchParams, Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import remarkWikiLink from "remark-wiki-link";
 import remarkCallouts from "remark-callouts";
 import SEOHead from "../seo/SEOHead";
@@ -205,6 +206,7 @@ const BlogPost = () => {
             <ReactMarkdown
               remarkPlugins={[
                 remarkGfm,
+                remarkBreaks,
                 [remarkWikiLink, { hrefTemplate: (link: string) => `/blog/post/${link}` }],
                 remarkCallouts,
                 remarkPlugin,
