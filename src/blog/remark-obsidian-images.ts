@@ -5,12 +5,16 @@ import { OWNER, REPO, BRANCH } from "./config";
 
 const IMG_RE = /!\[\[([^\]]+?)(?:\|(\d+))?\]\]/g;
 
+function toWebpUrl(url: string): string {
+  return url.replace(/\.(png|jpg|jpeg|gif|bmp|tiff?)$/i, ".webp");
+}
+
 function buildImageUrls(noteDir: string, filename: string): string[] {
   const encoded = encodeURI(filename);
   const base = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${noteDir}/`;
   const repoRoot = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/`;
   const basename = filename.split("/").pop() ?? filename;
-  return [
+  const urls = [
     `${base}attachements/${encoded}`,
     `${base}attachement/${encoded}`,
     `${base}attachments/${encoded}`,
@@ -18,6 +22,7 @@ function buildImageUrls(noteDir: string, filename: string): string[] {
     `${base}${encoded}`,
     `${repoRoot}${encodeURI(basename)}`,
   ];
+  return urls.flatMap((u) => [toWebpUrl(u), u]);
 }
 
 const remarkObsidianImages: (noteDir: string) => Plugin<[], Root> = (noteDir) => {

@@ -46,24 +46,36 @@ const TableOfContents = ({ headings }: { headings: TocItem[] }) => {
 
   useEffect(() => {
     setActiveId("");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
+    let ticking = false;
+    const handleScroll = () => {
+      if (ticking) return;
+      window.requestAnimationFrame(() => {
+        const scrollTop = window.scrollY + 100;
+        let current = "";
+        for (const h of headings) {
+          const el = document.getElementById(h.id);
+          if (el && el.getBoundingClientRect().top + window.scrollY <= scrollTop) {
+            current = h.id;
           }
         }
-      },
-      { rootMargin: "-80px 0px -70% 0px" },
-    );
+        if (current) setActiveId(current);
+        ticking = false;
+      });
+      ticking = true;
+    };
 
-    const elements = headings
-      .map((h) => document.getElementById(h.id))
-      .filter((el): el is HTMLElement => el !== null);
-
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [headings]);
+
+  const handleClick = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.scrollY - 96;
+      window.scrollTo({ top, behavior: "smooth" });
+    }
+  };
 
   if (headings.length === 0) return null;
 
@@ -79,7 +91,7 @@ const TableOfContents = ({ headings }: { headings: TocItem[] }) => {
               href={`#${h.id}`}
               onClick={(e) => {
                 e.preventDefault();
-                document.getElementById(h.id)?.scrollIntoView({ behavior: "smooth" });
+                handleClick(h.id);
               }}
               className={`block text-sm py-1 border-l transition-colors ${
                 h.level === 3 ? "pl-6" : "pl-4"
@@ -134,16 +146,24 @@ const ImageWithFallback = (props: Record<string, unknown>) => {
   }, [raw, src]);
 
   const [idx, setIdx] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   if (idx >= urls.length || !urls[idx]) return null;
 
   return (
-    <img
-      {...(props as React.ImgHTMLAttributes<HTMLImageElement>)}
-      key={idx}
-      src={urls[idx]}
-      onError={() => setIdx((i) => i + 1)}
-    />
+    <div className={`relative overflow-hidden rounded ${!loaded ? "bg-black-200 min-h-[100px]" : ""}`}>
+      <img
+        {...(props as React.ImgHTMLAttributes<HTMLImageElement>)}
+        key={idx}
+        src={urls[idx]}
+        className={`transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+        onLoad={() => setLoaded(true)}
+        onError={() => {
+          setIdx((i) => i + 1);
+          setLoaded(false);
+        }}
+      />
+    </div>
   );
 };
 
@@ -378,17 +398,17 @@ const BlogPost = () => {
                     h2: ({ children, ...props }) => {
                       const text = extractText(children);
                       const id = slugify(text);
-                      return <h2 id={id} {...props}>{children}</h2>;
+                      return <h2 id={id} className="scroll-mt-24" {...props}>{children}</h2>;
                     },
                     h3: ({ children, ...props }) => {
                       const text = extractText(children);
                       const id = slugify(text);
-                      return <h3 id={id} {...props}>{children}</h3>;
+                      return <h3 id={id} className="scroll-mt-24" {...props}>{children}</h3>;
                     },
                     h4: ({ children, ...props }) => {
                       const text = extractText(children);
                       const id = slugify(text);
-                      return <h4 id={id} {...props}>{children}</h4>;
+                      return <h4 id={id} className="scroll-mt-24" {...props}>{children}</h4>;
                     },
                     code({ className, children, ...props }) {
                       return (
