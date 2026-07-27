@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
+import { X, Search } from "lucide-react";
 import SEOHead from "../seo/SEOHead";
 import { getPosts } from "../blog/posts";
 import { buildTree, getFolderAtPath } from "../blog/tree";
@@ -10,6 +11,8 @@ import FileExplorer from "../components/FileExplorer";
 const BlogList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPath = searchParams.get("path") ?? "";
+  const currentTag = searchParams.get("tag") ?? "";
+  const currentQuery = searchParams.get("q") ?? "";
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,21 +35,68 @@ const BlogList = () => {
     return () => { cancelled = true; };
   }, []);
 
-  const tree = buildTree(posts);
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    for (const post of posts) {
+      for (const tag of post.dir.split("/").filter(Boolean)) {
+        set.add(tag);
+      }
+    }
+    return Array.from(set).sort();
+  }, [posts]);
+
+  const filteredPosts = useMemo(() => {
+    let result = posts;
+    if (currentTag) {
+      result = result.filter((p) =>
+        p.dir.split("/").some((t) => t === currentTag),
+      );
+    }
+    if (currentQuery) {
+      const q = currentQuery.toLowerCase();
+      result = result.filter((p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.dir.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [posts, currentTag, currentQuery]);
+
+  const tree = buildTree(filteredPosts);
   const folder = getFolderAtPath(tree, currentPath);
 
-  const handleNavigate = (path: string) => {
-    if (!path) {
-      setSearchParams({});
-    } else {
-      setSearchParams({ path });
+  const updateParams = (updates: Record<string, string | null>) => {
+    const next = new URLSearchParams(searchParams);
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === null || value === "") {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
     }
+    setSearchParams(next);
+  };
+
+  const handleNavigate = (path: string) => {
+    updateParams({ path: path || null });
+  };
+
+  const setSearch = (q: string) => {
+    updateParams({ q: q || null, path: null, tag: null });
+  };
+
+  const setTag = (tag: string) => {
+    updateParams({ tag, path: null });
+  };
+
+  const clearTag = () => {
+    updateParams({ tag: null });
   };
 
   return (
     <>
       <SEOHead
-        title="Blog"
+        title={currentTag ? `${currentTag} — Blog` : "Blog"}
         description="Read about programming, full-stack development, and computer science from my Obsidian vault."
         path="/blog"
       />
@@ -70,16 +120,64 @@ const BlogList = () => {
                 Retry
               </button>
             </div>
-          ) : folder ? (
-            <FileExplorer
-              folder={folder}
-              currentPath={currentPath}
-              onNavigate={handleNavigate}
-            />
           ) : (
-            <p className="text-blue-50 text-center mt-16">
-              Folder not found.
-            </p>
+            <>
+              <div className="relative mt-8 mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white-50/40" />
+                <input
+                  type="text"
+                  value={currentQuery}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search notes..."
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-black-200 border border-black-50 text-white-50 placeholder:text-white-50/30 focus:outline-none focus:border-blue-50/40 transition-colors text-sm"
+                />
+                {currentQuery && (
+                  <button
+                    onClick={() => setSearch("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white-50/40 hover:text-white-50"
+                  >
+                    <X className="size-4" />
+                  </button>
+                )}
+              </div>
+              {allTags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {currentTag && (
+                    <button
+                      onClick={clearTag}
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors"
+                    >
+                      {currentTag}
+                      <X className="size-3" />
+                    </button>
+                  )}
+                  {allTags
+                    .filter((t) => t !== currentTag)
+                    .map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => setTag(tag)}
+                        className="px-2.5 py-0.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-white transition-colors"
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                </div>
+              )}
+              {folder ? (
+                <FileExplorer
+                  folder={folder}
+                  currentPath={currentPath}
+                  onNavigate={handleNavigate}
+                />
+              ) : (
+                <p className="text-blue-50 text-center mt-16">
+                  {currentQuery
+                    ? `No notes matching "${currentQuery}".`
+                    : "Folder not found."}
+                </p>
+              )}
+            </>
           )}
         </div>
       </div>

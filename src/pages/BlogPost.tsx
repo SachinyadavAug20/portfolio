@@ -15,6 +15,89 @@ import rehypeRaw from "rehype-raw";
 import rehypePrism from "rehype-prism-plus";
 import "prismjs/themes/prism-tomorrow.css";
 
+interface TocItem {
+  level: number;
+  text: string;
+  id: string;
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function extractHeadings(markdown: string): TocItem[] {
+  const withoutCode = markdown.replace(/```[\s\S]*?```/g, "");
+  const headings: TocItem[] = [];
+  const regex = /^(#{2,4})\s+(.+)$/gm;
+  let match;
+  while ((match = regex.exec(withoutCode)) !== null) {
+    const text = match[2].trim();
+    const id = slugify(text);
+    headings.push({ level: match[1].length, text, id });
+  }
+  return headings;
+}
+
+const TableOfContents = ({ headings }: { headings: TocItem[] }) => {
+  const [activeId, setActiveId] = useState("");
+
+  useEffect(() => {
+    setActiveId("");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
+        }
+      },
+      { rootMargin: "-80px 0px -70% 0px" },
+    );
+
+    const elements = headings
+      .map((h) => document.getElementById(h.id))
+      .filter((el): el is HTMLElement => el !== null);
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [headings]);
+
+  if (headings.length === 0) return null;
+
+  return (
+    <nav className="sticky top-24">
+      <h4 className="text-xs font-semibold text-white-50/40 uppercase tracking-wider mb-3">
+        On this page
+      </h4>
+      <ul className="space-y-1 border-l border-black-50">
+        {headings.map((h) => (
+          <li key={h.id}>
+            <a
+              href={`#${h.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById(h.id)?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className={`block text-sm py-1 border-l transition-colors ${
+                h.level === 3 ? "pl-6" : "pl-4"
+              } ${
+                activeId === h.id
+                  ? "border-blue-50 text-blue-50"
+                  : "border-transparent text-white-50/40 hover:text-white-50/70 hover:border-white-50/30"
+              }`}
+            >
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+};
+
 const MermaidChart = ({ chart }: { chart: string }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [Mermaid, setMermaid] = useState<typeof import("mermaid") | null>(null);
@@ -184,6 +267,11 @@ const BlogPost = () => {
     return extractExcerpt(post.content);
   }, [post?.content]);
 
+  const headings = useMemo(() => {
+    if (!post?.content) return [];
+    return extractHeadings(post.content);
+  }, [post?.content]);
+
   const backTo = from ? `/blog?path=${from}` : "/blog";
 
   const [dirPosts, setDirPosts] = useState<BlogPostType[]>([]);
@@ -235,90 +323,134 @@ const BlogPost = () => {
         dateModified={lastUpdated ?? undefined}
       />
       <section className="section-padding pt-5 min-h-screen">
-      <div className="w-full h-full md:px-10 px-5 max-w-4xl mx-auto">
+      <div className="w-full h-full md:px-10 px-5 max-w-6xl mx-auto">
         <Link
           to={backTo}
           className="text-blue-50 hover:text-white transition-colors inline-flex items-center gap-2 mb-8"
         >
           &larr; Back
         </Link>
-        <div className="flex items-center gap-3 text-white-50 text-sm mb-6">
-          <Clock className="size-4" />
-          <span>{readingTime} min read</span>
-          {lastUpdated && (
-            <>
-              <span className="text-white-50/30">|</span>
-              <span className="text-white-50/60 text-xs">
-                Updated {new Date(lastUpdated).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </span>
-            </>
-          )}
-        </div>
-        <article className="prose prose-invert max-w-none blog-content">
-          {post.content && (
-            <ReactMarkdown
-              remarkPlugins={[
-                remarkGfm,
-                remarkBreaks,
-                [remarkWikiLink, { hrefTemplate: (link: string) => `/blog/post/${link}` }],
-                remarkCallouts,
-                remarkPlugin,
-              ]}
-              rehypePlugins={[rehypeMermaid, rehypeRaw, rehypePrism]}
-              components={{
-                pre: (props) => <CodeBlock {...props} />,
-                img: (props) => <ImageWithFallback {...props} />,
-                code({ className, children, ...props }) {
-                  return (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-                ...{
-                  "mermaid-diagram": ({ children }: any) => {
-                    const chart = typeof children === "string" ? children : String(children);
-                    return <MermaidChart chart={chart} />;
-                  },
-                },
-              }}
-            >
-              {post.content}
-            </ReactMarkdown>
-          )}
-        </article>
-        <div className="mt-12 pt-8 border-t border-black-50 flex items-center justify-between gap-4">
-          {prev ? (
-            <Link
-              to={`/blog/post/${prev.fullSlug}${from ? `?from=${from}` : ""}`}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 transition-colors text-white-50 hover:text-white max-w-[45%]"
-            >
-              <ArrowLeft className="size-4 shrink-0" />
-              <span className="truncate text-sm">{prev.title}</span>
-            </Link>
-          ) : (
-            <div />
-          )}
-          {next ? (
-            <Link
-              to={`/blog/post/${next.fullSlug}${from ? `?from=${from}` : ""}`}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 transition-colors text-white-50 hover:text-white max-w-[45%] ml-auto"
-            >
-              <span className="truncate text-sm">{next.title}</span>
-              <ArrowRight className="size-4 shrink-0" />
-            </Link>
-          ) : (
-            <div />
-          )}
+        <div className="flex gap-12">
+          <div className="flex-1 min-w-0 max-w-3xl">
+            <div className="flex items-center gap-3 text-white-50 text-sm mb-2">
+              <Clock className="size-4" />
+              <span>{readingTime} min read</span>
+              {lastUpdated && (
+                <>
+                  <span className="text-white-50/30">|</span>
+                  <span className="text-white-50/60 text-xs">
+                    Updated {new Date(lastUpdated).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </>
+              )}
+            </div>
+            {post.dir && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {post.dir.split("/").filter(Boolean).map((tag) => (
+                  <Link
+                    key={tag}
+                    to={`/blog?tag=${encodeURIComponent(tag)}`}
+                    className="px-2.5 py-0.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-white transition-colors"
+                  >
+                    {tag}
+                  </Link>
+                ))}
+              </div>
+            )}
+            <article className="prose prose-invert max-w-none blog-content">
+              {post.content && (
+                <ReactMarkdown
+                  remarkPlugins={[
+                    remarkGfm,
+                    remarkBreaks,
+                    [remarkWikiLink, { hrefTemplate: (link: string) => `/blog/post/${link}` }],
+                    remarkCallouts,
+                    remarkPlugin,
+                  ]}
+                  rehypePlugins={[rehypeMermaid, rehypeRaw, rehypePrism]}
+                  components={{
+                    pre: (props) => <CodeBlock {...props} />,
+                    img: (props) => <ImageWithFallback {...props} />,
+                    h2: ({ children, ...props }) => {
+                      const text = extractText(children);
+                      const id = slugify(text);
+                      return <h2 id={id} {...props}>{children}</h2>;
+                    },
+                    h3: ({ children, ...props }) => {
+                      const text = extractText(children);
+                      const id = slugify(text);
+                      return <h3 id={id} {...props}>{children}</h3>;
+                    },
+                    h4: ({ children, ...props }) => {
+                      const text = extractText(children);
+                      const id = slugify(text);
+                      return <h4 id={id} {...props}>{children}</h4>;
+                    },
+                    code({ className, children, ...props }) {
+                      return (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
+                    ...{
+                      "mermaid-diagram": ({ children }: any) => {
+                        const chart = typeof children === "string" ? children : String(children);
+                        return <MermaidChart chart={chart} />;
+                      },
+                    },
+                  }}
+                >
+                  {post.content}
+                </ReactMarkdown>
+              )}
+            </article>
+            <div className="mt-12 pt-8 border-t border-black-50 flex items-center justify-between gap-4">
+              {prev ? (
+                <Link
+                  to={`/blog/post/${prev.fullSlug}${from ? `?from=${from}` : ""}`}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 transition-colors text-white-50 hover:text-white max-w-[45%]"
+                >
+                  <ArrowLeft className="size-4 shrink-0" />
+                  <span className="truncate text-sm">{prev.title}</span>
+                </Link>
+              ) : (
+                <div />
+              )}
+              {next ? (
+                <Link
+                  to={`/blog/post/${next.fullSlug}${from ? `?from=${from}` : ""}`}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 transition-colors text-white-50 hover:text-white max-w-[45%] ml-auto"
+                >
+                  <span className="truncate text-sm">{next.title}</span>
+                  <ArrowRight className="size-4 shrink-0" />
+                </Link>
+              ) : (
+                <div />
+              )}
+            </div>
+          </div>
+          <aside className="hidden lg:block w-56 shrink-0">
+            <TableOfContents headings={headings} />
+          </aside>
         </div>
       </div>
     </section>
     </>
   );
 };
+
+function extractText(children: React.ReactNode): string {
+  if (typeof children === "string") return children;
+  if (Array.isArray(children)) return children.map(extractText).join("");
+  if (children && typeof children === "object" && "props" in children) {
+    return extractText((children as any).props.children);
+  }
+  return "";
+}
 
 export default BlogPost;
