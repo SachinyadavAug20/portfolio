@@ -7,6 +7,8 @@ interface SEOHeadProps {
   path?: string;
   image?: string;
   type?: "website" | "article";
+  datePublished?: string;
+  dateModified?: string;
 }
 
 const SEOHead = ({
@@ -15,10 +17,26 @@ const SEOHead = ({
   path = "",
   image = OG_IMAGE,
   type = "website",
+  datePublished,
+  dateModified,
 }: SEOHeadProps) => {
   const fullTitle = `${title} | ${SITE_NAME}`;
   const url = `${SITE_URL}${path}`;
   const imageUrl = image.startsWith("http") ? image : `${SITE_URL}${image}`;
+
+  const jsonLd = type === "article"
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: title,
+        description,
+        image: imageUrl,
+        url,
+        author: { "@type": "Person", name: SITE_NAME },
+        ...(datePublished && { datePublished }),
+        ...(dateModified && { dateModified }),
+      }
+    : null;
 
   return (
     <Helmet>
@@ -38,6 +56,10 @@ const SEOHead = ({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={imageUrl} />
       <meta name="twitter:image:alt" content={OG_IMAGE_ALT} />
+
+      {jsonLd && (
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      )}
     </Helmet>
   );
 };

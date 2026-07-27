@@ -115,3 +115,22 @@ export async function fetchContent(fullSlug: string): Promise<string> {
   contentCache.set(fullSlug, text);
   return text;
 }
+
+const commitCache = new Map<string, string>();
+
+export async function fetchLastUpdated(fullSlug: string): Promise<string | null> {
+  if (commitCache.has(fullSlug)) return commitCache.get(fullSlug)!;
+  const path = `${BLOG_ROOT}/${fullSlug}.md`;
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/commits?path=${encodeURIComponent(path)}&per_page=1`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) return null;
+    const date = data[0].commit?.committer?.date || data[0].commit?.author?.date || null;
+    if (date) commitCache.set(fullSlug, date);
+    return date;
+  } catch {
+    return null;
+  }
+}

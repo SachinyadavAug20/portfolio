@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -64,6 +64,32 @@ const ImageWithFallback = (props: Record<string, unknown>) => {
   );
 };
 
+const CodeBlock = ({ children, className, ...props }: any) => {
+  const preRef = useRef<HTMLPreElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    const text = preRef.current?.textContent || "";
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="relative group">
+      <pre ref={preRef} className={className} {...props}>
+        {children}
+      </pre>
+      <button
+        onClick={handleCopy}
+        className="absolute top-2 right-2 px-2 py-1 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity bg-black-50 hover:bg-black text-white-50"
+      >
+        {copied ? "Copied!" : "Copy"}
+      </button>
+    </div>
+  );
+};
+
 const Skeleton = () => (
   <section className="section-padding pt-5 min-h-screen">
     <div className="w-full h-full md:px-10 px-5 max-w-4xl mx-auto">
@@ -104,6 +130,7 @@ const BlogPost = () => {
   const [post, setPost] = useState<BlogPostType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -132,6 +159,19 @@ const BlogPost = () => {
       });
     return () => { cancelled = true; };
   }, [fullSlug]);
+
+  useEffect(() => {
+    if (!post?.fullSlug) return;
+    import("../blog/github").then(({ fetchLastUpdated }) => {
+      fetchLastUpdated(post.fullSlug).then(setLastUpdated);
+    });
+  }, [post?.fullSlug]);
+
+  const readingTime = useMemo(() => {
+    if (!post?.content) return 0;
+    const words = post.content.trim().split(/\s+/).length;
+    return Math.max(1, Math.ceil(words / 200));
+  }, [post?.content]);
 
   const ogImage = useMemo(() => {
     if (!post?.content) return undefined;
@@ -192,6 +232,7 @@ const BlogPost = () => {
         path={`/blog/post/${post.fullSlug}`}
         type="article"
         image={ogImage}
+        dateModified={lastUpdated ?? undefined}
       />
       <section className="section-padding pt-5 min-h-screen">
       <div className="w-full h-full md:px-10 px-5 max-w-4xl mx-auto">
@@ -201,6 +242,22 @@ const BlogPost = () => {
         >
           &larr; Back
         </Link>
+        <div className="flex items-center gap-3 text-white-50 text-sm mb-6">
+          <Clock className="size-4" />
+          <span>{readingTime} min read</span>
+          {lastUpdated && (
+            <>
+              <span className="text-white-50/30">|</span>
+              <span className="text-white-50/60 text-xs">
+                Updated {new Date(lastUpdated).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>
+            </>
+          )}
+        </div>
         <article className="prose prose-invert max-w-none blog-content">
           {post.content && (
             <ReactMarkdown
@@ -213,6 +270,7 @@ const BlogPost = () => {
               ]}
               rehypePlugins={[rehypeMermaid, rehypeRaw, rehypePrism]}
               components={{
+                pre: (props) => <CodeBlock {...props} />,
                 img: (props) => <ImageWithFallback {...props} />,
                 code({ className, children, ...props }) {
                   return (
