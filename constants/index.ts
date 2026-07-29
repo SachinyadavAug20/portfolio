@@ -13,6 +13,8 @@ import {
   SiSpringboot,
 } from "react-icons/si";
 
+import RaylibIcon from "../src/components/icons/RaylibIcon";
+
 interface word {
   text: string;
   imgPath: string;
@@ -131,6 +133,12 @@ export const logoIconsList = [
     name: "C++", 
     link: "https://github.com/SachinyadavAug20/My-Coding-Notes", // Points to your algorithmic problem solving
     proof: "Data Structures, Algorithms & LeetCode logic" 
+  },
+  { 
+    Icon: RaylibIcon, 
+    name: "Raylib", 
+    link: "https://github.com/SachinyadavAug20/Raylib-boilerplate",
+    proof: "2D game prototyping & graphics programming" 
   },
   { 
     Icon: SiArchlinux, 
