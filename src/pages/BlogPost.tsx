@@ -9,6 +9,7 @@ import remarkCallouts from "remark-callouts";
 import SEOHead from "../seo/SEOHead";
 import { getPostByFullSlug, getPostsInDir } from "../blog/posts";
 import type { BlogPost as BlogPostType } from "../blog/types";
+import { useViews } from "../hooks/useViews";
 import remarkObsidianImages from "../blog/remark-obsidian-images";
 import { rehypeMermaid } from "../blog/rehype-mermaid";
 import rehypeRaw from "rehype-raw";
@@ -235,6 +236,8 @@ const BlogPost = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
+  const { views } = useViews(post?.fullSlug);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [fullSlug]);
@@ -365,6 +368,12 @@ const BlogPost = () => {
                       year: "numeric",
                     })}
                   </span>
+                </>
+              )}
+              {views !== null && (
+                <>
+                  <span className="text-white-50/30">|</span>
+                  <span className="text-white-50/60 text-xs">{views} views</span>
                 </>
               )}
             </div>

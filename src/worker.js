@@ -2,6 +2,23 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (url.pathname === "/api/views" || url.pathname.startsWith("/api/views/")) {
+      const slug = url.pathname.replace("/api/views/", "");
+      if (!slug) {
+        return new Response(JSON.stringify({ error: "missing slug" }), { status: 400 });
+      }
+      const key = `views:${slug}`;
+      const current = parseInt(await env.BLOG_VIEWS.get(key) ?? "0", 10);
+      const increment = url.searchParams.get("increment") === "1";
+      const views = increment ? current + 1 : current;
+      if (increment) {
+        await env.BLOG_VIEWS.put(key, String(views));
+      }
+      return new Response(JSON.stringify({ views }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     if (url.pathname === "/api/leetcode") {
       try {
         const res = await fetch("https://leetcode.com/graphql", {

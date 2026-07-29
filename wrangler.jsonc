@@ -8,5 +8,11 @@
   },
   "compatibility_flags": [
     "nodejs_compat"
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "BLOG_VIEWS",
+      "id": "140d0dc615f740c5b26fa021f2b2ea07"
+    }
   ]
 }
