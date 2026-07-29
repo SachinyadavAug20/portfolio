@@ -1,18 +1,19 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "portfolio",
-  "main": "dist/_worker.js",
-  "assets": {
-    "directory": "dist",
-    "not_found_handling": "single-page-application"
-  },
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
-  "kv_namespaces": [
-    {
-      "binding": "BLOG_VIEWS",
-      "id": "140d0dc615f740c5b26fa021f2b2ea07"
-    }
-  ]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "portfolio",
+	"main": "dist/_worker.js",
+	"assets": {
+		"directory": "dist",
+		"not_found_handling": "single-page-application"
+	},
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"kv_namespaces": [
+		{
+			"binding": "BLOG_VIEWS",
+			"id": "713521b779854ea5ac704e2241591130",
+			"remote": true
+		}
+	]
 }
