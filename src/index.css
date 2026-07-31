@@ -416,36 +416,160 @@ section {
 }
 
 /* marquee */
-.marquee {
-  width: 100dvw;
-  overflow: hidden;
-  position: relative;
+.marquee-section {
+  @apply relative overflow-hidden py-20 md:py-28;
 }
-.marquee-box {
+
+.marquee-ghost {
+  @apply absolute inset-0 flex items-center pointer-events-none;
+  transform: rotate(-3deg);
+}
+
+.marquee-ghost-track {
+  display: flex;
+  white-space: nowrap;
+  will-change: transform;
+  animation: marquee-ghost 55s linear infinite;
+}
+
+.marquee-ghost-copy {
   display: flex;
   align-items: center;
-  width: 200%;
-  height: 100%;
-  position: absolute;
-  overflow: hidden;
-  animation: marquee 60s linear infinite;
+  padding-right: 2.5rem;
 }
-.marquee-item {
-  float: left;
+
+.marquee-ghost-word {
+  @apply font-black uppercase;
+  font-size: clamp(4rem, 11vw, 10rem);
+  letter-spacing: 0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(255 255 255 / 0.08);
 }
-@keyframes marquee {
-  0% {
-    left: 0;
+
+.marquee-ghost-sep {
+  margin: 0 1.5rem;
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(255 255 255 / 0.08);
+}
+
+@keyframes marquee-ghost {
+  to {
+    transform: translateX(-50%);
   }
-  100% {
-    left: -100%;
+}
+
+.marquee-rows {
+  @apply relative z-10 flex flex-col gap-10 md:gap-12;
+}
+
+.marquee-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: max-content;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;
+  will-change: transform;
+}
+
+.marquee-row:active {
+  cursor: grabbing;
+}
+
+.tech-pill {
+  @apply relative flex flex-col items-center;
+}
+
+.tech-pill-body {
+  @apply flex items-center gap-2.5 px-5 md:px-6 py-2.5 md:py-3 rounded-full whitespace-nowrap;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  background: rgb(255 255 255 / 0.03);
+  color: rgb(255 255 255 / 0.6);
+  filter: grayscale(1);
+  transition:
+    filter 0.3s ease,
+    color 0.3s ease,
+    background 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.tech-pill-icon {
+  @apply size-7 md:size-8 flex-none;
+}
+
+.tech-pill-name {
+  @apply text-sm md:text-base font-semibold;
+}
+
+.tech-pill:hover .tech-pill-body {
+  filter: grayscale(0);
+  color: rgb(255 255 255 / 0.95);
+  background: rgb(255 255 255 / 0.06);
+  border-color: rgb(98 224 255 / 0.5);
+  box-shadow:
+    0 0 0 1px rgb(98 224 255 / 0.25),
+    0 0 18px rgb(98 224 255 / 0.15),
+    0 0 44px rgb(109 69 206 / 0.18);
+}
+
+.tech-pill-proof {
+  @apply absolute bottom-full pb-2 left-1/2 -translate-x-1/2 opacity-0 pointer-events-none;
+  transition: opacity 0.3s ease;
+}
+
+.tech-pill:hover .tech-pill-proof {
+  @apply opacity-100;
+}
+
+.tech-pill-proof-inner {
+  @apply block whitespace-nowrap text-xs md:text-sm px-3.5 py-1.5 rounded-full;
+  border: 1px solid rgb(98 224 255 / 0.25);
+  background: oklch(0.145 0 0 / 0.92);
+  color: rgb(98 224 255 / 0.9);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+  transform-origin: 50% 100%;
+  animation: marquee-proof 0.3s ease both;
+}
+
+.tech-pill-proof-inner--reversed {
+  transform-origin: 50% 0;
+}
+
+@keyframes marquee-proof {
+  from {
+    opacity: 0;
+    transform: scaleY(0.5);
   }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+.marquee-edge {
+  @apply absolute top-0 bottom-0 w-24 md:w-40 z-20 pointer-events-none;
+}
+
+.marquee-edge--left {
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    oklch(0.145 0 0 / 0.9),
+    oklch(0.145 0 0 / 0)
+  );
+}
+
+.marquee-edge--right {
+  right: 0;
+  background: linear-gradient(
+    -90deg,
+    oklch(0.145 0 0 / 0.9),
+    oklch(0.145 0 0 / 0)
+  );
 }
 /* marquee end */
-
-.marquee-box:has(.marquee-item:hover) {
-  animation-play-state: paused;
-}
 
 .card {
   --start: 0;
