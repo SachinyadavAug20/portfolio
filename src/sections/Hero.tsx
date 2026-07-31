@@ -2,6 +2,7 @@ import { words } from "../../constants/";
 import AnimatedCounter from "../components/AnimatedCounter";
 import Button from "../components/Button";
 import HeroExperience from "../components/HeroModels/HeroExperience";
+import RevolvingWords from "../components/RevolvingWords";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
@@ -36,23 +37,7 @@ const Hero = () => {
             <div className="hero-text">
               <h1>
                 Engineering
-                <span className="slide">
-                  <span className="wrapper">
-                    {words.map((word) => (
-                      <span
-                        key={word.text}
-                        className="flex items-center md:gap-3 gap-1 pb-2 justify-start"
-                      >
-                        <img
-                          src={word.imgPath}
-                          alt={word.text}
-                          className="xl:size-12 invert-0 md:size-10 size-7 md:p-0! pt-0!"
-                        />
-                        <span>{word.text}</span>
-                      </span>
-                    ))}
-                  </span>
-                </span>
+                <RevolvingWords items={words} />
               </h1>
               {/* animated text: robust logic, scalable systems, complex algorithms */}
               <h1>into Seamless Experiences</h1>
