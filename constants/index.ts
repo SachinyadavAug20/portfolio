@@ -52,7 +52,7 @@ export const counterItems: counterItem[] = [
 ];
 export const navLinks = [
   {
-    name: "Work",
+    name: "Project",
     link: "#work",
   },
   {

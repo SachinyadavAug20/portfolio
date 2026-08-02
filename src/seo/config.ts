@@ -4,5 +4,5 @@ export const SITE_TITLE = "Sachin Yadav — Full-Stack Developer";
 export const SITE_DESCRIPTION =
   "Hi, I'm Sachin, a developer based in India with a passion for code.";
 export const SOCIAL_HANDLE = "@samtagon38824";
-export const OG_IMAGE = "/images/seo.png";
+export const OG_IMAGE = "/images/og.png";
 export const OG_IMAGE_ALT = "Sachin Yadav Portfolio";

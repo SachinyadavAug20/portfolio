@@ -1,3 +1,18 @@
 User-agent: *
 Allow: /
+Allow: /images/
+Allow: /models/
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
 Sitemap: https://portfolio.samtagon777.workers.dev/sitemap.xml

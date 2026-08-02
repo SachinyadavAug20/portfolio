@@ -19,9 +19,11 @@ const RootLayout = () => {
     <HelmetProvider>
       <Helmet>
         <meta name="description" content={SITE_DESCRIPTION} />
+        <meta name="author" content={SITE_NAME} />
         <meta property="og:site_name" content={SITE_NAME} />
-        <meta property="og:locale" content="en_US" />
+        <meta property="og:locale" content="en_IN" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content={SOCIAL_HANDLE} />
         <meta name="twitter:creator" content={SOCIAL_HANDLE} />
         <meta name="theme-color" content="#0e0e10" />
       </Helmet>

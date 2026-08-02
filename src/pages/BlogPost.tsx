@@ -343,6 +343,7 @@ const BlogPost = () => {
         path={`/blog/post/${post.fullSlug}`}
         type="article"
         image={ogImage}
+        datePublished={lastUpdated ?? undefined}
         dateModified={lastUpdated ?? undefined}
       />
       <section className="section-padding pt-5 min-h-screen">

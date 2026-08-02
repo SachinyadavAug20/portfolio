@@ -27,12 +27,14 @@ const SEOHead = ({
   const jsonLd = type === "article"
     ? {
         "@context": "https://schema.org",
-        "@type": "Article",
+        "@type": "BlogPosting",
         headline: title,
         description,
         image: imageUrl,
         url,
-        author: { "@type": "Person", name: SITE_NAME },
+        mainEntityOfPage: { "@type": "WebPage", "@id": url },
+        author: { "@type": "Person", "@id": `${SITE_URL}/#person`, name: SITE_NAME },
+        publisher: { "@type": "Person", "@id": `${SITE_URL}/#person`, name: SITE_NAME },
         ...(datePublished && { datePublished }),
         ...(dateModified && { dateModified }),
       }
@@ -47,6 +49,8 @@ const SEOHead = ({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={imageUrl} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content={OG_IMAGE_ALT} />
       <meta property="og:url" content={url} />
       <meta property="og:type" content={type} />

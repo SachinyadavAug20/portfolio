@@ -1,5 +1,7 @@
 import SEOHead from "../seo/SEOHead";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../seo/config";
+import { buildHomeGraph } from "../lib/schema";
+import { Helmet } from "react-helmet-async";
 import LogoSection from "../components/LogoSection";
 import Contact from "../sections/Contact";
 import ExperienceSection from "../sections/ExperienceSection";
@@ -12,6 +14,11 @@ const HomePage = () => {
   return (
     <>
       <SEOHead title={SITE_TITLE} description={SITE_DESCRIPTION} path="/" />
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(buildHomeGraph())}
+        </script>
+      </Helmet>
       <Hero />
       <ShowCaseSection />
       <LogoSection />

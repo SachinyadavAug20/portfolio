@@ -1,0 +1,14 @@
+# Sachin Yadav — Full-Stack Developer
+
+A portfolio and technical blog by Sachin Yadav, a full-stack developer based in India.
+
+## Key pages
+
+- Introduction & work: https://portfolio.samtagon777.workers.dev/
+- Blog index: https://portfolio.samtagon777.workers.dev/blog
+- Project: Dhun (music app): https://github.com/SachinyadavAug20/Dhun
+- Project: BaseCase (full-stack Q&A): https://github.com/SachinyadavAug20/BaseCase
+- Game dev: https://sachinapr20.itch.io/
+- GitHub: https://github.com/SachinyadavAug20
+
+All blog posts live under https://portfolio.samtagon777.workers.dev/blog/post/
