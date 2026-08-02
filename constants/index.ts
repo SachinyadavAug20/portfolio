@@ -65,7 +65,7 @@ export const navLinks = [
   },
   {
     name: "Games",
-    link: "#games",
+    link: "https://sachinapr20.itch.io/",
   },
   {
     name: "Blog",
@@ -290,13 +290,13 @@ export const techStackIcons: techStackIconsProps[] = [
     rotation: [0, -Math.PI / 2, 0],
   },
   {
-    name: "Interactive Developer",
+    name: "Interactive 3D Developer",
     modelPath: "/models/three.js-transformed.glb",
     scale: 0.05,
     rotation: [0, 0, 0],
   },
   {
-    name: "Project Manager",
+    name: "Project handling",
     modelPath: "/models/git-svg-transformed.glb",
     scale: 0.05,
     rotation: [0, -Math.PI / 4, 0],

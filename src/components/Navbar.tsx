@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { navLinks } from "../../constants";
 
 const Navbar = () => {
@@ -25,17 +25,14 @@ const Navbar = () => {
           <ul>
             {navLinks.map(({ link, name }) => (
               <li key={link} className="group">
-                {link.startsWith("/") ? (
-                  <Link to={link}>
-                    <span>{name}</span>
-                    <span className="underline" />
-                  </Link>
-                ) : (
-                  <a href={`/${link}`}>
-                    <span>{name}</span>
-                    <span className="underline" />
-                  </a>
-                )}
+                <a
+                  href={link.startsWith("#") ? `/${link}` : link}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>{name}</span>
+                  <span className="underline" />
+                </a>
               </li>
             ))}
           </ul>
