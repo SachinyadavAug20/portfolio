@@ -9,7 +9,11 @@ export interface LiveStats {
 
 export async function fetchLiveStats(): Promise<LiveStats> {
   const [leetcode, git] = await Promise.allSettled([
-    fetch("/api/leetcode").then((r) => r.json()).then((d) => d.solved as number),
+    fetch("/api/leetcode")
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`LeetCode API: ${r.status}`);
+        return (await r.json()).solved as number;
+      }),
     fetchGitCommits(),
   ]);
 

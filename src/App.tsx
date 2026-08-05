@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import RootLayout from "./layouts/RootLayout";
 import HomePage from "./pages/HomePage";
+import NotFound from "./pages/NotFound";
 
 const BlogList = lazy(() => import("./pages/BlogList"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -34,6 +35,7 @@ const App = () => {
             <BlogPost />
           </Suspense>
         } />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );
