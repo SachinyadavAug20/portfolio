@@ -5,8 +5,11 @@ import HeroExperience from "../components/HeroModels/HeroExperience";
 import RevolvingWords from "../components/RevolvingWords";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { useMediaQuery } from "react-responsive";
 
 const Hero = () => {
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+
   useGSAP(() => {
     gsap.fromTo(
       ".hero-text h1",
@@ -32,7 +35,7 @@ const Hero = () => {
         </picture>
       </div>
       <div className="hero-layout">
-        <header className="flex flex-col justify-center md:w-full w-screen md:px-20 px-5">
+        <header className="flex flex-col justify-center md:w-full w-full md:px-20 px-5">
           <div className="flex flex-col gap-7">
             <div className="hero-text">
               <h1>
@@ -54,11 +57,13 @@ const Hero = () => {
             />
           </div>
         </header>
-        <figure>
-          <div className=" hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 mr-2 block">
-            <HeroExperience />
-          </div>
-        </figure>
+        {!isMobile && (
+          <figure>
+            <div className="hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 mr-2 block">
+              <HeroExperience />
+            </div>
+          </figure>
+        )}
       </div>
       <AnimatedCounter />
     </section>

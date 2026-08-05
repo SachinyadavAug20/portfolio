@@ -139,7 +139,7 @@ section {
   }
 
   .hero-layout {
-    @apply relative z-10 xl:mt-20 mt-32 md:h-dvh h-[80vh] flex xl:items-center items-start justify-center;
+    @apply relative z-10 xl:mt-20 mt-32 md:h-dvh min-h-[50vh] h-auto flex xl:items-center items-start justify-center;
   }
 
   .hero-text {
@@ -216,6 +216,63 @@ section {
         }
       }
     }
+  }
+
+  /* Hamburger — visible below lg */
+  .hamburger {
+    @apply hidden justify-center items-center w-10 h-10 cursor-pointer z-[110] relative rounded-lg;
+    transition: background-color 0.2s, transform 0.15s;
+
+    span {
+      @apply block w-6 h-0.5 bg-white rounded-full;
+    }
+  }
+
+  .hamburger:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .hamburger:active {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
+  }
+
+  @media (max-width: 1023px) {
+    .hamburger {
+      display: flex;
+    }
+  }
+
+  /* Mobile drawer overlay */
+  .mobile-backdrop {
+    @apply fixed inset-0 bg-black/60 z-[89] pointer-events-none opacity-0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .mobile-drawer {
+    @apply fixed top-0 right-0 h-full w-72 bg-black-100 border-l border-zinc-800 z-[90] translate-x-full pointer-events-none;
+  }
+
+  .mobile-drawer-links {
+    @apply flex flex-col gap-2 p-8 pt-24;
+  }
+
+  .mobile-drawer-link {
+    @apply text-white-50 text-2xl font-semibold py-3 px-4 rounded-lg;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, transform 0.15s;
+  }
+
+  .mobile-drawer-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateX(4px);
+  }
+
+  .mobile-drawer-link:active {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: scale(0.97);
   }
 
   .app-showcase {

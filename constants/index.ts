@@ -47,8 +47,8 @@ export const counterItems: counterItem[] = [
     suffix: "",
     url: "https://github.com/SachinyadavAug20#contributions-calendar",
   },
-  { value: 4, text: "Projects in Production", suffix: "+", url: "" },
-  { value: 2, text: "Games Built", suffix: "+", url: "" },
+  { value: 4, text: "Projects in Production", suffix: "+", url: "https://github.com/SachinyadavAug20"},
+  { value: 2, text: "Games Built", suffix: "+", url: "https://sachinapr20.itch.io/" },
 ];
 export const navLinks = [
   {
