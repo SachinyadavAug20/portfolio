@@ -191,7 +191,7 @@ export const expCards = [
     date: "July 2026 - Present",
     responsibilities: [
       "Deepening core computer science fundamentals, data structures, and algorithmic optimization at Lokmanya Tilak College of Engineering.",
-      "Architecting 'Meow Mega Corp Bank', a secure full-stack banking backend using Spring Boot to handle transactional states and robust validations.",
+      "'Meow Mega Corp Bank', a secure full-stack banking backend using Spring Boot to handle transactional states and robust validations via Plaid.",
       "Scaling backend systems with strict schema modeling and performance optimization across local and production databases.",
     ],
   },

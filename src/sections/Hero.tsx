@@ -40,8 +40,8 @@ const Hero = () => {
                 <RevolvingWords items={words} />
               </h1>
               {/* animated text: robust logic, scalable systems, complex algorithms */}
-              <h1>into Seamless Experiences</h1>
-              <h1>that Perform at scale</h1>
+              <h2>into Seamless Experiences</h2>
+              <h2>that Perform at scale</h2>
             </div>
             <p className="text-white-50 md:text-xl relative z-10 pointer-events-none">
               Hi, I'm Sachin, a developer based in India with a passion for

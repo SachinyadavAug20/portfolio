@@ -81,7 +81,7 @@ const ExperienceSection = () => {
                         <img src={exp.logoPath} alt="logo" />
                       </div>
                       <div>
-                        <h1 className="font-semibold text-3xl">{exp.title}</h1>
+                        <h2 className="font-semibold text-3xl">{exp.title}</h2>
                         <p className="my-5 text-white-50">{exp.date}</p>
                         <p className="text-[#839cb5] italic">Responsibities</p>
                         <ul className="list-disc ms-5 mt-5 flex flex-col gap-5 text-white-50">

@@ -1,8 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/inter";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -48,7 +48,7 @@ html, body {
   background-color: black;
   color: white;
   scroll-behavior: smooth;
-  font-family: "Mona Sans", sans-serif;
+  font-family: "Geist Variable", sans-serif;
 }
 
 section {
@@ -56,13 +56,35 @@ section {
 }
 
 @theme {
-  --font-sans: "Mona Sans", sans-serif;
+  --font-sans: "Geist Variable", sans-serif;
+  --font-heading: "Inter Variable", sans-serif;
   --color-white-50: #d9ecff;
   --color-black-50: #1c1c21;
   --color-black-100: #0e0e10;
   --color-black-200: #282732;
   --color-blue-50: #839cb5;
   --color-blue-100: #2d2d38;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+/* Cursor glow tokens */
+:root {
+  --glow-color: rgba(223, 80, 255, 0.35);
+  --glow-size: 500px;
+}
+
+[data-cursor-glow] {
+  will-change: transform;
 }
 
 @layer utilities {
@@ -122,6 +144,15 @@ section {
 
   .hero-text {
     @apply flex flex-col justify-center gap-1.5 md:gap-2 md:text-[60px] text-[30px] font-semibold relative z-10 pointer-events-none;
+
+    h1,
+    h2 {
+      margin: 0;
+      font-size: inherit;
+      font-weight: inherit;
+      line-height: inherit;
+      color: inherit;
+    }
     img {
       @apply size-8 md:size-10 object-contain;
     }
@@ -236,7 +267,8 @@ section {
   }
 
   .cta-wrapper {
-    @apply relative z-20 cursor-pointer;
+    @apply relative z-20 cursor-pointer m-0 border-0 bg-transparent p-0;
+    font: inherit;
   }
 
   .cta-button {
@@ -267,10 +299,6 @@ section {
     @apply border border-black-50 bg-black-100;
   }
 
-  .marquee-item {
-    @apply md:w-40 w-32;
-  }
-
   .timeline-wrapper {
     @apply absolute top-0 xl:left-[35.5vw] md:left-10 left-5 h-full flex justify-center;
   }
@@ -285,10 +313,6 @@ section {
 
   .exp-card-wrapper {
     @apply flex flex-col-reverse xl:flex-row xl:gap-20 gap-10 justify-between;
-  }
-
-  .gradient-edge {
-    @apply w-36 h-full absolute bottom-0 z-20 pointer-events-none;
   }
 
   .tech-card-animated-bg {
@@ -394,24 +418,6 @@ section {
     #52aeff 37.51%,
     #fd5c79 62.83%,
     #6d45ce 92.91%
-  );
-}
-
-.gradient-edge:nth-of-type(1) {
-  left: 0;
-  background: rgb(0, 0, 0);
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
-}
-.gradient-edge:nth-of-type(2) {
-  right: 0;
-  background: linear-gradient(
-    -90deg,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(255, 255, 255, 0) 100%
   );
 }
 
@@ -621,8 +627,8 @@ section {
 }
 
 @theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
+  --font-heading: "Inter Variable", var(--font-sans);
+  --font-sans: "Geist Variable", sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

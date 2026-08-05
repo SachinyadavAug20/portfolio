@@ -7,6 +7,9 @@ export default {
       if (!slug) {
         return new Response(JSON.stringify({ error: "missing slug" }), { status: 400 });
       }
+      if (slug.length > 200) {
+        return new Response(JSON.stringify({ error: "slug too long" }), { status: 400 });
+      }
       const key = `views:${slug}`;
       const current = parseInt(await env.BLOG_VIEWS.get(key) ?? "0", 10);
       const increment = url.searchParams.get("increment") === "1";
@@ -29,12 +32,14 @@ export default {
           }),
         });
         const data = await res.json();
-        const solved = data?.data?.matchedUser?.submitStats?.acSubmissionNum?.[0]?.count ?? 150;
+        const solved = data?.data?.matchedUser?.submitStats?.acSubmissionNum?.[0]?.count;
+        if (typeof solved !== "number") throw new Error("bad response");
         return new Response(JSON.stringify({ solved }), {
           headers: { "Content-Type": "application/json" },
         });
       } catch {
-        return new Response(JSON.stringify({ solved: 150 }), {
+        return new Response(JSON.stringify({ error: "unavailable" }), {
+          status: 502,
           headers: { "Content-Type": "application/json" },
         });
       }

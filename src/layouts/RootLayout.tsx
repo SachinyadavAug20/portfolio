@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import CursorGlow from "../components/CursorGlow";
 import Footer from "../sections/Footer";
 import { Toaster } from "../components/ui/sonner";
 import { SITE_NAME, SOCIAL_HANDLE, SITE_DESCRIPTION } from "../seo/config";
@@ -28,6 +29,7 @@ const RootLayout = () => {
         <meta name="theme-color" content="#0e0e10" />
       </Helmet>
       <Navbar />
+      <CursorGlow />
       <Outlet />
       <Toaster />
       <Footer />

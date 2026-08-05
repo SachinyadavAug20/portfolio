@@ -9,7 +9,7 @@ const Footer = () => {
         </div>
         <div className="socials">
           {socialImg.map(({ link, imgPath,name }) => (
-            <a href={link} className="icon target" target="_blank" key={link}>
+            <a href={link} className="icon target" target="_blank" rel="noreferrer" key={link}>
               <img src={imgPath} alt={name} />
             </a>
           ))}

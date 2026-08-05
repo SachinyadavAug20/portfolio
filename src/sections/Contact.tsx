@@ -53,8 +53,7 @@ const Contact = () => {
       toast.success("Message sent successfully!", {
         description: "I will reply you as soon as possible.",
       });
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.error("Failed to send message!", {
         description:
           "There might be some issue, please try later or use my email(samtagon777@gmail.com) directly.",
@@ -85,6 +84,8 @@ const Contact = () => {
                   placeholder="Your Name"
                   value={formData.name}
                   onChange={handleChange}
+                  required
+                  aria-required="true"
                 />
                 <label htmlFor="email">Email</label>
                 <input
@@ -95,6 +96,8 @@ const Contact = () => {
                   autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
+                  required
+                  aria-required="true"
                 />
                 <label htmlFor="message">Message</label>
                 <textarea
@@ -104,6 +107,8 @@ const Contact = () => {
                   placeholder="Your message..."
                   value={formData.message}
                   onChange={handleChange}
+                  required
+                  aria-required="true"
                 />
                 <button type="submit" disabled={loading}>
                   <div className="cta-button group">
