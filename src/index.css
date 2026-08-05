@@ -139,7 +139,7 @@ section {
   }
 
   .hero-layout {
-    @apply relative z-10 xl:mt-20 mt-32 md:h-dvh min-h-[50vh] h-auto flex xl:items-center items-start justify-center;
+    @apply relative z-10 xl:mt-20 mt-20 md:h-dvh min-h-0 h-auto flex xl:items-center items-start justify-center;
   }
 
   .hero-text {
