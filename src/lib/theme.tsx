@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -55,7 +56,7 @@ function applyTheme(resolved: Theme) {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<ThemeSetting>(getInitialTheme);
+  const [theme, setThemeState] = useState<ThemeSetting>(getInitialTheme);
   const [systemTheme, setSystemTheme] = useState<Theme>(getSystemTheme);
 
   useEffect(() => {
@@ -63,6 +64,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const onChange = () => setSystemTheme(media.matches ? "light" : "dark");
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  const setTheme = useCallback((next: ThemeSetting) => {
+    setThemeState(next);
+    try {
+      localStorage.setItem(STORAGE_KEY, next);
+    } catch (e) {
+      // ignore storage errors (private mode, etc.)
+    }
   }, []);
 
   const resolvedTheme: Theme = theme === "system" ? systemTheme : theme;
@@ -73,7 +83,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<ThemeContextValue>(
     () => ({ theme, setTheme, resolvedTheme }),
-    [theme, resolvedTheme],
+    [theme, setTheme, resolvedTheme],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
