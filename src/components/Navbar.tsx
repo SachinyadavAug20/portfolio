@@ -78,6 +78,9 @@ const Navbar = () => {
     if (backdropRef.current) {
       backdropRef.current.style.pointerEvents = isOpen ? "auto" : "none";
     }
+    if (drawerRef.current) {
+      drawerRef.current.style.pointerEvents = isOpen ? "auto" : "none";
+    }
   }, [isOpen]);
 
   const handleLinkClick = (href: string) => {

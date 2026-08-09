@@ -70,7 +70,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setThemeState(next);
     try {
       localStorage.setItem(STORAGE_KEY, next);
-    } catch (e) {
+    } catch {
       // ignore storage errors (private mode, etc.)
     }
   }, []);
