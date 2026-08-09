@@ -157,10 +157,7 @@ const Navbar = () => {
         aria-hidden="true"
       />
       <div ref={drawerRef} className="mobile-drawer">
-        <div className="flex justify-end px-8 pt-6">
-          <ThemeToggle />
-        </div>
-        <nav className="mobile-drawer-links pt-4">
+        <nav className="mobile-drawer-links">
           {navLinks.map(({ link, name }, i) => (
             <a
               key={link}

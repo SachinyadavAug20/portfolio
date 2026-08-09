@@ -96,7 +96,18 @@ section {
   --drawer-link-hover-bg: rgba(0, 0, 0, 0.06);
   --drawer-link-active-bg: rgba(0, 0, 0, 0.1);
   --drawer-border: #e4e4e7;
-  --cta-text: #000000;
+  --cta-bg: #38bdf8;
+  --cta-circle: #7dd3fc;
+  --cta-text: #082f49;
+  --cta-text-hover: #082f49;
+  --contact-bg: #38bdf8;
+  --contact-text: #082f49;
+  --contact-hover-bg: #0ea5e9;
+  --contact-hover-text: #082f49;
+  --counter-bg: #eef2f7;
+  --counter-border: #d8dee8;
+  --counter-text: #18181b;
+  --counter-muted: #52525b;
 }
 
 @layer base {
@@ -248,14 +259,21 @@ section {
       @apply flex;
 
       .inner {
-        @apply px-5 py-2 rounded-lg bg-white text-black group-hover:bg-black-50 transition-colors duration-300;
+        @apply px-5 py-2 rounded-lg transition-colors duration-300;
+        background-color: var(--contact-bg);
+        color: var(--contact-text);
 
         span {
           @apply transition-colors duration-300;
-          &:hover {
-            color: var(--contact-hover-text);
-          }
         }
+      }
+
+      .inner:hover {
+        background-color: var(--contact-hover-bg);
+      }
+
+      .inner:hover span {
+        color: var(--contact-hover-text);
       }
     }
   }
@@ -440,27 +458,43 @@ section {
   }
 
   .cta-button {
-    @apply px-4 py-4 rounded-lg bg-black-200 flex justify-center items-center relative cursor-pointer overflow-hidden;
+    @apply px-4 py-4 rounded-lg flex justify-center items-center relative cursor-pointer overflow-hidden;
+    background-color: var(--cta-bg);
 
     .bg-circle {
       @apply absolute -right-10 origin-center top-1/2 -translate-y-1/2 
         w-[120%] h-[120%] group-hover:size-10 group-hover:right-10
-        rounded-full bg-white-50 transition-all duration-500;
+        rounded-full transition-all duration-500;
+      background-color: var(--cta-circle);
     }
 
     .text {
       @apply uppercase md:text-lg transition-all duration-500
-        group-hover:text-white-50 group-hover:-translate-x-5 xl:translate-x-0 -translate-x-5;
+        group-hover:-translate-x-5 xl:translate-x-0 -translate-x-5;
       color: var(--cta-text);
+      transition-property: color, transform;
+    }
+
+    .group:hover .text {
+      color: var(--cta-text-hover);
     }
 
     .arrow-wrapper {
-      @apply group-hover:bg-white-50 size-10 rounded-full absolute right-10 top-1/2 
+      @apply size-10 rounded-full absolute right-10 top-1/2 
         -translate-y-1/2 flex justify-center items-center overflow-hidden;
+      background-color: transparent;
 
       img {
-        @apply size-5 xl:-translate-y-32 translate-y-0 animate-bounce group-hover:translate-y-0 transition-all duration-500;
+        @apply size-5 xl:-translate-y-32 translate-y-0 animate-bounce transition-all duration-500;
       }
+    }
+
+    .group:hover .arrow-wrapper {
+      background-color: var(--cta-circle);
+    }
+
+    .group:hover .arrow-wrapper img {
+      transform: translateY(0);
     }
   }
 
@@ -902,7 +936,18 @@ section {
   --drawer-link-hover-bg: rgba(255, 255, 255, 0.08);
   --drawer-link-active-bg: rgba(255, 255, 255, 0.15);
   --drawer-border: #27272a;
+  --cta-bg: #282732;
+  --cta-circle: #d9ecff;
   --cta-text: #000000;
+  --cta-text-hover: #d9ecff;
+  --contact-bg: #ffffff;
+  --contact-text: #000000;
+  --contact-hover-bg: #1c1c21;
+  --contact-hover-text: #ffffff;
+  --counter-bg: #18181b;
+  --counter-border: #27272a;
+  --counter-text: #f4f4f5;
+  --counter-muted: #a1a1aa;
 }
 
 .blog-content img {

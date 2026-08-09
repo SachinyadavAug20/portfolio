@@ -8,9 +8,10 @@ const Footer = () => {
           <a href="/blog">Visit my blog</a>
         </div>
         <div className="socials">
-          {socialImg.map(({ link, imgPath,name }) => (
+          {socialImg.map(({ link, imgPath, imgPathLight, name }) => (
             <a href={link} className="icon target" target="_blank" rel="noreferrer" key={link}>
-              <img src={imgPath} alt={name} />
+              <img src={imgPath} alt={name} className="hidden dark:block" />
+              <img src={imgPathLight} alt={name} className="dark:hidden" />
             </a>
           ))}
         </div>

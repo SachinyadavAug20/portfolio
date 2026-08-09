@@ -29,12 +29,19 @@ const CounterItem = ({
 
   return (
     <a href={url}>
-      <div className="bg-zinc-900 rounded-lg p-10! flex flex-col justify-center mt-2">
-        <div className="counter-number text-zinc-100 text-5xl font-bold mb-2">
+      <div
+        className="rounded-lg p-10! flex flex-col justify-center mt-2"
+        style={{
+          backgroundColor: "var(--counter-bg)",
+          color: "var(--counter-text)",
+          border: "1px solid var(--counter-border)",
+        }}
+      >
+        <div className="counter-number text-5xl font-bold mb-2">
           <span>{count}</span>
           {suffix}
         </div>
-        <div className="text-zinc-400 text-lg">{text}</div>
+        <div style={{ color: "var(--counter-muted)" }} className="text-lg">{text}</div>
       </div>
     </a>
   );

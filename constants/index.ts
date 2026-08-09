@@ -358,27 +358,32 @@ export const testimonials:testimonialProps[] = [
 interface socialImgProps{
   name:string,
   link:string,
-  imgPath:string
+  imgPath:string,
+  imgPathLight:string
 }
 export const socialImg:socialImgProps[]=[
   {
     name:"linkedin",
     link:"https://www.linkedin.com/in/sachin-yadav-05a105374/",
-    imgPath:"/images/linkedin.png"
+    imgPath:"/images/linkedin.png",
+    imgPathLight:"/images/linkedin-light.png"
   },
   {
     name:"github",
     link:"https://github.com/SachinyadavAug20",
-    imgPath:"/images/github.png"
+    imgPath:"/images/github.png",
+    imgPathLight:"/images/github-light.png"
   },
   {
     name:"leetcode",
     link:"https://leetcode.com/u/b2mIkNz0h5/",
-    imgPath:"/images/leetcode.png"
+    imgPath:"/images/leetcode.png",
+    imgPathLight:"/images/leetcode-light.png"
   },
   {
     name:"x",
     link:"https://x.com/samtagon38824",
-    imgPath:"/images/x.png"
+    imgPath:"/images/x.png",
+    imgPathLight:"/images/x-light.png"
   },
 ]
