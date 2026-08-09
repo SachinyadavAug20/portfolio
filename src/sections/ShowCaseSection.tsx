@@ -66,7 +66,7 @@ const ShowCaseSection = () => {
 
             <a href="https://github.com/SachinyadavAug20/BaseCase">
               <div className="text-content">
-                <h2 className="text-xl font-bold md:text-3xl mb-4 text-white">
+                <h2 className="text-xl font-bold md:text-3xl mb-4 text-foreground">
                   A full-stack Q&A platform built for developers.
                 </h2>
 

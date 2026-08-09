@@ -26,7 +26,6 @@ const RootLayout = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content={SOCIAL_HANDLE} />
         <meta name="twitter:creator" content={SOCIAL_HANDLE} />
-        <meta name="theme-color" content="#0e0e10" />
       </Helmet>
       <Navbar />
       <CursorGlow />

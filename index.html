@@ -11,12 +11,44 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="theme-color" content="#0e0e10" />
   <title>Sachin Yadav &mdash;&mdash; Portfolio</title>
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("theme");
+        var theme =
+          stored === "light" || stored === "dark" || stored === "system"
+            ? stored
+            : "system";
+        var dark =
+          theme === "dark" ||
+          (theme === "system" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+        document.documentElement.style.colorScheme = dark ? "dark" : "light";
+      } catch (e) {}
+    })();
+  </script>
   <style>
+    :root {
+      --splash-bg: #fafafa;
+      --splash-muted: #7a7a8f;
+      --splash-muted-2: #9090a5;
+      --splash-fg: #2a2a35;
+      --splash-track: #e4e4ea;
+    }
+    .dark {
+      --splash-bg: #0e0e10;
+      --splash-muted: #56566a;
+      --splash-muted-2: #404050;
+      --splash-fg: #c0c0d0;
+      --splash-track: #1e1e22;
+    }
+
     #splash {
       position: fixed;
       inset: 0;
       z-index: 9999;
-      background: #0e0e10;
+      background: var(--splash-bg);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -41,14 +73,14 @@
     }
 
       #splash-filelist {
-        color: #56566a;
+        color: var(--splash-muted);
         font-size: clamp(11px, 1.35vw, 14px);
         line-height: 1.7;
         margin-bottom: 20px;
         white-space: pre;
       }
       #splash-filelist .section {
-        color: #404050;
+        color: var(--splash-muted-2);
         margin-top: 4px;
       }
       #splash-filelist .idx {
@@ -59,24 +91,17 @@
         opacity: 1;
       }
       #splash-filelist .active {
-        color: #c0c0d0;
-      }
-      #splash-filelist .active .idx {
-        color: #62e0ff;
+        color: var(--splash-fg);
       }
 
     #splash-filelist .cursor {
       color: #62e0ff;
     }
 
-    #splash-filelist .active {
-      color: #c0c0d0;
-    }
-
       #splash-progress-wrap {
       width: clamp(200px, 40vw, 400px);
       height: 2px;
-      background: #1e1e22;
+      background: var(--splash-track);
       border-radius: 1px;
       overflow: hidden;
     }

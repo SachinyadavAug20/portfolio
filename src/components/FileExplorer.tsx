@@ -40,7 +40,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
             {i > 0 && <ChevronRight className="size-3.5" />}
             <button
               onClick={() => onNavigate(crumb.path)}
-              className="hover:text-white transition-colors"
+              className="hover:text-foreground transition-colors"
             >
               {crumb.label}
             </button>
@@ -66,7 +66,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
                 hover:bg-black-200 transition-colors text-left group cursor-pointer"
             >
               <Folder className="size-5 text-yellow-500 shrink-0" />
-              <span className="text-white-50 group-hover:text-white transition-colors">
+              <span className="text-white-50 group-hover:text-foreground transition-colors">
                 {node.name}
               </span>
               <span className="ml-auto text-xs text-blue-50">
@@ -87,7 +87,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
             >
               <FileText className="size-5 text-blue-400 shrink-0" />
               <div className="min-w-0">
-                <span className="text-white-50 group-hover:text-white transition-colors block truncate">
+                <span className="text-white-50 group-hover:text-foreground transition-colors block truncate">
                   {node.title ?? node.name}
                 </span>
               </div>
@@ -96,7 +96,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
           {remaining > 0 && (
             <button
               onClick={() => setVisibleFiles((v) => v + BATCH_SIZE)}
-              className="w-full text-center py-3 rounded-lg text-sm text-blue-50 hover:text-white hover:bg-black-200 transition-colors"
+              className="w-full text-center py-3 rounded-lg text-sm text-blue-50 hover:text-foreground hover:bg-black-200 transition-colors"
             >
               Show {remaining} more file{remaining !== 1 ? "s" : ""}
             </button>

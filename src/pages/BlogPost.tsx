@@ -326,7 +326,7 @@ const BlogPost = () => {
         <div className="w-full h-full md:px-10 px-5 text-center">
           <h1 className="text-3xl font-bold mb-4">Post not found</h1>
           <p className="text-red-400 mb-4">{error}</p>
-          <Link to={backTo} className="text-blue-50 hover:text-white underline">
+          <Link to={backTo} className="text-blue-50 hover:text-foreground underline">
             Back to blog
           </Link>
         </div>
@@ -350,7 +350,7 @@ const BlogPost = () => {
       <div className="w-full h-full md:px-10 px-5 max-w-6xl mx-auto">
         <Link
           to={backTo}
-          className="text-blue-50 hover:text-white transition-colors inline-flex items-center gap-2 mb-8"
+          className="text-blue-50 hover:text-foreground transition-colors inline-flex items-center gap-2 mb-8"
         >
           &larr; Back
         </Link>
@@ -384,7 +384,7 @@ const BlogPost = () => {
                   <Link
                     key={tag}
                     to={`/blog?tag=${encodeURIComponent(tag)}`}
-                    className="px-2.5 py-0.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-white transition-colors"
+                    className="px-2.5 py-0.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground transition-colors"
                   >
                     {tag}
                   </Link>
@@ -443,7 +443,7 @@ const BlogPost = () => {
               {prev ? (
                 <Link
                   to={`/blog/post/${prev.fullSlug}${from ? `?from=${from}` : ""}`}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 transition-colors text-white-50 hover:text-white max-w-[45%]"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 transition-colors text-white-50 hover:text-foreground max-w-[45%]"
                 >
                   <ArrowLeft className="size-4 shrink-0" />
                   <span className="truncate text-sm">{prev.title}</span>
@@ -454,7 +454,7 @@ const BlogPost = () => {
               {next ? (
                 <Link
                   to={`/blog/post/${next.fullSlug}${from ? `?from=${from}` : ""}`}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 transition-colors text-white-50 hover:text-white max-w-[45%] ml-auto"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 transition-colors text-white-50 hover:text-foreground max-w-[45%] ml-auto"
                 >
                   <span className="truncate text-sm">{next.title}</span>
                   <ArrowRight className="size-4 shrink-0" />

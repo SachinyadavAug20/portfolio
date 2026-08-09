@@ -7,7 +7,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --gradient: radial-gradient(circle, #e5e5e5 0%, #fff 100%);
+  --gradient: radial-gradient(circle, #9aa5b8 0%, #d1d5db 100%);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -45,8 +45,8 @@
 html, body {
   width: 100dvw;
   overflow-x: hidden;
-  background-color: black;
-  color: white;
+  background-color: var(--background);
+  color: var(--foreground);
   scroll-behavior: smooth;
   font-family: "Geist Variable", sans-serif;
 }
@@ -58,12 +58,45 @@ section {
 @theme {
   --font-sans: "Geist Variable", sans-serif;
   --font-heading: "Inter Variable", sans-serif;
-  --color-white-50: #d9ecff;
-  --color-black-50: #1c1c21;
-  --color-black-100: #0e0e10;
-  --color-black-200: #282732;
-  --color-blue-50: #839cb5;
-  --color-blue-100: #2d2d38;
+  --color-white-50: var(--flip-white-50);
+  --color-black-50: var(--flip-black-50);
+  --color-black-100: var(--flip-black-100);
+  --color-black-200: var(--flip-black-200);
+  --color-blue-50: var(--flip-blue-50);
+  --color-blue-100: var(--flip-blue-100);
+}
+
+:root {
+  --flip-white-50: #3b4351;
+  --flip-black-50: #e5e7eb;
+  --flip-black-100: #ffffff;
+  --flip-black-200: #f1f3f5;
+  --flip-blue-50: #5b6b83;
+  --flip-blue-100: #f3f4f6;
+  --edge-color: rgb(255 255 255 / 0.9);
+  --tech-card-bg: #eef1f4;
+  --stroke-weak: rgb(0 0 0 / 0.14);
+  --pill-border: rgb(0 0 0 / 0.08);
+  --pill-bg: rgb(0 0 0 / 0.03);
+  --pill-text: rgb(0 0 0 / 0.6);
+  --pill-hover-text: rgb(0 0 0 / 0.92);
+  --pill-hover-bg: rgb(0 0 0 / 0.05);
+  --toast-bg: #ffffff;
+  --toast-text: #18181b;
+  --toast-border: #e4e4e7;
+  --toast-muted: #71717a;
+  --nav-bg: #ffffff;
+  --nav-border: #d4d4d8;
+  --nav-line: #18181b;
+  --nav-underline: #18181b;
+  --nav-link-hover: #000000;
+  --nav-hover-bg: rgba(0, 0, 0, 0.06);
+  --nav-hover-bg-active: rgba(0, 0, 0, 0.12);
+  --contact-hover-text: #18181b;
+  --drawer-link-hover-bg: rgba(0, 0, 0, 0.06);
+  --drawer-link-active-bg: rgba(0, 0, 0, 0.1);
+  --drawer-border: #e4e4e7;
+  --cta-text: #000000;
 }
 
 @layer base {
@@ -170,7 +203,9 @@ section {
     @apply fixed w-full left-1/2 py-1 px-2 md:px-10 -translate-x-1/2 z-[100] transition-all duration-300 ease-in-out;
 
     &.scrolled {
-      @apply top-0 bg-black opacity-95 border border-zinc-700 rounded-2xl px-12 py-3;
+      @apply top-0 bg-black opacity-95 border rounded-2xl px-12 py-3;
+      background-color: var(--nav-bg);
+      border-color: var(--nav-border);
     }
 
     &.not-scrolled {
@@ -196,10 +231,14 @@ section {
 
           span {
             @apply transition-colors duration-300 hover:text-white;
+            &:hover {
+              color: var(--nav-link-hover);
+            }
           }
 
           .underline {
-            @apply absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full;
+            @apply absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full;
+            background-color: var(--nav-underline);
           }
         }
       }
@@ -212,7 +251,10 @@ section {
         @apply px-5 py-2 rounded-lg bg-white text-black group-hover:bg-black-50 transition-colors duration-300;
 
         span {
-          @apply group-hover:text-white transition-colors duration-300;
+          @apply transition-colors duration-300;
+          &:hover {
+            color: var(--contact-hover-text);
+          }
         }
       }
     }
@@ -224,16 +266,17 @@ section {
     transition: background-color 0.2s, transform 0.15s;
 
     span {
-      @apply block w-6 h-0.5 bg-white rounded-full;
+      @apply block w-6 h-0.5 rounded-full;
+      background-color: var(--nav-line);
     }
   }
 
   .hamburger:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--nav-hover-bg);
   }
 
   .hamburger:active {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--nav-hover-bg-active);
     transform: scale(0.95);
   }
 
@@ -241,6 +284,73 @@ section {
     .hamburger {
       display: flex;
     }
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    @apply flex-none;
+  }
+
+  .theme-toggle-btn {
+    @apply relative flex items-center justify-center size-10 rounded-lg cursor-pointer transition-colors duration-200;
+    background-color: var(--nav-hover-bg);
+  }
+
+  .theme-toggle-btn:hover {
+    background-color: var(--nav-hover-bg-active);
+  }
+
+  .theme-toggle-btn span {
+    @apply flex items-center justify-center;
+  }
+
+  .theme-toggle-sun {
+    color: var(--nav-line);
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
+  }
+
+  .theme-toggle-moon {
+    position: absolute;
+    color: var(--nav-line);
+    transform: scale(0) rotate(90deg);
+    opacity: 0;
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
+  }
+
+  .dark .theme-toggle-sun {
+    transform: scale(0) rotate(-90deg);
+    opacity: 0;
+  }
+
+  .dark .theme-toggle-moon {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+
+  .theme-toggle-menu {
+    @apply absolute right-0 top-12 z-[120] min-w-36 rounded-xl border shadow-lg p-1.5 flex flex-col gap-0.5;
+    background-color: var(--flip-black-100);
+    border-color: var(--drawer-border);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+  }
+
+  .theme-toggle-item {
+    @apply flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer;
+    color: var(--flip-white-50);
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .theme-toggle-item:hover {
+    color: var(--nav-link-hover);
+    background-color: var(--drawer-link-hover-bg);
+  }
+
+  .theme-toggle-check {
+    @apply ml-auto;
   }
 
   /* Mobile drawer overlay */
@@ -251,7 +361,8 @@ section {
   }
 
   .mobile-drawer {
-    @apply fixed top-0 right-0 h-full w-72 bg-black-100 border-l border-zinc-800 z-[90] translate-x-full pointer-events-none;
+    @apply fixed top-0 right-0 h-full w-72 bg-black-100 border-l z-[90] translate-x-full pointer-events-none;
+    border-color: var(--drawer-border);
   }
 
   .mobile-drawer-links {
@@ -265,13 +376,13 @@ section {
   }
 
   .mobile-drawer-link:hover {
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--nav-link-hover);
+    background-color: var(--drawer-link-hover-bg);
     transform: translateX(4px);
   }
 
   .mobile-drawer-link:active {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: var(--drawer-link-active-bg);
     transform: scale(0.97);
   }
 
@@ -338,8 +449,9 @@ section {
     }
 
     .text {
-      @apply uppercase md:text-lg text-black transition-all duration-500
+      @apply uppercase md:text-lg transition-all duration-500
         group-hover:text-white-50 group-hover:-translate-x-5 xl:translate-x-0 -translate-x-5;
+      color: var(--cta-text);
     }
 
     .arrow-wrapper {
@@ -361,7 +473,8 @@ section {
   }
 
   .timeline {
-    @apply absolute z-30 h-[110%] -top-10 w-14 md:w-28 bg-black;
+    @apply absolute z-30 h-[110%] -top-10 w-14 md:w-28;
+    background-color: var(--flip-black-100);
   }
 
   .timeline-logo {
@@ -373,7 +486,8 @@ section {
   }
 
   .tech-card-animated-bg {
-    @apply absolute left-0 bottom-[-100%] w-full h-full bg-[#2D3240] group-hover:bottom-0 transition-all duration-700;
+    @apply absolute left-0 bottom-[-100%] w-full h-full group-hover:bottom-0 transition-all duration-700;
+    background: var(--tech-card-bg);
   }
 
   .tech-card-content {
@@ -506,13 +620,13 @@ section {
   font-size: clamp(4rem, 11vw, 10rem);
   letter-spacing: 0.02em;
   color: transparent;
-  -webkit-text-stroke: 1px rgb(255 255 255 / 0.08);
+  -webkit-text-stroke: 1px var(--stroke-weak);
 }
 
 .marquee-ghost-sep {
   margin: 0 1.5rem;
   color: transparent;
-  -webkit-text-stroke: 1px rgb(255 255 255 / 0.08);
+  -webkit-text-stroke: 1px var(--stroke-weak);
 }
 
 @keyframes marquee-ghost {
@@ -546,9 +660,9 @@ section {
 
 .tech-pill-body {
   @apply flex items-center gap-2.5 px-5 md:px-6 py-2.5 md:py-3 rounded-full whitespace-nowrap;
-  border: 1px solid rgb(255 255 255 / 0.08);
-  background: rgb(255 255 255 / 0.03);
-  color: rgb(255 255 255 / 0.6);
+  border: 1px solid var(--pill-border);
+  background: var(--pill-bg);
+  color: var(--pill-text);
   filter: grayscale(1);
   transition:
     filter 0.3s ease,
@@ -568,8 +682,8 @@ section {
 
 .tech-pill:hover .tech-pill-body {
   filter: grayscale(0);
-  color: rgb(255 255 255 / 0.95);
-  background: rgb(255 255 255 / 0.06);
+  color: var(--pill-hover-text);
+  background: var(--pill-hover-bg);
   border-color: rgb(98 224 255 / 0.5);
   box-shadow:
     0 0 0 1px rgb(98 224 255 / 0.25),
@@ -619,8 +733,8 @@ section {
   left: 0;
   background: linear-gradient(
     90deg,
-    oklch(0.145 0 0 / 0.9),
-    oklch(0.145 0 0 / 0)
+    var(--edge-color),
+    transparent
   );
 }
 
@@ -628,8 +742,8 @@ section {
   right: 0;
   background: linear-gradient(
     -90deg,
-    oklch(0.145 0 0 / 0.9),
-    oklch(0.145 0 0 / 0)
+    var(--edge-color),
+    transparent
   );
 }
 /* marquee end */
@@ -758,6 +872,37 @@ section {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --flip-white-50: #d9ecff;
+  --flip-black-50: #1c1c21;
+  --flip-black-100: #0e0e10;
+  --flip-black-200: #282732;
+  --flip-blue-50: #839cb5;
+  --flip-blue-100: #2d2d38;
+  --gradient: radial-gradient(circle, #e5e5e5 0%, #fff 100%);
+  --edge-color: oklch(0.145 0 0 / 0.9);
+  --tech-card-bg: #2d3240;
+  --stroke-weak: rgb(255 255 255 / 0.08);
+  --pill-border: rgb(255 255 255 / 0.08);
+  --pill-bg: rgb(255 255 255 / 0.03);
+  --pill-text: rgb(255 255 255 / 0.6);
+  --pill-hover-text: rgb(255 255 255 / 0.95);
+  --pill-hover-bg: rgb(255 255 255 / 0.06);
+  --toast-bg: #18181b;
+  --toast-text: #f4f4f5;
+  --toast-border: #27272a;
+  --toast-muted: #a1a1aa;
+  --nav-bg: #000000;
+  --nav-border: #3f3f46;
+  --nav-line: #ffffff;
+  --nav-underline: #ffffff;
+  --nav-link-hover: #ffffff;
+  --nav-hover-bg: rgba(255, 255, 255, 0.1);
+  --nav-hover-bg-active: rgba(255, 255, 255, 0.2);
+  --contact-hover-text: #ffffff;
+  --drawer-link-hover-bg: rgba(255, 255, 255, 0.08);
+  --drawer-link-active-bg: rgba(255, 255, 255, 0.15);
+  --drawer-border: #27272a;
+  --cta-text: #000000;
 }
 
 .blog-content img {

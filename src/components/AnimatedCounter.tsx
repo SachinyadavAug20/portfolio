@@ -30,11 +30,11 @@ const CounterItem = ({
   return (
     <a href={url}>
       <div className="bg-zinc-900 rounded-lg p-10! flex flex-col justify-center mt-2">
-        <div className="counter-number text-white text-5xl font-bold mb-2">
+        <div className="counter-number text-zinc-100 text-5xl font-bold mb-2">
           <span>{count}</span>
           {suffix}
         </div>
-        <div className="text-white-50 text-lg">{text}</div>
+        <div className="text-zinc-400 text-lg">{text}</div>
       </div>
     </a>
   );

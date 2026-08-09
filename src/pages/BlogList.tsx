@@ -157,7 +157,7 @@ const BlogList = () => {
                       <button
                         key={tag}
                         onClick={() => setTag(tag)}
-                        className="px-2.5 py-0.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-white transition-colors"
+                        className="px-2.5 py-0.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground transition-colors"
                       >
                         {tag}
                       </button>

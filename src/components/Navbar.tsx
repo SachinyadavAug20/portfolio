@@ -3,6 +3,7 @@ import { useLocation, Link } from "react-router-dom";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { navLinks } from "../../constants";
+import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -128,6 +129,7 @@ const Navbar = () => {
             </ul>
           </nav>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <a href="/#contact" className="contact-btn group">
               <div className="inner">
                 <span>Contact me</span>
@@ -155,7 +157,10 @@ const Navbar = () => {
         aria-hidden="true"
       />
       <div ref={drawerRef} className="mobile-drawer">
-        <nav className="mobile-drawer-links">
+        <div className="flex justify-end px-8 pt-6">
+          <ThemeToggle />
+        </div>
+        <nav className="mobile-drawer-links pt-4">
           {navLinks.map(({ link, name }, i) => (
             <a
               key={link}
