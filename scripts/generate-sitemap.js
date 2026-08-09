@@ -25,27 +25,54 @@ function getLastmod(slug) {
   return new Date().toISOString().split("T")[0];
 }
 
+async function fetchBlogSlugs() {
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`;
+  const headers = {
+    Accept: "application/vnd.github+json",
+    "User-Agent": "sitemap-generator",
+  };
+  const token = process.env.GITHUB_TOKEN || process.env.GITHUB_PAT;
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch(url, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        const prefix = `${BLOG_ROOT}/`;
+        return (data.tree || [])
+          .filter((item) => item.type === "blob" && item.path.endsWith(".md") && item.path.startsWith(prefix))
+          .map((item) => item.path.slice(prefix.length).replace(/\.md$/, ""));
+      }
+      if (res.status === 403 || res.status === 429 || res.status >= 500) {
+        console.warn(`GitHub API returned ${res.status} (attempt ${attempt}/${maxAttempts})`);
+        if (attempt < maxAttempts) {
+          await new Promise((r) => setTimeout(r, attempt * 1000));
+          continue;
+        }
+      } else {
+        throw new Error(`GitHub API returned ${res.status}`);
+      }
+    } catch (err) {
+      console.warn(`Failed to fetch GitHub tree: ${err.message} (attempt ${attempt}/${maxAttempts})`);
+      if (attempt < maxAttempts) {
+        await new Promise((r) => setTimeout(r, attempt * 1000));
+        continue;
+      }
+    }
+  }
+  return null;
+}
+
 async function main() {
   const baseUrl = getBaseUrl();
 
-  let tree;
-  try {
-    const url = `https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`;
-    const res = await fetch(url, {
-      headers: { Accept: "application/vnd.github+json", "User-Agent": "sitemap-generator" },
-    });
-    if (!res.ok) throw new Error(`GitHub API returned ${res.status}`);
-    const data = await res.json();
-    tree = data.tree;
-  } catch (err) {
-    console.error("Failed to fetch GitHub tree:", err.message);
-    process.exit(1);
+  const slugs = await fetchBlogSlugs();
+  if (slugs === null) {
+    console.warn("GitHub API unavailable; keeping existing sitemap.");
+    return;
   }
-
-  const prefix = `${BLOG_ROOT}/`;
-  const slugs = tree
-    .filter((item) => item.type === "blob" && item.path.endsWith(".md") && item.path.startsWith(prefix))
-    .map((item) => item.path.slice(prefix.length).replace(/\.md$/, ""));
 
   const lines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
