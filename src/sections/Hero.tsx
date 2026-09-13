@@ -3,29 +3,12 @@ import AnimatedCounter from "../components/AnimatedCounter";
 import Button from "../components/Button";
 import HeroExperience from "../components/HeroModels/HeroExperience";
 import RevolvingWords from "../components/RevolvingWords";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
+import FlickeringText from "../components/FlickeringText";
 import { useMediaQuery } from "react-responsive";
 
 const Hero = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
-  useGSAP(() => {
-    gsap.fromTo(
-      ".hero-text h1",
-      {
-        y: 50,
-        opacity: 0,
-      },
-      {
-        y: 0,
-        opacity: 1,
-        stagger: 0.2,
-        duration: 1,
-        ease: "back.out(2)",
-      },
-    );
-  });
   return (
     <section id="hero" className="relative overflow-hidden">
       <div className="absolute top-0 left-0 z-10">
@@ -39,12 +22,15 @@ const Hero = () => {
           <div className="flex flex-col gap-7">
             <div className="hero-text">
               <h1>
-                Engineering
+                <FlickeringText>Engineering </FlickeringText>
                 <RevolvingWords items={words} />
               </h1>
-              {/* animated text: robust logic, scalable systems, complex algorithms */}
-              <h2>into Seamless Experiences</h2>
-              <h2>that Perform at scale</h2>
+              <h2>
+                <FlickeringText>into Seamless Experiences</FlickeringText>
+              </h2>
+              <h2>
+                <FlickeringText>that Perform at scale</FlickeringText>
+              </h2>
             </div>
             <p className="text-white-50 md:text-xl relative z-10 pointer-events-none">
               Hi, I'm Sachin, a developer based in India with a passion for
