@@ -46,22 +46,22 @@ const FlickeringText = ({
         return;
       }
 
-      const tl = gsap.timeline({ delay: 0.6 });
+      const tl = gsap.timeline({ delay: 0.8 });
 
       tl.set(chars, { opacity: 0 });
 
       chars.forEach((char, i) => {
-        const base = i * 0.028;
-        const flashes = 2 + Math.floor(Math.random() * 2);
+        const base = i * 0.04;
+        const flashes = 3 + Math.floor(Math.random() * 3);
 
         for (let f = 0; f < flashes; f++) {
-          const t = base + f * 0.13;
+          const t = base + f * 0.35;
           tl.to(
             char,
             {
-              opacity: gsap.utils.random(0.4, 1),
-              textShadow: `0 0 ${gsap.utils.random(10, 28) * glowIntensity}px ${glowColor}`,
-              duration: gsap.utils.random(0.06, 0.14),
+              opacity: gsap.utils.random(0.35, 1),
+              textShadow: `0 0 ${gsap.utils.random(12, 32) * glowIntensity}px ${glowColor}`,
+              duration: gsap.utils.random(0.2, 0.35),
               ease: "power2.inOut",
             },
             t,
@@ -69,12 +69,12 @@ const FlickeringText = ({
           tl.to(
             char,
             {
-              opacity: gsap.utils.random(0, 0.3),
+              opacity: gsap.utils.random(0, 0.25),
               textShadow: "none",
-              duration: gsap.utils.random(0.06, 0.12),
+              duration: gsap.utils.random(0.15, 0.25),
               ease: "power2.inOut",
             },
-            t + 0.09,
+            t + 0.22,
           );
         }
 
@@ -82,11 +82,21 @@ const FlickeringText = ({
           char,
           {
             opacity: 1,
-            textShadow: "none",
-            duration: 0.22,
+            textShadow: `0 0 ${4 * glowIntensity}px ${glowColor}`,
+            duration: 0.5,
             ease: "power3.out",
           },
-          base + flashes * 0.13 + 0.12,
+          base + flashes * 0.35 + 0.15,
+        );
+
+        tl.to(
+          char,
+          {
+            textShadow: "none",
+            duration: 1.2,
+            ease: "power1.inOut",
+          },
+          base + flashes * 0.35 + 0.65,
         );
       });
 
