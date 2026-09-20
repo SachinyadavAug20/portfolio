@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Eye } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -14,6 +14,8 @@ import remarkObsidianImages from "../blog/remark-obsidian-images";
 import { rehypeMermaid } from "../blog/rehype-mermaid";
 import rehypeRaw from "rehype-raw";
 import rehypePrism from "rehype-prism-plus";
+import ReadingProgress from "../components/ReadingProgress";
+import ReadAloud from "../components/ReadAloud";
 import "prismjs/themes/prism-tomorrow.css";
 
 interface TocItem {
@@ -82,10 +84,10 @@ const TableOfContents = ({ headings }: { headings: TocItem[] }) => {
 
   return (
     <nav className="sticky top-24">
-      <h4 className="text-xs font-semibold text-white-50/40 uppercase tracking-wider mb-3">
+      <h4 className="text-xs font-semibold text-white-50/40 uppercase tracking-wider mb-4">
         On this page
       </h4>
-      <ul className="space-y-1 border-l border-black-50">
+      <ul className="space-y-1.5 border-l border-black-50">
         {headings.map((h) => (
           <li key={h.id}>
             <a
@@ -94,8 +96,8 @@ const TableOfContents = ({ headings }: { headings: TocItem[] }) => {
                 e.preventDefault();
                 handleClick(h.id);
               }}
-              className={`block text-sm py-1 border-l transition-colors ${
-                h.level === 3 ? "pl-6" : "pl-4"
+              className={`block text-[13px] leading-snug py-1 border-l transition-colors ${
+                h.level === 3 ? "pl-6" : h.level === 4 ? "pl-8" : "pl-4"
               } ${
                 activeId === h.id
                   ? "border-blue-50 text-blue-50"
@@ -346,52 +348,53 @@ const BlogPost = () => {
         datePublished={lastUpdated ?? undefined}
         dateModified={lastUpdated ?? undefined}
       />
+      <ReadingProgress />
       <section className="section-padding pt-5 min-h-screen">
       <div className="w-full h-full md:px-10 px-5 max-w-6xl mx-auto">
         <Link
           to={backTo}
-          className="text-blue-50 hover:text-foreground transition-colors inline-flex items-center gap-2 mb-8"
+          className="text-blue-50 hover:text-foreground transition-colors inline-flex items-center gap-2 mb-6"
         >
           &larr; Back
         </Link>
         <div className="flex gap-12">
           <div className="flex-1 min-w-0 max-w-3xl">
-            <div className="flex items-center gap-3 text-white-50 text-sm mb-2">
-              <Clock className="size-4" />
-              <span>{readingTime} min read</span>
+            <div className="flex items-center gap-4 text-white-50 text-sm mb-4 flex-wrap">
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="size-4" />
+                {readingTime} min read
+              </span>
               {lastUpdated && (
-                <>
-                  <span className="text-white-50/30">|</span>
-                  <span className="text-white-50/60 text-xs">
-                    Updated {new Date(lastUpdated).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                </>
+                <span className="text-white-50/60">
+                  {new Date(lastUpdated).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
               )}
               {views !== null && (
-                <>
-                  <span className="text-white-50/30">|</span>
-                  <span className="text-white-50/60 text-xs">{views} views</span>
-                </>
+                <span className="inline-flex items-center gap-1 text-white-50/60">
+                  <Eye className="size-3.5" />
+                  {views}
+                </span>
               )}
+              <ReadAloud />
             </div>
             {post.dir && (
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap gap-2 mb-8">
                 {post.dir.split("/").filter(Boolean).map((tag) => (
                   <Link
                     key={tag}
                     to={`/blog?tag=${encodeURIComponent(tag)}`}
-                    className="px-2.5 py-0.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground transition-colors"
+                    className="px-3 py-1 text-xs rounded-full bg-black-200/80 text-blue-50/70 hover:bg-blue-500/15 hover:text-blue-50 border border-black-50/50 hover:border-blue-50/30 transition-all"
                   >
                     {tag}
                   </Link>
                 ))}
               </div>
             )}
-            <article className="prose prose-invert max-w-none blog-content">
+            <article className="prose prose-invert max-w-none blog-content mt-6">
               {post.content && (
                 <ReactMarkdown
                   remarkPlugins={[
@@ -439,13 +442,13 @@ const BlogPost = () => {
                 </ReactMarkdown>
               )}
             </article>
-            <div className="mt-12 pt-8 border-t border-black-50 flex items-center justify-between gap-4">
+            <div className="mt-16 pt-8 border-t border-black-50 flex items-center justify-between gap-4">
               {prev ? (
                 <Link
                   to={`/blog/post/${prev.fullSlug}${from ? `?from=${from}` : ""}`}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 transition-colors text-white-50 hover:text-foreground max-w-[45%]"
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/50 hover:border-blue-50/30 transition-all text-white-50 hover:text-foreground max-w-[45%] group"
                 >
-                  <ArrowLeft className="size-4 shrink-0" />
+                  <ArrowLeft className="size-4 shrink-0 group-hover:-translate-x-0.5 transition-transform" />
                   <span className="truncate text-sm">{prev.title}</span>
                 </Link>
               ) : (
@@ -454,10 +457,10 @@ const BlogPost = () => {
               {next ? (
                 <Link
                   to={`/blog/post/${next.fullSlug}${from ? `?from=${from}` : ""}`}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 transition-colors text-white-50 hover:text-foreground max-w-[45%] ml-auto"
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/50 hover:border-blue-50/30 transition-all text-white-50 hover:text-foreground max-w-[45%] ml-auto group"
                 >
                   <span className="truncate text-sm">{next.title}</span>
-                  <ArrowRight className="size-4 shrink-0" />
+                  <ArrowRight className="size-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               ) : (
                 <div />

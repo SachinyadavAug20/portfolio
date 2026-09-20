@@ -46,22 +46,22 @@ const FlickeringText = ({
         return;
       }
 
-      const tl = gsap.timeline({ delay: 0.8 });
+      const tl = gsap.timeline({ delay: 0.6 });
 
       tl.set(chars, { opacity: 0 });
 
       chars.forEach((char, i) => {
-        const base = i * 0.04;
-        const flashes = 3 + Math.floor(Math.random() * 3);
+        const base = i * 0.03;
+        const flashes = 2 + Math.floor(Math.random() * 2);
 
         for (let f = 0; f < flashes; f++) {
-          const t = base + f * 0.35;
+          const t = base + f * 0.18;
           tl.to(
             char,
             {
-              opacity: gsap.utils.random(0.35, 1),
-              textShadow: `0 0 ${gsap.utils.random(12, 32) * glowIntensity}px ${glowColor}`,
-              duration: gsap.utils.random(0.2, 0.35),
+              opacity: gsap.utils.random(0.4, 1),
+              textShadow: `0 0 ${gsap.utils.random(10, 24) * glowIntensity}px ${glowColor}`,
+              duration: gsap.utils.random(0.1, 0.18),
               ease: "power2.inOut",
             },
             t,
@@ -69,12 +69,12 @@ const FlickeringText = ({
           tl.to(
             char,
             {
-              opacity: gsap.utils.random(0, 0.25),
+              opacity: gsap.utils.random(0, 0.3),
               textShadow: "none",
-              duration: gsap.utils.random(0.15, 0.25),
+              duration: gsap.utils.random(0.1, 0.16),
               ease: "power2.inOut",
             },
-            t + 0.22,
+            t + 0.12,
           );
         }
 
@@ -82,21 +82,21 @@ const FlickeringText = ({
           char,
           {
             opacity: 1,
-            textShadow: `0 0 ${4 * glowIntensity}px ${glowColor}`,
-            duration: 0.5,
+            textShadow: `0 0 ${3 * glowIntensity}px ${glowColor}`,
+            duration: 0.35,
             ease: "power3.out",
           },
-          base + flashes * 0.35 + 0.15,
+          base + flashes * 0.18 + 0.1,
         );
 
         tl.to(
           char,
           {
             textShadow: "none",
-            duration: 1.2,
+            duration: 0.6,
             ease: "power1.inOut",
           },
-          base + flashes * 0.35 + 0.65,
+          base + flashes * 0.18 + 0.45,
         );
       });
 
