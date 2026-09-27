@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/all";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -10,42 +10,54 @@ const ShowCaseSection = () => {
   const project1Ref = useRef<HTMLDivElement>(null);
   const project2Ref = useRef<HTMLDivElement>(null);
   const project3Ref = useRef<HTMLDivElement>(null);
-  useGSAP(() => {
-    const projects = [
-      project1Ref.current,
-      project2Ref.current,
-      project3Ref.current,
-    ];
-    projects.forEach((project, i) => {
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const mobile = window.matchMedia("(max-width: 767px)").matches;
+      const dur = mobile ? 0.3 : 0.4;
+
+      const projects = [
+        project1Ref.current,
+        project2Ref.current,
+        project3Ref.current,
+      ];
+      projects.forEach((project, i) => {
+        gsap.fromTo(
+          project,
+          {
+            y: mobile ? 28 : 60,
+            opacity: 0,
+          },
+          {
+            y: 0,
+            opacity: 1,
+            duration: dur,
+            delay: Math.min(0.12 * (i + 1), 0.24),
+            ease: "power2.out",
+            clearProps: "transform,opacity",
+            scrollTrigger: {
+              trigger: project,
+              start: "top bottom-=100",
+            },
+          },
+        );
+      });
       gsap.fromTo(
-        project,
+        sectionRef.current,
         {
-          y: 100,
           opacity: 0,
         },
         {
-          y: 0,
           opacity: 1,
-          duration: 1,
-          delay: 0.3 * (i + 1),
-          scrollTrigger: {
-            trigger: project,
-            start: "top bottom-=100",
-          },
+          duration: 0.6,
+          ease: "power2.out",
+          clearProps: "opacity",
         },
       );
-    });
-    gsap.fromTo(
-      sectionRef.current,
-      {
-        opacity: 0,
-      },
-      {
-        opacity: 1,
-        duration: 1.5,
-      },
-    );
-  }, []);
+    },
+    {},
+  );
   return (
     <section ref={sectionRef} id="work" className="app-showcase">
       <div className="w-full">
@@ -59,7 +71,7 @@ const ShowCaseSection = () => {
               <div className="image-wrapper">
                 <picture>
                   <source srcSet="/images/project1.webp" type="image/webp" />
-                  <img src="/images/project1.png" alt="baseCase" />
+                  <img src="/images/project1.png" alt="baseCase" loading="lazy" decoding="async" />
                 </picture>
               </div>
             </a>
@@ -98,7 +110,7 @@ const ShowCaseSection = () => {
                   <div className="image-wrapper bg-[#ffefdb] ">
                     <picture>
                       <source srcSet="/images/project2.webp" type="image/webp" />
-                      <img src="/images/project2.png" alt="Meow mega corp bank" />
+                      <img src="/images/project2.png" alt="Meow mega corp bank" loading="lazy" decoding="async" />
                     </picture>
                   </div>
                 </a>
@@ -114,6 +126,8 @@ const ShowCaseSection = () => {
                       <img
                         src="/images/project3.png"
                         alt="Meow terminal AI agent"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </picture>
                   </div>

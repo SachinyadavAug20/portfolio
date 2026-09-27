@@ -5,6 +5,8 @@ import gsap from "gsap";
 import { navLinks } from "../../constants";
 import ThemeToggle from "./ThemeToggle";
 
+const HASH_OFFSET = 72;
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -16,63 +18,104 @@ const Navbar = () => {
   const backdropRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<HTMLAnchorElement[]>([]);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const scrollYRef = useRef(0);
+
+  const lockBody = useCallback(() => {
+    scrollYRef.current = window.scrollY;
+    const b = document.body;
+    b.style.position = "fixed";
+    b.style.top = `-${scrollYRef.current}px`;
+    b.style.left = "0";
+    b.style.right = "0";
+    b.style.width = "100%";
+  }, []);
+
+  const unlockBody = useCallback(() => {
+    const b = document.body;
+    b.style.position = "";
+    b.style.top = "";
+    b.style.left = "";
+    b.style.right = "";
+    b.style.width = "";
+    window.scrollTo({ top: scrollYRef.current, behavior: "instant" });
+  }, []);
 
   const close = useCallback(() => {
     tlRef.current?.reverse();
-    document.body.style.overflow = "";
+    unlockBody();
     setIsOpen(false);
-  }, []);
+  }, [unlockBody]);
 
   const open = useCallback(() => {
     tlRef.current?.play();
-    document.body.style.overflow = "hidden";
+    lockBody();
     setIsOpen(true);
-  }, []);
+  }, [lockBody]);
 
-  useGSAP(() => {
-    const btn = menuBtnRef.current;
-    if (!btn || !drawerRef.current || !backdropRef.current) return;
-    const lines = btn.querySelectorAll("span");
-    if (lines.length < 3) return;
+  useGSAP(
+    () => {
+      const btn = menuBtnRef.current;
+      if (!btn || !drawerRef.current || !backdropRef.current) return;
+      const lines = btn.querySelectorAll("span");
+      if (lines.length < 3) return;
 
-    // Position lines absolutely in the center
-    lines.forEach((line, i) => {
-      line.style.position = "absolute";
-      line.style.top = "50%";
-      line.style.left = "50%";
-      line.style.transform = `translate(-50%, ${((i - 1) * 8)}px)`;
-    });
+      // Position lines absolutely in the center
+      lines.forEach((line, i) => {
+        line.style.position = "absolute";
+        line.style.top = "50%";
+        line.style.left = "50%";
+        line.style.transform = `translate(-50%, ${((i - 1) * 8)}px)`;
+      });
 
-    const tl = gsap.timeline({ paused: true });
+      const tl = gsap.timeline({ paused: true });
 
-    tl.to(lines[0], { rotation: 45, y: 0, duration: 0.3, ease: "power2.inOut" })
-      .to(lines[1], { scaleX: 0, opacity: 0, duration: 0.3, ease: "power2.inOut" }, "<")
-      .to(lines[2], { rotation: -45, y: 0, duration: 0.3, ease: "power2.inOut" }, "<")
-      .to(backdropRef.current, { opacity: 1, duration: 0.3, ease: "power2.out" }, 0)
-      .to(drawerRef.current, { x: 0, duration: 0.4, ease: "power3.out" }, 0.1)
-      .fromTo(
-        linksRef.current.filter(Boolean),
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.3, ease: "power2.out", stagger: 0.08 },
-        0.25,
-      );
+      tl.to(lines[0], { rotation: 45, y: 0, duration: 0.3, ease: "power2.inOut" })
+        .to(lines[1], { scaleX: 0, opacity: 0, duration: 0.3, ease: "power2.inOut" }, "<")
+        .to(lines[2], { rotation: -45, y: 0, duration: 0.3, ease: "power2.inOut" }, "<")
+        .to(backdropRef.current, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }, 0)
+        .to(drawerRef.current, { x: 0, duration: 0.4, ease: "power3.out" }, 0.1)
+        .fromTo(
+          linksRef.current.filter(Boolean),
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.3, ease: "power2.out", stagger: 0.08 },
+          0.25,
+        );
 
-    tl.reverse();
-    tlRef.current = tl;
-  }, { scope: menuBtnRef });
+      tl.reverse();
+      tlRef.current = tl;
+    },
+    { scope: menuBtnRef },
+  );
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        setScrolled(window.scrollY > 10);
+      });
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    if (isOpen) close();
+    if (!isOpen) return;
+    const id = requestAnimationFrame(() => close());
+    return () => cancelAnimationFrame(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, close]);
 
   useEffect(() => {
     if (backdropRef.current) {
@@ -88,12 +131,14 @@ const Navbar = () => {
     if (href.startsWith("#")) {
       const el = document.getElementById(href.slice(1));
       if (el) {
-        const offset = window.innerHeight * 0.15;
-        const top = el.getBoundingClientRect().top + window.scrollY - offset;
+        const top = el.getBoundingClientRect().top + window.scrollY - HASH_OFFSET;
         window.scrollTo({ top, behavior: "smooth" });
       }
     }
   };
+
+  const isExternal = (link: string) => link.startsWith("http");
+  const isInternal = (link: string) => !link.startsWith("#") && !isExternal(link);
 
   return (
     <>
@@ -101,12 +146,12 @@ const Navbar = () => {
         className={`navbar ${scrolled || !isHome ? "scrolled" : "not-scrolled"}`}
       >
         <div className="inner">
-          <a
+          <Link
             className={`logo ${scrolled ? "text-shadow-zinc-500 font-bold" : ""}`}
-            href="/"
+            to="/"
           >
             Sachin Yadav
-          </a>
+          </Link>
           <nav className="desktop">
             <ul>
               {navLinks.map(({ link, name }) => (
@@ -116,7 +161,7 @@ const Navbar = () => {
                       <span>{name}</span>
                       <span className="underline" />
                     </a>
-                  ) : link.startsWith("http") ? (
+                  ) : isExternal(link) ? (
                     <a href={link} target="_blank" rel="noreferrer">
                       <span>{name}</span>
                       <span className="underline" />
@@ -158,31 +203,55 @@ const Navbar = () => {
         className="mobile-backdrop"
         onClick={close}
         aria-hidden="true"
+        inert={!isOpen}
       />
-      <div ref={drawerRef} className="mobile-drawer">
+      <div ref={drawerRef} className="mobile-drawer" inert={!isOpen}>
         <nav className="mobile-drawer-links">
-          {navLinks.map(({ link, name }, i) => (
-            <a
-              key={link}
-              ref={(el) => {
-                linksRef.current[i] = el!;
-              }}
-              className="mobile-drawer-link"
-              href={link.startsWith("#") ? `/${link}` : link}
-              target={link.startsWith("http") ? "_blank" : undefined}
-              rel={link.startsWith("http") ? "noreferrer" : undefined}
-              onClick={(e) => {
-                if (link.startsWith("#")) {
-                  e.preventDefault();
-                  handleLinkClick(link);
-                } else {
-                  close();
-                }
-              }}
-            >
-              {name}
-            </a>
-          ))}
+          {navLinks.map(({ link, name }, i) => {
+            const props = {
+              className: "mobile-drawer-link",
+              ref: (el: HTMLAnchorElement) => {
+                linksRef.current[i] = el;
+              },
+            };
+            if (link.startsWith("#")) {
+              return (
+                <a
+                  key={link}
+                  {...props}
+                  href={`/${link}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleLinkClick(link);
+                  }}
+                >
+                  {name}
+                </a>
+              );
+            }
+            if (isExternal(link)) {
+              return (
+                <a
+                  key={link}
+                  {...props}
+                  href={link}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={close}
+                >
+                  {name}
+                </a>
+              );
+            }
+            if (isInternal(link)) {
+              return (
+                <Link key={link} {...props} to={link} onClick={close}>
+                  {name}
+                </Link>
+              );
+            }
+            return null;
+          })}
         </nav>
       </div>
     </>

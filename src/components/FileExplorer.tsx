@@ -39,7 +39,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
             {i > 0 && <ChevronRight className="size-3.5" />}
             <button
               onClick={() => onNavigate(crumb.path)}
-              className="hover:text-foreground transition-colors py-1.5 px-1 -mx-1 active:text-foreground"
+              className="hover:text-foreground transition-colors py-2 px-1.5 -mx-1 active:text-foreground"
             >
               {crumb.label}
             </button>
@@ -61,8 +61,8 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
                     : node.name,
                 )
               }
-              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-black-50
-                bg-black-100/70 hover:bg-black-200 active:scale-[0.99] transition-all text-left group cursor-pointer"
+              className="blog-tile w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-black-50
+                bg-black-100/70 hover:bg-black-200 active:scale-[0.99] transition-[background-color,border-color] duration-150 text-left group cursor-pointer"
             >
               <Folder className="size-5 text-yellow-500 shrink-0" />
               <span className="text-white-50 group-hover:text-foreground transition-colors truncate min-w-0 flex-1">
@@ -82,8 +82,8 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
             <Link
               key={node.slug}
               to={`/blog/post/${node.slug}${currentPath ? `?from=${currentPath}` : ""}`}
-              className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-black-50
-                bg-black-100/70 hover:bg-black-200 active:scale-[0.99] transition-all group"
+              className="blog-tile flex items-center gap-3 px-4 py-3.5 rounded-xl border border-black-50
+                bg-black-100/70 hover:bg-black-200 active:scale-[0.99] transition-[background-color,border-color] duration-150 group"
             >
               <FileText className="size-5 text-blue-400 shrink-0" />
               <div className="min-w-0 flex-1">
@@ -97,7 +97,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
           {remaining > 0 && (
             <button
               onClick={() => setVisibleFiles((v) => v + BATCH_SIZE)}
-              className="w-full text-center py-3 rounded-xl border border-dashed border-black-50 text-sm text-blue-50 hover:text-foreground hover:bg-black-200 transition-colors"
+              className="blog-tile w-full text-center py-3 rounded-xl border border-dashed border-black-50 text-sm text-blue-50 hover:text-foreground hover:bg-black-200 transition-colors"
             >
               Show {remaining} more file{remaining !== 1 ? "s" : ""}
             </button>

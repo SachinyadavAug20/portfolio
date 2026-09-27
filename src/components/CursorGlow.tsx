@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SIZE = 200;
 
@@ -7,24 +7,18 @@ const CursorGlow = () => {
   const mouse = useRef({ x: -SIZE, y: -SIZE });
   const glow = useRef({ x: -SIZE, y: -SIZE });
   const raf = useRef(0);
+  const running = useRef(false);
+  const prev = useRef(0);
+  const [coarse] = useState(() =>
+    window.matchMedia("(pointer: coarse)").matches,
+  );
 
   useEffect(() => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
 
-    const handleMove = (e: PointerEvent) => {
-      mouse.current = { x: e.clientX, y: e.clientY };
-      if (blobRef.current) blobRef.current.style.opacity = "1";
-    };
-
-    const handleLeave = () => {
-      if (blobRef.current) blobRef.current.style.opacity = "0";
-    };
-
-    let prev = performance.now();
-
     const tick = (now: number) => {
-      const dt = Math.min((now - prev) / 16.667, 3);
-      prev = now;
+      const dt = Math.min((now - prev.current) / 16.667, 3);
+      prev.current = now;
 
       const g = glow.current;
       const m = mouse.current;
@@ -35,19 +29,44 @@ const CursorGlow = () => {
       if (blobRef.current) {
         blobRef.current.style.transform = `translate(${g.x - SIZE / 2}px, ${g.y - SIZE / 2}px)`;
       }
+
+      // Idle early-out: stop rAF once converged to free the main thread.
+      if (Math.abs(m.x - g.x) < 0.5 && Math.abs(m.y - g.y) < 0.5) {
+        running.current = false;
+        return;
+      }
       raf.current = requestAnimationFrame(tick);
+    };
+
+    const start = () => {
+      if (running.current) return;
+      running.current = true;
+      prev.current = performance.now();
+      raf.current = requestAnimationFrame(tick);
+    };
+
+    const handleMove = (e: PointerEvent) => {
+      mouse.current = { x: e.clientX, y: e.clientY };
+      if (blobRef.current) blobRef.current.style.opacity = "1";
+      start();
+    };
+
+    const handleLeave = () => {
+      if (blobRef.current) blobRef.current.style.opacity = "0";
     };
 
     document.addEventListener("pointermove", handleMove, { passive: true });
     document.addEventListener("pointerleave", handleLeave);
-    raf.current = requestAnimationFrame(tick);
 
     return () => {
       document.removeEventListener("pointermove", handleMove);
       document.removeEventListener("pointerleave", handleLeave);
-      cancelAnimationFrame(raf.current);
+      if (raf.current) cancelAnimationFrame(raf.current);
+      running.current = false;
     };
   }, []);
+
+  if (coarse) return null;
 
   return (
     <div

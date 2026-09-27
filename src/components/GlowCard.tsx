@@ -1,6 +1,6 @@
 import type { JSX } from "react/jsx-dev-runtime";
 import type { expCardProps, testimonialProps } from "../../constants";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const GlowCard = ({
   card,
@@ -12,28 +12,47 @@ const GlowCard = ({
   index: number;
 }) => {
   const cardRef = useRef<(HTMLDivElement | null)[]>([]);
-  const handleMouseMove =
-    (index: number) => (el: React.MouseEvent<HTMLDivElement>) => {
-      const carda = cardRef.current[index];
-      if (!carda) return;
-      // get mouse position relative to card
-      const rect = carda.getBoundingClientRect();
-      const mouseX = el.clientX - rect.left - rect.width / 2;
-      const mouseY = el.clientY - rect.top - rect.height / 2;
-      // angle
-      let angle = Math.atan2(mouseY, mouseX);
-      angle = (angle * 180) / Math.PI;
-      angle = (angle + 360) % 360;
-      // carda.style.transform=`rotate(${angle}deg)`;
-      carda.style.setProperty("--start", `${angle + 60}`);
+  const rectRef = useRef<{ el: HTMLDivElement; rect: DOMRect } | null>(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const c = rectRef.current;
+      if (c) c.rect = c.el.getBoundingClientRect();
     };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const handlePointerEnter = (
+    e: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    if (e.pointerType !== "mouse") return;
+    const el = cardRef.current[index];
+    if (!el) return;
+    rectRef.current = { el, rect: el.getBoundingClientRect() };
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") return;
+    const c = rectRef.current;
+    if (!c || c.el !== cardRef.current[index]) return;
+    const rect = c.rect;
+    const mouseX = e.clientX - rect.left - rect.width / 2;
+    const mouseY = e.clientY - rect.top - rect.height / 2;
+    let angle = Math.atan2(mouseY, mouseX);
+    angle = (angle * 180) / Math.PI;
+    angle = (angle + 360) % 360;
+    c.el.style.setProperty("--start", `${angle + 60}`);
+  };
+
   return (
     <div
       ref={(el) => {
         cardRef.current[index] = el;
       }}
-      onMouseMove={handleMouseMove(index)}
-      className="card card-border timeline-card rounded-xl p-10 mb-5 bread-inside-avoid-column"
+      onPointerEnter={handlePointerEnter}
+      onPointerMove={handlePointerMove}
+      className="card card-border timeline-card rounded-xl p-6 sm:p-10 mb-5 bread-inside-avoid-column"
     >
       <div className="glow" />
       <div className="flex items-center gap-1 mb-5">

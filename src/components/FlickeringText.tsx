@@ -32,9 +32,8 @@ const FlickeringText = ({
 
       for (const ch of text) {
         const span = document.createElement("span");
-        span.textContent = ch === " " ? "\u00A0" : ch;
+        span.textContent = ch === " " ? " " : ch;
         span.style.display = "inline-block";
-        span.style.willChange = "opacity, text-shadow";
         el.appendChild(span);
         chars.push(span);
       }

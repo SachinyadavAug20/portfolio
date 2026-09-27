@@ -11,7 +11,7 @@ const NotFound = () => {
       <SEOHead title="Page Not Found" description="The page you are looking for does not exist." path={"/404"} />
       <section className="section-padding pt-10 min-h-screen flex-center">
         <div className="text-center">
-          <p className="text-8xl font-black text-white-50/60 select-none">404</p>
+          <p className="text-7xl sm:text-8xl font-black text-white-50/60 select-none">404</p>
           <h1 className="mt-6 text-3xl md:text-4xl font-semibold">Page not found</h1>
           <p className="mt-4 text-white-50 text-lg">
             The page you are looking for was moved, removed, or never existed.

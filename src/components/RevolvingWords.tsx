@@ -41,6 +41,9 @@ const RevolvingWords = ({ items }: { items: Word[] }) => {
       tl.set(reel, { y: -startC * step });
 
       if (!reducedMotion.matches) {
+        // Touch devices: skip the per-tick blur tweens (filter animation is a
+        // paint op, not a composite op) — pure translate stays 60fps.
+        const touchOnly = window.matchMedia("(hover: none)").matches;
         const stepFn = (dir: 1 | -1) => {
           const sub = gsap.timeline();
           sub.to(reel, {
@@ -48,8 +51,10 @@ const RevolvingWords = ({ items }: { items: Word[] }) => {
             duration: TICK,
             ease: "power3.inOut",
           });
-          sub.to(reel, { filter: `blur(${BLUR}px)`, duration: TICK / 2, ease: "none" }, 0);
-          sub.to(reel, { filter: "blur(0px)", duration: TICK / 2, ease: "none" }, TICK / 2);
+          if (!touchOnly) {
+            sub.to(reel, { filter: `blur(${BLUR}px)`, duration: TICK / 2, ease: "none" }, 0);
+            sub.to(reel, { filter: "blur(0px)", duration: TICK / 2, ease: "none" }, TICK / 2);
+          }
           tl!.add(sub);
         };
         const dwell = () => tl!.to({}, { duration: DWELL });

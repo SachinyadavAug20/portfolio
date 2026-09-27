@@ -1,6 +1,8 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { X, Search } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 import SEOHead from "../seo/SEOHead";
 import { getPosts } from "../blog/posts";
 import { buildTree, getFolderAtPath } from "../blog/tree";
@@ -13,9 +15,11 @@ const BlogList = () => {
   const currentPath = searchParams.get("path") ?? "";
   const currentTag = searchParams.get("tag") ?? "";
   const currentQuery = searchParams.get("q") ?? "";
+  const viewKey = `${currentPath}::${currentTag}`;
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,6 +38,50 @@ const BlogList = () => {
       });
     return () => { cancelled = true; };
   }, []);
+
+  // Entrance choreography (timings from UX motion research):
+  // content-surface band 250–400ms, ease-out for entrances,
+  // 30ms stagger rhythm capped at ~200ms total, ~20% shorter on mobile.
+  useGSAP(
+    () => {
+      if (loading) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const scope = rootRef.current;
+      if (!scope) return;
+
+      const mobile = window.matchMedia("(max-width: 768px)").matches;
+      const dur = mobile ? 0.24 : 0.3;
+      const cap = mobile ? 0.16 : 0.2;
+      const intros = gsap.utils.toArray<HTMLElement>(".blog-intro", scope);
+      const tiles = gsap.utils.toArray<HTMLElement>(".blog-tile", scope);
+
+      const tl = gsap.timeline();
+      if (intros.length) {
+        tl.fromTo(
+          intros,
+          { y: mobile ? 8 : 12, opacity: 0 },
+          { y: 0, opacity: 1, duration: dur, ease: "power2.out", stagger: 0.045, clearProps: "transform,opacity" },
+          0,
+        );
+      }
+      if (tiles.length) {
+        tl.fromTo(
+          tiles,
+          { y: mobile ? 7 : 10, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: dur,
+            ease: "power2.out",
+            stagger: (i: number) => Math.min(i * 0.03, cap),
+            clearProps: "transform,opacity",
+          },
+          0.07,
+        );
+      }
+    },
+    { scope: rootRef, dependencies: [loading, viewKey], revertOnUpdate: true },
+  );
 
   const allTags = useMemo(() => {
     const set = new Set<string>();
@@ -101,8 +149,10 @@ const BlogList = () => {
         path="/blog"
       />
       <section className="section-padding pt-5 min-h-screen">
-      <div className="w-full h-full md:px-10 px-5">
-        <TitleHeader title="Blog" sub="Notes from my Obsidian vault" />
+      <div ref={rootRef} className="w-full h-full md:px-10">
+        <div className="blog-intro">
+          <TitleHeader title="Blog" sub="Notes from my Obsidian vault" />
+        </div>
         <div className="max-w-3xl mx-auto">
           {loading ? (
             <div className="space-y-2 mt-8">
@@ -115,37 +165,38 @@ const BlogList = () => {
               <p className="text-red-400 mb-4">Failed to load notes: {error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="px-4 py-2 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 text-white-50"
+                className="px-5 py-3 rounded-lg border border-black-50 bg-black-100 hover:bg-black-200 text-white-50 active:scale-95 transition-transform"
               >
                 Retry
               </button>
             </div>
           ) : (
             <>
-              <div className="relative mt-8 mb-4">
+              <div className="blog-intro relative mt-8 mb-4">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white-50/40" />
                 <input
                   type="text"
                   value={currentQuery}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search notes..."
-                  className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-black-200 border border-black-50 text-white-50 placeholder:text-white-50/30 focus:outline-none focus:border-blue-50/40 transition-colors text-base"
+                  className="w-full pl-11 pr-11 py-3.5 rounded-xl bg-black-200 border border-black-50 text-white-50 placeholder:text-white-50/30 focus:outline-none focus:border-blue-50/40 transition-colors text-base"
                 />
                 {currentQuery && (
                   <button
                     onClick={() => setSearch("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white-50/40 hover:text-white-50"
+                    aria-label="Clear search"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full text-white-50/40 hover:text-white-50 active:bg-black-100 transition-colors"
                   >
                     <X className="size-4" />
                   </button>
                 )}
               </div>
               {allTags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-6">
+                <div className="blog-intro flex flex-nowrap md:flex-wrap gap-2 mb-6 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
                   {currentTag && (
                     <button
                       onClick={clearTag}
-                      className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors"
+                      className="chip shrink-0 inline-flex items-center gap-1 px-3.5 py-1.5 text-xs rounded-full bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
                     >
                       {currentTag}
                       <X className="size-3" />
@@ -157,7 +208,7 @@ const BlogList = () => {
                       <button
                         key={tag}
                         onClick={() => setTag(tag)}
-                        className="px-2.5 py-0.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground transition-colors"
+                        className="chip shrink-0 px-3.5 py-1.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground"
                       >
                         {tag}
                       </button>

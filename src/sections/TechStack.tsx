@@ -6,18 +6,23 @@ import gsap from "gsap";
 
 const TechStack = ({ isImage = false }: { isImage?: boolean }) => {
   useGSAP(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const mobile = window.matchMedia("(max-width: 767px)").matches;
     gsap.fromTo(
       ".tech-card",
       {
-        y: 50,
+        y: mobile ? 28 : 48,
         opacity: 0,
       },
       {
         y: 0,
         opacity: 1,
-        duration: 1,
+        duration: mobile ? 0.3 : 0.4,
         ease: "power2.out",
-        stagger: 0.2,
+        // 30ms rhythm, capped at 250ms total — keeps the row feeling brisk.
+        stagger: { each: 0.03, amount: 0.25 },
+        clearProps: "transform,opacity",
         scrollTrigger: {
           trigger: "#skills",
           start: "top center",
@@ -27,7 +32,7 @@ const TechStack = ({ isImage = false }: { isImage?: boolean }) => {
   });
   return (
     <div id="skills" className="flex-center section-padding">
-      <div className="w-full h-full md:px-10 px-5">
+      <div className="w-full h-full md:px-10">
         <TitleHeader title="Tech Stack" sub="What I use" />
         <div className="tech-grid">
           {techStackIcons.map((icon) => (

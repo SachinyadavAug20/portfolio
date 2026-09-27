@@ -10,6 +10,7 @@ type RowState = {
   vel: number;
   dragging: boolean;
   hovered: boolean;
+  visible: boolean;
   didMove: number;
   lastX: number;
   lastT: number;
@@ -34,6 +35,7 @@ export const useMarqueeMotion = (rowRefs: RowRef[], baseSpeed: number) => {
         vel: 0,
         dragging: false,
         hovered: false,
+        visible: true,
         didMove: 0,
         lastX: 0,
         lastT: 0,
@@ -78,9 +80,23 @@ export const useMarqueeMotion = (rowRefs: RowRef[], baseSpeed: number) => {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
 
+    // Pause all per-frame work while the marquee is offscreen.
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const row = rowByEl(entry.target as HTMLDivElement);
+          if (row) row.visible = entry.isIntersecting;
+        }
+      },
+      { rootMargin: "150px" },
+    );
+    for (const row of rows) io.observe(row.el);
+
     const render = (_: number, deltaTime: number) => {
+      if (!rows.some((row) => row.visible)) return;
       const dt = Math.min(deltaTime / 1000, 0.1);
       for (const row of rows) {
+        if (!row.visible) continue;
         if (!row.dragging && !row.hovered) {
           if (Math.abs(row.vel) > MIN_VELOCITY) {
             row.amt += row.vel * dt;
@@ -154,6 +170,7 @@ export const useMarqueeMotion = (rowRefs: RowRef[], baseSpeed: number) => {
       gsap.ticker.remove(render);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
+      io.disconnect();
       for (const row of rows) {
         row.el.removeEventListener("pointerdown", onPointerDown);
         row.el.removeEventListener("pointermove", onPointerMove);

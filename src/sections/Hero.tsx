@@ -1,20 +1,86 @@
+import { useRef } from "react";
 import { words } from "../../constants/";
 import AnimatedCounter from "../components/AnimatedCounter";
 import Button from "../components/Button";
-import HeroExperience from "../components/HeroModels/HeroExperience";
+import { lazy, Suspense } from "react";
 import RevolvingWords from "../components/RevolvingWords";
 import FlickeringText from "../components/FlickeringText";
 import { useMediaQuery } from "react-responsive";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const HeroExperience = lazy(
+  () => import("../components/HeroModels/HeroExperience"),
+);
 
 const Hero = () => {
   const isSmallScreen = useMediaQuery({ query: "(max-width: 1279px)" });
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const reduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      if (!reduced) {
+        // Lines rise as the splash lifts; flicker text takes over at ~0.6s.
+        gsap.from(".hero-text > *", {
+          y: 22,
+          opacity: 0,
+          duration: 0.5,
+          delay: 0.45,
+          ease: "power2.out",
+          stagger: 0.07,
+          clearProps: "transform,opacity",
+        });
+        gsap.from([".hero-sub", ".hero-layout .cta-wrapper"], {
+          y: 14,
+          opacity: 0,
+          duration: 0.45,
+          delay: 0.7,
+          ease: "power2.out",
+          stagger: 0.1,
+          clearProps: "transform,opacity",
+        });
+      }
+
+      // Subtle depth drift on the corner graphic (desktop only, transform-only).
+      const mm = gsap.matchMedia();
+      mm.add("(min-width: 1280px) and (prefers-reduced-motion: no-preference)", () => {
+        gsap.to(".hero-bg", {
+          y: 64,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.4,
+          },
+        });
+      });
+
+      return () => mm.revert();
+    },
+    { scope: sectionRef },
+  );
 
   return (
-    <section id="hero" className="relative overflow-hidden">
-      <div className="absolute top-0 left-0 z-10">
+    <section id="hero" ref={sectionRef} className="relative overflow-hidden">
+      <div className="hero-bg absolute top-0 left-0 z-10">
         <picture>
           <source srcSet="/images/bg.webp" type="image/webp" />
-          <img src="/images/bg.png" alt="hero" />
+          <img
+            src="/images/bg.png"
+            alt="hero"
+            width={418}
+            height={327}
+            fetchPriority="high"
+            decoding="async"
+          />
         </picture>
       </div>
       <div className="hero-layout">
@@ -32,7 +98,7 @@ const Hero = () => {
                 <FlickeringText>that Perform at scale</FlickeringText>
               </h2>
             </div>
-            <p className="text-white-50 md:text-xl relative z-10 pointer-events-none">
+            <p className="hero-sub text-white-50 md:text-xl relative z-10 xl:pointer-events-none">
               Hi, I'm Sachin, a developer based in India with a passion for
               code.
             </p>
@@ -46,7 +112,9 @@ const Hero = () => {
         {!isSmallScreen && (
           <figure>
             <div className="hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 mr-2 block">
-              <HeroExperience />
+              <Suspense fallback={null}>
+                <HeroExperience />
+              </Suspense>
             </div>
           </figure>
         )}

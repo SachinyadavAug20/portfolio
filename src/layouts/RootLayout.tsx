@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import BottomTabBar from "../components/BottomTabBar";
 import CursorGlow from "../components/CursorGlow";
@@ -9,6 +9,9 @@ import { Toaster } from "../components/ui/sonner";
 import { SITE_NAME, SOCIAL_HANDLE, SITE_DESCRIPTION } from "../seo/config";
 
 const RootLayout = () => {
+  const location = useLocation();
+  const firstNav = useRef(true);
+
   useEffect(() => {
     const splash = document.getElementById("splash");
     if (splash) {
@@ -16,6 +19,15 @@ const RootLayout = () => {
       setTimeout(() => splash.remove(), 550);
     }
   }, []);
+
+  useEffect(() => {
+    if (firstNav.current) {
+      firstNav.current = false;
+      return;
+    }
+    if (location.hash) return;
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [location.key, location.hash]);
 
   return (
     <HelmetProvider>
@@ -30,7 +42,9 @@ const RootLayout = () => {
       </Helmet>
       <Navbar />
       <CursorGlow />
-      <Outlet />
+      <div key={location.pathname} className="page-enter">
+        <Outlet />
+      </div>
       <Toaster />
       <Footer />
       <BottomTabBar />

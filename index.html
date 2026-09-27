@@ -3,13 +3,16 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" href="/images/fav.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="icon" href="/images/fav.webp" type="image/webp" />
+  <link rel="icon" href="/images/fav.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/images/fav.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
   <meta name="description" content="Hi, I'm Sachin, a developer based in India with a passion for code." />
   <meta property="og:site_name" content="Sachin Yadav" />
   <meta property="og:locale" content="en_US" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="theme-color" content="#0e0e10" />
+  <link rel="preconnect" href="https://api.github.com" crossorigin />
   <title>Sachin Yadav &mdash;&mdash; Portfolio</title>
   <script>
     (function () {
@@ -25,6 +28,8 @@
             window.matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.classList.toggle("dark", dark);
         document.documentElement.style.colorScheme = dark ? "dark" : "light";
+        var themeMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeMeta) themeMeta.setAttribute("content", dark ? "#0e0e10" : "#fafafa");
       } catch (e) {}
     })();
   </script>
@@ -55,6 +60,10 @@
       justify-content: center;
       font-family: "SF Mono", "Fira Code", "Courier New", monospace;
       transition: opacity 0.6s ease;
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     #splash.fade-out {
@@ -224,8 +233,11 @@
       var cursorInterval = setInterval(cycleCursor, 600);
 
       var startedAt = Date.now();
+      var dismissed = false;
 
       function dismiss() {
+        if (dismissed) return;
+        dismissed = true;
         clearInterval(progInterval);
         clearInterval(cursorInterval);
         bar.style.width = "100%";
@@ -244,6 +256,7 @@
       document.addEventListener("keydown", function (e) {
         if (e.key === "Enter") dismiss();
       });
+      splash.addEventListener("pointerdown", dismiss);
 
       var observer = new MutationObserver(function () {
         if (document.getElementById("root").children.length > 0) {

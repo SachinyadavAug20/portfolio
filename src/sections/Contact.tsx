@@ -1,11 +1,20 @@
-import { useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import TitleHeader from "../components/TitleHeader";
-import ContactExperience from "../components/ContactModels/ContactExperience";
 import emailjs from "@emailjs/browser";
 import { toast } from "sonner";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { useNearViewport } from "../hooks/useNearViewport";
+
+const ContactExperience = lazy(
+  () => import("../components/ContactModels/ContactExperience"),
+);
 
 const Contact = () => {
   const formRef = useRef<HTMLFormElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const { ref: sceneRef, near: sceneNear, setNear: setSceneNear } =
+    useNearViewport<HTMLDivElement>("600px");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -13,6 +22,33 @@ const Contact = () => {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (submitted) setSceneNear(true);
+  }, [submitted, setSceneNear]);
+
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const mobile = window.matchMedia("(max-width: 767px)").matches;
+      gsap.fromTo(
+        ".contact-card",
+        { y: mobile ? 24 : 32, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: mobile ? 0.3 : 0.45,
+          ease: "power2.out",
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: "#contact",
+            start: "top 80%",
+          },
+        },
+      );
+    },
+    { scope: sectionRef },
+  );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -64,53 +100,63 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="flex-center section-padding">
-      <div className="w-full h-full px-5 md:px-10">
+    <section id="contact" ref={sectionRef} className="flex-center section-padding">
+      <div className="w-full h-full md:px-10">
         <TitleHeader title="Contact Me" sub="Get in touch" />
         <div className="grid-12-cols mt-10 xl:mt-16">
           <div className="xl:col-span-5">
-            <div className="flex-center card-border rounded-xl p-10">
+            <div className="contact-card flex-center card-border rounded-xl p-6 sm:p-10">
               <form
                 ref={formRef}
-                className="w-full flex flex-col gap-7"
+                className="w-full flex flex-col gap-6"
                 onSubmit={handleSubmit}
               >
-                <label htmlFor="name">Name</label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  placeholder="Your Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  aria-required="true"
-                />
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  autoComplete="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  aria-required="true"
-                />
-                <label htmlFor="message">Message</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={5}
-                  placeholder="Your message..."
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  aria-required="true"
-                />
-                <button type="submit" disabled={loading}>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="name">Name</label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    placeholder="Your Name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    aria-required="true"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    aria-required="true"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="message">Message</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={5}
+                    placeholder="Your message..."
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                    aria-required="true"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="transition-opacity disabled:opacity-60 disabled:cursor-wait"
+                >
                   <div className="cta-button group">
                     <div className="bg-circle" />
                     <p className="text">
@@ -126,8 +172,17 @@ const Contact = () => {
             </div>
           </div>
           <div className="xl:col-span-7 min-h-96">
-            <div className="w-full h-full bg-[#cd7c2e] hover:cursor-grab rounded-3xl and overflow-hidden">
-              <ContactExperience submitted={submitted} />
+            <div
+              ref={sceneRef}
+              className="w-full h-full bg-[#cd7c2e] hover:cursor-grab rounded-3xl overflow-hidden"
+            >
+              {sceneNear && (
+                <div className="scene-in">
+                  <Suspense fallback={null}>
+                    <ContactExperience submitted={submitted} />
+                  </Suspense>
+                </div>
+              )}
             </div>
           </div>
         </div>

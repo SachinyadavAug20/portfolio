@@ -1,13 +1,26 @@
 const GITHUB_USER = "SachinyadavAug20";
 const FALLBACK_LEETCODE = 150;
 const FALLBACK_GIT = 500;
+const CACHE_TTL = 30 * 60 * 1000;
 
 export interface LiveStats {
   leetcodeSolved: number;
   gitCommits: number;
 }
 
-export async function fetchLiveStats(): Promise<LiveStats> {
+let cached: { at: number; promise: Promise<LiveStats> } | null = null;
+
+export function fetchLiveStats(): Promise<LiveStats> {
+  // Module-level promise cache: dedupes concurrent mounts and avoids
+  // re-hitting GitHub's unauthenticated 60 req/hr rate limit on every visit.
+  if (cached && Date.now() - cached.at < CACHE_TTL) return cached.promise;
+
+  const promise = loadStats();
+  cached = { at: Date.now(), promise };
+  return promise;
+}
+
+async function loadStats(): Promise<LiveStats> {
   const [leetcode, git] = await Promise.allSettled([
     fetch("/api/leetcode")
       .then(async (r) => {

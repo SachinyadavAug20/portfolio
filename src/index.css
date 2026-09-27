@@ -43,19 +43,22 @@
 }
 
 html, body {
-  width: 100dvw;
-  overflow-x: hidden;
+  width: 100%;
+  overflow-x: clip;
   background-color: var(--background);
   color: var(--foreground);
   scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
   font-family: "Geist Variable", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
 }
 
 section {
-  width: 100dvw;
+  width: 100%;
+  max-width: 100%;
 }
 
 @theme {
@@ -132,10 +135,6 @@ section {
   --glow-size: 500px;
 }
 
-[data-cursor-glow] {
-  will-change: transform;
-}
-
 @layer utilities {
   .flex-center {
     @apply flex justify-center items-center;
@@ -192,7 +191,7 @@ section {
   }
 
   .hero-text {
-    @apply flex flex-col justify-center gap-1.5 md:gap-2 md:text-[60px] text-[30px] font-semibold relative z-10 pointer-events-none;
+    @apply flex flex-col justify-center gap-1.5 md:gap-2 md:text-[60px] text-[30px] font-semibold relative z-10 xl:pointer-events-none;
 
     h1,
     h2 {
@@ -208,7 +207,7 @@ section {
   }
 
   .hero-badge {
-    @apply bg-black-200 py-2 px-4 rounded-full w-fit text-sm md:text-base text-nowrap;
+    @apply bg-black-200 py-2 px-4 rounded-full w-fit text-sm md:text-base text-center;
   }
 
   .hero-3d-layout {
@@ -216,16 +215,23 @@ section {
   }
 
   .navbar {
-    @apply fixed w-full left-1/2 py-1 px-2 md:px-10 -translate-x-1/2 z-[100] transition-all duration-300 ease-in-out;
+    @apply fixed w-full left-1/2 py-2 px-4 md:px-10 -translate-x-1/2 z-[100];
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      top 0.3s ease,
+      opacity 0.3s ease;
 
     &.scrolled {
-      @apply top-0 bg-black opacity-95 border rounded-2xl px-12 py-3;
+      @apply top-0 bg-black border rounded-2xl;
       background-color: var(--nav-bg);
       border-color: var(--nav-border);
+      opacity: 0.95;
     }
 
     &.not-scrolled {
       @apply md:top-5 top-0 bg-transparent;
+      opacity: 1;
     }
 
     .inner {
@@ -234,6 +240,7 @@ section {
 
     .logo {
       @apply text-white-50 text-xl md:text-2xl font-semibold transition-transform duration-300 hover:scale-105;
+      padding: 0.25rem 0;
     }
 
     nav.desktop {
@@ -243,7 +250,7 @@ section {
         @apply flex space-x-8;
 
         li {
-          @apply text-white-50 relative;
+          @apply text-white-50 relative cursor-pointer;
 
           span {
             @apply transition-colors duration-300 hover:text-white;
@@ -253,8 +260,16 @@ section {
           }
 
           .underline {
-            @apply absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full;
+            @apply absolute -bottom-1 left-0 w-full h-0.5;
             background-color: var(--nav-underline);
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform 0.3s ease;
+          }
+
+          &:hover .underline,
+          &:focus-visible .underline {
+            transform: scaleX(1);
           }
         }
       }
@@ -280,6 +295,21 @@ section {
       .inner:hover span {
         color: var(--contact-hover-text);
       }
+    }
+  }
+
+  /* Notch/landscape safe-area padding for the fixed navbar */
+  @media (max-width: 767px) {
+    .navbar {
+      padding-left: max(1rem, env(safe-area-inset-left, 0px));
+      padding-right: max(1rem, env(safe-area-inset-right, 0px));
+    }
+  }
+
+  @media (min-width: 768px) {
+    .navbar {
+      padding-left: max(2.5rem, env(safe-area-inset-left, 0px));
+      padding-right: max(2.5rem, env(safe-area-inset-right, 0px));
     }
   }
 
@@ -362,7 +392,7 @@ section {
   }
 
   .theme-toggle-item {
-    @apply flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer;
+    @apply flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium cursor-pointer;
     color: var(--flip-white-50);
     transition: background-color 0.15s, color 0.15s;
   }
@@ -379,17 +409,29 @@ section {
   /* Mobile drawer overlay */
   .mobile-backdrop {
     @apply fixed inset-0 bg-black/60 z-[89] pointer-events-none opacity-0;
+    visibility: hidden;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
 
+  .mobile-backdrop.is-open {
+    visibility: visible;
+  }
+
   .mobile-drawer {
-    @apply fixed top-0 right-0 h-full w-72 bg-black-100 border-l z-[90] translate-x-full pointer-events-none;
+    @apply fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-black-100 border-l z-[90] translate-x-full pointer-events-none;
     border-color: var(--drawer-border);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
   }
 
   .mobile-drawer-links {
     @apply flex flex-col gap-2 p-8 pt-24;
+    padding-left: max(2rem, env(safe-area-inset-left, 0px));
+    padding-bottom: max(2rem, env(safe-area-inset-bottom, 0px));
   }
 
   .mobile-drawer-link {
@@ -411,15 +453,28 @@ section {
     transform: scale(0.97);
   }
 
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Bottom tab bar — native app style navigation (mobile only) */
   .bottom-tabbar {
     @apply fixed bottom-0 left-0 right-0 z-[80] items-stretch justify-around;
     background-color: var(--tab-bar-bg);
     border-top: 1px solid var(--nav-border);
-    backdrop-filter: blur(20px) saturate(1.6);
-    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(12px) saturate(1.5);
+    -webkit-backdrop-filter: blur(12px) saturate(1.5);
     padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
     display: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .bottom-tab {
@@ -464,7 +519,7 @@ section {
       @apply h-full flex flex-col justify-between xl:w-[60%];
 
       .image-wrapper {
-        @apply xl:h-[60vh] md:h-[50vh] h-96 relative;
+        @apply xl:h-[60vh] md:h-[50vh] h-96 relative overflow-hidden;
 
         img {
           @apply w-full h-full object-cover rounded-xl absolute inset-0;
@@ -488,7 +543,7 @@ section {
       @apply flex md:flex-row flex-col xl:flex-col gap-10 xl:w-[40%];
 
       .image-wrapper {
-        @apply xl:h-[37vh] md:h-52 lg:h-72 h-64 relative rounded-xl xl:px-5 2xl:px-12 py-0;
+        @apply xl:h-[37vh] md:h-52 lg:h-72 h-64 relative rounded-xl xl:px-5 2xl:px-12 py-0 overflow-hidden;
       }
 
       img {
@@ -513,15 +568,17 @@ section {
     .bg-circle {
       @apply absolute -right-10 origin-center top-1/2 -translate-y-1/2 
         w-[120%] h-[120%] group-hover:size-10 group-hover:right-10
-        rounded-full transition-all duration-500;
+        rounded-full;
       background-color: var(--cta-circle);
+      transition-property: width, height, right, border-radius, background-color;
+      transition-duration: 0.5s;
     }
 
     .text {
-      @apply uppercase md:text-lg transition-all duration-500
+      @apply uppercase md:text-lg
         group-hover:-translate-x-5 xl:translate-x-0 -translate-x-5;
       color: var(--cta-text);
-      transition-property: color, transform;
+      transition: color 0.5s ease, transform 0.5s ease;
     }
 
     .group:hover .text {
@@ -534,7 +591,8 @@ section {
       background-color: transparent;
 
       img {
-        @apply size-5 xl:-translate-y-32 translate-y-0 animate-bounce transition-all duration-500;
+        @apply size-5 xl:-translate-y-32 translate-y-0 animate-bounce;
+        transition: transform 0.5s ease;
       }
     }
 
@@ -552,7 +610,7 @@ section {
   }
 
   .timeline-wrapper {
-    @apply absolute top-0 xl:left-[35.5vw] md:left-10 left-5 h-full flex justify-center;
+    @apply absolute top-0 xl:left-[35.5dvw] md:left-10 left-5 h-full flex justify-center;
   }
 
   .timeline {
@@ -569,8 +627,16 @@ section {
   }
 
   .tech-card-animated-bg {
-    @apply absolute left-0 bottom-[-100%] w-full h-full group-hover:bottom-0 transition-all duration-700;
+    @apply absolute left-0 bottom-0 w-full h-full;
     background: var(--tech-card-bg);
+    transform: translateY(101%);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @media (hover: hover) {
+    .group:hover .tech-card-animated-bg {
+      transform: translateY(0);
+    }
   }
 
   .tech-card-content {
@@ -582,11 +648,11 @@ section {
   }
 
   .tech-grid {
-    @apply grid xl:grid-cols-5 md:grid-cols-3 grid-cols-1 xl:gap-16 md:gap-10 gap-5 mt-16;
+    @apply grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-5 md:gap-10 xl:gap-16 mt-16;
   }
 
   .tech-icon-wrapper {
-    @apply flex justify-center items-center w-52 h-60 relative;
+    @apply flex justify-center items-center w-full max-w-52 h-44 sm:h-60 relative;
   }
 
   form {
@@ -595,8 +661,9 @@ section {
     }
 
     input,
-    textarea {
-      @apply w-full px-4 py-4 md:text-base text-sm placeholder:text-blue-50 bg-blue-100 rounded-md;
+    textarea,
+    select {
+      @apply w-full px-4 py-4 text-base placeholder:text-blue-50 bg-blue-100 rounded-md;
     }
 
     a {
@@ -623,7 +690,12 @@ section {
       @apply flex items-center justify-center gap-5;
 
       .icon {
-        @apply border border-black-50 bg-black-100 flex justify-center items-center rounded-xl size-10 md:size-12 cursor-pointer transition-all duration-500 hover:bg-black-50;
+        @apply border border-black-50 bg-black-100 flex justify-center items-center rounded-xl size-10 md:size-12 cursor-pointer hover:bg-black-50;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+      }
+
+      .icon:active {
+        transform: scale(0.94);
       }
 
       img {
@@ -861,7 +933,13 @@ section {
   mask-composite: intersect;
   mask-clip: padding-box, border-box;
   opacity: 0;
-  transition: 0.5s ease;
+  transition: opacity 0.5s ease;
+}
+
+@media (hover: none) {
+  .card::before {
+    background-attachment: scroll;
+  }
 }
 
 .glow {
@@ -872,7 +950,6 @@ section {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  filter: blur(10px);
   filter: saturate(200);
 }
 
@@ -1025,6 +1102,13 @@ section {
   @apply rounded-xl my-6 max-w-full h-auto;
 }
 
+.blog-content iframe,
+.blog-content video,
+.blog-content embed,
+.blog-content object {
+  max-width: 100%;
+}
+
 .blog-content pre {
   @apply bg-black-200 p-4 md:p-5 rounded-xl overflow-x-auto whitespace-pre-wrap break-words;
   font-size: 0.875rem;
@@ -1050,7 +1134,7 @@ section {
 }
 
 .blog-content h1 {
-  @apply text-4xl font-bold mt-10 mb-5 text-foreground;
+  @apply text-3xl md:text-4xl font-bold mt-10 mb-5 text-foreground;
   letter-spacing: -0.02em;
 }
 
@@ -1121,4 +1205,218 @@ section {
   html {
     @apply font-sans;
   }
+}
+
+/* =====================================================================
+   Native mobile polish — touch ergonomics, scroll containment,
+   reduced motion, press feedback (research-backed, see AGENTS notes)
+   ===================================================================== */
+
+/* 44pt-friendly hit areas: kill double-tap zoom delay on all controls */
+a,
+button,
+input,
+select,
+textarea,
+summary,
+label,
+[role="button"],
+[tabindex] {
+  touch-action: manipulation;
+}
+
+/* Visible keyboard focus everywhere (WCAG 2.2) */
+:focus-visible {
+  outline: 2px solid var(--tab-accent, #38bdf8);
+  outline-offset: 2px;
+}
+
+/* Headings balance line breaks for a cleaner mobile rag */
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+/* Scroll chaining containment: nested scrollers don't rubber-band the page */
+.mobile-drawer,
+.no-scrollbar,
+.blog-content pre,
+.blog-content table {
+  overscroll-behavior: contain;
+}
+
+/* Long blog articles: skip offscreen rendering until needed
+   (content-visibility remembers real size after first paint) */
+.blog-content {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1500px;
+}
+
+/* Chrome (navbar/tabbar/chips) shouldn't enter text-selection mode on long-press */
+.bottom-tabbar,
+.navbar,
+.chip {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Press feedback for tappable chrome */
+.theme-toggle-item:active,
+.chip:active {
+  transform: scale(0.96);
+}
+
+.chip {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+  min-height: 2.5rem;
+}
+
+/* Touch devices: prevent sticky :hover that latches after a tap */
+@media (hover: none) {
+  .hamburger:hover {
+    background-color: transparent;
+  }
+
+  .theme-toggle-btn:hover {
+    background-color: var(--nav-hover-bg);
+  }
+
+  .theme-toggle-item:hover {
+    color: var(--flip-white-50);
+    background-color: transparent;
+  }
+
+  .navbar .logo:hover {
+    transform: none;
+  }
+
+  .footer .socials .icon:hover {
+    background-color: var(--flip-black-100);
+  }
+
+  /* Tech pills: no hover on touch — show brand color at rest (drops 52
+     grayscale filter layers) and swap tooltip to press feedback */
+  .tech-pill-body {
+    filter: none;
+    transition:
+      color 0.2s ease,
+      background 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.1s ease;
+  }
+
+  .tech-pill:active .tech-pill-body {
+    transform: scale(0.96);
+    border-color: rgb(98 224 255 / 0.5);
+  }
+
+  .tech-pill:hover .tech-pill-body {
+    filter: none;
+    color: var(--pill-text);
+    background: var(--pill-bg);
+    border-color: var(--pill-border);
+    box-shadow: none;
+  }
+
+  .tech-pill:hover .tech-pill-proof {
+    opacity: 0;
+  }
+
+  .tech-pill:active .tech-pill-proof {
+    opacity: 1;
+  }
+
+  /* CTA hover state: revert so it doesn't latch after tap */
+  .group:hover .text {
+    color: var(--cta-text);
+  }
+}
+
+/* Reduced motion: honor OS setting site-wide (CSS side; GSAP guarded in JS) */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* WebGL canvases must never trap vertical swipes on touch devices.
+   OrbitControls are disabled on touch (see TechIcon/ContactExperience),
+   and pan-y guarantees the page still scrolls if anything captures input. */
+@media (hover: none) {
+  canvas {
+    touch-action: pan-y;
+  }
+}
+
+/* Route enter: gentle opacity fade keyed on pathname (RootLayout) */
+.page-enter {
+  animation: page-enter 0.28s ease-out both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Contact 3D scene fades in when its lazy canvas mounts */
+.scene-in {
+  height: 100%;
+  animation: page-enter 0.5s ease-out both;
+}
+
+/* Pointer-capable devices only: pleasant lift/zoom hovers.
+   Touch devices get :active press feedback instead (no sticky hover). */
+@media (hover: hover) and (pointer: fine) {
+  .app-showcase .image-wrapper img {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .app-showcase .image-wrapper:hover img {
+    transform: scale(1.03);
+  }
+
+  .feature-card {
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.3s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgb(98 224 255 / 0.35);
+  }
+
+  .counter-tile {
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .counter-tile:hover {
+    transform: translateY(-3px);
+  }
+}
+
+.counter-tile {
+  transition: transform 0.15s ease;
+}
+
+.counter-tile:active {
+  transform: scale(0.97);
 }

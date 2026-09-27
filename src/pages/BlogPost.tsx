@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -96,9 +98,9 @@ const TableOfContents = ({ headings }: { headings: TocItem[] }) => {
                 e.preventDefault();
                 handleClick(h.id);
               }}
-              className={`block text-[13px] leading-snug py-1 border-l transition-colors ${
-                h.level === 3 ? "pl-6" : h.level === 4 ? "pl-8" : "pl-4"
-              } ${
+                      className={`block text-[13px] leading-snug py-1.5 border-l transition-colors ${
+                        h.level === 3 ? "pl-6" : h.level === 4 ? "pl-8" : "pl-4"
+                      } ${
                 activeId === h.id
                   ? "border-blue-50 text-blue-50"
                   : "border-transparent text-white-50/40 hover:text-white-50/70 hover:border-white-50/30"
@@ -159,6 +161,8 @@ const ImageWithFallback = (props: Record<string, unknown>) => {
         {...(props as React.ImgHTMLAttributes<HTMLImageElement>)}
         key={idx}
         src={urls[idx]}
+        loading="lazy"
+        decoding="async"
         className={`transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
         onLoad={() => setLoaded(true)}
         onError={() => {
@@ -188,7 +192,7 @@ const CodeBlock = ({ children, className, ...props }: any) => {
       </pre>
       <button
         onClick={handleCopy}
-        className="absolute top-2 right-2 px-2 py-1 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity bg-black-50 hover:bg-black text-white-50"
+        className="absolute top-2 right-2 px-2.5 py-1.5 text-xs rounded-md opacity-90 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity bg-black-50 hover:bg-black text-white-50"
       >
         {copied ? "Copied!" : "Copy"}
       </button>
@@ -198,7 +202,7 @@ const CodeBlock = ({ children, className, ...props }: any) => {
 
 const Skeleton = () => (
   <section className="section-padding pt-5 min-h-screen">
-    <div className="w-full h-full md:px-10 px-5 max-w-4xl mx-auto">
+    <div className="w-full h-full md:px-10 max-w-4xl mx-auto">
       <div className="h-5 w-16 bg-black-200 rounded animate-pulse mb-8" />
       <div className="space-y-3">
         <div className="h-8 w-3/4 bg-black-200 rounded animate-pulse" />
@@ -239,6 +243,36 @@ const BlogPost = () => {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   const { views } = useViews(post?.fullSlug);
+  const pageRef = useRef<HTMLDivElement>(null);
+
+  // Entrance choreography (timings from UX motion research):
+  // content-surface band 250–400ms, ease-out, ~200ms total stagger spread,
+  // ~20% shorter on mobile, transform+opacity only, skipped for reduced motion.
+  useGSAP(
+    () => {
+      if (loading || !post) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const scope = pageRef.current;
+      if (!scope) return;
+      const els = gsap.utils.toArray<HTMLElement>(".post-anim", scope);
+      if (!els.length) return;
+
+      const mobile = window.matchMedia("(max-width: 768px)").matches;
+      gsap.fromTo(
+        els,
+        { y: mobile ? 8 : 12, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: mobile ? 0.24 : 0.3,
+          ease: "power2.out",
+          stagger: { amount: mobile ? 0.15 : 0.2 },
+          clearProps: "transform,opacity",
+        },
+      );
+    },
+    { scope: pageRef, dependencies: [loading, post?.fullSlug], revertOnUpdate: true },
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -325,7 +359,7 @@ const BlogPost = () => {
       <>
       <SEOHead title="Blog" description={excerpt || "Blog post not found"} path={`/blog/post/${fullSlug || ""}`} />
       <section className="section-padding pt-10 min-h-screen">
-        <div className="w-full h-full md:px-10 px-5 text-center">
+        <div className="w-full h-full md:px-10 text-center">
           <h1 className="text-3xl font-bold mb-4">Post not found</h1>
           <p className="text-red-400 mb-4">{error}</p>
           <Link to={backTo} className="text-blue-50 hover:text-foreground underline">
@@ -350,16 +384,16 @@ const BlogPost = () => {
       />
       <ReadingProgress />
       <section className="section-padding pt-5 min-h-screen">
-      <div className="w-full h-full md:px-10 px-5 max-w-6xl mx-auto">
+      <div ref={pageRef} className="w-full h-full md:px-10 max-w-6xl mx-auto">
         <Link
           to={backTo}
-          className="text-blue-50 hover:text-foreground transition-colors inline-flex items-center gap-2 mb-6"
+          className="post-anim text-blue-50 hover:text-foreground transition-colors inline-flex items-center gap-2 mb-6 px-2 py-2 -mx-2 -my-2 active:opacity-70"
         >
           &larr; Back
         </Link>
         <div className="flex gap-12">
           <div className="flex-1 min-w-0 max-w-3xl">
-            <div className="flex items-center gap-4 text-white-50 text-sm mb-4 flex-wrap">
+            <div className="post-anim flex items-center gap-4 text-white-50 text-sm mb-4 flex-wrap">
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="size-4" />
                 {readingTime} min read
@@ -382,12 +416,12 @@ const BlogPost = () => {
               <ReadAloud />
             </div>
             {post.dir && (
-              <div className="flex flex-wrap gap-2 mb-8">
+              <div className="post-anim flex flex-wrap gap-2 mb-8">
                 {post.dir.split("/").filter(Boolean).map((tag) => (
                   <Link
                     key={tag}
                     to={`/blog?tag=${encodeURIComponent(tag)}`}
-                    className="px-3 py-1 text-xs rounded-full bg-black-200/80 text-blue-50/70 hover:bg-blue-500/15 hover:text-blue-50 border border-black-50/50 hover:border-blue-50/30 transition-all"
+                    className="chip px-3.5 py-1.5 text-xs rounded-full bg-black-200/80 text-blue-50/70 hover:bg-blue-500/15 hover:text-blue-50 border border-black-50/50 hover:border-blue-50/30"
                   >
                     {tag}
                   </Link>
@@ -395,7 +429,7 @@ const BlogPost = () => {
               </div>
             )}
             {headings.length > 0 && (
-              <details className="lg:hidden mb-4 rounded-xl border border-black-50 bg-black-100/60 overflow-hidden group">
+              <details className="post-anim lg:hidden mb-4 rounded-xl border border-black-50 bg-black-100/60 overflow-hidden group">
                 <summary className="px-4 py-3 text-sm font-medium text-white-50 cursor-pointer flex items-center justify-between select-none list-none [&::-webkit-details-marker]:hidden">
                   Table of contents
                   <ChevronDown className="size-4 text-white-50/50 transition-transform group-open:rotate-180" />
@@ -407,11 +441,14 @@ const BlogPost = () => {
                         href={`#${h.id}`}
                         onClick={(e) => {
                           e.preventDefault();
-                          document
-                            .getElementById(h.id)
-                            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                          const el = document.getElementById(h.id);
+                          if (el) {
+                            const top =
+                              el.getBoundingClientRect().top + window.scrollY - 96;
+                            window.scrollTo({ top, behavior: "smooth" });
+                          }
                         }}
-                        className={`block py-1.5 text-sm text-white-50/60 hover:text-foreground transition-colors ${
+                        className={`block py-2 text-sm text-white-50/60 hover:text-foreground transition-colors active:text-foreground ${
                           h.level === 3 ? "pl-4" : ""
                         }`}
                       >
@@ -422,7 +459,7 @@ const BlogPost = () => {
                 </ul>
               </details>
             )}
-            <article className="prose prose-invert max-w-none blog-content mt-2">
+            <article className="post-anim prose prose-invert max-w-none blog-content mt-2">
               {post.content && (
                 <ReactMarkdown
                   remarkPlugins={[
@@ -439,17 +476,17 @@ const BlogPost = () => {
                     h2: ({ children, ...props }) => {
                       const text = extractText(children);
                       const id = slugify(text);
-                      return <h2 id={id} className="scroll-mt-24" {...props}>{children}</h2>;
+                      return <h2 id={id} className="scroll-mt-6" {...props}>{children}</h2>;
                     },
                     h3: ({ children, ...props }) => {
                       const text = extractText(children);
                       const id = slugify(text);
-                      return <h3 id={id} className="scroll-mt-24" {...props}>{children}</h3>;
+                      return <h3 id={id} className="scroll-mt-6" {...props}>{children}</h3>;
                     },
                     h4: ({ children, ...props }) => {
                       const text = extractText(children);
                       const id = slugify(text);
-                      return <h4 id={id} className="scroll-mt-24" {...props}>{children}</h4>;
+                      return <h4 id={id} className="scroll-mt-6" {...props}>{children}</h4>;
                     },
                     code({ className, children, ...props }) {
                       return (
@@ -470,11 +507,11 @@ const BlogPost = () => {
                 </ReactMarkdown>
               )}
             </article>
-            <div className="mt-16 pt-8 border-t border-black-50 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <div className="post-anim mt-16 pt-8 border-t border-black-50 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
               {prev ? (
                 <Link
                   to={`/blog/post/${prev.fullSlug}${from ? `?from=${from}` : ""}`}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/50 hover:border-blue-50/30 transition-all text-white-50 hover:text-foreground w-full md:max-w-[45%] group"
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/50 hover:border-blue-50/30 transition-[background-color,border-color,transform] duration-150 text-white-50 hover:text-foreground w-full md:max-w-[45%] group active:scale-[0.98]"
                 >
                   <ArrowLeft className="size-4 shrink-0 group-hover:-translate-x-0.5 transition-transform" />
                   <span className="truncate text-sm">{prev.title}</span>
@@ -485,7 +522,7 @@ const BlogPost = () => {
               {next ? (
                 <Link
                   to={`/blog/post/${next.fullSlug}${from ? `?from=${from}` : ""}`}
-                  className="flex items-center gap-2 justify-end md:justify-start px-4 py-3 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/50 hover:border-blue-50/30 transition-all text-white-50 hover:text-foreground w-full md:max-w-[45%] md:ml-auto group"
+                  className="flex items-center gap-2 justify-end md:justify-start px-4 py-3 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/50 hover:border-blue-50/30 transition-[background-color,border-color,transform] duration-150 text-white-50 hover:text-foreground w-full md:max-w-[45%] md:ml-auto group active:scale-[0.98]"
                 >
                   <span className="truncate text-sm">{next.title}</span>
                   <ArrowRight className="size-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
@@ -495,7 +532,7 @@ const BlogPost = () => {
               )}
             </div>
           </div>
-          <aside className="hidden lg:block w-56 shrink-0">
+          <aside className="post-anim hidden lg:block w-56 shrink-0">
             <TableOfContents headings={headings} />
           </aside>
         </div>

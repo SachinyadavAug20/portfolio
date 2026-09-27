@@ -10,6 +10,9 @@ const Toaster = ({ ...props }: React.ComponentProps<typeof Sonner>) => {
     <Sonner
       theme={resolvedTheme}
       position="top-right"
+      mobileOffset={{
+        top: "calc(env(safe-area-inset-top, 0px) + 4.5rem)",
+      }}
       className="toaster group"
       toastOptions={{
         classNames: {

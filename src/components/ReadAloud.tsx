@@ -77,27 +77,27 @@ const ReadAloud = ({ contentSelector = ".blog-content" }: { contentSelector?: st
       {!isPlaying ? (
         <button
           onClick={speak}
-          className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs text-white-50/60 hover:text-foreground hover:bg-black-100 transition-colors"
+          className="flex items-center gap-1.5 px-2.5 py-2 rounded-md text-xs text-white-50/60 hover:text-foreground hover:bg-black-100 transition-colors"
           title="Read aloud"
         >
-          <Volume2 className="size-3.5" />
+          <Volume2 className="size-4" />
           <span className="hidden sm:inline">Listen</span>
         </button>
       ) : (
         <>
           <button
             onClick={pause}
-            className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs text-blue-50 hover:bg-black-100 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-2 rounded-md text-xs text-blue-50 hover:bg-black-100 transition-colors"
             title={isPaused ? "Resume" : "Pause"}
           >
-            {isPaused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}
+            {isPaused ? <Play className="size-4" /> : <Pause className="size-4" />}
           </button>
           <button
             onClick={stop}
-            className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs text-white-50/60 hover:text-foreground hover:bg-black-100 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-2 rounded-md text-xs text-white-50/60 hover:text-foreground hover:bg-black-100 transition-colors"
             title="Stop"
           >
-            <VolumeX className="size-3.5" />
+            <VolumeX className="size-4" />
           </button>
         </>
       )}
@@ -111,7 +111,7 @@ const ReadAloud = ({ contentSelector = ".blog-content" }: { contentSelector?: st
               setTimeout(() => speak(), 50);
             }
           }}
-          className="text-xs bg-transparent border-l border-black-50 pl-1.5 py-0.5 text-white-50/50 outline-none cursor-pointer"
+          className="text-base md:text-xs bg-transparent border-l border-black-50 pl-1.5 py-1 md:py-0.5 text-white-50/50 outline-none cursor-pointer"
         >
           <option value={0.75}>0.75x</option>
           <option value={1}>1x</option>

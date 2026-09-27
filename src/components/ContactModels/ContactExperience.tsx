@@ -2,10 +2,13 @@ import { OrbitControls, Environment } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Computer } from "./Computer";
 import ContactLights from "./ContactLights";
+import { isTouchDevice } from "../../hooks/useNearViewport";
 
 const ContactExperience = ({ submitted }: { submitted: boolean }) => {
+  const isTouch = isTouchDevice();
+
   return (
-    <Canvas camera={{ position: [0, 1.5, 10], fov: 45 }} shadows>
+    <Canvas camera={{ position: [0, 1.5, 10], fov: 45 }} shadows={!isTouch}>
       <ambientLight intensity={0.5} color="#fff4e6" />
       <directionalLight position={[5, 5, 3]} intensity={2.5} color="#ffd9b3" />
       <directionalLight
@@ -16,13 +19,15 @@ const ContactExperience = ({ submitted }: { submitted: boolean }) => {
       />
       <ContactLights />
       <Environment preset="night"/>
-      <OrbitControls
-        enableZoom={false}
-        minDistance={5}
-        minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 2}
-        maxDistance={20}
-      />
+      {!isTouch && (
+        <OrbitControls
+          enableZoom={false}
+          minDistance={5}
+          minPolarAngle={Math.PI / 4}
+          maxPolarAngle={Math.PI / 2}
+          maxDistance={20}
+        />
+      )}
       <group scale={0.05} position={[0, -3, -4]} castShadow>
         <Computer submitted={submitted} />
       </group>

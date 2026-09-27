@@ -8,11 +8,13 @@ import { getTimeOfDay } from "../../lib/utils";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Partical } from "./Partical";
+import { isTouchDevice } from "../../hooks/useNearViewport";
 import * as THREE from "three";
 
 const HeroExperience = () => {
   const isTablet = useMediaQuery({ query: "(max-width: 1024px)" });
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const isTouch = isTouchDevice();
   const tod = useMemo(() => getTimeOfDay(), []);
   const groupRef = useRef<THREE.Group>(null!);
 
@@ -66,14 +68,16 @@ const HeroExperience = () => {
         infiniteGrid
       />
 
-      <OrbitControls
-        enablePan={false}
-        enableZoom={!isTablet}
-        maxDistance={12}
-        minDistance={3}
-        minPolarAngle={Math.PI / 6}
-        maxPolarAngle={Math.PI / 2}
-      />
+      {!isTouch && (
+        <OrbitControls
+          enablePan={false}
+          enableZoom={!isTablet}
+          maxDistance={12}
+          minDistance={3}
+          minPolarAngle={Math.PI / 6}
+          maxPolarAngle={Math.PI / 2}
+        />
+      )}
 
       <group
         ref={groupRef}

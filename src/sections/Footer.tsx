@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { socialImg } from "../../constants";
 
 const Footer = () => {
@@ -5,13 +6,15 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-container">
         <div className="flex flex-col justify-center items-center md:items-start">
-          <a href="/blog">Visit my blog</a>
+          <Link to="/blog" className="py-2 -my-1 px-1 -mx-1 active:opacity-70 transition-opacity">
+            Visit my blog
+          </Link>
         </div>
         <div className="socials">
           {socialImg.map(({ link, imgPath, imgPathLight, name }) => (
             <a href={link} className="icon target" target="_blank" rel="noreferrer" key={link}>
-              <img src={imgPath} alt={name} className="hidden dark:block" />
-              <img src={imgPathLight} alt={name} className="dark:hidden" />
+              <img src={imgPath} alt={name} className="hidden dark:block" loading="lazy" decoding="async" />
+              <img src={imgPathLight} alt={name} className="dark:hidden" loading="lazy" decoding="async" />
             </a>
           ))}
         </div>
