@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Clock, Eye } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -394,7 +394,35 @@ const BlogPost = () => {
                 ))}
               </div>
             )}
-            <article className="prose prose-invert max-w-none blog-content mt-6">
+            {headings.length > 0 && (
+              <details className="lg:hidden mb-4 rounded-xl border border-black-50 bg-black-100/60 overflow-hidden group">
+                <summary className="px-4 py-3 text-sm font-medium text-white-50 cursor-pointer flex items-center justify-between select-none list-none [&::-webkit-details-marker]:hidden">
+                  Table of contents
+                  <ChevronDown className="size-4 text-white-50/50 transition-transform group-open:rotate-180" />
+                </summary>
+                <ul className="px-4 pb-3 pt-1 border-t border-black-50 space-y-0.5">
+                  {headings.map((h) => (
+                    <li key={h.id}>
+                      <a
+                        href={`#${h.id}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          document
+                            .getElementById(h.id)
+                            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }}
+                        className={`block py-1.5 text-sm text-white-50/60 hover:text-foreground transition-colors ${
+                          h.level === 3 ? "pl-4" : ""
+                        }`}
+                      >
+                        {h.text}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+            <article className="prose prose-invert max-w-none blog-content mt-2">
               {post.content && (
                 <ReactMarkdown
                   remarkPlugins={[
@@ -442,28 +470,28 @@ const BlogPost = () => {
                 </ReactMarkdown>
               )}
             </article>
-            <div className="mt-16 pt-8 border-t border-black-50 flex items-center justify-between gap-4">
+            <div className="mt-16 pt-8 border-t border-black-50 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
               {prev ? (
                 <Link
                   to={`/blog/post/${prev.fullSlug}${from ? `?from=${from}` : ""}`}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/50 hover:border-blue-50/30 transition-all text-white-50 hover:text-foreground max-w-[45%] group"
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/50 hover:border-blue-50/30 transition-all text-white-50 hover:text-foreground w-full md:max-w-[45%] group"
                 >
                   <ArrowLeft className="size-4 shrink-0 group-hover:-translate-x-0.5 transition-transform" />
                   <span className="truncate text-sm">{prev.title}</span>
                 </Link>
               ) : (
-                <div />
+                <div className="hidden md:block" />
               )}
               {next ? (
                 <Link
                   to={`/blog/post/${next.fullSlug}${from ? `?from=${from}` : ""}`}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/50 hover:border-blue-50/30 transition-all text-white-50 hover:text-foreground max-w-[45%] ml-auto group"
+                  className="flex items-center gap-2 justify-end md:justify-start px-4 py-3 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/50 hover:border-blue-50/30 transition-all text-white-50 hover:text-foreground w-full md:max-w-[45%] md:ml-auto group"
                 >
                   <span className="truncate text-sm">{next.title}</span>
                   <ArrowRight className="size-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               ) : (
-                <div />
+                <div className="hidden md:block" />
               )}
             </div>
           </div>

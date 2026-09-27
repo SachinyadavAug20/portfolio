@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Folder, FileText, ChevronRight } from "lucide-react";
 import type { TreeNode } from "../blog/tree";
-
 interface FileExplorerProps {
   folder: TreeNode;
   currentPath: string;
@@ -40,7 +39,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
             {i > 0 && <ChevronRight className="size-3.5" />}
             <button
               onClick={() => onNavigate(crumb.path)}
-              className="hover:text-foreground transition-colors"
+              className="hover:text-foreground transition-colors py-1.5 px-1 -mx-1 active:text-foreground"
             >
               {crumb.label}
             </button>
@@ -51,7 +50,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
       {children.length === 0 ? (
         <p className="text-blue-50 text-center py-12">This folder is empty.</p>
       ) : (
-        <div className="space-y-1">
+        <div className="space-y-2">
           {folders.map((node) => (
             <button
               key={node.name}
@@ -62,41 +61,43 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
                     : node.name,
                 )
               }
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg
-                hover:bg-black-200 transition-colors text-left group cursor-pointer"
+              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-black-50
+                bg-black-100/70 hover:bg-black-200 active:scale-[0.99] transition-all text-left group cursor-pointer"
             >
               <Folder className="size-5 text-yellow-500 shrink-0" />
-              <span className="text-white-50 group-hover:text-foreground transition-colors">
+              <span className="text-white-50 group-hover:text-foreground transition-colors truncate min-w-0 flex-1">
                 {node.name}
               </span>
-              <span className="ml-auto text-xs text-blue-50">
+              <span className="shrink-0 text-[11px] font-medium px-2 py-0.5 rounded-full bg-black-200 text-blue-50">
                 {node.children?.filter((c) => c.type === "file").length}{" "}
                 file{(node.children?.filter((c) => c.type === "file").length ?? 0) !== 1 ? "s" : ""}
               </span>
+              <ChevronRight className="size-4 text-white-50/30 shrink-0" />
             </button>
           ))}
           {folders.length > 0 && files.length > 0 && (
-            <div className="border-t border-black-50 my-2" />
+            <div className="border-t border-black-50 my-3" />
           )}
           {shownFiles.map((node) => (
             <Link
               key={node.slug}
               to={`/blog/post/${node.slug}${currentPath ? `?from=${currentPath}` : ""}`}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg
-                hover:bg-black-200 transition-colors group"
+              className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-black-50
+                bg-black-100/70 hover:bg-black-200 active:scale-[0.99] transition-all group"
             >
               <FileText className="size-5 text-blue-400 shrink-0" />
-              <div className="min-w-0">
-                <span className="text-white-50 group-hover:text-foreground transition-colors block truncate">
+              <div className="min-w-0 flex-1">
+                <span className="text-white-50 group-hover:text-foreground transition-colors block truncate text-[15px]">
                   {node.title ?? node.name}
                 </span>
               </div>
+              <ChevronRight className="size-4 text-white-50/30 shrink-0" />
             </Link>
           ))}
           {remaining > 0 && (
             <button
               onClick={() => setVisibleFiles((v) => v + BATCH_SIZE)}
-              className="w-full text-center py-3 rounded-lg text-sm text-blue-50 hover:text-foreground hover:bg-black-200 transition-colors"
+              className="w-full text-center py-3 rounded-xl border border-dashed border-black-50 text-sm text-blue-50 hover:text-foreground hover:bg-black-200 transition-colors"
             >
               Show {remaining} more file{remaining !== 1 ? "s" : ""}
             </button>

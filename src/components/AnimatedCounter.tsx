@@ -30,18 +30,20 @@ const CounterItem = ({
   return (
     <a href={url}>
       <div
-        className="rounded-lg p-10! flex flex-col justify-center mt-2"
+        className="rounded-xl p-4! sm:p-5! md:p-8! xl:p-10! flex flex-col justify-center mt-2 min-w-0"
         style={{
           backgroundColor: "var(--counter-bg)",
           color: "var(--counter-text)",
           border: "1px solid var(--counter-border)",
         }}
       >
-        <div className="counter-number text-5xl font-bold mb-2">
+        <div className="counter-number text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold mb-1 md:mb-2">
           <span>{count}</span>
           {suffix}
         </div>
-        <div style={{ color: "var(--counter-muted)" }} className="text-lg">{text}</div>
+        <div style={{ color: "var(--counter-muted)" }} className="text-xs sm:text-sm md:text-base xl:text-lg leading-snug">
+          {text}
+        </div>
       </div>
     </a>
   );

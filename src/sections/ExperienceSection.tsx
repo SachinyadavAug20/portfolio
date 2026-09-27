@@ -59,7 +59,7 @@ const ExperienceSection = () => {
     >
       <div className="w-full h-full md:px-20 px-5">
         <TitleHeader title="Experience" sub="My CS Experience" />
-        <div className="mt-32 relative">
+        <div className="mt-20 md:mt-32 relative">
           <div className="relative z-50 xl:space-y-32 space-y-10">
             {expCards.map((exp, i) => (
               <div key={exp.title} className="exp-card-wrapper">

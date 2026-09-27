@@ -9,6 +9,8 @@ const CursorGlow = () => {
   const raf = useRef(0);
 
   useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+
     const handleMove = (e: PointerEvent) => {
       mouse.current = { x: e.clientX, y: e.clientY };
       if (blobRef.current) blobRef.current.style.opacity = "1";

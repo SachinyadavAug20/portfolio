@@ -49,6 +49,9 @@ html, body {
   color: var(--foreground);
   scroll-behavior: smooth;
   font-family: "Geist Variable", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
 }
 
 section {
@@ -108,6 +111,8 @@ section {
   --counter-border: #d8dee8;
   --counter-text: #18181b;
   --counter-muted: #52525b;
+  --tab-accent: #0284c7;
+  --tab-bar-bg: rgba(255, 255, 255, 0.88);
 }
 
 @layer base {
@@ -175,7 +180,7 @@ section {
   }
 
   .grid-4-cols {
-    @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-7;
+    @apply grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-5 xl:gap-7;
   }
 
   .grid-12-cols {
@@ -256,7 +261,7 @@ section {
     }
 
     .contact-btn {
-      @apply flex;
+      @apply hidden lg:flex;
 
       .inner {
         @apply px-5 py-2 rounded-lg transition-colors duration-300;
@@ -388,20 +393,64 @@ section {
   }
 
   .mobile-drawer-link {
-    @apply text-white-50 text-2xl font-semibold py-3 px-4 rounded-lg;
+    @apply text-white-50 text-2xl font-semibold py-4 px-4 rounded-xl bg-black-200 border border-black-50;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s, transform 0.15s;
   }
 
-  .mobile-drawer-link:hover {
-    color: var(--nav-link-hover);
-    background-color: var(--drawer-link-hover-bg);
-    transform: translateX(4px);
+  @media (hover: hover) {
+    .mobile-drawer-link:hover {
+      color: var(--nav-link-hover);
+      background-color: var(--drawer-link-hover-bg);
+      transform: translateX(4px);
+    }
   }
 
   .mobile-drawer-link:active {
     background-color: var(--drawer-link-active-bg);
     transform: scale(0.97);
+  }
+
+  /* Bottom tab bar — native app style navigation (mobile only) */
+  .bottom-tabbar {
+    @apply fixed bottom-0 left-0 right-0 z-[80] items-stretch justify-around;
+    background-color: var(--tab-bar-bg);
+    border-top: 1px solid var(--nav-border);
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    display: none;
+  }
+
+  .bottom-tab {
+    @apply flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium;
+    color: var(--nav-link-hover);
+    opacity: 0.5;
+    transition: opacity 0.15s, color 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-tab-icon {
+    @apply size-5;
+  }
+
+  .bottom-tab:active {
+    transform: scale(0.92);
+  }
+
+  .bottom-tab.active {
+    opacity: 1;
+    color: var(--tab-accent);
+  }
+
+  @media (max-width: 1023px) {
+    .bottom-tabbar {
+      display: flex;
+    }
+
+    body {
+      padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+    }
   }
 
   .app-showcase {
@@ -512,7 +561,7 @@ section {
   }
 
   .timeline-logo {
-    @apply md:size-20 size-10 flex-none rounded-full flex justify-center items-center md:-translate-y-7 border border-black-50 bg-black-100;
+    @apply md:size-20 size-10 flex-none rounded-full flex justify-center items-center md:-translate-y-7 border border-black-50 bg-black-100 relative z-40;
   }
 
   .exp-card-wrapper {
@@ -948,14 +997,24 @@ section {
   --counter-border: #27272a;
   --counter-text: #f4f4f5;
   --counter-muted: #a1a1aa;
+  --tab-accent: #38bdf8;
+  --tab-bar-bg: rgba(0, 0, 0, 0.82);
 }
 
 .blog-content {
-  @apply text-lg leading-relaxed text-blue-50;
-  font-size: 1.15rem;
-  line-height: 1.85;
+  @apply text-base leading-relaxed text-blue-50;
+  font-size: 1.0625rem;
+  line-height: 1.75;
   letter-spacing: 0.01em;
   word-spacing: 0.02em;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 768px) {
+  .blog-content {
+    font-size: 1.15rem;
+    line-height: 1.85;
+  }
 }
 
 .blog-content > * + * {
@@ -963,12 +1022,12 @@ section {
 }
 
 .blog-content img {
-  @apply rounded-xl my-6;
+  @apply rounded-xl my-6 max-w-full h-auto;
 }
 
 .blog-content pre {
-  @apply bg-black-200 p-5 rounded-xl overflow-x-auto whitespace-pre-wrap break-all;
-  font-size: 0.9rem;
+  @apply bg-black-200 p-4 md:p-5 rounded-xl overflow-x-auto whitespace-pre-wrap break-words;
+  font-size: 0.875rem;
   line-height: 1.6;
 }
 
@@ -1039,7 +1098,9 @@ section {
 }
 
 .blog-content table {
-  @apply w-full border-collapse my-6;
+  @apply w-full my-6 border-collapse;
+  display: block;
+  overflow-x: auto;
 }
 
 .blog-content th {

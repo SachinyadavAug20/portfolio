@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import BottomTabBar from "../components/BottomTabBar";
 import CursorGlow from "../components/CursorGlow";
 import Footer from "../sections/Footer";
 import { Toaster } from "../components/ui/sonner";
@@ -32,6 +33,7 @@ const RootLayout = () => {
       <Outlet />
       <Toaster />
       <Footer />
+      <BottomTabBar />
     </HelmetProvider>
   );
 };

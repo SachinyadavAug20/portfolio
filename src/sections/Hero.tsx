@@ -7,7 +7,7 @@ import FlickeringText from "../components/FlickeringText";
 import { useMediaQuery } from "react-responsive";
 
 const Hero = () => {
-  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const isSmallScreen = useMediaQuery({ query: "(max-width: 1279px)" });
 
   return (
     <section id="hero" className="relative overflow-hidden">
@@ -43,7 +43,7 @@ const Hero = () => {
             />
           </div>
         </header>
-        {!isMobile && (
+        {!isSmallScreen && (
           <figure>
             <div className="hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 mr-2 block">
               <HeroExperience />
