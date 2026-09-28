@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, LayoutGrid, BookOpen, Mail } from "lucide-react";
+import { tap } from "../lib/haptics";
 
 interface Tab {
   id: string;
@@ -29,6 +30,7 @@ const BottomTabBar = () => {
   };
 
   const handleClick = (e: React.MouseEvent, tab: Tab) => {
+    tap(8);
     if (!tab.href.startsWith("/#")) return;
     e.preventDefault();
     const target = tab.href.slice(2);

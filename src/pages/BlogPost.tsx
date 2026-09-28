@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown, Share2 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ReactMarkdown from "react-markdown";
@@ -18,6 +18,8 @@ import rehypeRaw from "rehype-raw";
 import rehypePrism from "rehype-prism-plus";
 import ReadingProgress from "../components/ReadingProgress";
 import ReadAloud from "../components/ReadAloud";
+import { toast } from "sonner";
+import { tap } from "../lib/haptics";
 import "prismjs/themes/prism-tomorrow.css";
 
 interface TocItem {
@@ -352,6 +354,23 @@ const BlogPost = () => {
     [post?.dir],
   );
 
+  const handleShare = async () => {
+    if (!post) return;
+    const url = window.location.href;
+    try {
+      if (typeof navigator.share === "function") {
+        await navigator.share({ title: post.title, text: post.title, url });
+        tap(12);
+      } else {
+        await navigator.clipboard.writeText(url);
+        tap(8);
+        toast.success("Link copied to clipboard");
+      }
+    } catch {
+      // Share sheet dismissed or clipboard unavailable — nothing to report.
+    }
+  };
+
   if (loading) return <Skeleton />;
 
   if (error || !post) {
@@ -414,6 +433,16 @@ const BlogPost = () => {
                 </span>
               )}
               <ReadAloud />
+              <div className="flex items-center gap-1.5 bg-black-200 border border-black-50 rounded-lg px-2 py-1.5">
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-1.5 px-2.5 py-2 rounded-md text-xs text-white-50/60 hover:text-foreground hover:bg-black-100 transition-colors"
+                  title="Share"
+                >
+                  <Share2 className="size-4" />
+                  <span className="hidden sm:inline">Share</span>
+                </button>
+              </div>
             </div>
             {post.dir && (
               <div className="post-anim flex flex-wrap gap-2 mb-8">

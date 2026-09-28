@@ -5,7 +5,7 @@ import Button from "../components/Button";
 import { lazy, Suspense } from "react";
 import RevolvingWords from "../components/RevolvingWords";
 import FlickeringText from "../components/FlickeringText";
-import { useMediaQuery } from "react-responsive";
+import { useNearViewport } from "../hooks/useNearViewport";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -17,8 +17,9 @@ const HeroExperience = lazy(
 );
 
 const Hero = () => {
-  const isSmallScreen = useMediaQuery({ query: "(max-width: 1279px)" });
   const sectionRef = useRef<HTMLElement>(null);
+  const { ref: figureRef, visible: figureVisible } =
+    useNearViewport<HTMLDivElement>("100px");
 
   useGSAP(
     () => {
@@ -109,15 +110,16 @@ const Hero = () => {
             />
           </div>
         </header>
-        {!isSmallScreen && (
-          <figure>
-            <div className="hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 mr-2 block">
-              <Suspense fallback={null}>
-                <HeroExperience />
-              </Suspense>
-            </div>
-          </figure>
-        )}
+        <figure className="w-full xl:w-auto px-5 xl:px-0">
+          <div
+            ref={figureRef}
+            className="hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 block"
+          >
+            <Suspense fallback={null}>
+              <HeroExperience active={figureVisible} />
+            </Suspense>
+          </div>
+        </figure>
       </div>
       <AnimatedCounter />
     </section>

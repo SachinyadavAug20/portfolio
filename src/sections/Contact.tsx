@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useNearViewport } from "../hooks/useNearViewport";
+import { tap } from "../lib/haptics";
 
 const ContactExperience = lazy(
   () => import("../components/ContactModels/ContactExperience"),
@@ -13,8 +14,12 @@ const ContactExperience = lazy(
 const Contact = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
-  const { ref: sceneRef, near: sceneNear, setNear: setSceneNear } =
-    useNearViewport<HTMLDivElement>("600px");
+  const {
+    ref: sceneRef,
+    near: sceneNear,
+    visible: sceneVisible,
+    setNear: setSceneNear,
+  } = useNearViewport<HTMLDivElement>("600px");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -86,6 +91,7 @@ const Contact = () => {
       setFormData({ name: "", email: "", message: "" });
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 4000);
+      tap([15, 40, 15]);
       toast.success("Message sent successfully!", {
         description: "I will reply you as soon as possible.",
       });
@@ -118,6 +124,7 @@ const Contact = () => {
                     name="name"
                     type="text"
                     autoComplete="name"
+                    enterKeyHint="send"
                     placeholder="Your Name"
                     value={formData.name}
                     onChange={handleChange}
@@ -133,6 +140,7 @@ const Contact = () => {
                     type="email"
                     placeholder="your@email.com"
                     autoComplete="email"
+                    enterKeyHint="send"
                     value={formData.email}
                     onChange={handleChange}
                     required
@@ -145,6 +153,7 @@ const Contact = () => {
                     id="message"
                     name="message"
                     rows={5}
+                    enterKeyHint="enter"
                     placeholder="Your message..."
                     value={formData.message}
                     onChange={handleChange}
@@ -179,7 +188,10 @@ const Contact = () => {
               {sceneNear && (
                 <div className="scene-in">
                   <Suspense fallback={null}>
-                    <ContactExperience submitted={submitted} />
+                    <ContactExperience
+                      submitted={submitted}
+                      active={sceneVisible}
+                    />
                   </Suspense>
                 </div>
               )}

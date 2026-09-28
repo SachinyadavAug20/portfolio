@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Moon, Sun, Monitor } from "lucide-react";
 import { useTheme, themeSettings } from "../lib/theme";
+import { tap } from "../lib/haptics";
 
 const LABELS: Record<string, string> = {
   light: "Light",
@@ -68,6 +69,7 @@ const ThemeToggle = () => {
                 role="menuitem"
                 className="theme-toggle-item"
                 onClick={() => {
+                  tap(8);
                   setTheme(setting);
                   setOpen(false);
                 }}

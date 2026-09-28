@@ -6,9 +6,11 @@ export function isTouchDevice(): boolean {
 }
 
 /**
- * Returns a ref to attach to a container and whether it is within
- * `rootMargin` of the viewport. Used to defer mounting heavy WebGL
- * scenes until the user actually scrolls near them.
+ * Returns a ref to attach to a container plus:
+ * - `near`  – one-shot: becomes true the first time the element comes within
+ *   `rootMargin` of the viewport (use it to defer mounting heavy scenes).
+ * - `visible` – continuous: tracks whether the element is currently inside
+ *   the rootMargin (use it to pause canvas frameloops while off-screen).
  */
 export function useNearViewport<T extends HTMLElement = HTMLDivElement>(
   rootMargin = "400px",
@@ -17,22 +19,23 @@ export function useNearViewport<T extends HTMLElement = HTMLDivElement>(
   const [near, setNear] = useState(
     () => typeof IntersectionObserver === "undefined",
   );
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || near) return;
+    if (!el || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver(
       (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setNear(true);
-          io.disconnect();
+        for (const entry of entries) {
+          if (entry.isIntersecting) setNear(true);
+          setVisible(entry.isIntersecting);
         }
       },
       { rootMargin },
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [near, rootMargin]);
+  }, [rootMargin]);
 
-  return { ref, near, setNear };
+  return { ref, near, visible, setNear };
 }

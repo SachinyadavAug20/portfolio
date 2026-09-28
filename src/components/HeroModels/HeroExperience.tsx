@@ -11,9 +11,12 @@ import { Partical } from "./Partical";
 import { isTouchDevice } from "../../hooks/useNearViewport";
 import * as THREE from "three";
 
-const HeroExperience = () => {
+const HeroExperience = ({ active = true }: { active?: boolean }) => {
   const isTablet = useMediaQuery({ query: "(max-width: 1024px)" });
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  // Matches the layout switch in `.hero-3d-layout`: below xl the canvas is a
+  // compact in-flow strip, so the camera pulls in to keep the model prominent.
+  const compact = useMediaQuery({ query: "(max-width: 1279px)" });
   const isTouch = isTouchDevice();
   const tod = useMemo(() => getTimeOfDay(), []);
   const groupRef = useRef<THREE.Group>(null!);
@@ -32,6 +35,27 @@ const HeroExperience = () => {
     return c.getStyle();
   }, [tod]);
 
+  // Stable identities: prevents R3F from re-applying them on every `active`
+  // flip (which would snap an orbited camera back to its default).
+  const cameraProps = useMemo(
+    () => ({
+      position: (compact ? [0, 1.1, 4.2] : [0, 1.5, 7]) as [
+        number,
+        number,
+        number,
+      ],
+      fov: 45,
+    }),
+    [compact],
+  );
+  const glProps = useMemo(
+    () => ({
+      antialias: !isTouch,
+      powerPreference: (isTouch ? "low-power" : "high-performance") as WebGLPowerPreference,
+    }),
+    [isTouch],
+  );
+
   useGSAP(() => {
     requestAnimationFrame(() => {
       if (!groupRef.current) return;
@@ -45,7 +69,12 @@ const HeroExperience = () => {
   });
 
   return (
-    <Canvas camera={{ position: [0, 1.5, 7], fov: 45 }}>
+    <Canvas
+      camera={cameraProps}
+      dpr={isTouch ? [1, 1.5] : [1, 2]}
+      gl={glProps}
+      frameloop={active ? "always" : "never"}
+    >
       <ambientLight intensity={0.05 + 0.25 * tod.factor} color={tod.color} />
       <directionalLight
         position={[5, 10, 5]}
@@ -81,8 +110,8 @@ const HeroExperience = () => {
 
       <group
         ref={groupRef}
-        scale={isMobile ? 0.3 : 0.5}
-        position={[0, -0.3, 0]}
+        scale={compact ? 0.55 : 0.5}
+        position={[0, compact ? 0 : -0.3, 0]}
       >
         <MyComputer todFactor={tod.factor} />
       </group>

@@ -5,12 +5,12 @@ import { useNearViewport } from "../../../hooks/useNearViewport";
 const TechIconCanvas = lazy(() => import("./TechIconCanvas"));
 
 const TechIcon = ({ model }: { model: techStackIconsProps }) => {
-  const { ref, near } = useNearViewport<HTMLDivElement>();
+  const { ref, near, visible } = useNearViewport<HTMLDivElement>();
   return (
     <div ref={ref} className="w-full h-full">
       {near && (
         <Suspense fallback={<div className="w-full h-full" />}>
-          <TechIconCanvas model={model} />
+          <TechIconCanvas model={model} active={visible} />
         </Suspense>
       )}
     </div>

@@ -1,14 +1,39 @@
 import { OrbitControls, Environment } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
+import { useMemo } from "react";
 import { Computer } from "./Computer";
 import ContactLights from "./ContactLights";
 import { isTouchDevice } from "../../hooks/useNearViewport";
 
-const ContactExperience = ({ submitted }: { submitted: boolean }) => {
+const ContactExperience = ({
+  submitted,
+  active = true,
+}: {
+  submitted: boolean;
+  active?: boolean;
+}) => {
   const isTouch = isTouchDevice();
+  // Stable identity so an `active` flip never re-applies renderer props.
+  const cameraProps = useMemo(
+    () => ({ position: [0, 1.5, 10] as [number, number, number], fov: 45 }),
+    [],
+  );
+  const glProps = useMemo(
+    () => ({
+      antialias: !isTouch,
+      powerPreference: (isTouch ? "low-power" : "high-performance") as WebGLPowerPreference,
+    }),
+    [isTouch],
+  );
 
   return (
-    <Canvas camera={{ position: [0, 1.5, 10], fov: 45 }} shadows={!isTouch}>
+    <Canvas
+      camera={cameraProps}
+      shadows={!isTouch}
+      dpr={isTouch ? [1, 1.5] : [1, 2]}
+      gl={glProps}
+      frameloop={active ? "always" : "never"}
+    >
       <ambientLight intensity={0.5} color="#fff4e6" />
       <directionalLight position={[5, 5, 3]} intensity={2.5} color="#ffd9b3" />
       <directionalLight
