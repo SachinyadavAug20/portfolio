@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-09-28T13:15:43.238Z",
+ "generatedAt": "2026-09-28T15:27:12.268Z",
  "counts": {
-  "notes": 327,
+  "notes": 328,
   "folders": 60,
-  "links": 583,
+  "links": 584,
   "wikiLinks": 204
  },
  "nodes": [
@@ -70,6 +70,12 @@
   {
    "id": "Programing/Concepts/LLD/10.Zomato Clone",
    "title": "Design a food delivery app -> Tomato",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/11.Observer design pattern",
+   "title": "observer design pattern",
    "kind": "note",
    "dir": "Programing/Concepts/LLD"
   },
@@ -3403,6 +3409,11 @@
   },
   {
    "source": "Programing/Concepts/LLD/10.Zomato Clone",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/11.Observer design pattern",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
   },

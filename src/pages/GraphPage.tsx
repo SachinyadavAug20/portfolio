@@ -137,6 +137,7 @@ const GraphPage = () => {
   const [data, setData] = useState<GraphData | null>(cachedGraph);
   const [attempt, setAttempt] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [hoverId, setHoverId] = useState<string | null>(null);
   const [activeTop, setActiveTop] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -145,6 +146,15 @@ const GraphPage = () => {
   const fgRef = useRef<
     ForceGraphMethods<FgNode, FgLink> | undefined
   >(undefined);
+  /* staged auto-fit bookkeeping: a few fits while the layout converges,
+     cancelled as soon as the user takes over the camera */
+  const autoFitRef = useRef(5);
+  const engineTickRef = useRef(0);
+  const interactedRef = useRef(false);
+  /* lazy+Suspense: ForceGraph2D mounts a commit AFTER status flips to ready,
+     so ref-less effects miss fgRef — first engine tick flips fgReady so they
+     re-run once the instance actually exists */
+  const [fgReady, setFgReady] = useState(false);
   const { ref: viewRef, visible } = useNearViewport<HTMLDivElement>("80px");
 
   /* data loading (module-cached; fresh JSON on every deploy).
@@ -238,14 +248,15 @@ const GraphPage = () => {
       cs.getPropertyValue(name).trim() || fb;
     const light = resolvedTheme === "light";
     return {
-      edge: light ? "#0a0a0a" : v("--flip-white-50", "#d9ecff"),
-      edgeA: light ? 0.13 : 0.14,
-      edgeHotA: light ? 0.5 : 0.55,
-      faintA: 0.05,
+      node: light ? "#3d444e" : "#e3e9f2",
+      edge: light ? "#5d6879" : "#8b96ab",
+      edgeA: light ? 0.42 : 0.36,
+      edgeHotA: light ? 0.65 : 0.7,
+      faintA: 0.07,
       accent: v("--tab-accent", "#38bdf8"),
-      wikiA: light ? 0.7 : 0.6,
+      wikiA: light ? 0.6 : 0.5,
       wikiHotA: 1,
-      dimA: light ? 0.1 : 0.15,
+      dimA: light ? 0.12 : 0.14,
       label: v("--flip-blue-50", "#839cb5"),
       labelStrong: v("--flip-white-50", "#d9ecff"),
     };
@@ -274,6 +285,28 @@ const GraphPage = () => {
     return { ids };
   }, [selectedId, filtered]);
 
+  /* hover neighbourhood (Obsidian-style hover focus) */
+  const hoverSet = useMemo(() => {
+    if (!hoverId || !filtered) return null;
+    const ids = new Set<string>([hoverId]);
+    for (const l of filtered.links) {
+      const s = sid(l.source);
+      const t = sid(l.target);
+      if (s === hoverId) ids.add(t);
+      else if (t === hoverId) ids.add(s);
+    }
+    return ids;
+  }, [hoverId, filtered]);
+
+  /* union of selection + hover focus; hover wins the "hot" highlight */
+  const focus = useMemo(() => {
+    if (!selection && !hoverSet) return null;
+    const ids = new Set<string>();
+    selection?.ids.forEach((id) => ids.add(id));
+    hoverSet?.forEach((id) => ids.add(id));
+    return { ids, hot: hoverId ?? selectedId };
+  }, [selection, hoverSet, hoverId, selectedId]);
+
   const selectedNode = useMemo(
     () => data?.nodes.find((n) => n.id === selectedId) ?? null,
     [data, selectedId],
@@ -298,8 +331,8 @@ const GraphPage = () => {
   const radiusOf = useCallback(
     (n: GraphNodeData) => {
       const deg = degreeMap.get(n.id) ?? 0;
-      const base = n.kind === "folder" ? 3.5 : 4.5;
-      return base + Math.min(deg, 15) * 0.32;
+      const base = n.kind === "folder" ? 3.4 : 2.7;
+      return base + Math.sqrt(Math.min(deg, 40)) * 0.85;
     },
     [degreeMap],
   );
@@ -334,6 +367,7 @@ const GraphPage = () => {
       setSelectedId(n.id);
       setQuery("");
       tap(8);
+      interactedRef.current = true;
       const fg = fgRef.current;
       if (!fg || n.x == null || n.y == null) return;
       const dur = reduced ? 0 : 700;
@@ -357,11 +391,13 @@ const GraphPage = () => {
   const zoomBy = useCallback((factor: number) => {
     const fg = fgRef.current;
     if (!fg) return;
+    interactedRef.current = true;
     const next = Math.min(Math.max(fg.zoom() * factor, 0.05), 8);
     fg.zoom(next, reduced ? 0 : 250);
   }, [reduced]);
 
   const fitToView = useCallback(() => {
+    interactedRef.current = true;
     fgRef.current?.zoomToFit(reduced ? 0 : 350, 56);
   }, [reduced]);
 
@@ -370,33 +406,83 @@ const GraphPage = () => {
       delete n.fx;
       delete n.fy;
     });
+    autoFitRef.current = 5;
+    engineTickRef.current = 0;
+    interactedRef.current = false;
     fgRef.current?.d3ReheatSimulation();
     tap(8);
   }, [filtered]);
 
-  /* force engine tuning (after the canvas mounts) */
+  /* fit every ~1.5s while the graph is still finding its shape */
+  const handleEngineTick = useCallback(() => {
+    setFgReady(true); /* no-op after the first tick */
+    if (interactedRef.current || autoFitRef.current <= 0) return;
+    if (++engineTickRef.current < 90) return;
+    engineTickRef.current = 0;
+    autoFitRef.current -= 1;
+    fgRef.current?.zoomToFit(reduced ? 0 : 450, 56);
+  }, [reduced]);
+
+  /* Obsidian-style force tuning: compact clusters, short edges, gentle life.
+     fgReady: the lazy graph mounts a commit after status flips, so re-run
+     once the instance actually exists (first engine tick flips it). */
   useEffect(() => {
     const fg = fgRef.current;
     if (!fg || status !== "ready") return;
+
     const charge = fg.d3Force("charge") as unknown as
       | { strength(v: number): void; distanceMax(v: number): void }
       | undefined;
-    charge?.strength(-160);
-    charge?.distanceMax(700);
-    const link = fg.d3Force("link") as unknown as
-      | { distance(fn: (l: FgLink) => number): void }
-      | undefined;
-    link?.distance((l) => (l.kind === "wiki" ? 36 : 26));
-  }, [status]);
+    charge?.strength(-90);
+    charge?.distanceMax(320);
 
-  /* frame the whole graph on load and whenever the filter changes */
+    const link = fg.d3Force("link") as unknown as
+      | {
+          distance(fn: (l: FgLink) => number): void;
+          strength(fn: (l: FgLink) => number): void;
+        }
+      | undefined;
+    link?.distance((l) =>
+      l.kind === "wiki" ? 54 : l.kind === "member" ? 20 : 30,
+    );
+    link?.strength((l) =>
+      l.kind === "member" ? 0.8 : l.kind === "parent" ? 0.65 : 0.55,
+    );
+
+    if (reduced) {
+      fg.d3Force("breath", null);
+      return;
+    }
+
+    /* gentle out-of-phase sway per node so the layout never goes rigid */
+    const nodes = filtered?.nodes ?? [];
+    let phase = 0;
+    fg.d3Force("breath", () => {
+      phase += 0.02;
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i] as FgNode;
+        if (n.fx != null || n.fy != null) continue;
+        const seed = i * 0.61;
+        n.vx = (n.vx ?? 0) + Math.sin(phase * 1.07 + seed) * 0.03;
+        n.vy = (n.vy ?? 0) + Math.cos(phase * 0.83 + seed * 1.3) * 0.03;
+      }
+    });
+  }, [status, reduced, filtered, size.w, fgReady]);
+
+  /* frame the whole graph on load and whenever the filter changes;
+     further fits come from handleEngineTick while the layout converges */
   useEffect(() => {
+    autoFitRef.current = 5;
+    engineTickRef.current = 0;
+    interactedRef.current = false;
     if (status !== "ready" || !size.w) return;
     const t = window.setTimeout(() => {
-      fgRef.current?.zoomToFit(reduced ? 0 : 600, 56);
+      if (!interactedRef.current) {
+        fgRef.current?.zoomToFit(reduced ? 0 : 600, 56);
+      }
     }, 160);
     return () => window.clearTimeout(t);
-  }, [status, size.w, reduced, activeTop]);
+  }, [status, size.w, reduced, activeTop, fgReady]);
 
   /* rendering --------------------------------------------------------- */
 
@@ -404,9 +490,9 @@ const GraphPage = () => {
     (n: FgNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
       const id = n.id ?? "";
       const isSel = selectedId === id;
-      const dim = selection ? !selection.ids.has(id) : false;
+      const isHot = focus?.hot === id && !isSel;
+      const dim = focus ? !focus.ids.has(id) : false;
       const r = radiusOf(n);
-      const color = topColor.get(topOf(n)) ?? "#94a3b8";
       const x = n.x ?? 0;
       const y = n.y ?? 0;
 
@@ -415,20 +501,20 @@ const GraphPage = () => {
       if (n.kind === "folder") {
         ctx.beginPath();
         ctx.roundRect(x - r, y - r, r * 2, r * 2, r * 0.45);
-        ctx.fillStyle = color;
+        ctx.fillStyle = tc.node;
         ctx.fill();
       } else {
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = color;
+        ctx.fillStyle = tc.node;
         ctx.fill();
       }
 
-      if (isSel) {
+      if (isSel || isHot) {
         ctx.beginPath();
         ctx.arc(x, y, r + 3.5, 0, Math.PI * 2);
         ctx.strokeStyle = tc.accent;
-        ctx.lineWidth = 1.75 / globalScale;
+        ctx.lineWidth = (isSel ? 1.75 : 1.2) / globalScale;
         ctx.stroke();
       }
 
@@ -437,7 +523,7 @@ const GraphPage = () => {
         !dim &&
         (globalScale > 0.9 ||
           isSel ||
-          (selection != null && selection.ids.has(id)) ||
+          isHot ||
           (n.kind === "folder" && globalScale > 0.45) ||
           (deg >= 25 && globalScale > 0.6));
 
@@ -456,38 +542,39 @@ const GraphPage = () => {
 
       ctx.globalAlpha = 1;
     },
-    [selectedId, selection, radiusOf, topColor, tc, degreeMap],
+    [selectedId, focus, radiusOf, tc, degreeMap],
   );
 
   const linkColor = useCallback(
     (l: FgLink) => {
       const s = sid(l.source);
       const t = sid(l.target);
-      const touches =
-        selectedId != null && (s === selectedId || t === selectedId);
-      if (selectedId != null && !touches) return rgba(tc.edge, tc.faintA);
+      const touches = focus != null && (s === focus.hot || t === focus.hot);
+      if (focus != null && !touches) return rgba(tc.edge, tc.faintA);
       if (l.kind === "wiki") {
         return rgba(tc.accent, touches ? tc.wikiHotA : tc.wikiA);
       }
       return rgba(tc.edge, touches ? tc.edgeHotA : tc.edgeA);
     },
-    [selectedId, tc],
+    [focus, tc],
   );
 
   const linkWidth = useCallback(
     (l: FgLink) => {
       const touches =
-        selectedId != null &&
-        (sid(l.source) === selectedId || sid(l.target) === selectedId);
-      if (l.kind === "wiki") return touches ? 1.6 : 1.1;
+        focus != null &&
+        (sid(l.source) === focus.hot || sid(l.target) === focus.hot);
+      if (l.kind === "wiki") return touches ? 1.6 : 1;
       return touches ? 1.2 : 0.7;
     },
-    [selectedId],
+    [focus],
   );
 
   const nodePointerAreaPaint = useCallback(
     (n: FgNode, color: string, ctx: CanvasRenderingContext2D) => {
-      const r = radiusOf(n) + (isTouch ? 7 : 3);
+      /* hit target in screen pixels — graph units alone are ~1px at fit zoom */
+      const k = Math.max(fgRef.current?.zoom() ?? 1, 0.01);
+      const r = Math.max(radiusOf(n), (isTouch ? 14 : 9) / k);
       ctx.beginPath();
       ctx.arc(n.x ?? 0, n.y ?? 0, r, 0, Math.PI * 2);
       ctx.fillStyle = color;
@@ -620,6 +707,12 @@ const GraphPage = () => {
           <div
             ref={viewRef}
             className="relative mt-4 rounded-2xl card-border overflow-hidden bg-black-100 h-[68vh] min-h-[420px] graph-canvas"
+            onWheel={() => {
+              interactedRef.current = true;
+            }}
+            onPointerDown={() => {
+              interactedRef.current = true;
+            }}
           >
             <div className="absolute inset-0 graph-grid" aria-hidden="true" />
 
@@ -641,18 +734,20 @@ const GraphPage = () => {
                     nodePointerAreaPaint={nodePointerAreaPaint}
                     linkColor={linkColor}
                     linkWidth={linkWidth}
-                    nodeLabel={(n) => n.title}
                     showPointerCursor
                     onNodeClick={handleNodeClick}
                     onBackgroundClick={() => setSelectedId(null)}
+                    onNodeHover={(n) => setHoverId(n?.id ?? null)}
                     onNodeDragEnd={(n) => {
                       n.fx = n.x;
                       n.fy = n.y;
                     }}
-                    warmupTicks={40}
-                    cooldownTicks={reduced ? 60 : 160}
-                    d3AlphaDecay={reduced ? 0.15 : undefined}
-                    d3VelocityDecay={0.3}
+                    warmupTicks={reduced ? 40 : 120}
+                    cooldownTicks={reduced ? 400 : Infinity}
+                    cooldownTime={reduced ? 4000 : Infinity}
+                    d3AlphaDecay={reduced ? 0.06 : undefined}
+                    d3VelocityDecay={0.35}
+                    onEngineTick={handleEngineTick}
                   />
                 </Suspense>
               )}
