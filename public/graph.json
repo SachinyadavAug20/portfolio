@@ -1,0 +1,5250 @@
+{
+ "generatedAt": "2026-09-28T13:15:43.238Z",
+ "counts": {
+  "notes": 327,
+  "folders": 60,
+  "links": 583,
+  "wikiLinks": 204
+ },
+ "nodes": [
+  {
+   "id": "Daily Diary/TIL/2026-07-12",
+   "title": "📅 Study Log: 2026-07-12",
+   "kind": "note",
+   "dir": "Daily Diary/TIL"
+  },
+  {
+   "id": "Daily Diary/TIL/Random/Problem statement",
+   "title": "Problem statement",
+   "kind": "note",
+   "dir": "Daily Diary/TIL/Random"
+  },
+  {
+   "id": "MIT lectures/Mathematics for computer/lecture 5)Asymptotics",
+   "title": "Asymptotic",
+   "kind": "note",
+   "dir": "MIT lectures/Mathematics for computer"
+  },
+  {
+   "id": "Programing/AI/openclaw/Openclaw",
+   "title": "It is not AI model, ![[Pasted image 20260324184704.png|538]]",
+   "kind": "note",
+   "dir": "Programing/AI/openclaw"
+  },
+  {
+   "id": "Programing/Concepts/FDE and GenAI/0.Intro",
+   "title": "What is FDE ?",
+   "kind": "note",
+   "dir": "Programing/Concepts/FDE and GenAI"
+  },
+  {
+   "id": "Programing/Concepts/FDE and GenAI/1.LLM",
+   "title": "Next word prediction game",
+   "kind": "note",
+   "dir": "Programing/Concepts/FDE and GenAI"
+  },
+  {
+   "id": "Programing/Concepts/FDE and GenAI/2.Integrating LLM with Your Application",
+   "title": "Tooling",
+   "kind": "note",
+   "dir": "Programing/Concepts/FDE and GenAI"
+  },
+  {
+   "id": "Programing/Concepts/LLD/0.Intro",
+   "title": "What is LLD",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/0.LLD",
+   "title": "0.LLD",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/1.Abstraction & Encapsulation",
+   "title": "Histroy of programming",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/10.Zomato Clone",
+   "title": "Design a food delivery app -> Tomato",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/2.Inheritance & Polymorphism",
+   "title": "Inheritance",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/3.ULM Diagram",
+   "title": "UML diagram",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/4.SOLID design principles",
+   "title": "Problems",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/5.Google Docs example",
+   "title": "Problem statement",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/6.Design patterns",
+   "title": "Design pattern",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/7.Strategy Design Pattern",
+   "title": "Strategy design pattern",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/8.Factory Design Pattern",
+   "title": "Factory",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/9.Singleton design pattern",
+   "title": "Singleton class",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/UTF-8(Unicode transformation Format)",
+   "title": "UTF-8(Unicode transformation Format)",
+   "kind": "note",
+   "dir": "Programing/Concepts"
+  },
+  {
+   "id": "Programing/DSA/Algorithum/Disjoint set union",
+   "title": "Use",
+   "kind": "note",
+   "dir": "Programing/DSA/Algorithum"
+  },
+  {
+   "id": "Programing/DSA/Basic cpp/0.intro",
+   "title": "Basics of C++",
+   "kind": "note",
+   "dir": "Programing/DSA/Basic cpp"
+  },
+  {
+   "id": "Programing/DSA/Basic cpp/1.Conditions, Loops, and Jump Statements",
+   "title": "1. Relational & Logical Operators",
+   "kind": "note",
+   "dir": "Programing/DSA/Basic cpp"
+  },
+  {
+   "id": "Programing/DSA/Basic cpp/2.Strings, Getline, and Big Numbers",
+   "title": "1. C++ String Basics & Mechanics",
+   "kind": "note",
+   "dir": "Programing/DSA/Basic cpp"
+  },
+  {
+   "id": "Programing/DSA/Basic cpp/3.Arrays & Functions",
+   "title": "1. Array Fundamentals",
+   "kind": "note",
+   "dir": "Programing/DSA/Basic cpp"
+  },
+  {
+   "id": "Programing/DSA/Basic cpp/4.Pointers & Memory Mechanics",
+   "title": "1. Memory Architecture Basics",
+   "kind": "note",
+   "dir": "Programing/DSA/Basic cpp"
+  },
+  {
+   "id": "Programing/DSA/Basic cpp/5.Essential CP Logics & Math Basics",
+   "title": "1. Character Case Conversion Logic",
+   "kind": "note",
+   "dir": "Programing/DSA/Basic cpp"
+  },
+  {
+   "id": "Programing/DSA/Basic cpp/6.Common Online Judge Verdicts & Errors",
+   "title": "1. Primary Evaluation Verdicts",
+   "kind": "note",
+   "dir": "Programing/DSA/Basic cpp"
+  },
+  {
+   "id": "Programing/DSA/Basic cpp/7.Time complexity",
+   "title": "1. What is Time Complexity?",
+   "kind": "note",
+   "dir": "Programing/DSA/Basic cpp"
+  },
+  {
+   "id": "Programing/DSA/Methods/Merge sort",
+   "title": "1. Selection Sort",
+   "kind": "note",
+   "dir": "Programing/DSA/Methods"
+  },
+  {
+   "id": "Programing/DSA/Methods/Modulo arithematics",
+   "title": "1. Core Mathematical Properties",
+   "kind": "note",
+   "dir": "Programing/DSA/Methods"
+  },
+  {
+   "id": "Programing/DSA/Methods/Pre-computation and hashing",
+   "title": "Pre-Computation & Hashing Techniques",
+   "kind": "note",
+   "dir": "Programing/DSA/Methods"
+  },
+  {
+   "id": "Programing/DSA/Methods/Recursion",
+   "title": "1. What is Recursion?",
+   "kind": "note",
+   "dir": "Programing/DSA/Methods"
+  },
+  {
+   "id": "Programing/DSA/STL/0.Intro",
+   "title": "C++ Standard Template Library (STL) Introduction",
+   "kind": "note",
+   "dir": "Programing/DSA/STL"
+  },
+  {
+   "id": "Programing/DSA/STL/1.vectors",
+   "title": "C++ STL: Vectors & Iterators",
+   "kind": "note",
+   "dir": "Programing/DSA/STL"
+  },
+  {
+   "id": "Programing/DSA/STL/2.Map or dictionaries",
+   "title": "1. Map Architecture Overview",
+   "kind": "note",
+   "dir": "Programing/DSA/STL"
+  },
+  {
+   "id": "Programing/Godot/0 - Godot",
+   "title": "0 - Godot",
+   "kind": "note",
+   "dir": "Programing/Godot"
+  },
+  {
+   "id": "Programing/Godot/3D",
+   "title": "![[Pasted image 20260425195810.png|117]]=>![[Pasted image 20260425195826.png|137]]",
+   "kind": "note",
+   "dir": "Programing/Godot"
+  },
+  {
+   "id": "Programing/Godot/GDScript",
+   "title": "Intro",
+   "kind": "note",
+   "dir": "Programing/Godot"
+  },
+  {
+   "id": "Programing/Godot/Intro",
+   "title": "Game dev is more about expectation management",
+   "kind": "note",
+   "dir": "Programing/Godot"
+  },
+  {
+   "id": "Programing/Godot/Playlist/0.Introduction",
+   "title": "everything is a node -> collection of nodes is scene",
+   "kind": "note",
+   "dir": "Programing/Godot/Playlist"
+  },
+  {
+   "id": "Programing/Godot/Playlist/1.Space shooter",
+   "title": "to change size of window go to project settings ![[Pasted image 20260519225111.png]] ![[Pasted image 20260519225217.png|272]]",
+   "kind": "note",
+   "dir": "Programing/Godot/Playlist"
+  },
+  {
+   "id": "Programing/Manim/Manim Introduction",
+   "title": "It is made by creator of 1brown3blue YouTube channel.",
+   "kind": "note",
+   "dir": "Programing/Manim"
+  },
+  {
+   "id": "Programing/OpenGL/1. Clear screen",
+   "title": "make env variable",
+   "kind": "note",
+   "dir": "Programing/OpenGL"
+  },
+  {
+   "id": "Programing/Raylib/0.intro",
+   "title": "Structure of game",
+   "kind": "note",
+   "dir": "Programing/Raylib"
+  },
+  {
+   "id": "Programing/Raylib/1.pong",
+   "title": "Divide and conquer",
+   "kind": "note",
+   "dir": "Programing/Raylib"
+  },
+  {
+   "id": "Programing/Raylib/2.Snake game",
+   "title": "Step 1",
+   "kind": "note",
+   "dir": "Programing/Raylib"
+  },
+  {
+   "id": "Programing/Raylib/3.Conways game of life",
+   "title": "Step 1",
+   "kind": "note",
+   "dir": "Programing/Raylib"
+  },
+  {
+   "id": "Programing/Raylib/Swarm Shooter/0.Intro",
+   "title": "Game loop",
+   "kind": "note",
+   "dir": "Programing/Raylib/Swarm Shooter"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "title": "0.AlienBlaster",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/0.Unity",
+   "title": "0.Unity",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/1.Game engine",
+   "title": "Branches of unity",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/10.Sprite handling",
+   "title": "Flip sprite",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/11.Animations",
+   "title": "Handle animation",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/12.fluid movements",
+   "title": "bugs",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/13.Double jump",
+   "title": "Audio",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/14.Props",
+   "title": "Spring code",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/15.control movement",
+   "title": "Solution 1",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/16.level building",
+   "title": "add obstacle",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/17.Prefabs system",
+   "title": "17.Prefabs system",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/18.Understand code",
+   "title": "What is MonoBehaviour",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/19.built and share",
+   "title": "19.built and share",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/2.Importing 2D art",
+   "title": "fix resolution",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/20.Enemy",
+   "title": "Frog",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/21.more level",
+   "title": "make level look",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/22.Menu",
+   "title": "22.Menu",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/23.Assets",
+   "title": "23.Assets",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/24.Multiplayer",
+   "title": "Enable multi-player",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/25.Player data",
+   "title": "UI",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/26.Health system",
+   "title": "Lava",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/27.load and save levels",
+   "title": "Build UI to select game",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/28.UI",
+   "title": "Features",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/29.Developer",
+   "title": "one way platform",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/3.Scene",
+   "title": "Shortcuts",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/30.Art",
+   "title": "30.Art",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/31.New player",
+   "title": "31.New player",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/4.gameplay and physics",
+   "title": "4.gameplay and physics",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/5.version control",
+   "title": "version control",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/6.coding",
+   "title": "Move object around",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/7.variable",
+   "title": "7.variable",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/8.Jumping",
+   "title": "8.Jumping",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/AlienBlaster/9. Stablize things",
+   "title": "9. Stablize things",
+   "kind": "note",
+   "dir": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "Programing/Unity/Kitchen/0.intro",
+   "title": "Naming rules",
+   "kind": "note",
+   "dir": "Programing/Unity/Kitchen"
+  },
+  {
+   "id": "Programing/Unity/Kitchen/1.Postprocessing",
+   "title": "1.Postprocessing",
+   "kind": "note",
+   "dir": "Programing/Unity/Kitchen"
+  },
+  {
+   "id": "Programing/Unity/Kitchen/2.Character controller",
+   "title": "Legacy input manager",
+   "kind": "note",
+   "dir": "Programing/Unity/Kitchen"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/0.Intro",
+   "title": "How to websites and internet works",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/0.Spring Boot",
+   "title": "0.Spring Boot",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/1.First program",
+   "title": "Start a server",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/10.Spring MVC Architecture",
+   "title": "Spring MVC",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/11.DTOs & Validations in Spring Boot",
+   "title": "DTO",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/12.Exception handling",
+   "title": "API response",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/13.Config and YAMP",
+   "title": "Spring boot application",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/14.Filter",
+   "title": "Filters",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/15.Interceptors",
+   "title": "Code",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/16.AOP",
+   "title": "Cross-Cutting",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/17.Custom annotations",
+   "title": "Custom annotation",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/18.JDBC",
+   "title": "Simple Java app",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/19.Spring JDBC",
+   "title": "Template design pattern",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/2.Apache Maven",
+   "title": "JAR files",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/20.Hibernate",
+   "title": "Boolean",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/21.JPA",
+   "title": "Lombok",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/22.Spring Data JPA",
+   "title": "Spring Data",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/23.Transaction",
+   "title": "Atomicity",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/24.Spring Security",
+   "title": "Assets",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/25.JWT internals",
+   "title": "State-less architecture",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/26.OAuth Google",
+   "title": "OAuth2",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/27.Unit testing",
+   "title": "Test Case",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/3.Spring core intro",
+   "title": "Dependency Injection",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/4.Circular Dependency",
+   "title": "Example",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/5.Bean lifecycle",
+   "title": "Singleton beans",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/6.XML config",
+   "title": "XML config",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/7.Spring boot core",
+   "title": "Spring Boot core",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/8.CRUD project",
+   "title": "Setup",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/SpringBoot/9.Servlets",
+   "title": "Basic",
+   "kind": "note",
+   "dir": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "Programing/languages/java/0.Introduction",
+   "title": "Why java was created",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/0.Java",
+   "title": "0.Java",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/1.JVM, JDK and JRE",
+   "title": "JVM (Java virtual machine)",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/10.Pillar of OOPs",
+   "title": "Encapsulation",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/11.AutoBoxing, Abstract classes & POJOs",
+   "title": "Why only 1 public class per-file and why name of the class should be same as file name ? `error: class main is public, should be declared in a file named main.java`",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/12.Nested class",
+   "title": "Class inside class. it is of 4 types",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/13.IO",
+   "title": "based on where input is taken is of following types",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/14.Immutable classes",
+   "title": "14.Immutable classes",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/15.Object class",
+   "title": "`toString()`",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/16.Enums",
+   "title": "enums",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/17.Interface",
+   "title": "interface",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/18.Strings",
+   "title": "String properties",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/19.Generics",
+   "title": "Up-casting and Down-casting",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/2.Variables & Data types",
+   "title": "Variable : It is a named(identifier) container holding a value(literal)",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/20.Collection framwork",
+   "title": "Data Structure",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/21.List interface",
+   "title": "List",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/22.Set and map",
+   "title": "Set",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/23.Queue and stack",
+   "title": "Queue interface",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/24.Comparable",
+   "title": "`Comparable` interface",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/25.Lambdas and functional interface",
+   "title": "Java principles : OPPs",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/26.Stream",
+   "title": "Streams",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/27.Optional class",
+   "title": "Problem with null",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/28.parallel stream",
+   "title": "Parallel stream",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/29.Exceptional handling",
+   "title": "Exception",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/3.Represent numbers in java",
+   "title": "In memory can store negative and positive numbers --->",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/30.Memory management",
+   "title": "Memory management",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/31.Mulithreading",
+   "title": "Why need multi-threading ?",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/32.locking and sync",
+   "title": "Synchronized",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/33.Atomic variable",
+   "title": "Lock free concurrency",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/34.Executor framework",
+   "title": "Thread pool",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/35.CompletableFuture, Fork-Join Pool, ThreadLocal & Virtual Threads",
+   "title": "Methods in future",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/4.Type Conversion",
+   "title": "We have data types integer(byte,short,int,long), real(double,float), character(char) and boolean",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/5.Operators",
+   "title": "operators are to perform operations",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/6.Control statements",
+   "title": "flow of code :- how code is code is executed(top to bottom execution) -> some keywords in java can break this flow and bring custom control of code flow.",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/7.Array and string",
+   "title": "Array(non-primitive) is a collection of similar data-type in continuous memory location --> need to define datatype of array",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/8.Function",
+   "title": "for code re-usability  -> like",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/java/9.OOPs",
+   "title": "Object oriented programming -> it is a paradise of programming",
+   "kind": "note",
+   "dir": "Programing/languages/java"
+  },
+  {
+   "id": "Programing/languages/kotlin/0.intro",
+   "title": "Kotlin",
+   "kind": "note",
+   "dir": "Programing/languages/kotlin"
+  },
+  {
+   "id": "Programing/languages/typescript/0.intro",
+   "title": "TypeScript",
+   "kind": "note",
+   "dir": "Programing/languages/typescript"
+  },
+  {
+   "id": "Programing/languages/typescript/1.Void",
+   "title": "1.Void",
+   "kind": "note",
+   "dir": "Programing/languages/typescript"
+  },
+  {
+   "id": "Programing/webdev/Backend development/0 - Back-end development",
+   "title": "0 - Back-end development",
+   "kind": "note",
+   "dir": "Programing/webdev/Backend development"
+  },
+  {
+   "id": "Programing/webdev/Backend development/Basic of internet",
+   "title": "Switches",
+   "kind": "note",
+   "dir": "Programing/webdev/Backend development"
+  },
+  {
+   "id": "Programing/webdev/Backend development/JavaScript-Node",
+   "title": "JavaScript-Node",
+   "kind": "note",
+   "dir": "Programing/webdev/Backend development"
+  },
+  {
+   "id": "Programing/webdev/Backend development/Python",
+   "title": "Python",
+   "kind": "note",
+   "dir": "Programing/webdev/Backend development"
+  },
+  {
+   "id": "Programing/webdev/Backend development/Roadmap",
+   "title": "What is back-end ?",
+   "kind": "note",
+   "dir": "Programing/webdev/Backend development"
+  },
+  {
+   "id": "Programing/webdev/Backend development/django",
+   "title": "django",
+   "kind": "note",
+   "dir": "Programing/webdev/Backend development"
+  },
+  {
+   "id": "Programing/webdev/Backend development/flask",
+   "title": "flask",
+   "kind": "note",
+   "dir": "Programing/webdev/Backend development"
+  },
+  {
+   "id": "Programing/webdev/GSAP/basic/0.intro",
+   "title": "GSAP SDK(standard development kit)",
+   "kind": "note",
+   "dir": "Programing/webdev/GSAP/basic"
+  },
+  {
+   "id": "Programing/webdev/GSAP/basic/1.Scroll Trigger",
+   "title": "Pin",
+   "kind": "note",
+   "dir": "Programing/webdev/GSAP/basic"
+  },
+  {
+   "id": "Programing/webdev/GSAP/basic/2.SVG animation",
+   "title": "thread SVG animation",
+   "kind": "note",
+   "dir": "Programing/webdev/GSAP/basic"
+  },
+  {
+   "id": "Programing/webdev/GSAP/basic/3.Cursor effect",
+   "title": "Now need to make cursor interact with image",
+   "kind": "note",
+   "dir": "Programing/webdev/GSAP/basic"
+  },
+  {
+   "id": "Programing/webdev/GSAP/basic/4.Timeline",
+   "title": "4.Timeline",
+   "kind": "note",
+   "dir": "Programing/webdev/GSAP/basic"
+  },
+  {
+   "id": "Programing/webdev/GSAP/basic/5.Text animation",
+   "title": "Way 1:",
+   "kind": "note",
+   "dir": "Programing/webdev/GSAP/basic"
+  },
+  {
+   "id": "Programing/webdev/GSAP/basic/6.Scroll text animation",
+   "title": "6.Scroll text animation",
+   "kind": "note",
+   "dir": "Programing/webdev/GSAP/basic"
+  },
+  {
+   "id": "Programing/webdev/GSAP/basic/7.React",
+   "title": "`useGSAP` hook",
+   "kind": "note",
+   "dir": "Programing/webdev/GSAP/basic"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/3JS/Basic/0.Intro",
+   "title": "Starter template",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/3JS/Basic"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/CRUD/Memories/Process",
+   "title": "body-parser : To send post request",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/CRUD/Memories"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "title": "0-NextJs",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/1.Intro",
+   "title": "Use latest NextJS version, MongoDB and tailwind CSS",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/10.route",
+   "title": "How does react-router handle routing ![[Pasted image 20260411143606.png]]",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/11.Server and client components",
+   "title": "There is server side and client side parts in nextJS page ![[Pasted image 20260412150450.png|433]] client is user's device and server is a powerful computer hosting the website",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/12.Rendering",
+   "title": "There are different ways to display thing(strategies),the specific time they run(runtime/build time), and the specific places where they work(environment).",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/13.Next themes",
+   "title": "We have global.css where, there are themes for dark and light theme => make a dark and light mode switch ![[Pasted image 20260414130830.png|201]]",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/14.Navbar",
+   "title": "Our navbar will be of => upper(header) + left-side-bar + right-side-bar(for large screen devices)",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/15.Authentication",
+   "title": "Auth is a process of verifying the identity of a user.to make sure person or entity accessing the system is who they are claim to be.",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/16.Navbar",
+   "title": "For mobile navbar use shadcn sheet component",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/17.State Management",
+   "title": "It is important concept in front-end framework like react or nextJS",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/18.URL state management",
+   "title": "URL state management",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/19.Search implementation",
+   "title": "Implement the logic first and don't think of UI(Just implement the UI so can see what is happening).",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/2.History",
+   "title": "Nothing is old ,",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/20.React hook form and Zod validation using Shadcn",
+   "title": "Need to make a validation.ts file in root of system(making a ask question form)",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/21.Editor for md and code",
+   "title": "Add line to `import {basicDark} from \"cm6-theme-basic-dark\"",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/22.Input Tags system",
+   "title": "Add tags as card can remove by crossing button",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/23.Backend",
+   "title": "NextJS : handles client,web server and app server through server action.",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/24.Database types",
+   "title": "MongoDB",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/25.Database structure",
+   "title": "Array of references",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/26.Create Schema",
+   "title": "User schema optimized with models from mongoose",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/26.Error handling",
+   "title": "Why Error Handling Matters",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/27.Logging errors",
+   "title": "Why Pino?",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/28.Route handling",
+   "title": "CURD => create update read delete",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/29.API routes",
+   "title": "DB schema is back-end validation then, have to do Zod for front-end validation",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/3.Intro to NEXTJS",
+   "title": "It is flexible react framework => it serves as a tool equipped with predefined rules and conventions that offer a structured approach toward constructing an application",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/30.Fetch API",
+   "title": "We can do simple fetch like below![[Pasted image 20260430143327.png]] but this approach leads inconsistency and boiler plate => need a centralized logic for the entire app.(so all request follow the same rules and best practice)",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/31.Flow of app",
+   "title": "There is a need of flow for the email and password log-in",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/32.Server actions",
+   "title": "It is nextJS quick way to execute code on the server ==> it is alternative to using API end points sometime",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/33.useTransition hook",
+   "title": "It used to render part of UI in the background",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/34.DataRenderer",
+   "title": "There are many places we show data from some where and need to handle the error and the empty condition everywhere ==> make a centralized place and format for all data render",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/35.View content",
+   "title": "Parallel request",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/36.AI integration",
+   "title": "answering question in baseCase==> there are many options.",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/37.Use react hook",
+   "title": "Problem",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/38.Select, tabs shadcn",
+   "title": "tabs",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/39.Pagination",
+   "title": "for each component we did get page.no, page-Size from search params to handle pagaination",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/4.How web works",
+   "title": "Learn fundamental to understand the web and make good and clear design decisions.",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/40.Optimization",
+   "title": "No-need-sequential request",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/41.Date management library",
+   "title": "Use case need to show when a user joined the platform",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/42.auto scroll to question",
+   "title": "42.auto scroll to question",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/43.reputation system",
+   "title": "track whatever user does to and increase or decrease reputation",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/44.Recommendation system",
+   "title": "show question which user already interacted with -> get it's tags and show question of that tag -interaction logic",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/45.loading and error page",
+   "title": "Loading skeleton",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/46.SEO",
+   "title": "static metadata is simple ->",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/47.Advance next.js",
+   "title": "React server component (RSC)",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/5.Ways to make Next JS application",
+   "title": "There are many ways to make next js app fastest is automatic install => ![[Pasted image 20260407191415.png]]",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/6.Basic setup",
+   "title": "git and github",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/7.tailwind setup",
+   "title": "It is utility first styling => we will focus on theme the website",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/8.Font setup",
+   "title": "Website should have a particular font so it look distinct and good",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/9.Assets and metadata setup",
+   "title": "git the assets : logo etc place in `public` ![[Pasted image 20260411142003.png|253]]",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/1.Intro",
+   "title": "Can make web-pages easily using next, as boiler plate of configuration, linting, compilation and compilation",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/10.Static site generation (SSG)",
+   "title": "It is technique where html pages are generated on build time (made when build time not when request comes)",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/11.Server side rendering (SSR)",
+   "title": "This generates a html page in response to a request.",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/12.Partial pre-rendering",
+   "title": "It combines SSG and SSR => It allows to make a static shell of page and dynamically render the content",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/13.API routes",
+   "title": "It is back-end part ![[Pasted image 20260331124925.png]]",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/14.SEO optimization",
+   "title": "It is the look and feel of our website when we share it on social media => manage metadata",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/14.ShadCN setup",
+   "title": "We need navbar, footer, toggle(for dark/light mode), drop-down.=> use shadCN",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/2.Start",
+   "title": "for making in current folder Name : ./",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/20.Image optimization",
+   "title": "This error happens when we try to render an image from unknown source in our Image component from NextJS",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/3.Server components",
+   "title": "It is rendered on server and send to the client => render the page and send the HTML output to the client to be presented directly",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/4.Client component",
+   "title": "But can't to everything on server side as it can't interact with browser (as it is executed on server) like can't interact with interface, button, alert etc",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/4.Routing",
+   "title": "use rafec=>react arrow function export component",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/5.Layouts",
+   "title": "It is starting point of the app",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/6.Route Group",
+   "title": "If we don't want root layout to appear on dashboard, Need root layout for non-dashboard routes only => separate navbar for dashboard and other",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/7.Error Handling",
+   "title": "There is a special file called error.ts where are error can be stored and displayed => similar to different layouts for routes can have different error.ts for different routes",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/8.loading UIs",
+   "title": "It works similar to the error handling => need to show loading while data is begin fetched from somewhere",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/9.fetch content",
+   "title": "There are different ways to fetch content in NEXT JS",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/projects",
+   "title": "projects",
+   "kind": "note",
+   "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "Programing/webdev/React Native/0.Intro",
+   "title": "New architecture",
+   "kind": "note",
+   "dir": "Programing/webdev/React Native"
+  },
+  {
+   "id": "Programing/webdev/React Native/1.start",
+   "title": "React native",
+   "kind": "note",
+   "dir": "Programing/webdev/React Native"
+  },
+  {
+   "id": "Programing/webdev/React Native/2.Setup",
+   "title": "Styling",
+   "kind": "note",
+   "dir": "Programing/webdev/React Native"
+  },
+  {
+   "id": "Programing/webdev/React Native/3.UI",
+   "title": "3.UI",
+   "kind": "note",
+   "dir": "Programing/webdev/React Native"
+  },
+  {
+   "id": "Programing/webdev/React Native/4.Auth",
+   "title": "4.Auth",
+   "kind": "note",
+   "dir": "Programing/webdev/React Native"
+  },
+  {
+   "id": "Thoughts/Ideas",
+   "title": "Ideas",
+   "kind": "note",
+   "dir": "Thoughts"
+  },
+  {
+   "id": "Thoughts/Quotes",
+   "title": "Quotes",
+   "kind": "note",
+   "dir": "Thoughts"
+  },
+  {
+   "id": "Thoughts/Thoughts",
+   "title": "Thoughts",
+   "kind": "note",
+   "dir": "Thoughts"
+  },
+  {
+   "id": "Tools/Blender/1.User Interface/3D Cursor",
+   "title": "Move the 3D cursor snap menu for it (Shift s)  =>  Use `Shift + S` to open the **Snap** **Pie-menu** (a pie-menu is a floating UI element where you can choose a “slice” to quickly select certain operations) and select the bottom one, **“Cursor to Selected”**. This will snap the cursor to the selected vertex. You can do this with any selection. If you select an edge, it will use the center of that edge, for instance. Experiment and continue when you are ready, and [read](https://docs.blender.org/manual/en/4.5/editors/3dview/3d_cursor.html) for more information.",
+   "kind": "note",
+   "dir": "Tools/Blender/1.User Interface"
+  },
+  {
+   "id": "Tools/Blender/1.User Interface/Add, Duplicate & Delete",
+   "title": "[Adding Objects](https://studio.blender.org/training/blender-fundamentals-45-lts/blender_4-5_lts_add-delete/#adding-objects)",
+   "kind": "note",
+   "dir": "Tools/Blender/1.User Interface"
+  },
+  {
+   "id": "Tools/Blender/1.User Interface/Workspace",
+   "title": "[Creating Workspace](https://studio.blender.org/training/blender-fundamentals-45-lts/blender_4-5_lts_workspaces/#creating-workspace)",
+   "kind": "note",
+   "dir": "Tools/Blender/1.User Interface"
+  },
+  {
+   "id": "Tools/Blender/1.User Interface/blender",
+   "title": "If you forget how a specific element of the interface is called, you can hover your cursor above it, and it will show a **tooltip** with the name and description.",
+   "kind": "note",
+   "dir": "Tools/Blender/1.User Interface"
+  },
+  {
+   "id": "Tools/Blender/1.User Interface/collections",
+   "title": "Excluding",
+   "kind": "note",
+   "dir": "Tools/Blender/1.User Interface"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/0.File Recovery",
+   "title": "[Recover Last Session](https://studio.blender.org/training/blender-fundamentals-45-lts/blender_4-5_lts_file-recovery/#recover-last-session)",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/1.Adding object",
+   "title": "1.Adding object",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/10.modifiers",
+   "title": "10.modifiers",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/11.Modeling water can",
+   "title": "11.Modeling water can",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/2.Mess selection",
+   "title": "Subdivide",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/3.Blender's Modes",
+   "title": "Texture Paint Mode",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/4.Extruding",
+   "title": "![[Pasted image 20260330201849.png]]",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/5.Knife tool",
+   "title": "5.Knife tool",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/6.Bevel Tool",
+   "title": "6.Bevel Tool",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/7.Loop Cuts",
+   "title": "7.Loop Cuts",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/8.Delete, separate, merge & connect",
+   "title": "Select edge loop will be able to remove only edge not face",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/2.Modeling/9.Creating Curves",
+   "title": "Create curves",
+   "kind": "note",
+   "dir": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "Tools/Blender/3.Sculpting/0.Intro",
+   "title": "But the sculpted objects can rarely be used directly for animation. The messy and dense topology is too demanding for rigging and rendering. For that purpose we create what is called a \"Retopology\". This is a clean, lower density, remodeled object, based on the shapes that were sculpted. It might seem like double the work but it's much more efficient to tackle the design and the final animation-friendly topology as separate tasks.",
+   "kind": "note",
+   "dir": "Tools/Blender/3.Sculpting"
+  },
+  {
+   "id": "Tools/Blender/3.Sculpting/1.Basic Sculpting",
+   "title": "1.Basic Sculpting",
+   "kind": "note",
+   "dir": "Tools/Blender/3.Sculpting"
+  },
+  {
+   "id": "Tools/Blender/3.Sculpting/2.Multi-object sculpting",
+   "title": "2.Multi-object sculpting",
+   "kind": "note",
+   "dir": "Tools/Blender/3.Sculpting"
+  },
+  {
+   "id": "Tools/Git/0. Concepts",
+   "title": "Version Control",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/1. Initialization and Configuration",
+   "title": "Configuration",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/10. Tips",
+   "title": "Quick identity & repo setup",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/2. Repository",
+   "title": "Repo",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/3. Basic Commands",
+   "title": "Repositories",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/4. Branching and Merging",
+   "title": "Branches",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/4.1 Non–Fast-Forward Merge",
+   "title": "Core Concept",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/5. Advanced Git Features",
+   "title": "Stashing Changes",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/5.1 git revert -m 1 <merge-commit>",
+   "title": "“One-Click Rollback” with Git Revert of a Merge Commit",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/7. Common Issues",
+   "title": "Common Git Problems and Solutions",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/8. VPN (Git Connection Issues)",
+   "title": "Two situations",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/9. Intellij",
+   "title": "What \"Update Project\" Does",
+   "kind": "note",
+   "dir": "Tools/Git"
+  },
+  {
+   "id": "Tools/Git/Summary/Git × Obsidian push incident",
+   "title": "2025-10-09",
+   "kind": "note",
+   "dir": "Tools/Git/Summary"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "title": "0 - Neovim",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 1) Opening vim",
+   "title": "📘 Vim – Opening Files & Navigation",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 10) Command-line history",
+   "title": "📘 Vim Command-line Window",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 11) Undo, Redo and time travel",
+   "title": "📘 Undo, Redo & Time Travel in Vim",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 12) multi-window workflow",
+   "title": "Neovim Buffers & Windows Notes",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 2) g commands",
+   "title": "📘 Vim `g` (Global) Commands",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 3) Advance g commands",
+   "title": "📘 Advanced `g` (Global) Commands",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 5) Scrolling & Screen Positions",
+   "title": "📘 Scrolling & Screen Positioning",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 6) Motions f,F,t,T",
+   "title": "📘 `f`, `F`, `t`, `T` Motions (Horizontal Navigation)",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 7) External filters",
+   "title": "📘 External Filters in Vim",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 8) global commands",
+   "title": "📘 `g` (Global) Command",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Advent of vim/Day 9) Increment & Decrement",
+   "title": "📘 Incrementing & Decrementing",
+   "kind": "note",
+   "dir": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "Tools/Neovim/Neovim Shortcuts",
+   "title": "Neovim LSP & Workflow Shortcuts",
+   "kind": "note",
+   "dir": "Tools/Neovim"
+  },
+  {
+   "id": "Tools/Neovim/Neovim for beginners",
+   "title": "Vim is built around the  concept of modes . Here’s a quick overview: ✅",
+   "kind": "note",
+   "dir": "Tools/Neovim"
+  },
+  {
+   "id": "_templates/🌳 Data Structure & Algorithm",
+   "title": "🌳 {{title}}",
+   "kind": "note",
+   "dir": "_templates"
+  },
+  {
+   "id": "_templates/💻 Programming Tool",
+   "title": "💻 {{title}}",
+   "kind": "note",
+   "dir": "_templates"
+  },
+  {
+   "id": "_templates/📅 Daily Study Log",
+   "title": "📅 Study Log: {{date}}",
+   "kind": "note",
+   "dir": "_templates"
+  },
+  {
+   "id": "_templates/📚 Lecture Note",
+   "title": "📚 {{title}}",
+   "kind": "note",
+   "dir": "_templates"
+  },
+  {
+   "id": "_templates/🚀 Project Roadmap",
+   "title": "🚀 Project: {{title}}",
+   "kind": "note",
+   "dir": "_templates"
+  },
+  {
+   "id": "_utilities/learning obsidian/Another note",
+   "title": "Another note",
+   "kind": "note",
+   "dir": "_utilities/learning obsidian"
+  },
+  {
+   "id": "_utilities/learning obsidian/Anything",
+   "title": "Anything",
+   "kind": "note",
+   "dir": "_utilities/learning obsidian"
+  },
+  {
+   "id": "_utilities/learning obsidian/Markdown Cheatsheet",
+   "title": "Heading 1",
+   "kind": "note",
+   "dir": "_utilities/learning obsidian"
+  },
+  {
+   "id": "_utilities/learning obsidian/Productivity lessons from School",
+   "title": "Productivity lessons from School",
+   "kind": "note",
+   "dir": "_utilities/learning obsidian"
+  },
+  {
+   "id": "_utilities/learning obsidian/my first note",
+   "title": "my first note",
+   "kind": "note",
+   "dir": "_utilities/learning obsidian"
+  },
+  {
+   "id": "_utilities/learning obsidian/productive lesson from college",
+   "title": "spells in irl",
+   "kind": "note",
+   "dir": "_utilities/learning obsidian"
+  },
+  {
+   "id": "_utilities/learning obsidian/reddiculus",
+   "title": "reddiculus",
+   "kind": "note",
+   "dir": "_utilities/learning obsidian"
+  },
+  {
+   "id": "lectures/608 Game Design/0 - 608 Game design",
+   "title": "0 - 608 Game design",
+   "kind": "note",
+   "dir": "lectures/608 Game Design"
+  },
+  {
+   "id": "lectures/608 Game Design/1-1 Intro",
+   "title": "Game design",
+   "kind": "note",
+   "dir": "lectures/608 Game Design"
+  },
+  {
+   "id": "lectures/608 Game Design/1-2 Project-1",
+   "title": "1-2 Project-1",
+   "kind": "note",
+   "dir": "lectures/608 Game Design"
+  },
+  {
+   "id": "lectures/COA/0.Intro",
+   "title": "Failing water",
+   "kind": "note",
+   "dir": "lectures/COA"
+  },
+  {
+   "id": "lectures/CS50/0 - CS50",
+   "title": "Resource",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/Intro - Scratch",
+   "title": "Problem solving",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/L10.Cybersecurity",
+   "title": "Password",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/L11.Flask",
+   "title": "L11.Flask",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/L2 -  C",
+   "title": "C language",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/L3 - Arrays",
+   "title": "Problems",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/L4-Algorithm",
+   "title": "We make step by step procedures to solve a problem then analyse the solution by using algorithm analysis",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/L5-Memory",
+   "title": "Images are the RGB value of all pixels on the screen so we can zoom and see this ![[Pasted image 20260219231052.png]] There is a finite limit to how clear a image can be( as there is finite memory available)",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/L6-Data structure",
+   "title": "Struct",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/L7 Python",
+   "title": "Teach your-self new language",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/L8 SQL",
+   "title": "It continue python.We have to deal with data of different forms and types.Lots of data.",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/CS50/L9 HTML,CSS and JS",
+   "title": "Internet : it is a technology",
+   "kind": "note",
+   "dir": "lectures/CS50"
+  },
+  {
+   "id": "lectures/Mathematics for computer/0 - Mathematics in computer",
+   "title": "0 - Mathematics in computer",
+   "kind": "note",
+   "dir": "lectures/Mathematics for computer"
+  },
+  {
+   "id": "lectures/Mathematics for computer/Lecture 1) Predicates, Sets, and Proofs",
+   "title": "Proof",
+   "kind": "note",
+   "dir": "lectures/Mathematics for computer"
+  },
+  {
+   "id": "lectures/Mathematics for computer/lecture 2) Contradiction and Induction",
+   "title": "Logical deductions",
+   "kind": "note",
+   "dir": "lectures/Mathematics for computer"
+  },
+  {
+   "id": "lectures/Mathematics for computer/lecture 3)Case Work and strong induction",
+   "title": "Recap",
+   "kind": "note",
+   "dir": "lectures/Mathematics for computer"
+  },
+  {
+   "id": "lectures/Mathematics for computer/lecture 4) State machines",
+   "title": "State machine",
+   "kind": "note",
+   "dir": "lectures/Mathematics for computer"
+  },
+  {
+   "id": "lectures/Mathematics for computer/lecture 5) Sums",
+   "title": "Annuity",
+   "kind": "note",
+   "dir": "lectures/Mathematics for computer"
+  },
+  {
+   "id": "dir:Daily Diary",
+   "title": "Daily Diary",
+   "kind": "folder",
+   "path": "Daily Diary"
+  },
+  {
+   "id": "dir:Daily Diary/TIL",
+   "title": "TIL",
+   "kind": "folder",
+   "path": "Daily Diary/TIL"
+  },
+  {
+   "id": "dir:Daily Diary/TIL/Random",
+   "title": "Random",
+   "kind": "folder",
+   "path": "Daily Diary/TIL/Random"
+  },
+  {
+   "id": "dir:MIT lectures",
+   "title": "MIT lectures",
+   "kind": "folder",
+   "path": "MIT lectures"
+  },
+  {
+   "id": "dir:MIT lectures/Mathematics for computer",
+   "title": "Mathematics for computer",
+   "kind": "folder",
+   "path": "MIT lectures/Mathematics for computer"
+  },
+  {
+   "id": "dir:Programing",
+   "title": "Programing",
+   "kind": "folder",
+   "path": "Programing"
+  },
+  {
+   "id": "dir:Programing/AI",
+   "title": "AI",
+   "kind": "folder",
+   "path": "Programing/AI"
+  },
+  {
+   "id": "dir:Programing/AI/openclaw",
+   "title": "openclaw",
+   "kind": "folder",
+   "path": "Programing/AI/openclaw"
+  },
+  {
+   "id": "dir:Programing/Concepts",
+   "title": "Concepts",
+   "kind": "folder",
+   "path": "Programing/Concepts"
+  },
+  {
+   "id": "dir:Programing/Concepts/FDE and GenAI",
+   "title": "FDE and GenAI",
+   "kind": "folder",
+   "path": "Programing/Concepts/FDE and GenAI"
+  },
+  {
+   "id": "dir:Programing/Concepts/LLD",
+   "title": "LLD",
+   "kind": "folder",
+   "path": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "dir:Programing/DSA",
+   "title": "DSA",
+   "kind": "folder",
+   "path": "Programing/DSA"
+  },
+  {
+   "id": "dir:Programing/DSA/Algorithum",
+   "title": "Algorithum",
+   "kind": "folder",
+   "path": "Programing/DSA/Algorithum"
+  },
+  {
+   "id": "dir:Programing/DSA/Basic cpp",
+   "title": "Basic cpp",
+   "kind": "folder",
+   "path": "Programing/DSA/Basic cpp"
+  },
+  {
+   "id": "dir:Programing/DSA/Methods",
+   "title": "Methods",
+   "kind": "folder",
+   "path": "Programing/DSA/Methods"
+  },
+  {
+   "id": "dir:Programing/DSA/STL",
+   "title": "STL",
+   "kind": "folder",
+   "path": "Programing/DSA/STL"
+  },
+  {
+   "id": "dir:Programing/Godot",
+   "title": "Godot",
+   "kind": "folder",
+   "path": "Programing/Godot"
+  },
+  {
+   "id": "dir:Programing/Godot/Playlist",
+   "title": "Playlist",
+   "kind": "folder",
+   "path": "Programing/Godot/Playlist"
+  },
+  {
+   "id": "dir:Programing/Manim",
+   "title": "Manim",
+   "kind": "folder",
+   "path": "Programing/Manim"
+  },
+  {
+   "id": "dir:Programing/OpenGL",
+   "title": "OpenGL",
+   "kind": "folder",
+   "path": "Programing/OpenGL"
+  },
+  {
+   "id": "dir:Programing/Raylib",
+   "title": "Raylib",
+   "kind": "folder",
+   "path": "Programing/Raylib"
+  },
+  {
+   "id": "dir:Programing/Raylib/Swarm Shooter",
+   "title": "Swarm Shooter",
+   "kind": "folder",
+   "path": "Programing/Raylib/Swarm Shooter"
+  },
+  {
+   "id": "dir:Programing/Unity",
+   "title": "Unity",
+   "kind": "folder",
+   "path": "Programing/Unity"
+  },
+  {
+   "id": "dir:Programing/Unity/AlienBlaster",
+   "title": "AlienBlaster",
+   "kind": "folder",
+   "path": "Programing/Unity/AlienBlaster"
+  },
+  {
+   "id": "dir:Programing/Unity/Kitchen",
+   "title": "Kitchen",
+   "kind": "folder",
+   "path": "Programing/Unity/Kitchen"
+  },
+  {
+   "id": "dir:Programing/languages",
+   "title": "languages",
+   "kind": "folder",
+   "path": "Programing/languages"
+  },
+  {
+   "id": "dir:Programing/languages/SpringBoot",
+   "title": "SpringBoot",
+   "kind": "folder",
+   "path": "Programing/languages/SpringBoot"
+  },
+  {
+   "id": "dir:Programing/languages/java",
+   "title": "java",
+   "kind": "folder",
+   "path": "Programing/languages/java"
+  },
+  {
+   "id": "dir:Programing/languages/kotlin",
+   "title": "kotlin",
+   "kind": "folder",
+   "path": "Programing/languages/kotlin"
+  },
+  {
+   "id": "dir:Programing/languages/typescript",
+   "title": "typescript",
+   "kind": "folder",
+   "path": "Programing/languages/typescript"
+  },
+  {
+   "id": "dir:Programing/webdev",
+   "title": "webdev",
+   "kind": "folder",
+   "path": "Programing/webdev"
+  },
+  {
+   "id": "dir:Programing/webdev/Backend development",
+   "title": "Backend development",
+   "kind": "folder",
+   "path": "Programing/webdev/Backend development"
+  },
+  {
+   "id": "dir:Programing/webdev/GSAP",
+   "title": "GSAP",
+   "kind": "folder",
+   "path": "Programing/webdev/GSAP"
+  },
+  {
+   "id": "dir:Programing/webdev/GSAP/basic",
+   "title": "basic",
+   "kind": "folder",
+   "path": "Programing/webdev/GSAP/basic"
+  },
+  {
+   "id": "dir:Programing/webdev/JSMastery",
+   "title": "JSMastery",
+   "kind": "folder",
+   "path": "Programing/webdev/JSMastery"
+  },
+  {
+   "id": "dir:Programing/webdev/JSMastery/3JS",
+   "title": "3JS",
+   "kind": "folder",
+   "path": "Programing/webdev/JSMastery/3JS"
+  },
+  {
+   "id": "dir:Programing/webdev/JSMastery/3JS/Basic",
+   "title": "Basic",
+   "kind": "folder",
+   "path": "Programing/webdev/JSMastery/3JS/Basic"
+  },
+  {
+   "id": "dir:Programing/webdev/JSMastery/CRUD",
+   "title": "CRUD",
+   "kind": "folder",
+   "path": "Programing/webdev/JSMastery/CRUD"
+  },
+  {
+   "id": "dir:Programing/webdev/JSMastery/CRUD/Memories",
+   "title": "Memories",
+   "kind": "folder",
+   "path": "Programing/webdev/JSMastery/CRUD/Memories"
+  },
+  {
+   "id": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "title": "MasterJS course",
+   "kind": "folder",
+   "path": "Programing/webdev/JSMastery/MasterJS course"
+  },
+  {
+   "id": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "title": "NextJS(basic)",
+   "kind": "folder",
+   "path": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
+  },
+  {
+   "id": "dir:Programing/webdev/React Native",
+   "title": "React Native",
+   "kind": "folder",
+   "path": "Programing/webdev/React Native"
+  },
+  {
+   "id": "dir:Thoughts",
+   "title": "Thoughts",
+   "kind": "folder",
+   "path": "Thoughts"
+  },
+  {
+   "id": "dir:Tools",
+   "title": "Tools",
+   "kind": "folder",
+   "path": "Tools"
+  },
+  {
+   "id": "dir:Tools/Blender",
+   "title": "Blender",
+   "kind": "folder",
+   "path": "Tools/Blender"
+  },
+  {
+   "id": "dir:Tools/Blender/1.User Interface",
+   "title": "1.User Interface",
+   "kind": "folder",
+   "path": "Tools/Blender/1.User Interface"
+  },
+  {
+   "id": "dir:Tools/Blender/2.Modeling",
+   "title": "2.Modeling",
+   "kind": "folder",
+   "path": "Tools/Blender/2.Modeling"
+  },
+  {
+   "id": "dir:Tools/Blender/3.Sculpting",
+   "title": "3.Sculpting",
+   "kind": "folder",
+   "path": "Tools/Blender/3.Sculpting"
+  },
+  {
+   "id": "dir:Tools/Git",
+   "title": "Git",
+   "kind": "folder",
+   "path": "Tools/Git"
+  },
+  {
+   "id": "dir:Tools/Git/Summary",
+   "title": "Summary",
+   "kind": "folder",
+   "path": "Tools/Git/Summary"
+  },
+  {
+   "id": "dir:Tools/Neovim",
+   "title": "Neovim",
+   "kind": "folder",
+   "path": "Tools/Neovim"
+  },
+  {
+   "id": "dir:Tools/Neovim/Advent of vim",
+   "title": "Advent of vim",
+   "kind": "folder",
+   "path": "Tools/Neovim/Advent of vim"
+  },
+  {
+   "id": "dir:_templates",
+   "title": "_templates",
+   "kind": "folder",
+   "path": "_templates"
+  },
+  {
+   "id": "dir:_utilities",
+   "title": "_utilities",
+   "kind": "folder",
+   "path": "_utilities"
+  },
+  {
+   "id": "dir:_utilities/learning obsidian",
+   "title": "learning obsidian",
+   "kind": "folder",
+   "path": "_utilities/learning obsidian"
+  },
+  {
+   "id": "dir:lectures",
+   "title": "lectures",
+   "kind": "folder",
+   "path": "lectures"
+  },
+  {
+   "id": "dir:lectures/608 Game Design",
+   "title": "608 Game Design",
+   "kind": "folder",
+   "path": "lectures/608 Game Design"
+  },
+  {
+   "id": "dir:lectures/COA",
+   "title": "COA",
+   "kind": "folder",
+   "path": "lectures/COA"
+  },
+  {
+   "id": "dir:lectures/CS50",
+   "title": "CS50",
+   "kind": "folder",
+   "path": "lectures/CS50"
+  },
+  {
+   "id": "dir:lectures/Mathematics for computer",
+   "title": "Mathematics for computer",
+   "kind": "folder",
+   "path": "lectures/Mathematics for computer"
+  }
+ ],
+ "links": [
+  {
+   "source": "Programing/Concepts/LLD/0.LLD",
+   "target": "Programing/Concepts/LLD/0.Intro",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Concepts/LLD/0.LLD",
+   "target": "Programing/Concepts/LLD/1.Abstraction & Encapsulation",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Concepts/LLD/0.LLD",
+   "target": "Programing/Concepts/LLD/2.Inheritance & Polymorphism",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Concepts/LLD/0.LLD",
+   "target": "Programing/Concepts/LLD/3.ULM Diagram",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Concepts/LLD/0.LLD",
+   "target": "Programing/Concepts/LLD/4.SOLID design principles",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Concepts/LLD/0.LLD",
+   "target": "Programing/Concepts/LLD/5.Google Docs example",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Godot/0 - Godot",
+   "target": "Programing/Godot/Intro",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Godot/0 - Godot",
+   "target": "Programing/Godot/GDScript",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/0.Unity",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/1.Game engine",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/2.Importing 2D art",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/3.Scene",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/4.gameplay and physics",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/5.version control",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/6.coding",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/7.variable",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/8.Jumping",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/9. Stablize things",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/10.Sprite handling",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/11.Animations",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/12.fluid movements",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/13.Double jump",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/14.Props",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/15.control movement",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/16.level building",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/17.Prefabs system",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/18.Understand code",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/19.built and share",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/20.Enemy",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/21.more level",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/22.Menu",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/23.Assets",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/24.Multiplayer",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/25.Player data",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/26.Health system",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/27.load and save levels",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/28.UI",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/29.Developer",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/30.Art",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "Programing/Unity/AlienBlaster/31.New player",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/1.Game engine",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/2.Importing 2D art",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/3.Scene",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/4.gameplay and physics",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/5.version control",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/6.coding",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/7.variable",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/8.Jumping",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/9. Stablize things",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/10.Sprite handling",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/11.Animations",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/12.fluid movements",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/13.Double jump",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/14.Props",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/15.control movement",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/16.level building",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/17.Prefabs system",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/18.Understand code",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/19.built and share",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "Programing/Unity/AlienBlaster/20.Enemy",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/16.level building",
+   "target": "Programing/Unity/AlienBlaster/21.more level",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/Unity/Kitchen/0.intro",
+   "target": "Programing/Unity/Kitchen/1.Postprocessing",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/0.Intro",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/1.First program",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/2.Apache Maven",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/3.Spring core intro",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/4.Circular Dependency",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/5.Bean lifecycle",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/6.XML config",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/7.Spring boot core",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/8.CRUD project",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/9.Servlets",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/10.Spring MVC Architecture",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/11.DTOs & Validations in Spring Boot",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/12.Exception handling",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/13.Config and YAMP",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/14.Filter",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/15.Interceptors",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/16.AOP",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/17.Custom annotations",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/18.JDBC",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/19.Spring JDBC",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "Programing/languages/SpringBoot/20.Hibernate",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/10.Spring MVC Architecture",
+   "target": "Programing/languages/SpringBoot/9.Servlets",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/11.DTOs & Validations in Spring Boot",
+   "target": "Programing/languages/SpringBoot/12.Exception handling",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/0.Introduction",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/1.JVM, JDK and JRE",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/2.Variables & Data types",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/3.Represent numbers in java",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/4.Type Conversion",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/5.Operators",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/6.Control statements",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/7.Array and string",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/8.Function",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/9.OOPs",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/10.Pillar of OOPs",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/11.AutoBoxing, Abstract classes & POJOs",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/12.Nested class",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/13.IO",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/14.Immutable classes",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/15.Object class",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/16.Enums",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/17.Interface",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/18.Strings",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/19.Generics",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/20.Collection framwork",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/21.List interface",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/22.Set and map",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/23.Queue and stack",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/24.Comparable",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/25.Lambdas and functional interface",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/26.Stream",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/27.Optional class",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/28.parallel stream",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/29.Exceptional handling",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/30.Memory management",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/31.Mulithreading",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/32.locking and sync",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "Programing/languages/java/33.Atomic variable",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/languages/java/28.parallel stream",
+   "target": "Programing/languages/java/27.Optional class",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/Backend development/0 - Back-end development",
+   "target": "Programing/webdev/Backend development/Roadmap",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/Backend development/Python",
+   "target": "Programing/webdev/Backend development/django",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/Backend development/Python",
+   "target": "Programing/webdev/Backend development/flask",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/Backend development/Roadmap",
+   "target": "Programing/webdev/Backend development/Basic of internet",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/Backend development/Roadmap",
+   "target": "Programing/webdev/Backend development/Python",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/Backend development/Roadmap",
+   "target": "Programing/webdev/Backend development/JavaScript-Node",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/2.History",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/3.Intro to NEXTJS",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/4.How web works",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/5.Ways to make Next JS application",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/6.Basic setup",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/7.tailwind setup",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/8.Font setup",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/9.Assets and metadata setup",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/10.route",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/11.Server and client components",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/12.Rendering",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/13.Next themes",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/14.Navbar",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/15.Authentication",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/16.Navbar",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/17.State Management",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/18.URL state management",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/19.Search implementation",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/20.React hook form and Zod validation using Shadcn",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/21.Editor for md and code",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/22.Input Tags system",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/23.Backend",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/24.Database types",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/25.Database structure",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/26.Create Schema",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/27.Logging errors",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/28.Route handling",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/29.API routes",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/30.Fetch API",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/31.Flow of app",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/32.Server actions",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/33.useTransition hook",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/34.DataRenderer",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/35.View content",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/36.AI integration",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/37.Use react hook",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/38.Select, tabs shadcn",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/39.Pagination",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/40.Optimization",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/41.Date management library",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/42.auto scroll to question",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/43.reputation system",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/44.Recommendation system",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/45.loading and error page",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/46.SEO",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "Programing/webdev/JSMastery/MasterJS course/47.Advance next.js",
+   "kind": "wiki"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/17.State Management",
+   "target": "Programing/webdev/JSMastery/MasterJS course/18.URL state management",
+   "kind": "wiki"
+  },
+  {
+   "source": "Thoughts/Thoughts",
+   "target": "Thoughts/Ideas",
+   "kind": "wiki"
+  },
+  {
+   "source": "Thoughts/Thoughts",
+   "target": "Thoughts/Quotes",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 1) Opening vim",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 2) g commands",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 3) Advance g commands",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 5) Scrolling & Screen Positions",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 6) Motions f,F,t,T",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 7) External filters",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 8) global commands",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 9) Increment & Decrement",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 10) Command-line history",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 11) Undo, Redo and time travel",
+   "kind": "wiki"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "Tools/Neovim/Advent of vim/Day 12) multi-window workflow",
+   "kind": "wiki"
+  },
+  {
+   "source": "_utilities/learning obsidian/Another note",
+   "target": "_utilities/learning obsidian/my first note",
+   "kind": "wiki"
+  },
+  {
+   "source": "_utilities/learning obsidian/Markdown Cheatsheet",
+   "target": "_utilities/learning obsidian/my first note",
+   "kind": "wiki"
+  },
+  {
+   "source": "_utilities/learning obsidian/Productivity lessons from School",
+   "target": "_utilities/learning obsidian/productive lesson from college",
+   "kind": "wiki"
+  },
+  {
+   "source": "_utilities/learning obsidian/productive lesson from college",
+   "target": "_utilities/learning obsidian/reddiculus",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/608 Game Design/0 - 608 Game design",
+   "target": "lectures/608 Game Design/1-1 Intro",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/608 Game Design/0 - 608 Game design",
+   "target": "lectures/608 Game Design/1-2 Project-1",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/CS50/0 - CS50",
+   "target": "lectures/CS50/Intro - Scratch",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/CS50/0 - CS50",
+   "target": "lectures/CS50/L2 -  C",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/CS50/0 - CS50",
+   "target": "lectures/CS50/L3 - Arrays",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/CS50/0 - CS50",
+   "target": "lectures/CS50/L4-Algorithm",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/CS50/0 - CS50",
+   "target": "lectures/CS50/L5-Memory",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/CS50/0 - CS50",
+   "target": "lectures/CS50/L6-Data structure",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/CS50/0 - CS50",
+   "target": "lectures/CS50/L7 Python",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/CS50/0 - CS50",
+   "target": "lectures/CS50/L8 SQL",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/CS50/0 - CS50",
+   "target": "lectures/CS50/L9 HTML,CSS and JS",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/CS50/L5-Memory",
+   "target": "lectures/CS50/L6-Data structure",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/Mathematics for computer/0 - Mathematics in computer",
+   "target": "lectures/Mathematics for computer/Lecture 1) Predicates, Sets, and Proofs",
+   "kind": "wiki"
+  },
+  {
+   "source": "lectures/Mathematics for computer/0 - Mathematics in computer",
+   "target": "lectures/Mathematics for computer/lecture 2) Contradiction and Induction",
+   "kind": "wiki"
+  },
+  {
+   "source": "Daily Diary/TIL/2026-07-12",
+   "target": "dir:Daily Diary/TIL",
+   "kind": "member"
+  },
+  {
+   "source": "Daily Diary/TIL/Random/Problem statement",
+   "target": "dir:Daily Diary/TIL/Random",
+   "kind": "member"
+  },
+  {
+   "source": "MIT lectures/Mathematics for computer/lecture 5)Asymptotics",
+   "target": "dir:MIT lectures/Mathematics for computer",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/AI/openclaw/Openclaw",
+   "target": "dir:Programing/AI/openclaw",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/FDE and GenAI/0.Intro",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/FDE and GenAI/1.LLM",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/FDE and GenAI/2.Integrating LLM with Your Application",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/0.Intro",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/0.LLD",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/1.Abstraction & Encapsulation",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/10.Zomato Clone",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/2.Inheritance & Polymorphism",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/3.ULM Diagram",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/4.SOLID design principles",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/5.Google Docs example",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/6.Design patterns",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/7.Strategy Design Pattern",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/8.Factory Design Pattern",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/9.Singleton design pattern",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/UTF-8(Unicode transformation Format)",
+   "target": "dir:Programing/Concepts",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Algorithum/Disjoint set union",
+   "target": "dir:Programing/DSA/Algorithum",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Basic cpp/0.intro",
+   "target": "dir:Programing/DSA/Basic cpp",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Basic cpp/1.Conditions, Loops, and Jump Statements",
+   "target": "dir:Programing/DSA/Basic cpp",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Basic cpp/2.Strings, Getline, and Big Numbers",
+   "target": "dir:Programing/DSA/Basic cpp",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Basic cpp/3.Arrays & Functions",
+   "target": "dir:Programing/DSA/Basic cpp",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Basic cpp/4.Pointers & Memory Mechanics",
+   "target": "dir:Programing/DSA/Basic cpp",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Basic cpp/5.Essential CP Logics & Math Basics",
+   "target": "dir:Programing/DSA/Basic cpp",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Basic cpp/6.Common Online Judge Verdicts & Errors",
+   "target": "dir:Programing/DSA/Basic cpp",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Basic cpp/7.Time complexity",
+   "target": "dir:Programing/DSA/Basic cpp",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Methods/Merge sort",
+   "target": "dir:Programing/DSA/Methods",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Methods/Modulo arithematics",
+   "target": "dir:Programing/DSA/Methods",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Methods/Pre-computation and hashing",
+   "target": "dir:Programing/DSA/Methods",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/Methods/Recursion",
+   "target": "dir:Programing/DSA/Methods",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/STL/0.Intro",
+   "target": "dir:Programing/DSA/STL",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/STL/1.vectors",
+   "target": "dir:Programing/DSA/STL",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/DSA/STL/2.Map or dictionaries",
+   "target": "dir:Programing/DSA/STL",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Godot/0 - Godot",
+   "target": "dir:Programing/Godot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Godot/3D",
+   "target": "dir:Programing/Godot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Godot/GDScript",
+   "target": "dir:Programing/Godot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Godot/Intro",
+   "target": "dir:Programing/Godot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Godot/Playlist/0.Introduction",
+   "target": "dir:Programing/Godot/Playlist",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Godot/Playlist/1.Space shooter",
+   "target": "dir:Programing/Godot/Playlist",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Manim/Manim Introduction",
+   "target": "dir:Programing/Manim",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/OpenGL/1. Clear screen",
+   "target": "dir:Programing/OpenGL",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Raylib/0.intro",
+   "target": "dir:Programing/Raylib",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Raylib/1.pong",
+   "target": "dir:Programing/Raylib",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Raylib/2.Snake game",
+   "target": "dir:Programing/Raylib",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Raylib/3.Conways game of life",
+   "target": "dir:Programing/Raylib",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Raylib/Swarm Shooter/0.Intro",
+   "target": "dir:Programing/Raylib/Swarm Shooter",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.AlienBlaster",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/0.Unity",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/1.Game engine",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/10.Sprite handling",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/11.Animations",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/12.fluid movements",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/13.Double jump",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/14.Props",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/15.control movement",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/16.level building",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/17.Prefabs system",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/18.Understand code",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/19.built and share",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/2.Importing 2D art",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/20.Enemy",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/21.more level",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/22.Menu",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/23.Assets",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/24.Multiplayer",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/25.Player data",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/26.Health system",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/27.load and save levels",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/28.UI",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/29.Developer",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/3.Scene",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/30.Art",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/31.New player",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/4.gameplay and physics",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/5.version control",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/6.coding",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/7.variable",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/8.Jumping",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/AlienBlaster/9. Stablize things",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/Kitchen/0.intro",
+   "target": "dir:Programing/Unity/Kitchen",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/Kitchen/1.Postprocessing",
+   "target": "dir:Programing/Unity/Kitchen",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Unity/Kitchen/2.Character controller",
+   "target": "dir:Programing/Unity/Kitchen",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Intro",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/0.Spring Boot",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/1.First program",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/10.Spring MVC Architecture",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/11.DTOs & Validations in Spring Boot",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/12.Exception handling",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/13.Config and YAMP",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/14.Filter",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/15.Interceptors",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/16.AOP",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/17.Custom annotations",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/18.JDBC",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/19.Spring JDBC",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/2.Apache Maven",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/20.Hibernate",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/21.JPA",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/22.Spring Data JPA",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/23.Transaction",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/24.Spring Security",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/25.JWT internals",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/26.OAuth Google",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/27.Unit testing",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/3.Spring core intro",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/4.Circular Dependency",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/5.Bean lifecycle",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/6.XML config",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/7.Spring boot core",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/8.CRUD project",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/SpringBoot/9.Servlets",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/0.Introduction",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/0.Java",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/1.JVM, JDK and JRE",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/10.Pillar of OOPs",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/11.AutoBoxing, Abstract classes & POJOs",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/12.Nested class",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/13.IO",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/14.Immutable classes",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/15.Object class",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/16.Enums",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/17.Interface",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/18.Strings",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/19.Generics",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/2.Variables & Data types",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/20.Collection framwork",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/21.List interface",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/22.Set and map",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/23.Queue and stack",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/24.Comparable",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/25.Lambdas and functional interface",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/26.Stream",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/27.Optional class",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/28.parallel stream",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/29.Exceptional handling",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/3.Represent numbers in java",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/30.Memory management",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/31.Mulithreading",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/32.locking and sync",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/33.Atomic variable",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/34.Executor framework",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/35.CompletableFuture, Fork-Join Pool, ThreadLocal & Virtual Threads",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/4.Type Conversion",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/5.Operators",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/6.Control statements",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/7.Array and string",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/8.Function",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/java/9.OOPs",
+   "target": "dir:Programing/languages/java",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/kotlin/0.intro",
+   "target": "dir:Programing/languages/kotlin",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/typescript/0.intro",
+   "target": "dir:Programing/languages/typescript",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/languages/typescript/1.Void",
+   "target": "dir:Programing/languages/typescript",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/Backend development/0 - Back-end development",
+   "target": "dir:Programing/webdev/Backend development",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/Backend development/Basic of internet",
+   "target": "dir:Programing/webdev/Backend development",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/Backend development/JavaScript-Node",
+   "target": "dir:Programing/webdev/Backend development",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/Backend development/Python",
+   "target": "dir:Programing/webdev/Backend development",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/Backend development/Roadmap",
+   "target": "dir:Programing/webdev/Backend development",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/Backend development/django",
+   "target": "dir:Programing/webdev/Backend development",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/Backend development/flask",
+   "target": "dir:Programing/webdev/Backend development",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/GSAP/basic/0.intro",
+   "target": "dir:Programing/webdev/GSAP/basic",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/GSAP/basic/1.Scroll Trigger",
+   "target": "dir:Programing/webdev/GSAP/basic",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/GSAP/basic/2.SVG animation",
+   "target": "dir:Programing/webdev/GSAP/basic",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/GSAP/basic/3.Cursor effect",
+   "target": "dir:Programing/webdev/GSAP/basic",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/GSAP/basic/4.Timeline",
+   "target": "dir:Programing/webdev/GSAP/basic",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/GSAP/basic/5.Text animation",
+   "target": "dir:Programing/webdev/GSAP/basic",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/GSAP/basic/6.Scroll text animation",
+   "target": "dir:Programing/webdev/GSAP/basic",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/GSAP/basic/7.React",
+   "target": "dir:Programing/webdev/GSAP/basic",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/3JS/Basic/0.Intro",
+   "target": "dir:Programing/webdev/JSMastery/3JS/Basic",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/CRUD/Memories/Process",
+   "target": "dir:Programing/webdev/JSMastery/CRUD/Memories",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/0-NextJs",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/1.Intro",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/10.route",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/11.Server and client components",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/12.Rendering",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/13.Next themes",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/14.Navbar",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/15.Authentication",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/16.Navbar",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/17.State Management",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/18.URL state management",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/19.Search implementation",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/2.History",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/20.React hook form and Zod validation using Shadcn",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/21.Editor for md and code",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/22.Input Tags system",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/23.Backend",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/24.Database types",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/25.Database structure",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/26.Create Schema",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/26.Error handling",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/27.Logging errors",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/28.Route handling",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/29.API routes",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/3.Intro to NEXTJS",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/30.Fetch API",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/31.Flow of app",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/32.Server actions",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/33.useTransition hook",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/34.DataRenderer",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/35.View content",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/36.AI integration",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/37.Use react hook",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/38.Select, tabs shadcn",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/39.Pagination",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/4.How web works",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/40.Optimization",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/41.Date management library",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/42.auto scroll to question",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/43.reputation system",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/44.Recommendation system",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/45.loading and error page",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/46.SEO",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/47.Advance next.js",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/5.Ways to make Next JS application",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/6.Basic setup",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/7.tailwind setup",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/8.Font setup",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/9.Assets and metadata setup",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/1.Intro",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/10.Static site generation (SSG)",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/11.Server side rendering (SSR)",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/12.Partial pre-rendering",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/13.API routes",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/14.SEO optimization",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/14.ShadCN setup",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/2.Start",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/20.Image optimization",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/3.Server components",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/4.Client component",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/4.Routing",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/5.Layouts",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/6.Route Group",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/7.Error Handling",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/8.loading UIs",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/9.fetch content",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/projects",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/React Native/0.Intro",
+   "target": "dir:Programing/webdev/React Native",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/React Native/1.start",
+   "target": "dir:Programing/webdev/React Native",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/React Native/2.Setup",
+   "target": "dir:Programing/webdev/React Native",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/React Native/3.UI",
+   "target": "dir:Programing/webdev/React Native",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/webdev/React Native/4.Auth",
+   "target": "dir:Programing/webdev/React Native",
+   "kind": "member"
+  },
+  {
+   "source": "Thoughts/Ideas",
+   "target": "dir:Thoughts",
+   "kind": "member"
+  },
+  {
+   "source": "Thoughts/Quotes",
+   "target": "dir:Thoughts",
+   "kind": "member"
+  },
+  {
+   "source": "Thoughts/Thoughts",
+   "target": "dir:Thoughts",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/1.User Interface/3D Cursor",
+   "target": "dir:Tools/Blender/1.User Interface",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/1.User Interface/Add, Duplicate & Delete",
+   "target": "dir:Tools/Blender/1.User Interface",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/1.User Interface/Workspace",
+   "target": "dir:Tools/Blender/1.User Interface",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/1.User Interface/blender",
+   "target": "dir:Tools/Blender/1.User Interface",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/1.User Interface/collections",
+   "target": "dir:Tools/Blender/1.User Interface",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/0.File Recovery",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/1.Adding object",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/10.modifiers",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/11.Modeling water can",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/2.Mess selection",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/3.Blender's Modes",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/4.Extruding",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/5.Knife tool",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/6.Bevel Tool",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/7.Loop Cuts",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/8.Delete, separate, merge & connect",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/2.Modeling/9.Creating Curves",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/3.Sculpting/0.Intro",
+   "target": "dir:Tools/Blender/3.Sculpting",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/3.Sculpting/1.Basic Sculpting",
+   "target": "dir:Tools/Blender/3.Sculpting",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Blender/3.Sculpting/2.Multi-object sculpting",
+   "target": "dir:Tools/Blender/3.Sculpting",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/0. Concepts",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/1. Initialization and Configuration",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/10. Tips",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/2. Repository",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/3. Basic Commands",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/4. Branching and Merging",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/4.1 Non–Fast-Forward Merge",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/5. Advanced Git Features",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/5.1 git revert -m 1 <merge-commit>",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/7. Common Issues",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/8. VPN (Git Connection Issues)",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/9. Intellij",
+   "target": "dir:Tools/Git",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Git/Summary/Git × Obsidian push incident",
+   "target": "dir:Tools/Git/Summary",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/0 - Neovim",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 1) Opening vim",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 10) Command-line history",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 11) Undo, Redo and time travel",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 12) multi-window workflow",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 2) g commands",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 3) Advance g commands",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 5) Scrolling & Screen Positions",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 6) Motions f,F,t,T",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 7) External filters",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 8) global commands",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Advent of vim/Day 9) Increment & Decrement",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Neovim Shortcuts",
+   "target": "dir:Tools/Neovim",
+   "kind": "member"
+  },
+  {
+   "source": "Tools/Neovim/Neovim for beginners",
+   "target": "dir:Tools/Neovim",
+   "kind": "member"
+  },
+  {
+   "source": "_templates/🌳 Data Structure & Algorithm",
+   "target": "dir:_templates",
+   "kind": "member"
+  },
+  {
+   "source": "_templates/💻 Programming Tool",
+   "target": "dir:_templates",
+   "kind": "member"
+  },
+  {
+   "source": "_templates/📅 Daily Study Log",
+   "target": "dir:_templates",
+   "kind": "member"
+  },
+  {
+   "source": "_templates/📚 Lecture Note",
+   "target": "dir:_templates",
+   "kind": "member"
+  },
+  {
+   "source": "_templates/🚀 Project Roadmap",
+   "target": "dir:_templates",
+   "kind": "member"
+  },
+  {
+   "source": "_utilities/learning obsidian/Another note",
+   "target": "dir:_utilities/learning obsidian",
+   "kind": "member"
+  },
+  {
+   "source": "_utilities/learning obsidian/Anything",
+   "target": "dir:_utilities/learning obsidian",
+   "kind": "member"
+  },
+  {
+   "source": "_utilities/learning obsidian/Markdown Cheatsheet",
+   "target": "dir:_utilities/learning obsidian",
+   "kind": "member"
+  },
+  {
+   "source": "_utilities/learning obsidian/Productivity lessons from School",
+   "target": "dir:_utilities/learning obsidian",
+   "kind": "member"
+  },
+  {
+   "source": "_utilities/learning obsidian/my first note",
+   "target": "dir:_utilities/learning obsidian",
+   "kind": "member"
+  },
+  {
+   "source": "_utilities/learning obsidian/productive lesson from college",
+   "target": "dir:_utilities/learning obsidian",
+   "kind": "member"
+  },
+  {
+   "source": "_utilities/learning obsidian/reddiculus",
+   "target": "dir:_utilities/learning obsidian",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/608 Game Design/0 - 608 Game design",
+   "target": "dir:lectures/608 Game Design",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/608 Game Design/1-1 Intro",
+   "target": "dir:lectures/608 Game Design",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/608 Game Design/1-2 Project-1",
+   "target": "dir:lectures/608 Game Design",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/COA/0.Intro",
+   "target": "dir:lectures/COA",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/0 - CS50",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/Intro - Scratch",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/L10.Cybersecurity",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/L11.Flask",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/L2 -  C",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/L3 - Arrays",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/L4-Algorithm",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/L5-Memory",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/L6-Data structure",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/L7 Python",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/L8 SQL",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/CS50/L9 HTML,CSS and JS",
+   "target": "dir:lectures/CS50",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/Mathematics for computer/0 - Mathematics in computer",
+   "target": "dir:lectures/Mathematics for computer",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/Mathematics for computer/Lecture 1) Predicates, Sets, and Proofs",
+   "target": "dir:lectures/Mathematics for computer",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/Mathematics for computer/lecture 2) Contradiction and Induction",
+   "target": "dir:lectures/Mathematics for computer",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/Mathematics for computer/lecture 3)Case Work and strong induction",
+   "target": "dir:lectures/Mathematics for computer",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/Mathematics for computer/lecture 4) State machines",
+   "target": "dir:lectures/Mathematics for computer",
+   "kind": "member"
+  },
+  {
+   "source": "lectures/Mathematics for computer/lecture 5) Sums",
+   "target": "dir:lectures/Mathematics for computer",
+   "kind": "member"
+  },
+  {
+   "source": "dir:Daily Diary",
+   "target": "dir:Daily Diary/TIL",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Daily Diary/TIL",
+   "target": "dir:Daily Diary/TIL/Random",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:MIT lectures",
+   "target": "dir:MIT lectures/Mathematics for computer",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing",
+   "target": "dir:Programing/AI",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/AI",
+   "target": "dir:Programing/AI/openclaw",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing",
+   "target": "dir:Programing/Concepts",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/Concepts",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/Concepts",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing",
+   "target": "dir:Programing/DSA",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/DSA",
+   "target": "dir:Programing/DSA/Algorithum",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/DSA",
+   "target": "dir:Programing/DSA/Basic cpp",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/DSA",
+   "target": "dir:Programing/DSA/Methods",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/DSA",
+   "target": "dir:Programing/DSA/STL",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing",
+   "target": "dir:Programing/Godot",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/Godot",
+   "target": "dir:Programing/Godot/Playlist",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing",
+   "target": "dir:Programing/Manim",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing",
+   "target": "dir:Programing/OpenGL",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing",
+   "target": "dir:Programing/Raylib",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/Raylib",
+   "target": "dir:Programing/Raylib/Swarm Shooter",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing",
+   "target": "dir:Programing/Unity",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/Unity",
+   "target": "dir:Programing/Unity/AlienBlaster",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/Unity",
+   "target": "dir:Programing/Unity/Kitchen",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing",
+   "target": "dir:Programing/languages",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/languages",
+   "target": "dir:Programing/languages/SpringBoot",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/languages",
+   "target": "dir:Programing/languages/java",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/languages",
+   "target": "dir:Programing/languages/kotlin",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/languages",
+   "target": "dir:Programing/languages/typescript",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing",
+   "target": "dir:Programing/webdev",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev",
+   "target": "dir:Programing/webdev/Backend development",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev",
+   "target": "dir:Programing/webdev/GSAP",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev/GSAP",
+   "target": "dir:Programing/webdev/GSAP/basic",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev",
+   "target": "dir:Programing/webdev/JSMastery",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev/JSMastery",
+   "target": "dir:Programing/webdev/JSMastery/3JS",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev/JSMastery/3JS",
+   "target": "dir:Programing/webdev/JSMastery/3JS/Basic",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev/JSMastery",
+   "target": "dir:Programing/webdev/JSMastery/CRUD",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev/JSMastery/CRUD",
+   "target": "dir:Programing/webdev/JSMastery/CRUD/Memories",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev/JSMastery",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev/JSMastery/MasterJS course",
+   "target": "dir:Programing/webdev/JSMastery/MasterJS course/NextJS(basic)",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Programing/webdev",
+   "target": "dir:Programing/webdev/React Native",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Tools",
+   "target": "dir:Tools/Blender",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Tools/Blender",
+   "target": "dir:Tools/Blender/1.User Interface",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Tools/Blender",
+   "target": "dir:Tools/Blender/2.Modeling",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Tools/Blender",
+   "target": "dir:Tools/Blender/3.Sculpting",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Tools",
+   "target": "dir:Tools/Git",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Tools/Git",
+   "target": "dir:Tools/Git/Summary",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Tools",
+   "target": "dir:Tools/Neovim",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:Tools/Neovim",
+   "target": "dir:Tools/Neovim/Advent of vim",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:_utilities",
+   "target": "dir:_utilities/learning obsidian",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:lectures",
+   "target": "dir:lectures/608 Game Design",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:lectures",
+   "target": "dir:lectures/COA",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:lectures",
+   "target": "dir:lectures/CS50",
+   "kind": "parent"
+  },
+  {
+   "source": "dir:lectures",
+   "target": "dir:lectures/Mathematics for computer",
+   "kind": "parent"
+  }
+ ]
+}

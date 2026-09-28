@@ -76,7 +76,7 @@ async function main() {
 
   const lines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/0.9">',
     "  <url>",
     `    <loc>${escapeXml(baseUrl)}/</loc>`,
     `    <lastmod>${getLastmod("/")}</lastmod>`,
@@ -88,6 +88,12 @@ async function main() {
     `    <lastmod>${getLastmod("/blog")}</lastmod>`,
     "    <changefreq>weekly</changefreq>",
     "    <priority>0.8</priority>",
+    "  </url>",
+    "  <url>",
+    `    <loc>${escapeXml(baseUrl)}/graph</loc>`,
+    `    <lastmod>${getLastmod("/graph")}</lastmod>`,
+    "    <changefreq>weekly</changefreq>",
+    "    <priority>0.7</priority>",
     "  </url>",
   ];
 

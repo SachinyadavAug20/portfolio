@@ -7,6 +7,7 @@ import NotFound from "./pages/NotFound";
 
 const BlogList = lazy(() => import("./pages/BlogList"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const GraphPage = lazy(() => import("./pages/GraphPage"));
 
 const PageLoading = () => (
   <section className="section-padding pt-10 min-h-screen">
@@ -34,6 +35,11 @@ const App = () => {
         <Route path="blog/post/*" element={
           <Suspense fallback={<PageLoading />}>
             <BlogPost />
+          </Suspense>
+        } />
+        <Route path="graph" element={
+          <Suspense fallback={<PageLoading />}>
+            <GraphPage />
           </Suspense>
         } />
         <Route path="*" element={<NotFound />} />
