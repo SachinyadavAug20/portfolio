@@ -250,11 +250,11 @@ const GraphPage = () => {
     return {
       node: light ? "#3d444e" : "#e3e9f2",
       edge: light ? "#5d6879" : "#8b96ab",
-      edgeA: light ? 0.42 : 0.36,
+      edgeA: light ? 0.52 : 0.46,
       edgeHotA: light ? 0.65 : 0.7,
       faintA: 0.07,
       accent: v("--tab-accent", "#38bdf8"),
-      wikiA: light ? 0.6 : 0.5,
+      wikiA: light ? 0.7 : 0.62,
       wikiHotA: 1,
       dimA: light ? 0.12 : 0.14,
       label: v("--flip-blue-50", "#839cb5"),
@@ -331,8 +331,8 @@ const GraphPage = () => {
   const radiusOf = useCallback(
     (n: GraphNodeData) => {
       const deg = degreeMap.get(n.id) ?? 0;
-      const base = n.kind === "folder" ? 3.4 : 2.7;
-      return base + Math.sqrt(Math.min(deg, 40)) * 0.85;
+      const base = n.kind === "folder" ? 4 : 3.2;
+      return base + Math.sqrt(Math.min(deg, 40)) * 0.92;
     },
     [degreeMap],
   );
@@ -349,18 +349,10 @@ const GraphPage = () => {
     [navigate],
   );
 
-  const handleNodeClick = useCallback(
-    (n: FgNode) => {
-      const id = n.id ?? null;
-      if (id && id === selectedId) {
-        openNode(n as GraphNodeData);
-        return;
-      }
-      tap(8);
-      setSelectedId(id);
-    },
-    [selectedId, openNode],
-  );
+  const handleNodeClick = useCallback((n: FgNode) => {
+    tap(8);
+    setSelectedId(n.id ?? null);
+  }, []);
 
   const flyTo = useCallback(
     (n: GraphNodeData) => {
@@ -375,6 +367,57 @@ const GraphPage = () => {
       fg.zoom(Math.max(fg.zoom(), 2.2), dur);
     },
     [reduced],
+  );
+
+  /* double-click (mouse) / double-tap (touch) zooms into the node under the
+     pointer, or into the point itself when on the background */
+  const lastTapRef = useRef({ t: 0, x: 0, y: 0 });
+  const touchZoomAtRef = useRef(0);
+
+  const zoomInto = useCallback(
+    (clientX: number, clientY: number, rect: DOMRect) => {
+      const fg = fgRef.current;
+      if (!fg) return;
+      const n = hoverId
+        ? filtered?.nodes.find((x) => x.id === hoverId)
+        : null;
+      const target =
+        n && n.x != null && n.y != null
+          ? { x: n.x, y: n.y }
+          : fg.screen2GraphCoords(clientX - rect.left, clientY - rect.top);
+      const dur = reduced ? 0 : 320;
+      interactedRef.current = true;
+      fg.centerAt(target.x, target.y, dur);
+      fg.zoom(Math.min(fg.zoom() * (n ? 2 : 1.6), 6), dur);
+      tap(6);
+    },
+    [hoverId, filtered, reduced],
+  );
+
+  const handleDoubleClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isTouch) return; /* touch devices zoom via double-tap instead */
+      if (performance.now() - touchZoomAtRef.current < 500) return;
+      zoomInto(e.clientX, e.clientY, e.currentTarget.getBoundingClientRect());
+    },
+    [isTouch, zoomInto],
+  );
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.pointerType !== "touch") return;
+      const now = performance.now();
+      const prev = lastTapRef.current;
+      lastTapRef.current = { t: now, x: e.clientX, y: e.clientY };
+      if (
+        now - prev.t < 350 &&
+        Math.hypot(e.clientX - prev.x, e.clientY - prev.y) < 40
+      ) {
+        touchZoomAtRef.current = now;
+        zoomInto(e.clientX, e.clientY, e.currentTarget.getBoundingClientRect());
+      }
+    },
+    [zoomInto],
   );
 
   /* stable handler (no per-item closures over render values) */
@@ -433,8 +476,8 @@ const GraphPage = () => {
     const charge = fg.d3Force("charge") as unknown as
       | { strength(v: number): void; distanceMax(v: number): void }
       | undefined;
-    charge?.strength(-90);
-    charge?.distanceMax(320);
+    charge?.strength(-75);
+    charge?.distanceMax(200);
 
     const link = fg.d3Force("link") as unknown as
       | {
@@ -443,11 +486,31 @@ const GraphPage = () => {
         }
       | undefined;
     link?.distance((l) =>
-      l.kind === "wiki" ? 54 : l.kind === "member" ? 20 : 30,
+      l.kind === "wiki" ? 40 : l.kind === "member" ? 16 : 22,
     );
     link?.strength((l) =>
-      l.kind === "member" ? 0.8 : l.kind === "parent" ? 0.65 : 0.55,
+      l.kind === "member" ? 0.9 : l.kind === "parent" ? 0.75 : 0.7,
     );
+
+    const nodes = filtered?.nodes ?? [];
+
+    /* gentle pull toward the origin — keeps clusters close and the graph
+       dense instead of islands drifting into empty space. Scaled by alpha
+       like every d3 force, otherwise it outlives the engine and crumples
+       the layout once the engine cools. */
+    fg.d3Force("gravity", (alpha: number) => {
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i] as FgNode;
+        if (n.fx != null || n.fy != null) continue;
+        n.vx = (n.vx ?? 0) - (n.x ?? 0) * 0.003 * alpha;
+        n.vy = (n.vy ?? 0) - (n.y ?? 0) * 0.003 * alpha;
+      }
+    });
+
+    /* the graph settles during warmup before this effect registers the
+       tuned forces — reheat so charge/link/gravity actually shape the
+       layout instead of acting on an almost-cooled simulation */
+    fg.d3ReheatSimulation();
 
     if (reduced) {
       fg.d3Force("breath", null);
@@ -455,7 +518,6 @@ const GraphPage = () => {
     }
 
     /* gentle out-of-phase sway per node so the layout never goes rigid */
-    const nodes = filtered?.nodes ?? [];
     let phase = 0;
     fg.d3Force("breath", () => {
       phase += 0.02;
@@ -524,7 +586,7 @@ const GraphPage = () => {
         (globalScale > 0.9 ||
           isSel ||
           isHot ||
-          (n.kind === "folder" && globalScale > 0.45) ||
+          (n.kind === "folder" && globalScale > 0.75) ||
           (deg >= 25 && globalScale > 0.6));
 
       if (showLabel) {
@@ -713,6 +775,8 @@ const GraphPage = () => {
             onPointerDown={() => {
               interactedRef.current = true;
             }}
+            onDoubleClick={handleDoubleClick}
+            onPointerUp={handlePointerUp}
           >
             <div className="absolute inset-0 graph-grid" aria-hidden="true" />
 
@@ -754,7 +818,10 @@ const GraphPage = () => {
             </div>
 
             {/* controls */}
-            <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
+            <div
+              className="absolute top-3 right-3 z-10 flex flex-col gap-2"
+              onDoubleClick={(e) => e.stopPropagation()}
+            >
               <button
                 className="graph-btn"
                 aria-label="Zoom in"
@@ -819,7 +886,10 @@ const GraphPage = () => {
 
             {/* selected node card */}
             {selectedNode && (
-              <div className="graph-card-in absolute bottom-3 inset-x-3 sm:inset-x-auto sm:right-3 sm:w-96 z-10 rounded-xl border border-black-50 bg-black-200/95 backdrop-blur-md p-4 shadow-xl">
+              <div
+                className="graph-card-in absolute bottom-3 inset-x-3 sm:inset-x-auto sm:right-3 sm:w-96 z-10 rounded-xl border border-black-50 bg-black-200/95 backdrop-blur-md p-4 shadow-xl"
+                onDoubleClick={(e) => e.stopPropagation()}
+              >
                 <div className="flex items-start gap-3">
                   <span
                     className="mt-0.5 size-9 rounded-lg flex-center shrink-0"
