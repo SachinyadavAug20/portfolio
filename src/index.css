@@ -626,6 +626,13 @@ section {
     @apply flex flex-col-reverse xl:flex-row xl:gap-20 gap-10 justify-between;
   }
 
+  /* Positioned so the fill below is scoped to the card — without this it
+     anchors to the initial containing block and paints a full-width sheet
+     over the page (the mobile "dark block" glitch). */
+  .tech-card {
+    @apply relative;
+  }
+
   .tech-card-animated-bg {
     @apply absolute left-0 bottom-0 w-full h-full;
     background: var(--tech-card-bg);
