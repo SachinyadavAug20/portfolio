@@ -1420,3 +1420,49 @@ h4 {
 .counter-tile:active {
   transform: scale(0.97);
 }
+
+/* ── Knowledge graph (/graph) ─────────────────────────────────────────── */
+/* Dot-grid backdrop behind the transparent graph canvas (Obsidian-style). */
+.graph-grid {
+  background-image: radial-gradient(var(--flip-black-50) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: center;
+  opacity: 0.45;
+}
+
+/* The graph owns its gestures (pinch-zoom, node drag, pan). Higher
+   specificity than the global `canvas { touch-action: pan-y }` rule, so the
+   canvas never traps page scroll outside its own box — surrounding chrome
+   (header, chips, controls) remains scrollable. */
+.graph-canvas canvas {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.graph-btn {
+  @apply size-9 flex items-center justify-center rounded-full bg-black-200/90 border border-black-50 text-blue-50 backdrop-blur-sm transition-all;
+}
+@media (hover: hover) {
+  .graph-btn:hover {
+    background-color: rgb(56 189 248 / 0.15);
+    color: var(--foreground);
+  }
+}
+.graph-btn:active {
+  transform: scale(0.9);
+}
+
+.graph-card-in {
+  animation: graph-card-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes graph-card-in {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
