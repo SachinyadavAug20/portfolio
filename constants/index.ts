@@ -50,6 +50,9 @@ export const counterItems: counterItem[] = [
   { value: 4, text: "Projects in Production", suffix: "+", url: "https://github.com/SachinyadavAug20"},
   { value: 2, text: "Games Built", suffix: "+", url: "https://sachinapr20.itch.io/" },
 ];
+export const GITHUB_REPO = "SachinyadavAug20/portfolio";
+export const GITHUB_REPO_URL = `https://github.com/${GITHUB_REPO}`;
+
 export const navLinks = [
   {
     name: "Project",

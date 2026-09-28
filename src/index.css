@@ -313,28 +313,35 @@ section {
     }
   }
 
-  /* Hamburger — visible below lg */
-  .hamburger {
-    @apply hidden justify-center items-center w-10 h-10 cursor-pointer z-[110] relative rounded-lg;
-    transition: background-color 0.2s, transform 0.15s;
-
-    span {
-      @apply block w-6 h-0.5 rounded-full;
-      background-color: var(--nav-line);
-    }
-  }
-
-  .hamburger:hover {
+  /* Repo star pill — mobile-only, sits where the hamburger used to be
+     (bottom tab bar already covers navigation below lg) */
+  .gh-star {
+    @apply hidden items-center gap-1.5 h-10 pl-2.5 pr-3 rounded-lg cursor-pointer select-none;
     background-color: var(--nav-hover-bg);
+    color: var(--nav-line);
+    transition: background-color 0.2s, transform 0.15s;
   }
 
-  .hamburger:active {
+  .gh-star:hover {
     background-color: var(--nav-hover-bg-active);
+  }
+
+  .gh-star:active {
     transform: scale(0.95);
   }
 
+  .gh-star:focus-visible {
+    outline: 2px solid var(--nav-line);
+    outline-offset: 2px;
+  }
+
+  .gh-star-count {
+    @apply flex items-center gap-1 text-sm font-semibold;
+    font-variant-numeric: tabular-nums;
+  }
+
   @media (max-width: 1023px) {
-    .hamburger {
+    .gh-star {
       display: flex;
     }
   }
@@ -404,53 +411,6 @@ section {
 
   .theme-toggle-check {
     @apply ml-auto;
-  }
-
-  /* Mobile drawer overlay */
-  .mobile-backdrop {
-    @apply fixed inset-0 bg-black/60 z-[89] pointer-events-none opacity-0;
-    visibility: hidden;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
-
-  .mobile-backdrop.is-open {
-    visibility: visible;
-  }
-
-  .mobile-drawer {
-    @apply fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-black-100 border-l z-[90] translate-x-full pointer-events-none;
-    border-color: var(--drawer-border);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
-  }
-
-  .mobile-drawer-links {
-    @apply flex flex-col gap-2 p-8 pt-24;
-    padding-left: max(2rem, env(safe-area-inset-left, 0px));
-    padding-bottom: max(2rem, env(safe-area-inset-bottom, 0px));
-  }
-
-  .mobile-drawer-link {
-    @apply text-white-50 text-2xl font-semibold py-4 px-4 rounded-xl bg-black-200 border border-black-50;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s, transform 0.15s;
-  }
-
-  @media (hover: hover) {
-    .mobile-drawer-link:hover {
-      color: var(--nav-link-hover);
-      background-color: var(--drawer-link-hover-bg);
-      transform: translateX(4px);
-    }
-  }
-
-  .mobile-drawer-link:active {
-    background-color: var(--drawer-link-active-bg);
-    transform: scale(0.97);
   }
 
   .no-scrollbar {
@@ -1247,7 +1207,6 @@ h4 {
 }
 
 /* Scroll chaining containment: nested scrollers don't rubber-band the page */
-.mobile-drawer,
 .no-scrollbar,
 .blog-content pre,
 .blog-content table {
@@ -1286,8 +1245,8 @@ h4 {
 
 /* Touch devices: prevent sticky :hover that latches after a tap */
 @media (hover: none) {
-  .hamburger:hover {
-    background-color: transparent;
+  .gh-star:hover {
+    background-color: var(--nav-hover-bg);
   }
 
   .theme-toggle-btn:hover {
