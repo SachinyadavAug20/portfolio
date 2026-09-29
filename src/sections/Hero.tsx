@@ -113,7 +113,11 @@ const Hero = () => {
             ref={figureRef}
             className="hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 block"
           >
-            <Suspense fallback={null}>
+            <Suspense
+              fallback={
+                <div className="skeleton absolute inset-0 rounded-4xl bg-black-200" />
+              }
+            >
               <HeroExperience active={figureVisible} />
             </Suspense>
           </div>

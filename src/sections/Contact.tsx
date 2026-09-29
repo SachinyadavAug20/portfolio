@@ -222,11 +222,16 @@ const Contact = () => {
           <div className="xl:col-span-7 min-h-96">
             <div
               ref={sceneRef}
-              className="w-full h-full bg-[#cd7c2e] hover:cursor-grab rounded-3xl overflow-hidden"
+              data-testid="contact-scene"
+              className="relative w-full h-full bg-[#cd7c2e] hover:cursor-grab rounded-3xl overflow-hidden"
             >
               {sceneNear && (
                 <div className="scene-in">
-                  <Suspense fallback={null}>
+                  <Suspense
+                    fallback={
+                      <div className="skeleton absolute inset-0 rounded-3xl bg-black-200" />
+                    }
+                  >
                     <ContactExperience
                       submitted={submitted}
                       active={sceneVisible}
@@ -234,6 +239,7 @@ const Contact = () => {
                   </Suspense>
                 </div>
               )}
+              <div className="pointer-events-none absolute inset-0 [background:radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.42)_100%)]" />
             </div>
           </div>
         </div>

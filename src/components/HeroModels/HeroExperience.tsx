@@ -9,6 +9,8 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Partical } from "./Partical";
 import { isTouchDevice } from "../../hooks/useNearViewport";
+import { useReducedMotion } from "../../hooks/useReducedMotion";
+import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 
 const HeroExperience = ({ active = true }: { active?: boolean }) => {
@@ -18,6 +20,7 @@ const HeroExperience = ({ active = true }: { active?: boolean }) => {
   // compact in-flow strip, so the camera pulls in to keep the model prominent.
   const compact = useMediaQuery({ query: "(max-width: 1279px)" });
   const isTouch = isTouchDevice();
+  const reduced = useReducedMotion();
   const tod = useMemo(() => getTimeOfDay(), []);
   const groupRef = useRef<THREE.Group>(null!);
 
@@ -56,24 +59,28 @@ const HeroExperience = ({ active = true }: { active?: boolean }) => {
     [isTouch],
   );
 
-  useGSAP(() => {
-    requestAnimationFrame(() => {
-      if (!groupRef.current) return;
-      groupRef.current.rotation.y = Math.PI * 2;
-      gsap.to(groupRef.current.rotation, {
-        y: 0,
-        duration: 2,
-        ease: "power3.out",
+  useGSAP(
+    () => {
+      if (reduced || !groupRef.current) return;
+      requestAnimationFrame(() => {
+        if (!groupRef.current) return;
+        groupRef.current.rotation.y = Math.PI * 2;
+        gsap.to(groupRef.current.rotation, {
+          y: 0,
+          duration: 2,
+          ease: "power3.out",
+        });
       });
-    });
-  });
+    },
+    { dependencies: [reduced] },
+  );
 
   return (
     <Canvas
       camera={cameraProps}
       dpr={isTouch ? [1, 1.5] : [1, 2]}
       gl={glProps}
-      frameloop={active ? "always" : "never"}
+      frameloop={reduced ? "demand" : active ? "always" : "never"}
     >
       <ambientLight intensity={0.05 + 0.25 * tod.factor} color={tod.color} />
       <directionalLight
@@ -115,6 +122,18 @@ const HeroExperience = ({ active = true }: { active?: boolean }) => {
       >
         <MyComputer todFactor={tod.factor} />
       </group>
+
+      {!isTouch && (
+        <EffectComposer multisampling={0}>
+          <Bloom
+            intensity={0.35}
+            luminanceThreshold={0.85}
+            luminanceSmoothing={0.2}
+            mipmapBlur
+          />
+          <Vignette eskil={false} offset={0.22} darkness={0.72} />
+        </EffectComposer>
+      )}
     </Canvas>
   );
 };

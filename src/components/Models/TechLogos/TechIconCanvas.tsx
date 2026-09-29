@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { isTouchDevice } from "../../../hooks/useNearViewport";
+import { useReducedMotion } from "../../../hooks/useReducedMotion";
 
 const TechIconCanvas = ({
   model,
@@ -14,6 +15,7 @@ const TechIconCanvas = ({
 }) => {
   const scene = useGLTF(model.modelPath);
   const isTouch = isTouchDevice();
+  const reduced = useReducedMotion();
   const glProps = useMemo(
     () => ({
       antialias: !isTouch,
@@ -34,17 +36,23 @@ const TechIconCanvas = ({
     <Canvas
       dpr={isTouch ? [1, 1.25] : [1, 2]}
       gl={glProps}
-      frameloop={active ? "always" : "never"}
+      frameloop={reduced ? "demand" : active ? "always" : "never"}
     >
       <ambientLight intensity={0.3} />
       <directionalLight position={[5, 5, 5]} intensity={1} />
       <Environment preset="city" />
       {!isTouch && <OrbitControls enableZoom={false} />}
-      <Float speed={5.5} rotationIntensity={2.5} floatIntensity={0.9}>
+      {reduced ? (
         <group scale={model.scale} rotation={model.rotation}>
           <primitive object={scene.scene} />
         </group>
-      </Float>
+      ) : (
+        <Float speed={5.5} rotationIntensity={2.5} floatIntensity={0.9}>
+          <group scale={model.scale} rotation={model.rotation}>
+            <primitive object={scene.scene} />
+          </group>
+        </Float>
+      )}
     </Canvas>
   );
 };

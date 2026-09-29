@@ -10,6 +10,7 @@ import type { GLTF } from "three-stdlib";
 import { useRef, type JSX } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { useReducedMotion } from "../../hooks/useReducedMotion";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -32,6 +33,7 @@ export function Computer({
 
   const groupRef = useRef<THREE.Group>(null!);
   const innerRef = useRef<THREE.Group>(null!);
+  const reduced = useReducedMotion();
 
   const deskMaterial = materials["ComputerDesk.001"].clone();
   deskMaterial.roughness = 0.35;
@@ -46,7 +48,7 @@ export function Computer({
   const ogColor = new THREE.Color(floppyMaterial.color);
 
   useGSAP(() => {
-    if (!submitted) return;
+    if (!submitted || reduced) return;
 
     const tl = gsap.timeline();
 
@@ -82,7 +84,7 @@ export function Computer({
     return () => {
       tl.kill();
     };
-  }, { dependencies: [submitted] });
+  }, { dependencies: [submitted, reduced] });
 
   return (
     <group ref={groupRef} {...props} dispose={null}>

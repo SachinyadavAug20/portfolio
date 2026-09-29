@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Computer } from "./Computer";
 import ContactLights from "./ContactLights";
 import { isTouchDevice } from "../../hooks/useNearViewport";
+import { useReducedMotion } from "../../hooks/useReducedMotion";
 
 const ContactExperience = ({
   submitted,
@@ -13,6 +14,7 @@ const ContactExperience = ({
   active?: boolean;
 }) => {
   const isTouch = isTouchDevice();
+  const reduced = useReducedMotion();
   // Stable identity so an `active` flip never re-applies renderer props.
   const cameraProps = useMemo(
     () => ({ position: [0, 1.5, 10] as [number, number, number], fov: 45 }),
@@ -32,7 +34,7 @@ const ContactExperience = ({
       shadows={!isTouch}
       dpr={isTouch ? [1, 1.5] : [1, 2]}
       gl={glProps}
-      frameloop={active ? "always" : "never"}
+      frameloop={reduced ? "demand" : active ? "always" : "never"}
     >
       <ambientLight intensity={0.5} color="#fff4e6" />
       <directionalLight position={[5, 5, 3]} intensity={2.5} color="#ffd9b3" />

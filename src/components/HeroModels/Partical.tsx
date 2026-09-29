@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Text } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
+import { useReducedMotion } from "../../hooks/useReducedMotion";
 
 const DEFAULT_KEYWORDS = [
   "C", "C++", "JS", "TS", "Python",
@@ -49,6 +50,7 @@ export function Partical({
 }: ParticalProps) {
   const groupRef = useRef<THREE.Group>(null!);
   const clock = useRef<number[]>([]);
+  const reduced = useReducedMotion();
 
   const kw = keywords.length > 0 ? keywords : ["*"];
 
@@ -71,6 +73,7 @@ export function Partical({
   }, [count, keywords, speed, spread]);
 
   useFrame((_, delta) => {
+    if (reduced) return;
     const group = groupRef.current;
     if (!group) return;
 

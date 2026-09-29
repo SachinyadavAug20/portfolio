@@ -9,7 +9,7 @@ const TechIcon = ({ model }: { model: techStackIconsProps }) => {
   return (
     <div ref={ref} className="w-full h-full">
       {near && (
-        <Suspense fallback={<div className="w-full h-full" />}>
+        <Suspense fallback={<div className="skeleton w-full h-full" />}>
           <TechIconCanvas model={model} active={visible} />
         </Suspense>
       )}
