@@ -26,6 +26,7 @@ const Contact = () => {
     email: "",
     message: "",
   });
+  const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const reduced = useReducedMotion();
@@ -62,28 +63,41 @@ const Contact = () => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name as keyof typeof formData]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const shake = () => {
+    if (reduced) return;
+    gsap.fromTo(
+      ".contact-card",
+      { x: -6 },
+      { x: 0, duration: 0.5, ease: "elastic.out(1, 0.35)", clearProps: "x" },
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const nextErrors: typeof errors = {};
+    if (!formData.name.trim()) nextErrors.name = "Name is required";
+    if (!formData.email.trim()) nextErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      nextErrors.email = "Please enter a valid email";
+    }
+    if (!formData.message.trim()) nextErrors.message = "Message is required";
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      shake();
+      tap(30);
+      document
+        .getElementById(Object.keys(nextErrors)[0])
+        ?.focus({ preventScroll: false });
+      return;
+    }
+    setErrors({});
     setLoading(true);
     try {
-      if (!formData.name.trim()) {
-        toast.error("Name is required");
-        return;
-      }
-      if (!formData.email.trim()) {
-        toast.error("Email is required");
-        return;
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        toast.error("Please enter a valid email");
-        return;
-      }
-      if (!formData.message.trim()) {
-        toast.error("Message is required");
-        return;
-      }
       await emailjs.sendForm(
         import.meta.env.VITE_APP_EMAILJS_SERVICE_ID,
         import.meta.env.VITE_APP_EMAILJS_TEMPLATE_ID,
@@ -102,10 +116,19 @@ const Contact = () => {
         description:
           "There might be some issue, please try later or use my email(samtagon777@gmail.com) directly.",
       });
+      shake();
     } finally {
       setLoading(false);
     }
   };
+
+  const fieldError = (field: keyof typeof formData) =>
+    errors[field] ? (
+      <p id={`${field}-error`} role="alert" className="field-error">
+        {errors[field]}
+      </p>
+    ) : null;
+
 
   return (
     <section id="contact" ref={sectionRef} className="flex-center section-padding">
@@ -118,6 +141,7 @@ const Contact = () => {
                 ref={formRef}
                 className="w-full flex flex-col gap-6"
                 onSubmit={handleSubmit}
+                noValidate
               >
                 <div className="flex flex-col gap-2">
                   <label htmlFor="name">Name</label>
@@ -132,7 +156,10 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     aria-required="true"
+                    aria-invalid={errors.name ? "true" : undefined}
+                    aria-describedby={errors.name ? "name-error" : undefined}
                   />
+                  {fieldError("name")}
                 </div>
                 <div className="flex flex-col gap-2">
                   <label htmlFor="email">Email</label>
@@ -147,7 +174,10 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     aria-required="true"
+                    aria-invalid={errors.email ? "true" : undefined}
+                    aria-describedby={errors.email ? "email-error" : undefined}
                   />
+                  {fieldError("email")}
                 </div>
                 <div className="flex flex-col gap-2">
                   <label htmlFor="message">Message</label>
@@ -161,18 +191,25 @@ const Contact = () => {
                     onChange={handleChange}
                     required
                     aria-required="true"
+                    aria-invalid={errors.message ? "true" : undefined}
+                    aria-describedby={errors.message ? "message-error" : undefined}
                   />
+                  {fieldError("message")}
                 </div>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || submitted}
                   className="transition-opacity disabled:opacity-60 disabled:cursor-wait"
                 >
-                  <div className="cta-button group">
+                  <div className={`cta-button group ${submitted ? "is-success" : ""}`}>
                     <div className="bg-circle" />
                     <p className="text">
                       {" "}
-                      {loading ? "Sending..." : "Send Message"}{" "}
+                      {loading
+                        ? "Sending..."
+                        : submitted
+                          ? "Message sent!"
+                          : "Send Message"}{" "}
                     </p>
                     <div className="arrow-wrapper">
                       <img src="/images/arrow-down.svg" alt="arrow" />

@@ -23,6 +23,27 @@ const BlogList = () => {
   const rootRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
+  // Remember scroll per view so returning from a post lands you where
+  // you left off instead of back at the top.
+  const scrollKey = `blog-scroll::${viewKey}`;
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    const save = () => sessionStorage.setItem(scrollKey, String(window.scrollY));
+    window.addEventListener("scroll", save, { passive: true });
+    return () => {
+      save();
+      window.removeEventListener("scroll", save);
+    };
+  }, [scrollKey]);
+  useEffect(() => {
+    if (loading || restoredRef.current) return;
+    restoredRef.current = true;
+    const y = Number(sessionStorage.getItem(scrollKey) ?? 0);
+    if (y > 0) {
+      requestAnimationFrame(() => window.scrollTo(0, y));
+    }
+  }, [loading, scrollKey]);
+
   useEffect(() => {
     let cancelled = false;
     getPosts()
@@ -168,7 +189,7 @@ const BlogList = () => {
           {loading ? (
             <div className="space-y-2 mt-8">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-12 rounded-lg bg-black-200 animate-pulse" />
+                <div key={i} className="skeleton h-12 rounded-lg bg-black-200" />
               ))}
             </div>
           ) : error ? (

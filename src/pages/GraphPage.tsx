@@ -927,8 +927,8 @@ const GraphPage = () => {
             {status === "loading" && (
               <div className="absolute inset-0 z-10 flex-center">
                 <div className="w-2/3 max-w-sm space-y-3">
-                  <div className="h-4 w-1/2 bg-black-200 rounded animate-pulse" />
-                  <div className="h-40 w-full bg-black-200 rounded-xl animate-pulse" />
+                  <div className="skeleton h-4 w-1/2 bg-black-200 rounded" />
+                  <div className="skeleton h-40 w-full bg-black-200 rounded-xl" />
                 </div>
               </div>
             )}

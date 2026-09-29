@@ -711,6 +711,28 @@ section {
     textarea,
     select {
       @apply w-full px-4 py-4 text-base placeholder:text-blue-50 bg-blue-100 rounded-md;
+      border: 1px solid transparent;
+      transition:
+        border-color var(--dur-fast) var(--ease-standard),
+        box-shadow var(--dur-fast) var(--ease-standard);
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--tab-accent);
+      box-shadow: 0 0 0 3px rgb(56 189 248 / 0.22);
+    }
+
+    input[aria-invalid="true"],
+    textarea[aria-invalid="true"] {
+      border-color: #f87171;
+      box-shadow: 0 0 0 3px rgb(248 113 113 / 0.18);
+    }
+
+    .field-error {
+      @apply text-sm text-red-400 mt-1;
+      animation: field-in var(--dur-fast) var(--ease-standard) both;
     }
 
     a {
@@ -720,6 +742,25 @@ section {
         @apply inline-block;
       }
     }
+  }
+
+  @keyframes field-in {
+    from {
+      opacity: 0;
+      transform: translateY(-3px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .cta-button.is-success {
+    background-color: rgb(34 197 94 / 0.9);
+  }
+
+  .cta-button.is-success .text {
+    color: rgb(5 46 22 / 0.95);
   }
 
   .footer {
@@ -1421,6 +1462,32 @@ h4 {
 /* Route enter: gentle opacity fade keyed on pathname (RootLayout) */
 .page-enter {
   animation: page-enter 0.28s ease-out both;
+}
+
+/* Shimmer sweep for loading skeletons (static under reduced motion) */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(148 163 184 / 0.16),
+    transparent
+  );
+  animation: shimmer 1.4s var(--ease-standard) infinite;
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes page-enter {

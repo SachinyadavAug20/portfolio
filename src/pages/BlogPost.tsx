@@ -182,6 +182,7 @@ const CodeBlock = ({ children, className, ...props }: any) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
+    if (copied) return;
     const text = preRef.current?.textContent || "";
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -195,6 +196,7 @@ const CodeBlock = ({ children, className, ...props }: any) => {
       </pre>
       <button
         onClick={handleCopy}
+        aria-live="polite"
         className="absolute top-2 right-2 px-2.5 py-1.5 text-xs rounded-md opacity-90 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity bg-black-50 hover:bg-black text-white-50"
       >
         {copied ? "Copied!" : "Copy"}
@@ -206,15 +208,15 @@ const CodeBlock = ({ children, className, ...props }: any) => {
 const Skeleton = () => (
   <section className="section-padding pt-5 min-h-screen">
     <div className="w-full h-full md:px-10 max-w-4xl mx-auto">
-      <div className="h-5 w-16 bg-black-200 rounded animate-pulse mb-8" />
+      <div className="skeleton h-5 w-16 bg-black-200 rounded mb-8" />
       <div className="space-y-3">
-        <div className="h-8 w-3/4 bg-black-200 rounded animate-pulse" />
-        <div className="h-4 w-full bg-black-200 rounded animate-pulse" />
-        <div className="h-4 w-5/6 bg-black-200 rounded animate-pulse" />
-        <div className="h-4 w-4/6 bg-black-200 rounded animate-pulse" />
-        <div className="h-32 w-full bg-black-200 rounded animate-pulse mt-6" />
-        <div className="h-4 w-full bg-black-200 rounded animate-pulse" />
-        <div className="h-4 w-3/4 bg-black-200 rounded animate-pulse" />
+        <div className="skeleton h-8 w-3/4 bg-black-200 rounded" />
+        <div className="skeleton h-4 w-full bg-black-200 rounded" />
+        <div className="skeleton h-4 w-5/6 bg-black-200 rounded" />
+        <div className="skeleton h-4 w-4/6 bg-black-200 rounded" />
+        <div className="skeleton h-32 w-full bg-black-200 rounded mt-6" />
+        <div className="skeleton h-4 w-full bg-black-200 rounded" />
+        <div className="skeleton h-4 w-3/4 bg-black-200 rounded" />
       </div>
     </div>
   </section>
