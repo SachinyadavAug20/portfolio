@@ -276,12 +276,19 @@ section {
             background-color: var(--nav-underline);
             transform: scaleX(0);
             transform-origin: left center;
-            transition: transform 0.3s ease;
+            transition: transform var(--dur-base) var(--ease-standard);
           }
 
+          /* Keyboard focus lives on the child anchor, not the li —
+             :has() bridges it so the underline animates on Tab too. */
           &:hover .underline,
-          &:focus-visible .underline {
+          &:has(a:focus-visible) .underline,
+          &:has(a[aria-current="page"]) .underline {
             transform: scaleX(1);
+          }
+
+          &:has(a[aria-current="page"]) a span:not(.underline) {
+            color: var(--nav-link-hover);
           }
         }
       }
@@ -291,9 +298,12 @@ section {
       @apply hidden lg:flex;
 
       .inner {
-        @apply px-5 py-2 rounded-lg transition-colors duration-300;
+        @apply px-5 py-2 rounded-lg;
         background-color: var(--contact-bg);
         color: var(--contact-text);
+        transition:
+          background-color var(--dur-base) var(--ease-standard),
+          transform var(--dur-fast) var(--ease-standard);
 
         span {
           @apply transition-colors duration-300;
@@ -306,6 +316,10 @@ section {
 
       .inner:hover span {
         color: var(--contact-hover-text);
+      }
+
+      &:active .inner {
+        transform: scale(0.96);
       }
     }
   }
@@ -364,12 +378,19 @@ section {
   }
 
   .theme-toggle-btn {
-    @apply relative flex items-center justify-center size-10 rounded-lg cursor-pointer transition-colors duration-200;
+    @apply relative flex items-center justify-center size-10 rounded-lg cursor-pointer;
     background-color: var(--nav-hover-bg);
+    transition:
+      background-color var(--dur-base) var(--ease-standard),
+      transform var(--dur-fast) var(--ease-standard);
   }
 
   .theme-toggle-btn:hover {
     background-color: var(--nav-hover-bg-active);
+  }
+
+  .theme-toggle-btn:active {
+    transform: scale(0.92);
   }
 
   .theme-toggle-btn span {
@@ -408,6 +429,19 @@ section {
     background-color: var(--flip-black-100);
     border-color: var(--drawer-border);
     box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+    transform-origin: top right;
+    animation: menu-in var(--dur-fast) var(--ease-standard) both;
+  }
+
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
   }
 
   .theme-toggle-item {
@@ -450,15 +484,32 @@ section {
   }
 
   .bottom-tab {
-    @apply flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium;
+    @apply relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium;
     color: var(--nav-link-hover);
     opacity: 0.5;
     transition: opacity 0.15s, color 0.15s, transform 0.1s;
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Slides in above the active tab; auto-killed by the global
+     reduced-motion override (animation-duration 0.01ms). */
+  .bottom-tab::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 28px;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background-color: var(--tab-accent);
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: center;
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+
   .bottom-tab-icon {
     @apply size-5;
+    transition: transform var(--dur-base) var(--ease-spring);
   }
 
   .bottom-tab:active {
@@ -468,6 +519,14 @@ section {
   .bottom-tab.active {
     opacity: 1;
     color: var(--tab-accent);
+  }
+
+  .bottom-tab.active::before {
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  .bottom-tab.active .bottom-tab-icon {
+    transform: translateY(-2px);
   }
 
   @media (max-width: 1023px) {
@@ -536,6 +595,7 @@ section {
   .cta-button {
     @apply px-4 py-4 rounded-lg flex justify-center items-center relative cursor-pointer overflow-hidden;
     background-color: var(--cta-bg);
+    transition: transform var(--dur-fast) var(--ease-standard);
 
     .bg-circle {
       @apply absolute -right-10 origin-center top-1/2 -translate-y-1/2 
@@ -575,6 +635,14 @@ section {
     .group:hover .arrow-wrapper img {
       transform: translateY(0);
     }
+  }
+
+  .cta-wrapper:active .cta-button {
+    transform: scale(0.97);
+  }
+
+  .cta-wrapper:focus-visible {
+    border-radius: 0.5rem;
   }
 
   .card-border {
@@ -814,7 +882,8 @@ section {
   @apply text-sm md:text-base font-semibold;
 }
 
-.tech-pill:hover .tech-pill-body {
+.tech-pill:hover .tech-pill-body,
+.tech-pill:focus-visible .tech-pill-body {
   filter: grayscale(0);
   color: var(--pill-hover-text);
   background: var(--pill-hover-bg);
@@ -830,7 +899,8 @@ section {
   transition: opacity 0.3s ease;
 }
 
-.tech-pill:hover .tech-pill-proof {
+.tech-pill:hover .tech-pill-proof,
+.tech-pill:focus-visible .tech-pill-proof {
   @apply opacity-100;
 }
 
@@ -932,8 +1002,16 @@ section {
   filter: saturate(200);
 }
 
-.card:hover::before {
+.card:hover::before,
+.card:focus-within::before {
   opacity: 1;
+}
+
+/* Touch: tap flash of the border gradient (no sticky hover latch) */
+@media (hover: none) {
+  .card:active::before {
+    opacity: 1;
+  }
 }
 
 @theme inline {
@@ -1389,6 +1467,28 @@ h4 {
   .counter-tile:hover {
     transform: translateY(-3px);
   }
+
+  .app-showcase a .text-content h2 {
+    transition: color var(--dur-base) var(--ease-standard);
+  }
+
+  .app-showcase a:hover .text-content h2,
+  .app-showcase a:focus-visible .text-content h2 {
+    color: var(--tab-accent);
+  }
+
+  .footer .footer-container > div > a {
+    text-decoration-line: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
+    transition:
+      text-decoration-color var(--dur-base) var(--ease-standard),
+      opacity var(--dur-fast) var(--ease-standard);
+  }
+
+  .footer .footer-container > div > a:hover {
+    text-decoration-color: currentColor;
+  }
 }
 
 .counter-tile {
@@ -1420,6 +1520,12 @@ h4 {
 
 .graph-btn {
   @apply size-9 flex items-center justify-center rounded-full bg-black-200/90 border border-black-50 text-blue-50 backdrop-blur-sm transition-all;
+}
+@media (pointer: coarse) {
+  .graph-btn {
+    inline-size: 44px;
+    block-size: 44px;
+  }
 }
 @media (hover: hover) {
   .graph-btn:hover {

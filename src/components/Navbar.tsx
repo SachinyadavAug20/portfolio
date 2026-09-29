@@ -6,8 +6,14 @@ import GitHubStar from "./GitHubStar";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const isHome = pathname === "/";
+
+  const isActive = (link: string) => {
+    if (link.startsWith("http")) return false;
+    if (link.startsWith("#")) return isHome && hash === link;
+    return pathname.startsWith(link);
+  };
 
   useEffect(() => {
     let ticking = false;
@@ -41,7 +47,10 @@ const Navbar = () => {
             {navLinks.map(({ link, name }) => (
               <li key={link} className="group">
                 {link.startsWith("#") ? (
-                  <a href={`/${link}`}>
+                  <a
+                    href={`/${link}`}
+                    aria-current={isActive(link) ? "page" : undefined}
+                  >
                     <span>{name}</span>
                     <span className="underline" />
                   </a>
@@ -51,7 +60,7 @@ const Navbar = () => {
                     <span className="underline" />
                   </a>
                 ) : (
-                  <Link to={link}>
+                  <Link to={link} aria-current={isActive(link) ? "page" : undefined}>
                     <span>{name}</span>
                     <span className="underline" />
                   </Link>

@@ -764,7 +764,7 @@ const GraphPage = () => {
               }}
               placeholder="Jump to a note…"
               aria-label="Search notes and folders"
-              className="w-full pl-11 pr-10 py-3 rounded-xl bg-black-200 border border-black-50 text-white-50 placeholder:text-white-50/30 focus:outline-none focus:border-blue-50/40 transition-colors text-base"
+              className="w-full pl-11 pr-10 py-3 rounded-xl bg-black-200 border border-black-50 text-white-50 placeholder:text-white-50/30 focus:border-blue-500/50 transition-colors text-base"
             />
             {query && (
               <button

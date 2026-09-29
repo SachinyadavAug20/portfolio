@@ -190,7 +190,7 @@ const BlogList = () => {
                   value={currentQuery}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search notes..."
-                  className="w-full pl-11 pr-11 py-3.5 rounded-xl bg-black-200 border border-black-50 text-white-50 placeholder:text-white-50/30 focus:outline-none focus:border-blue-50/40 transition-colors text-base"
+                  className="w-full pl-11 pr-11 py-3.5 rounded-xl bg-black-200 border border-black-50 text-white-50 placeholder:text-white-50/30 focus:border-blue-500/50 transition-colors text-base"
                 />
                 {currentQuery && (
                   <button

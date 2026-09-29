@@ -54,6 +54,8 @@ export const TechPill = ({ Icon, name, proof, link, reversed }: TechPillProps) =
       className="tech-pill"
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
+      onFocus={handleEnter}
+      onBlur={handleLeave}
     >
       <span className="tech-pill-body">
         <Icon className="tech-pill-icon" />
