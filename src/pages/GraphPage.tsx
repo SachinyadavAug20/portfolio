@@ -15,12 +15,14 @@ import {
   FolderOpen,
   Maximize2,
   Minus,
+  MousePointer2,
   Network,
   Plus,
   RotateCcw,
   Search,
   X,
 } from "lucide-react";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import type {
   ForceGraphMethods,
   LinkObject,
@@ -293,6 +295,58 @@ const GraphPage = () => {
   const [fgReady, setFgReady] = useState(false);
   const { ref: viewRef, visible } = useNearViewport<HTMLDivElement>("80px");
 
+  /* pointer-following hover tooltip (desktop only) — position is written
+     straight to the DOM on pointermove so hovering never re-renders */
+  const tipRef = useRef<HTMLDivElement>(null);
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (isTouch) return;
+      const tip = tipRef.current;
+      if (!tip) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const w = tip.offsetWidth;
+      const h = tip.offsetHeight;
+      const flipX = x + 16 + w > rect.width;
+      const flipY = y + 16 + h > rect.height;
+      tip.style.transform = `translate(${Math.round(
+        flipX ? x - 16 - w : x + 16,
+      )}px, ${Math.round(flipY ? y - 16 - h : y + 16)}px)`;
+    },
+    [isTouch],
+  );
+
+  /* first-visit onboarding hint: dismissed by timeout or the first
+     interaction, remembered in localStorage so it never nags again */
+  const HINT_KEY = "graph-hint-dismissed";
+  const [hintState, setHintState] = useState<"show" | "hide">(() => {
+    try {
+      return localStorage.getItem(HINT_KEY) === "1" ? "hide" : "show";
+    } catch {
+      return "show";
+    }
+  });
+  const dismissHint = useCallback(() => {
+    setHintState((s) => (s === "show" ? "hide" : s));
+    try {
+      localStorage.setItem(HINT_KEY, "1");
+    } catch {
+      /* private mode — hint just reappears next visit */
+    }
+  }, []);
+  useEffect(() => {
+    if (hintState !== "show") return;
+    const t = window.setTimeout(dismissHint, 7000);
+    return () => window.clearTimeout(t);
+  }, [hintState, dismissHint]);
+
+  /* filter chips FLIP between selections (disabled under reduced motion) */
+  const [chipsRef, chipsEnable] = useAutoAnimate<HTMLDivElement>();
+  useEffect(() => {
+    chipsEnable(!reduced);
+  }, [reduced, chipsEnable]);
+
   /* data loading (module-cached; fresh JSON on every deploy).
      First mount starts in "loading"; Retry flips status in its click handler. */
   useEffect(() => {
@@ -421,6 +475,15 @@ const GraphPage = () => {
     }
     return { ids };
   }, [selectedId, filtered]);
+
+  /* hovered node (for the pointer-following tooltip) */
+  const hoverNode = useMemo(
+    () =>
+      hoverId
+        ? filtered?.nodes.find((n) => n.id === hoverId) ?? null
+        : null,
+    [hoverId, filtered],
+  );
 
   /* hover neighbourhood (Obsidian-style hover focus) */
   const hoverSet = useMemo(() => {
@@ -776,7 +839,7 @@ const GraphPage = () => {
               </button>
             )}
             {query && (
-              <div className="absolute z-30 mt-2 w-full rounded-xl border border-black-50 bg-black-200 shadow-xl overflow-hidden">
+              <div className="menu-anim absolute z-30 mt-2 w-full rounded-xl border border-black-50 bg-black-200 shadow-xl overflow-hidden">
                 {matches.length === 0 ? (
                   <p className="px-4 py-3 text-sm text-white-50/60">
                     No notes matching “{query}”.
@@ -807,7 +870,10 @@ const GraphPage = () => {
 
           {/* top-level folder filter chips (BlogList style) */}
           {tops.length > 1 && (
-            <div className="flex flex-nowrap md:flex-wrap gap-2 mt-4 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
+            <div
+              ref={chipsRef}
+              className="flex flex-nowrap md:flex-wrap gap-2 mt-4 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar"
+            >
               {activeTop && (
                 <button
                   onClick={() => setActiveTop(null)}
@@ -840,10 +906,13 @@ const GraphPage = () => {
             className="relative mt-4 rounded-2xl card-border overflow-hidden bg-black-100 h-[68vh] min-h-[420px] graph-canvas"
             onWheel={() => {
               interactedRef.current = true;
+              dismissHint();
             }}
             onPointerDown={() => {
               interactedRef.current = true;
+              dismissHint();
             }}
+            onPointerMove={handlePointerMove}
             onDoubleClick={handleDoubleClick}
             onPointerUp={handlePointerUp}
           >
@@ -922,6 +991,56 @@ const GraphPage = () => {
                 <RotateCcw className="size-4" />
               </button>
             </div>
+
+            {/* pointer-following hover tooltip */}
+            {!isTouch && (
+              <div
+                ref={tipRef}
+                aria-hidden="true"
+                className={`graph-tip absolute left-0 top-0 z-20 max-w-[240px] rounded-lg border border-black-50 bg-black-200/95 backdrop-blur-md px-3 py-2 shadow-xl${
+                  hoverNode ? " graph-tip-on" : ""
+                }`}
+              >
+                {hoverNode && (
+                  <>
+                    <p className="font-medium text-foreground text-xs leading-snug break-words">
+                      {hoverNode.title}
+                    </p>
+                    <p className="mt-1 flex items-center gap-1.5 text-[11px] text-white-50/60">
+                      <span
+                        className="size-2 rounded-full shrink-0"
+                        style={{
+                          backgroundColor:
+                            topColor.get(topOf(hoverNode)) ?? "#94a3b8",
+                        }}
+                      />
+                      {hoverNode.kind}
+                      <span className="text-white-50/30">·</span>
+                      {degreeMap.get(hoverNode.id) ?? 0} connection
+                      {(degreeMap.get(hoverNode.id) ?? 0) === 1 ? "" : "s"}
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* first-visit onboarding hint (top edge: the graph's bottom
+               often sits below the fold, so bottom placement would hide it) */}
+            {!selectedNode && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 max-w-[94%] pointer-events-none sm:left-auto sm:right-24 sm:translate-x-0 sm:max-w-[60%]">
+                <div
+                  aria-hidden="true"
+                  className={`graph-hint pointer-events-auto flex items-center gap-2 rounded-full border border-black-50 bg-black-200/95 backdrop-blur-md px-4 py-2 text-xs text-blue-50 shadow-xl text-center${
+                    hintState === "hide" ? " graph-hint-off" : ""
+                  }`}
+                >
+                  <MousePointer2 className="size-3.5 shrink-0 text-blue-300" />
+                  {isTouch
+                    ? "Drag to pan · pinch to zoom · double-tap to zoom"
+                    : "Drag to pan · scroll to zoom · double-click to zoom in"}
+                </div>
+              </div>
+            )}
 
             {/* loading / error */}
             {status === "loading" && (
