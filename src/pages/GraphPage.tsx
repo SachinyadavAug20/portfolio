@@ -48,11 +48,16 @@ interface GraphNodeData {
   kind: NoteKind;
   dir?: string;
   path?: string;
-  // populated at runtime by the force engine
+  /* set by the deterministic radial layout before the engine sees the
+     graph; ox/oy preserve the original spot for "Reset layout" */
   x?: number;
   y?: number;
   fx?: number;
   fy?: number;
+  ox?: number;
+  oy?: number;
+  vx?: number;
+  vy?: number;
 }
 
 interface GraphLinkData {
@@ -118,6 +123,145 @@ const PREFERRED_TOPS = [
   "lectures",
 ];
 
+/* ── deterministic radial-tree layout ─────────────────────────────────────
+   Hierarchy rings instead of force physics: every folder sits on the ring
+   of its depth, its children fan out across the parent's angular wedge
+   (guaranteed arc slice + subtree-weight share). Wiki links stay as chords
+   across the circle. Positions are final from frame one — the simulation
+   has nothing left to solve, so the graph is dense, structured and static. */
+
+const RINGS = [125, 265, 410, 560, 680, 775];
+const MIN_ARC = 16;
+
+const ringOf = (depth: number) => RINGS[Math.min(depth, RINGS.length - 1)];
+
+function applyRadialLayout(nodes: GraphNodeData[]): void {
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const children = new Map<string, string[]>();
+  const roots: string[] = [];
+
+  for (const n of nodes) {
+    let pid = "";
+    if (n.kind === "folder") {
+      const segs = (n.path ?? "").split("/");
+      segs.pop();
+      if (segs.length) pid = "dir:" + segs.join("/");
+    } else if (n.dir) {
+      pid = "dir:" + n.dir;
+    }
+    if (pid && pid !== n.id && byId.has(pid)) {
+      const list = children.get(pid);
+      if (list) list.push(n.id);
+      else children.set(pid, [n.id]);
+    } else {
+      roots.push(n.id);
+    }
+  }
+
+  /* every node must be reachable from a root (cycle/stray safety) */
+  const reachable = new Set<string>();
+  const stack = [...roots];
+  while (stack.length) {
+    const id = stack.pop();
+    if (id == null || reachable.has(id)) continue;
+    reachable.add(id);
+    for (const k of children.get(id) ?? []) stack.push(k);
+  }
+  for (const n of nodes) if (!reachable.has(n.id)) roots.push(n.id);
+
+  /* subtree weight = number of leaf notes below (min 1) */
+  const weight = new Map<string, number>();
+  const weigh = (id: string, seen: Set<string>): number => {
+    const cached = weight.get(id);
+    if (cached != null) return cached;
+    if (seen.has(id)) return 1;
+    seen.add(id);
+    const kids = children.get(id);
+    if (!kids?.length) {
+      weight.set(id, 1);
+      return 1;
+    }
+    let sum = 0;
+    for (const k of kids) sum += weigh(k, seen);
+    const w = Math.max(sum, 1);
+    weight.set(id, w);
+    return w;
+  };
+  for (const n of nodes) weigh(n.id, new Set());
+
+  const place = (
+    id: string,
+    depth: number,
+    a0: number,
+    a1: number,
+    seen: Set<string>,
+  ): void => {
+    if (seen.has(id)) return;
+    seen.add(id);
+    const node = byId.get(id);
+    if (!node) return;
+
+    const mid = (a0 + a1) / 2;
+    const r = ringOf(depth);
+    const x = r * Math.cos(mid);
+    const y = r * Math.sin(mid);
+    node.x = x;
+    node.y = y;
+    node.fx = x;
+    node.fy = y;
+    node.ox = x;
+    node.oy = y;
+    node.vx = 0;
+    node.vy = 0;
+
+    const kids = children.get(id);
+    if (!kids?.length) return;
+    const span = a1 - a0;
+    const count = kids.length;
+    /* guaranteed arc per child (spacing floor, capped by the wedge) … */
+    const minSlice = Math.min(
+      span / count,
+      Math.max(span / (2 * count), MIN_ARC / ringOf(depth + 1)),
+    );
+    const remaining = span - minSlice * count;
+    let totalW = 0;
+    const ws = kids.map((k) => {
+      const w = weight.get(k) ?? 1;
+      totalW += w;
+      return w;
+    });
+    let a = a0;
+    for (let i = 0; i < count; i++) {
+      const sl = minSlice + (totalW > 0 ? (remaining * ws[i]) / totalW : 0);
+      place(kids[i], depth + 1, a, a + sl, seen);
+      a += sl;
+    }
+  };
+
+  const seen = new Set<string>();
+  if (roots.length) {
+    const span = Math.PI * 2;
+    const count = roots.length;
+    const minSlice = Math.min(
+      span / count,
+      Math.max(span / (2 * count), MIN_ARC / ringOf(0)),
+    );
+    const remaining = span - minSlice * count;
+    let totalW = 0;
+    const ws = roots.map((id) => {
+      const w = weight.get(id) ?? 1;
+      totalW += w;
+      return w;
+    });
+    let a = 0;
+    for (let i = 0; i < count; i++) {
+      const sl = minSlice + (totalW > 0 ? (remaining * ws[i]) / totalW : 0);
+      place(roots[i], 0, a, a + sl, seen);
+      a += sl;
+    }
+  }
+}
+
 /* ── page ─────────────────────────────────────────────────────────────── */
 
 const GraphPage = () => {
@@ -146,10 +290,6 @@ const GraphPage = () => {
   const fgRef = useRef<
     ForceGraphMethods<FgNode, FgLink> | undefined
   >(undefined);
-  /* staged auto-fit bookkeeping: a few fits while the layout converges,
-     cancelled as soon as the user takes over the camera */
-  const autoFitRef = useRef(5);
-  const engineTickRef = useRef(0);
   const interactedRef = useRef(false);
   /* lazy+Suspense: ForceGraph2D mounts a commit AFTER status flips to ready,
      so ref-less effects miss fgRef — first engine tick flips fgReady so they
@@ -168,6 +308,7 @@ const GraphPage = () => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = (await res.json()) as GraphData;
         if (!alive) return;
+        applyRadialLayout(json.nodes);
         cachedGraph = json;
         setData(json);
         setStatus("ready");
@@ -445,97 +586,29 @@ const GraphPage = () => {
   }, [reduced]);
 
   const resetLayout = useCallback(() => {
-    filtered?.nodes.forEach((n) => {
-      delete n.fx;
-      delete n.fy;
+    /* restore the deterministic positions (dragged nodes snap back) and
+       re-frame — the zoomToFit animation guarantees a redraw */
+    data?.nodes.forEach((n) => {
+      n.x = n.ox;
+      n.y = n.oy;
+      n.fx = n.ox;
+      n.fy = n.oy;
+      n.vx = 0;
+      n.vy = 0;
     });
-    autoFitRef.current = 5;
-    engineTickRef.current = 0;
     interactedRef.current = false;
-    fgRef.current?.d3ReheatSimulation();
+    fgRef.current?.zoomToFit(reduced ? 0 : 350, 56);
     tap(8);
-  }, [filtered]);
+  }, [data, reduced]);
 
-  /* fit every ~1.5s while the graph is still finding its shape */
+  /* first engine tick = the lazy graph instance actually mounted */
   const handleEngineTick = useCallback(() => {
-    setFgReady(true); /* no-op after the first tick */
-    if (interactedRef.current || autoFitRef.current <= 0) return;
-    if (++engineTickRef.current < 90) return;
-    engineTickRef.current = 0;
-    autoFitRef.current -= 1;
-    fgRef.current?.zoomToFit(reduced ? 0 : 450, 56);
-  }, [reduced]);
+    setFgReady(true);
+  }, []);
 
-  /* Obsidian-style force tuning: compact clusters, short edges, gentle life.
-     fgReady: the lazy graph mounts a commit after status flips, so re-run
-     once the instance actually exists (first engine tick flips it). */
+  /* frame the whole graph once the instance exists and on filter changes;
+     positions are final (radial layout), so one fit is enough */
   useEffect(() => {
-    const fg = fgRef.current;
-    if (!fg || status !== "ready") return;
-
-    const charge = fg.d3Force("charge") as unknown as
-      | { strength(v: number): void; distanceMax(v: number): void }
-      | undefined;
-    charge?.strength(-75);
-    charge?.distanceMax(200);
-
-    const link = fg.d3Force("link") as unknown as
-      | {
-          distance(fn: (l: FgLink) => number): void;
-          strength(fn: (l: FgLink) => number): void;
-        }
-      | undefined;
-    link?.distance((l) =>
-      l.kind === "wiki" ? 40 : l.kind === "member" ? 16 : 22,
-    );
-    link?.strength((l) =>
-      l.kind === "member" ? 0.9 : l.kind === "parent" ? 0.75 : 0.7,
-    );
-
-    const nodes = filtered?.nodes ?? [];
-
-    /* gentle pull toward the origin — keeps clusters close and the graph
-       dense instead of islands drifting into empty space. Scaled by alpha
-       like every d3 force, otherwise it outlives the engine and crumples
-       the layout once the engine cools. */
-    fg.d3Force("gravity", (alpha: number) => {
-      for (let i = 0; i < nodes.length; i++) {
-        const n = nodes[i] as FgNode;
-        if (n.fx != null || n.fy != null) continue;
-        n.vx = (n.vx ?? 0) - (n.x ?? 0) * 0.003 * alpha;
-        n.vy = (n.vy ?? 0) - (n.y ?? 0) * 0.003 * alpha;
-      }
-    });
-
-    /* the graph settles during warmup before this effect registers the
-       tuned forces — reheat so charge/link/gravity actually shape the
-       layout instead of acting on an almost-cooled simulation */
-    fg.d3ReheatSimulation();
-
-    if (reduced) {
-      fg.d3Force("breath", null);
-      return;
-    }
-
-    /* gentle out-of-phase sway per node so the layout never goes rigid */
-    let phase = 0;
-    fg.d3Force("breath", () => {
-      phase += 0.02;
-      for (let i = 0; i < nodes.length; i++) {
-        const n = nodes[i] as FgNode;
-        if (n.fx != null || n.fy != null) continue;
-        const seed = i * 0.61;
-        n.vx = (n.vx ?? 0) + Math.sin(phase * 1.07 + seed) * 0.03;
-        n.vy = (n.vy ?? 0) + Math.cos(phase * 0.83 + seed * 1.3) * 0.03;
-      }
-    });
-  }, [status, reduced, filtered, size.w, fgReady]);
-
-  /* frame the whole graph on load and whenever the filter changes;
-     further fits come from handleEngineTick while the layout converges */
-  useEffect(() => {
-    autoFitRef.current = 5;
-    engineTickRef.current = 0;
     interactedRef.current = false;
     if (status !== "ready" || !size.w) return;
     const t = window.setTimeout(() => {
@@ -806,11 +879,9 @@ const GraphPage = () => {
                       n.fx = n.x;
                       n.fy = n.y;
                     }}
-                    warmupTicks={reduced ? 40 : 120}
-                    cooldownTicks={reduced ? 400 : Infinity}
-                    cooldownTime={reduced ? 4000 : Infinity}
-                    d3AlphaDecay={reduced ? 0.06 : undefined}
-                    d3VelocityDecay={0.35}
+                    warmupTicks={0}
+                    cooldownTicks={30}
+                    cooldownTime={1500}
                     onEngineTick={handleEngineTick}
                   />
                 </Suspense>
@@ -964,8 +1035,8 @@ const GraphPage = () => {
 
           <p className="flex items-center justify-center gap-2 text-xs text-white-50/50 mt-5 text-center">
             <Network className="size-3.5" />
-            Built from my Obsidian vault · tap a node to explore, tap again to
-            open
+            Built from my Obsidian vault · tap a node for details ·
+            double-tap to zoom
           </p>
         </div>
       </section>
