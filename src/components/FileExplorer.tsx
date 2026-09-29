@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Link } from "react-router-dom";
 import { Folder, FileText, ChevronRight } from "lucide-react";
 import type { TreeNode } from "../blog/tree";
+import { gsap, Flip } from "../lib/gsapSetup";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 interface FileExplorerProps {
   folder: TreeNode;
   currentPath: string;
@@ -13,6 +16,57 @@ const BATCH_SIZE = 20;
 
 const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) => {
   const [visibleFiles, setVisibleFiles] = useState(BATCH_SIZE);
+  const listRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  // Full list swap (folder/breadcrumb nav): stagger the new rows in.
+  const replaceList = (mutate: () => void) => {
+    if (reduced || !listRef.current) {
+      mutate();
+      return;
+    }
+    flushSync(mutate);
+    const rows = listRef.current.querySelectorAll(".blog-tile");
+    gsap.fromTo(
+      rows,
+      { y: 8, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.28,
+        ease: "power2.out",
+        stagger: 0.02,
+        clearProps: "transform,opacity",
+      },
+    );
+  };
+
+  // Incremental append ("show more"): FLIP the existing rows, fade in new.
+  const growList = (mutate: () => void) => {
+    if (reduced || !listRef.current) {
+      mutate();
+      return;
+    }
+    const state = Flip.getState(listRef.current.querySelectorAll(".blog-tile"));
+    flushSync(mutate);
+    Flip.from(state, {
+      duration: 0.3,
+      ease: "power2.out",
+      stagger: 0.01,
+      onEnter: (els) =>
+        gsap.fromTo(
+          els,
+          { opacity: 0, y: 8 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.25,
+            stagger: 0.015,
+            clearProps: "transform,opacity",
+          },
+        ),
+    });
+  };
 
   const children = folder.children?.filter(
     (c) => !(c.type === "folder" && EXCLUDED.has(c.name)),
@@ -38,7 +92,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
           <span key={crumb.path} className="flex items-center gap-1">
             {i > 0 && <ChevronRight className="size-3.5" />}
             <button
-              onClick={() => onNavigate(crumb.path)}
+              onClick={() => replaceList(() => onNavigate(crumb.path))}
               className="hover:text-foreground transition-colors py-2 px-1.5 -mx-1 active:text-foreground"
             >
               {crumb.label}
@@ -50,15 +104,17 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
       {children.length === 0 ? (
         <p className="text-blue-50 text-center py-12">This folder is empty.</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2" ref={listRef}>
           {folders.map((node) => (
             <button
               key={node.name}
               onClick={() =>
-                onNavigate(
-                  currentPath
-                    ? `${currentPath}/${node.name}`
-                    : node.name,
+                replaceList(() =>
+                  onNavigate(
+                    currentPath
+                      ? `${currentPath}/${node.name}`
+                      : node.name,
+                  ),
                 )
               }
               className="blog-tile w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-black-50
@@ -96,7 +152,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
           ))}
           {remaining > 0 && (
             <button
-              onClick={() => setVisibleFiles((v) => v + BATCH_SIZE)}
+              onClick={() => growList(() => setVisibleFiles((v) => v + BATCH_SIZE))}
               className="blog-tile w-full text-center py-3 rounded-xl border border-dashed border-black-50 text-sm text-blue-50 hover:text-foreground hover:bg-black-200 transition-colors"
             >
               Show {remaining} more file{remaining !== 1 ? "s" : ""}
