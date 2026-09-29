@@ -1,3 +1,5 @@
+import { scrollToY } from "../lib/smoothScroll";
+
 interface Props {
   text: string;
   className: string;
@@ -13,7 +15,7 @@ const Button = ({ text, className, id = "" }: Props) => {
         if (target && id) {
           const offset = 72;
           const top = target.getBoundingClientRect().top + window.scrollY - offset;
-          window.scrollTo({ top: top, behavior: "smooth" });
+          scrollToY(top);
         }
       }}
     >

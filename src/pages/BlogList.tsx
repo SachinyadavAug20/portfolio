@@ -10,6 +10,7 @@ import type { BlogPost } from "../blog/types";
 import TitleHeader from "../components/TitleHeader";
 import FileExplorer from "../components/FileExplorer";
 import { useReducedMotion } from "../hooks/useReducedMotion";
+import { scrollToY } from "../lib/smoothScroll";
 
 const BlogList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -40,7 +41,7 @@ const BlogList = () => {
     restoredRef.current = true;
     const y = Number(sessionStorage.getItem(scrollKey) ?? 0);
     if (y > 0) {
-      requestAnimationFrame(() => window.scrollTo(0, y));
+      requestAnimationFrame(() => scrollToY(y, true));
     }
   }, [loading, scrollKey]);
 

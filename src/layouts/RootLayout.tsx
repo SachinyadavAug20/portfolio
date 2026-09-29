@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -9,11 +9,12 @@ import { Toaster } from "../components/ui/sonner";
 import { SITE_NAME, SOCIAL_HANDLE, SITE_DESCRIPTION } from "../seo/config";
 import { isTouchDevice } from "../hooks/useNearViewport";
 import { tap } from "../lib/haptics";
+import { canViewTransition, useRenderedLocation } from "../lib/routeTransition";
 
 const RootLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const firstNav = useRef(true);
+  const rendered = useRenderedLocation() ?? location;
 
   useEffect(() => {
     const splash = document.getElementById("splash");
@@ -22,15 +23,6 @@ const RootLayout = () => {
       setTimeout(() => splash.remove(), 550);
     }
   }, []);
-
-  useEffect(() => {
-    if (firstNav.current) {
-      firstNav.current = false;
-      return;
-    }
-    if (location.hash) return;
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }, [location.key, location.hash]);
 
   // iOS-style edge-swipe back (sub-routes only; the nav drawer opens from the
   // right edge, so this never collides with it). Browsers that own the gesture
@@ -80,7 +72,10 @@ const RootLayout = () => {
       </Helmet>
       <Navbar />
       <CursorGlow />
-      <div key={location.pathname} className="page-enter">
+      <div
+        key={rendered.pathname}
+        className={canViewTransition ? undefined : "page-enter"}
+      >
         <Outlet />
       </div>
       <Toaster />

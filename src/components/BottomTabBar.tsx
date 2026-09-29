@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, LayoutGrid, BookOpen, Mail } from "lucide-react";
 import { tap } from "../lib/haptics";
+import { scrollToY } from "../lib/smoothScroll";
 
 interface Tab {
   id: string;
@@ -37,9 +38,8 @@ const BottomTabBar = () => {
     const wasHome = pathname === "/";
     navigate({ pathname: "/", hash: `#${target}` });
     const scroll = () => {
-      document
-        .getElementById(target)
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const el = document.getElementById(target);
+      if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
     };
     if (wasHome) {
       requestAnimationFrame(scroll);

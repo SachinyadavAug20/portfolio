@@ -1459,9 +1459,37 @@ h4 {
   }
 }
 
-/* Route enter: gentle opacity fade keyed on pathname (RootLayout) */
+/* Route enter: gentle opacity fade keyed on pathname (RootLayout).
+   Only used when the View Transitions API is unavailable. */
 .page-enter {
   animation: page-enter 0.28s ease-out both;
+}
+
+/* Page transitions: persistent chrome gets its own view-transition layer
+   (identical snapshots crossfade invisibly); the unnamed root swaps. */
+.navbar {
+  view-transition-name: nav;
+}
+
+.bottom-tabbar {
+  view-transition-name: tabbar;
+}
+
+.footer {
+  view-transition-name: site-footer;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-base);
+  animation-timing-function: var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
 }
 
 /* Shimmer sweep for loading skeletons (static under reduced motion) */

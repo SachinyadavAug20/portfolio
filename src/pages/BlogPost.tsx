@@ -13,6 +13,7 @@ import { getPostByFullSlug, getPostsInDir } from "../blog/posts";
 import type { BlogPost as BlogPostType } from "../blog/types";
 import { useViews } from "../hooks/useViews";
 import { useReducedMotion } from "../hooks/useReducedMotion";
+import { scrollToY } from "../lib/smoothScroll";
 import remarkObsidianImages from "../blog/remark-obsidian-images";
 import { rehypeMermaid } from "../blog/rehype-mermaid";
 import rehypeRaw from "rehype-raw";
@@ -81,7 +82,7 @@ const TableOfContents = ({ headings }: { headings: TocItem[] }) => {
     const el = document.getElementById(id);
     if (el) {
       const top = el.getBoundingClientRect().top + window.scrollY - 96;
-      window.scrollTo({ top, behavior: "smooth" });
+      scrollToY(top);
     }
   };
 
@@ -281,7 +282,7 @@ const BlogPost = () => {
   );
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToY(0, true);
   }, [fullSlug]);
 
   useEffect(() => {
