@@ -2,6 +2,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,9 +11,10 @@ const ShowCaseSection = () => {
   const project1Ref = useRef<HTMLDivElement>(null);
   const project2Ref = useRef<HTMLDivElement>(null);
   const project3Ref = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
   useGSAP(
     () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (reduced) return;
 
       const mobile = window.matchMedia("(max-width: 767px)").matches;
       const dur = mobile ? 0.3 : 0.4;
@@ -56,7 +58,7 @@ const ShowCaseSection = () => {
         },
       );
     },
-    {},
+    { dependencies: [reduced], revertOnUpdate: true },
   );
   return (
     <section ref={sectionRef} id="work" className="app-showcase">

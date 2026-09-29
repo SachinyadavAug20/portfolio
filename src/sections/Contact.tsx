@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useNearViewport } from "../hooks/useNearViewport";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 import { tap } from "../lib/haptics";
 
 const ContactExperience = lazy(
@@ -27,6 +28,7 @@ const Contact = () => {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     if (submitted) setSceneNear(true);
@@ -34,7 +36,7 @@ const Contact = () => {
 
   useGSAP(
     () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (reduced) return;
       const mobile = window.matchMedia("(max-width: 767px)").matches;
       gsap.fromTo(
         ".contact-card",
@@ -52,7 +54,7 @@ const Contact = () => {
         },
       );
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [reduced], revertOnUpdate: true },
   );
 
   const handleChange = (

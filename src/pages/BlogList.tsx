@@ -9,6 +9,7 @@ import { buildTree, getFolderAtPath } from "../blog/tree";
 import type { BlogPost } from "../blog/types";
 import TitleHeader from "../components/TitleHeader";
 import FileExplorer from "../components/FileExplorer";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 const BlogList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +21,7 @@ const BlogList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     let cancelled = false;
@@ -45,7 +47,7 @@ const BlogList = () => {
   useGSAP(
     () => {
       if (loading) return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (reduced) return;
       const scope = rootRef.current;
       if (!scope) return;
 
@@ -80,7 +82,7 @@ const BlogList = () => {
         );
       }
     },
-    { scope: rootRef, dependencies: [loading, viewKey], revertOnUpdate: true },
+    { scope: rootRef, dependencies: [loading, viewKey, reduced], revertOnUpdate: true },
   );
 
   const allTags = useMemo(() => {

@@ -6,6 +6,7 @@ import { lazy, Suspense } from "react";
 import RevolvingWords from "../components/RevolvingWords";
 import FlickeringText from "../components/FlickeringText";
 import { useNearViewport } from "../hooks/useNearViewport";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -18,15 +19,12 @@ const HeroExperience = lazy(
 
 const Hero = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
   const { ref: figureRef, visible: figureVisible } =
     useNearViewport<HTMLDivElement>("100px");
 
   useGSAP(
     () => {
-      const reduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-
       if (!reduced) {
         // Lines rise as the splash lifts; flicker text takes over at ~0.6s.
         gsap.from(".hero-text > *", {
@@ -66,7 +64,7 @@ const Hero = () => {
 
       return () => mm.revert();
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [reduced], revertOnUpdate: true },
   );
 
   return (

@@ -1,5 +1,6 @@
 import { useLayoutEffect } from "react";
 import gsap from "gsap";
+import { useReducedMotion } from "./useReducedMotion";
 
 type RowRef = React.RefObject<HTMLDivElement | null>;
 
@@ -23,6 +24,7 @@ const MIN_VELOCITY = 0.5;
 const DRAG_THRESHOLD = 6;
 
 export const useMarqueeMotion = (rowRefs: RowRef[], baseSpeed: number) => {
+  const reduced = useReducedMotion();
   useLayoutEffect(() => {
     const rows: RowState[] = [];
     for (let i = 0; i < rowRefs.length; i++) {
@@ -43,8 +45,7 @@ export const useMarqueeMotion = (rowRefs: RowRef[], baseSpeed: number) => {
       });
     }
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reducedMotion.matches) return;
+    if (reduced) return;
 
     const rowByEl = (el: HTMLDivElement) => rows.find((row) => row.el === el);
 
@@ -181,5 +182,5 @@ export const useMarqueeMotion = (rowRefs: RowRef[], baseSpeed: number) => {
         row.el.removeEventListener("mouseleave", onLeave);
       }
     };
-  }, [rowRefs, baseSpeed]);
+  }, [rowRefs, baseSpeed, reduced]);
 };

@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 interface FlickeringTextProps {
   children: string;
@@ -16,14 +17,13 @@ const FlickeringText = ({
   glowIntensity = 1,
 }: FlickeringTextProps) => {
   const ref = useRef<HTMLSpanElement>(null);
+  const reduced = useReducedMotion();
 
   useGSAP(
     () => {
       const el = ref.current;
       if (!el) return;
 
-      const prefersReduced =
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const text = el.textContent || "";
       if (!text.trim()) return;
 
@@ -32,7 +32,7 @@ const FlickeringText = ({
 
       for (const ch of text) {
         const span = document.createElement("span");
-        span.textContent = ch === " " ? " " : ch;
+        span.textContent = ch === " " ? " " : ch;
         span.style.display = "inline-block";
         el.appendChild(span);
         chars.push(span);
@@ -40,7 +40,7 @@ const FlickeringText = ({
 
       if (chars.length === 0) return;
 
-      if (prefersReduced) {
+      if (reduced) {
         gsap.set(chars, { opacity: 1 });
         return;
       }
@@ -101,7 +101,7 @@ const FlickeringText = ({
 
       return () => tl.kill();
     },
-    { scope: ref },
+    { scope: ref, dependencies: [reduced], revertOnUpdate: true },
   );
 
   return (

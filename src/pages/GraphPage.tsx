@@ -30,6 +30,7 @@ import SEOHead from "../seo/SEOHead";
 import TitleHeader from "../components/TitleHeader";
 import { useTheme } from "../lib/theme";
 import { useNearViewport, isTouchDevice } from "../hooks/useNearViewport";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 import { tap } from "../lib/haptics";
 
 /* react.lazy erases generic call signatures (props fall back to NodeType={}).
@@ -267,12 +268,7 @@ function applyRadialLayout(nodes: GraphNodeData[]): void {
 const GraphPage = () => {
   const navigate = useNavigate();
   const { resolvedTheme } = useTheme();
-  const reduced = useMemo(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    [],
-  );
+  const reduced = useReducedMotion();
   const isTouch = useMemo(() => isTouchDevice(), []);
 
   const [status, setStatus] = useState<"loading" | "ready" | "error">(

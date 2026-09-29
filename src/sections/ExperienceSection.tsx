@@ -4,12 +4,14 @@ import TitleHeader from "../components/TitleHeader";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ExperienceSection = () => {
+  const reduced = useReducedMotion();
   useGSAP(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (reduced) {
       // Jump to end state: reveal the gradient line, no scroll choreography.
       gsap.set(".timeline", { scaleY: 0, transformOrigin: "bottom bottom" });
       return;
@@ -76,7 +78,7 @@ const ExperienceSection = () => {
     );
 
     return () => mm.revert();
-  }, []);
+  }, [reduced]);
   return (
     <section
       id="experience"

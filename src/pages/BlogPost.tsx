@@ -12,6 +12,7 @@ import SEOHead from "../seo/SEOHead";
 import { getPostByFullSlug, getPostsInDir } from "../blog/posts";
 import type { BlogPost as BlogPostType } from "../blog/types";
 import { useViews } from "../hooks/useViews";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 import remarkObsidianImages from "../blog/remark-obsidian-images";
 import { rehypeMermaid } from "../blog/rehype-mermaid";
 import rehypeRaw from "rehype-raw";
@@ -246,6 +247,7 @@ const BlogPost = () => {
 
   const { views } = useViews(post?.fullSlug);
   const pageRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
 
   // Entrance choreography (timings from UX motion research):
   // content-surface band 250–400ms, ease-out, ~200ms total stagger spread,
@@ -253,7 +255,7 @@ const BlogPost = () => {
   useGSAP(
     () => {
       if (loading || !post) return;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (reduced) return;
       const scope = pageRef.current;
       if (!scope) return;
       const els = gsap.utils.toArray<HTMLElement>(".post-anim", scope);
@@ -273,7 +275,7 @@ const BlogPost = () => {
         },
       );
     },
-    { scope: pageRef, dependencies: [loading, post?.fullSlug], revertOnUpdate: true },
+    { scope: pageRef, dependencies: [loading, post?.fullSlug, reduced], revertOnUpdate: true },
   );
 
   useEffect(() => {

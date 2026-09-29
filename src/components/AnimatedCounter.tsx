@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { counterItems } from "../../constants";
 import { fetchLiveStats } from "../lib/stats";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 const CounterItem = ({
   value,
@@ -16,13 +17,14 @@ const CounterItem = ({
   url: string;
 }) => {
   const numRef = useRef<HTMLSpanElement>(null);
+  const reduced = useReducedMotion();
 
   useGSAP(
     () => {
       const el = numRef.current;
       if (!el) return;
 
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (reduced) {
         el.textContent = String(value);
         return;
       }
@@ -44,7 +46,7 @@ const CounterItem = ({
         tween.kill();
       };
     },
-    { dependencies: [value], revertOnUpdate: true },
+    { dependencies: [value, reduced], revertOnUpdate: true },
   );
 
   return (

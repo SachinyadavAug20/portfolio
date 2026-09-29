@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 type Word = { text: string; imgPath: string };
 
@@ -12,6 +13,7 @@ const RevolvingWords = ({ items }: { items: Word[] }) => {
   const anchorRef = useRef<HTMLSpanElement>(null);
   const rootRef = useRef<HTMLSpanElement>(null);
   const reelRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
   const count = items.length;
 
   useLayoutEffect(() => {
@@ -21,7 +23,6 @@ const RevolvingWords = ({ items }: { items: Word[] }) => {
     if (!anchor || !root || !reel) return;
 
     const words = Array.from(reel.querySelectorAll<HTMLElement>(".word-item"));
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     let tl: gsap.core.Timeline | null = null;
 
@@ -40,7 +41,7 @@ const RevolvingWords = ({ items }: { items: Word[] }) => {
       const startC = 3 * count - 1;
       tl.set(reel, { y: -startC * step });
 
-      if (!reducedMotion.matches) {
+      if (!reduced) {
         // Touch devices: skip the per-tick blur tweens (filter animation is a
         // paint op, not a composite op) — pure translate stays 60fps.
         const touchOnly = window.matchMedia("(hover: none)").matches;
@@ -88,7 +89,7 @@ const RevolvingWords = ({ items }: { items: Word[] }) => {
       tl?.kill();
       window.removeEventListener("resize", onResize);
     };
-  }, [count]);
+  }, [count, reduced]);
 
   const reel = Array.from({ length: 3 }, () => [...items].reverse()).flat();
 

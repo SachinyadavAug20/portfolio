@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 const SIZE = 200;
 
@@ -12,9 +13,10 @@ const CursorGlow = () => {
   const [coarse] = useState(() =>
     window.matchMedia("(pointer: coarse)").matches,
   );
+  const reduced = useReducedMotion();
 
   useEffect(() => {
-    if (window.matchMedia("(pointer: coarse)").matches) return;
+    if (window.matchMedia("(pointer: coarse)").matches || reduced) return;
 
     const tick = (now: number) => {
       const dt = Math.min((now - prev.current) / 16.667, 3);
@@ -64,9 +66,9 @@ const CursorGlow = () => {
       if (raf.current) cancelAnimationFrame(raf.current);
       running.current = false;
     };
-  }, []);
+  }, [reduced]);
 
-  if (coarse) return null;
+  if (coarse || reduced) return null;
 
   return (
     <div

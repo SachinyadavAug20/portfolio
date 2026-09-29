@@ -1,14 +1,16 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 import gsap from "gsap";
 import { abilities } from "../../constants";
 
 const FeatureCards = () => {
   const rootRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
 
   useGSAP(
     () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (reduced) return;
       const mobile = window.matchMedia("(max-width: 767px)").matches;
       gsap.fromTo(
         ".feature-card",
@@ -27,7 +29,7 @@ const FeatureCards = () => {
         },
       );
     },
-    { scope: rootRef },
+    { scope: rootRef, dependencies: [reduced], revertOnUpdate: true },
   );
 
   return (

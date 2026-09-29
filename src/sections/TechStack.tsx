@@ -1,12 +1,14 @@
 import { useGSAP } from "@gsap/react";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 import { techStackIcons, techStackImgs } from "../../constants";
 import TechIcon from "../components/Models/TechLogos/TechIcon";
 import TitleHeader from "../components/TitleHeader";
 import gsap from "gsap";
 
 const TechStack = ({ isImage = false }: { isImage?: boolean }) => {
+  const reduced = useReducedMotion();
   useGSAP(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (reduced) return;
 
     const mobile = window.matchMedia("(max-width: 767px)").matches;
     gsap.fromTo(
@@ -29,7 +31,7 @@ const TechStack = ({ isImage = false }: { isImage?: boolean }) => {
         },
       },
     );
-  });
+  }, { dependencies: [reduced], revertOnUpdate: true });
   return (
     <div id="skills" className="flex-center section-padding">
       <div className="w-full h-full md:px-10">

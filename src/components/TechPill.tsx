@@ -1,4 +1,5 @@
 import { useState, type ComponentType } from "react";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 type TechPillProps = {
   Icon: ComponentType<{ className?: string }>;
@@ -25,9 +26,10 @@ const scrambleName = (name: string) =>
 
 export const TechPill = ({ Icon, name, proof, link, reversed }: TechPillProps) => {
   const [displayName, setDisplayName] = useState(name);
+  const reduced = useReducedMotion();
 
   const handleEnter = () => {
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!reduced) {
       let iterations = 0;
       const interval = window.setInterval(() => {
         setDisplayName(scrambleName(name));
