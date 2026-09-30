@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { MotionConfig } from "motion/react";
 import Navbar from "../components/Navbar";
 import BottomTabBar from "../components/BottomTabBar";
 import CursorGlow from "../components/CursorGlow";
@@ -61,26 +62,30 @@ const RootLayout = () => {
 
   return (
     <HelmetProvider>
-      <Helmet>
-        <meta name="description" content={SITE_DESCRIPTION} />
-        <meta name="author" content={SITE_NAME} />
-        <meta property="og:site_name" content={SITE_NAME} />
-        <meta property="og:locale" content="en_IN" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content={SOCIAL_HANDLE} />
-        <meta name="twitter:creator" content={SOCIAL_HANDLE} />
-      </Helmet>
-      <Navbar />
-      <CursorGlow />
-      <div
-        key={rendered.pathname}
-        className={canViewTransition ? undefined : "page-enter"}
-      >
-        <Outlet />
-      </div>
-      <Toaster />
-      <Footer />
-      <BottomTabBar />
+      {/* Honor prefers-reduced-motion for every motion/react interaction
+          (whileTap springs below) without affecting view transitions. */}
+      <MotionConfig reducedMotion="user">
+        <Helmet>
+          <meta name="description" content={SITE_DESCRIPTION} />
+          <meta name="author" content={SITE_NAME} />
+          <meta property="og:site_name" content={SITE_NAME} />
+          <meta property="og:locale" content="en_IN" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:site" content={SOCIAL_HANDLE} />
+          <meta name="twitter:creator" content={SOCIAL_HANDLE} />
+        </Helmet>
+        <Navbar />
+        <CursorGlow />
+        <div
+          key={rendered.pathname}
+          className={canViewTransition ? undefined : "page-enter"}
+        >
+          <Outlet />
+        </div>
+        <Toaster />
+        <Footer />
+        <BottomTabBar />
+      </MotionConfig>
     </HelmetProvider>
   );
 };

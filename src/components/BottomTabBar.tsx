@@ -1,7 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "motion/react";
 import { Home, LayoutGrid, BookOpen, Mail } from "lucide-react";
 import { tap } from "../lib/haptics";
 import { scrollToY } from "../lib/smoothScroll";
+
+const MotionLink = motion.create(Link);
 
 interface Tab {
   id: string;
@@ -54,16 +57,18 @@ const BottomTabBar = () => {
         const active = isActive(tab);
         const Icon = tab.icon;
         return (
-          <Link
+          <MotionLink
             key={tab.id}
             to={tab.href}
             onClick={(e) => handleClick(e, tab)}
             className={`bottom-tab ${active ? "active" : ""}`}
             aria-current={active ? "page" : undefined}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 650, damping: 30 }}
           >
             <Icon className="bottom-tab-icon" strokeWidth={active ? 2.2 : 1.7} />
             <span className="bottom-tab-label">{tab.label}</span>
-          </Link>
+          </MotionLink>
         );
       })}
     </nav>

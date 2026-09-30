@@ -70,26 +70,10 @@ const CursorGlow = () => {
 
   if (coarse || reduced) return null;
 
+  /* SIZE must stay in sync with --glow-size: the translate math centers
+     the blob; visuals (color/alpha) come from the themeable tokens. */
   return (
-    <div
-      ref={blobRef}
-      aria-hidden
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: SIZE,
-        height: SIZE,
-        borderRadius: "50%",
-        pointerEvents: "none",
-        zIndex: -1,
-        opacity: 0,
-        willChange: "transform",
-        background:
-          "radial-gradient(circle, rgba(180,50,255,0.15) 0%, rgba(120,20,180,0.06) 50%, transparent 70%)",
-        border: "1px solid rgba(180,50,255,0.2)",
-      }}
-    />
+    <div ref={blobRef} aria-hidden className="cursor-glow" />
   );
 };
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 import { Moon, Sun, Monitor } from "lucide-react";
 import { useTheme, themeSettings } from "../lib/theme";
 import { tap } from "../lib/haptics";
@@ -80,10 +81,12 @@ const ThemeToggle = () => {
 
   return (
     <div ref={ref} className="theme-toggle relative">
-      <button
+      <motion.button
         ref={btnRef}
         type="button"
         className="theme-toggle-btn"
+        whileTap={{ scale: 0.9 }}
+        transition={{ type: "spring", stiffness: 650, damping: 30 }}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown" && !open) {
@@ -104,7 +107,7 @@ const ThemeToggle = () => {
         <span className="sr-only">
           {LABELS[theme]} theme ({resolvedTheme})
         </span>
-      </button>
+      </motion.button>
 
       {open && (
         <div

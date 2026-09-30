@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useNearViewport } from "../hooks/useNearViewport";
 import { useReducedMotion } from "../hooks/useReducedMotion";
+import { useMagnetic } from "../hooks/useMagnetic";
 import { tap } from "../lib/haptics";
 
 const ContactExperience = lazy(
@@ -30,6 +31,7 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const reduced = useReducedMotion();
+  const submitMagneticRef = useMagnetic<HTMLButtonElement>();
 
   useEffect(() => {
     if (submitted) setSceneNear(true);
@@ -197,6 +199,7 @@ const Contact = () => {
                   {fieldError("message")}
                 </div>
                 <button
+                  ref={submitMagneticRef}
                   type="submit"
                   disabled={loading || submitted}
                   className="transition-opacity disabled:opacity-60 disabled:cursor-wait"

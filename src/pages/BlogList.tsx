@@ -1,11 +1,18 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+import { motion } from "motion/react";
 import { X, Search, Network } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import SEOHead from "../seo/SEOHead";
 import { getPosts } from "../blog/posts";
 import { buildTree, getFolderAtPath } from "../blog/tree";
+
+const MotionLink = motion.create(Link);
+const PRESS = {
+  whileTap: { scale: 0.94 },
+  transition: { type: "spring", stiffness: 650, damping: 30 },
+} as const;
 import type { BlogPost } from "../blog/types";
 import TitleHeader from "../components/TitleHeader";
 import FileExplorer from "../components/FileExplorer";
@@ -178,13 +185,14 @@ const BlogList = () => {
           <TitleHeader title="Blog" sub="Notes from my Obsidian vault" />
         </div>
         <div className="blog-intro flex justify-center mt-5">
-          <Link
+          <MotionLink
             to="/graph"
             className="chip inline-flex items-center gap-1.5 px-4 py-2 text-xs rounded-full bg-black-200 text-blue-50 border border-black-50 hover:bg-blue-500/15 hover:text-foreground transition-colors active:scale-95"
+            {...PRESS}
           >
             <Network className="size-3.5" />
             Knowledge Graph
-          </Link>
+          </MotionLink>
         </div>
         <div className="max-w-3xl mx-auto">
           {loading ? (
@@ -227,24 +235,26 @@ const BlogList = () => {
               {allTags.length > 0 && (
                 <div className="blog-intro flex flex-nowrap md:flex-wrap gap-2 mb-6 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
                   {currentTag && (
-                    <button
+                    <motion.button
                       onClick={clearTag}
                       className="chip shrink-0 inline-flex items-center gap-1 px-3.5 py-1.5 text-xs rounded-full bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
+                      {...PRESS}
                     >
                       {currentTag}
                       <X className="size-3" />
-                    </button>
+                    </motion.button>
                   )}
                   {allTags
                     .filter((t) => t !== currentTag)
                     .map((tag) => (
-                      <button
+                      <motion.button
                         key={tag}
                         onClick={() => setTag(tag)}
                         className="chip shrink-0 px-3.5 py-1.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground"
+                        {...PRESS}
                       >
                         {tag}
-                      </button>
+                      </motion.button>
                     ))}
                 </div>
               )}

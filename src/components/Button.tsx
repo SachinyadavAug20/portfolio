@@ -1,4 +1,5 @@
 import { scrollToY } from "../lib/smoothScroll";
+import { useMagnetic } from "../hooks/useMagnetic";
 
 interface Props {
   text: string;
@@ -6,8 +7,10 @@ interface Props {
   id?: string; // scroll to key
 }
 const Button = ({ text, className, id = "" }: Props) => {
+  const magneticRef = useMagnetic<HTMLButtonElement>();
   return (
     <button
+      ref={magneticRef}
       type="button"
       className={`cta-wrapper ${className ?? ""}`}
       onClick={() => {
