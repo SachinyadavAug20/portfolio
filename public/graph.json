@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-09-29T16:45:45.338Z",
+ "generatedAt": "2026-09-30T14:21:24.162Z",
  "counts": {
-  "notes": 328,
+  "notes": 329,
   "folders": 60,
-  "links": 584,
+  "links": 585,
   "wikiLinks": 204
  },
  "nodes": [
@@ -76,6 +76,12 @@
   {
    "id": "Programing/Concepts/LLD/11.Observer design pattern",
    "title": "observer design pattern",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/12.AI chatbot",
+   "title": "Example",
    "kind": "note",
    "dir": "Programing/Concepts/LLD"
   },
@@ -3414,6 +3420,11 @@
   },
   {
    "source": "Programing/Concepts/LLD/11.Observer design pattern",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/12.AI chatbot",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
   },

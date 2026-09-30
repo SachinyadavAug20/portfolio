@@ -1721,3 +1721,198 @@ h4 {
 .menu-anim {
   animation: menu-in 0.18s var(--ease-standard) both;
 }
+
+/* neko-ts cat companion: speech bubble + pet hearts.
+   The bubble's outer anchor is JS-positioned (transform); the inner pill
+   owns its own entrance animation transform so the two never collide. */
+.cat-bubble-anchor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  pointer-events: none;
+  will-change: transform;
+}
+.cat-bubble {
+  position: relative;
+  animation: cat-bubble-in 0.32s var(--ease-standard) both;
+}
+.cat-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 9px;
+  height: 9px;
+  background: inherit;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  border-color: inherit;
+  transform: translateX(-50%) rotate(45deg);
+}
+@keyframes cat-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.cat-heart {
+  position: fixed;
+  z-index: 61;
+  pointer-events: none;
+  font-size: 15px;
+  line-height: 1;
+  color: #ff7aa8;
+  text-shadow: 0 0 6px rgb(255 122 168 / 0.55);
+  animation: cat-heart-fly 1.05s var(--ease-out) both;
+}
+@keyframes cat-heart-fly {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.6);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(-50%, -8px) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -38px) scale(1);
+  }
+}
+
+/* playful hop when petted (neko only writes left/top, so transform is free) */
+.cat-hop {
+  animation: cat-hop 0.45s var(--ease-standard);
+}
+@keyframes cat-hop {
+  0% {
+    transform: translateY(0) rotate(0) scale(1);
+  }
+  35% {
+    transform: translateY(-10px) rotate(-7deg) scale(1.06);
+  }
+  70% {
+    transform: translateY(0) rotate(4deg) scale(1);
+  }
+  100% {
+    transform: translateY(0) rotate(0) scale(1);
+  }
+}
+
+/* goodbye flourish before Alt+C shoo removes the cat */
+.cat-leaving {
+  animation: cat-leaving 0.34s ease-in forwards;
+}
+@keyframes cat-leaving {
+  0% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+  35% {
+    transform: scale(1.18) rotate(-8deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+/* sleepy zZz floats above a napping cat */
+.cat-zzz-anchor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 61;
+  pointer-events: none;
+  will-change: transform;
+}
+.cat-zzz {
+  display: flex;
+  gap: 1px;
+  align-items: flex-end;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  color: #a5b4fc;
+  text-shadow: 0 0 6px rgb(165 180 252 / 0.5);
+}
+.cat-zzz span {
+  animation: cat-z-rise 1.6s ease-out infinite;
+}
+.cat-zzz span:nth-child(2) {
+  font-size: 10px;
+  animation-delay: 0.4s;
+}
+.cat-zzz span:nth-child(3) {
+  font-size: 8px;
+  animation-delay: 0.8s;
+}
+@keyframes cat-z-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.7);
+  }
+  30% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px) scale(1.1);
+  }
+}
+
+/* entrance / summon sparkle burst */
+.cat-sparkle {
+  position: fixed;
+  z-index: 61;
+  pointer-events: none;
+  font-size: 14px;
+  line-height: 1;
+  color: #ffd76a;
+  text-shadow: 0 0 8px rgb(255 215 106 / 0.6);
+  animation: cat-sparkle 0.85s var(--ease-out) forwards;
+}
+@keyframes cat-sparkle {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4) rotate(0);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(-50% + var(--dx)),
+        calc(-50% + var(--dy))
+      )
+      scale(1.15) rotate(90deg);
+  }
+}
+
+/* pixel fish treat slides into the cat's mouth */
+.cat-treat {
+  position: fixed;
+  z-index: 61;
+  pointer-events: none;
+  will-change: transform;
+  animation: cat-treat-slide 0.55s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+.cat-treat svg {
+  display: block;
+  transform: scaleX(var(--fish-flip, 1));
+}
+@keyframes cat-treat-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(var(--treat-dx));
+  }
+}

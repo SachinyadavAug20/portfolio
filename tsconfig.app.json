@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "neko-ts": ["./node_modules/neko-ts/dist/src/index"],
+      "neko-ts/breeds/*": ["./node_modules/neko-ts/dist/src/breeds/*"]
     },
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "es2023",

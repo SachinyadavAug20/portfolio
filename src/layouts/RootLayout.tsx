@@ -5,6 +5,7 @@ import { MotionConfig } from "motion/react";
 import Navbar from "../components/Navbar";
 import BottomTabBar from "../components/BottomTabBar";
 import CursorGlow from "../components/CursorGlow";
+import CatCompanion from "../components/CatCompanion";
 import Footer from "../sections/Footer";
 import { Toaster } from "../components/ui/sonner";
 import { SITE_NAME, SOCIAL_HANDLE, SITE_DESCRIPTION } from "../seo/config";
@@ -76,6 +77,7 @@ const RootLayout = () => {
         </Helmet>
         <Navbar />
         <CursorGlow />
+        <CatCompanion />
         <div
           key={rendered.pathname}
           className={canViewTransition ? undefined : "page-enter"}
