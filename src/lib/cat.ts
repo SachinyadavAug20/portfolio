@@ -3,25 +3,22 @@
 export const PET_KEY = "cat-companion:pets";
 export const GREETED_KEY = "cat-companion:greeted";
 export const SHOO_KEY = "cat-companion:shooed";
-export const NAME_KEY = "cat-companion:name";
 
-export const CAT_NAMES = [
-  "mochi",
-  "pixel",
-  "tofu",
-  "noodle",
-  "bagel",
-  "mittens",
-  "chai",
-  "waffle",
-];
+/*
+ * The cat's persona is Bhupendra Jogi — the 2018 Lallantop interview that
+ * went viral in 2023: asked "name the places you visited in the US?", he
+ * confidently answers with his own name again. Whatever you ask, the answer
+ * is "Bhupendra Jogi" (spellings vary: Bupendra Joj, #bupendrajodi…).
+ * So this cat has "visited all the blogs" — and says so the same way.
+ */
+export const CAT_NAME = "Bhupendra Jogi";
 
 export const GREETING = (name: string) =>
-  `${name} reporting for duty. (alt+c to shoo me)`;
+  `${name} reporting for duty. (pspsps to call, alt+c to shoo me)`;
 export const RETURNING = (name: string) => [
   `${name} missed you.`,
   `${name} is back.`,
-  `pspsps… oh, hi. it's ${name}.`,
+  `pspsps… oh— hi. it's ${name}.`,
 ];
 
 export const PET_LINES = [
@@ -32,6 +29,7 @@ export const PET_LINES = [
   "*stretches*",
   "you have good hands.",
   "purr purr purr.",
+  "pet bataiye? Bhupendra Jogi.",
 ];
 
 export const TREAT_LINES = ["nom nom~", "fish!! my favorite.", "crunchy. ♥"];
@@ -44,11 +42,27 @@ export const CHATTER = [
   "zZz… oh— you moved.",
   "this portfolio passes the cat test.",
   "i checked the source. nice tabs.",
+  "naam bataiye? Bhupendra Jogi.",
+  "which blogs have i read? Bhupendra Jogi.",
+  "name a place in the US. …Bhupendra Jogi.",
+  "they spell it 'Bupendra Joj' sometimes. naam me kya rakha hai.",
+  "roads of mp > roads of us. trust.",
+  "everywhere you go, you see me.",
 ];
 
-export const WAKE_LINES = ["hm? oh— hi.", "i was not sleeping.", "yawn~"];
+export const WAKE_LINES = [
+  "hm? oh— hi.",
+  "i was not sleeping.",
+  "yawn~",
+  "naam bataiye? …Bhupendra Jogi.",
+];
 
 export const WHEEE_LINES = ["wheee~", "slow down, i have little legs!"];
+
+/* long-idle blog suggestion: when it may fire, how often, how long it stays */
+export const SUGGEST_IDLE_MS = 40_000;
+export const SUGGEST_GAP_MS = 60_000;
+export const SUGGEST_LIFE_MS = 12_000;
 
 export const THEME_LINES = {
   dark: ["nya~ dim lights. big naps.", "dark mode = cat mode."],
@@ -56,7 +70,7 @@ export const THEME_LINES = {
 };
 
 export const ROUTE_LINES: Record<string, string> = {
-  "/blog": "words words words.",
+  "/blog": "which blogs have i read? Bhupendra Jogi.",
   "/graph": "so many nodes~",
   "/": "home again~",
 };
@@ -64,6 +78,14 @@ export const routeLine = (path: string) =>
   path.startsWith("/blog/post")
     ? "mmm. good read~"
     : (ROUTE_LINES[path] ?? "new room~");
+
+/* header jokes for the idle blog-suggestion bubble (meme Q&A format) */
+export const JOGI_HEADERS = [
+  "kaunsa blog dekhe? Bhupendra Jogi.",
+  "blogs visited? naam bataiye— Bhupendra Jogi.",
+  "US mein kis-kis jagah gaye? …Bhupendra Jogi.",
+  "name one blog you've read: Bhupendra Jogi.",
+];
 
 export const rand = (n: number) => Math.floor(Math.random() * n);
 
@@ -81,14 +103,6 @@ export const safeSet = (store: Storage, key: string, value: string) => {
   } catch {
     /* private mode — feature just doesn't persist */
   }
-};
-
-export const pickName = () => {
-  const existing = safeGet(localStorage, NAME_KEY);
-  if (existing) return existing;
-  const name = CAT_NAMES[rand(CAT_NAMES.length)];
-  safeSet(localStorage, NAME_KEY, name);
-  return name;
 };
 
 export const spawnHearts = (x: number, y: number, count = 5) => {

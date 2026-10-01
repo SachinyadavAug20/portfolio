@@ -1916,3 +1916,44 @@ h4 {
     transform: translateX(var(--treat-dx));
   }
 }
+
+/* clickable blog suggestion: the anchor stays inert, the pill opts back in */
+.cat-suggest {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.cat-suggest-msg {
+  display: block;
+}
+.cat-suggest-jogi {
+  display: block;
+  margin-bottom: 4px;
+  color: rgb(148 163 184);
+  font-size: 10.5px;
+  font-style: italic;
+  font-weight: 500;
+  opacity: 0.9;
+}
+.cat-suggest-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: rgb(59 130 246 / 0.18);
+  color: rgb(191 219 254);
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background 0.2s var(--ease-standard),
+    color 0.2s var(--ease-standard);
+}
+.cat-suggest-link:hover {
+  background: rgb(59 130 246 / 0.32);
+  color: rgb(219 234 254);
+}
+.cat-suggest-link:focus-visible {
+  outline: 2px solid rgb(96 165 250);
+  outline-offset: 2px;
+}

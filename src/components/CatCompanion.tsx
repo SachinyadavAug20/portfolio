@@ -1,20 +1,24 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Neko } from "neko-ts";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { tap } from "../lib/haptics";
 import {
+  CAT_NAME,
   CHATTER,
   GREETING,
   GREETED_KEY,
+  JOGI_HEADERS,
   PET_KEY,
   PET_LINES,
   RETURNING,
   SHOO_KEY,
+  SUGGEST_GAP_MS,
+  SUGGEST_IDLE_MS,
+  SUGGEST_LIFE_MS,
   TREAT_LINES,
   THEME_LINES,
   WHEEE_LINES,
   WAKE_LINES,
-  pickName,
   rand,
   routeLine,
   safeGet,
@@ -23,7 +27,8 @@ import {
   spawnHearts,
   spawnSparkles,
 } from "../lib/cat";
-import { useLocation } from "react-router-dom";
+import type { BlogSuggestion } from "../lib/blogSuggestions";
+import { Link, useLocation } from "react-router-dom";
 
 /*
  * Cat companion — a neko-ts desktop pet that sneaks in from a screen edge,
@@ -38,6 +43,10 @@ import { useLocation } from "react-router-dom";
  * - The element is pointer-events:none, so petting listens globally and
  *   hit-tests against neko.position — real UI clicks are never hijacked.
  * - Reduced motion never spawns the cat; Alt+C shooes it for the session.
+ * - After long idle the cat wakes with a clickable blog suggestion
+ *   (dynamic import keeps the reading list out of the entry bundle).
+ * - Persona: Bhupendra Jogi — whatever you ask, the answer is his name.
+ * - Type "pspsps" anywhere to call him back to your cursor.
  */
 
 const seedPointer = (x: number, y: number) => {
@@ -56,10 +65,11 @@ const CatCompanion = () => {
     null,
   );
   const [sleeping, setSleeping] = useState(false);
+  const [suggest, setSuggest] = useState<BlogSuggestion | null>(null);
 
   const nekoRef = useRef<Neko | null>(null);
-  const nameRef = useRef("");
   const bubbleRef = useRef<HTMLDivElement>(null);
+  const suggestAnchorRef = useRef<HTMLDivElement>(null);
   const zzzRef = useRef<HTMLDivElement>(null);
   const phraseTimer = useRef(0);
   const lastPetAt = useRef(0);
@@ -67,7 +77,11 @@ const CatCompanion = () => {
   const petNap = useRef(false);
   const sleepingRef = useRef(false);
   const lastSleptAt = useRef(0);
+  const suggestRef = useRef<BlogSuggestion | null>(null);
+  const suggestUsed = useRef<Set<string>>(new Set());
+  const lastSuggestAt = useRef(0);
   const lastActivity = useRef(0);
+  const lastInput = useRef(0);
   const lastPointer = useRef({ x: 0, y: 0 });
   const wakeLine = useRef(0);
   const running = useRef(false);
@@ -77,6 +91,7 @@ const CatCompanion = () => {
   const lastThemePhrase = useRef(0);
 
   const showPhrase = useCallback((text: string, ms = 3200) => {
+    if (suggestRef.current) return; /* the suggestion bubble has the floor */
     window.clearTimeout(phraseTimer.current);
     setPhrase({ text, ms });
     phraseTimer.current = window.setTimeout(() => setPhrase(null), ms);
@@ -85,6 +100,7 @@ const CatCompanion = () => {
   const markActivity = useCallback(() => {
     const now = Date.now();
     lastActivity.current = now;
+    lastInput.current = now;
     if (sleepingRef.current && nekoRef.current) {
       sleepingRef.current = false;
       nekoRef.current.wake();
@@ -98,6 +114,7 @@ const CatCompanion = () => {
   /* trusted pointer/keyboard activity drives idle detection + last target */
   useEffect(() => {
     lastActivity.current = Date.now();
+    lastInput.current = lastActivity.current;
     lastPointer.current = {
       x: window.innerWidth / 2,
       y: window.innerHeight * 0.55,
@@ -118,21 +135,66 @@ const CatCompanion = () => {
       markActivity();
     };
     const onAny = (e: Event) => {
-      if (e.isTrusted) markActivity();
+      if (!e.isTrusted) return;
+      /* clicks/keys outside the suggestion dismiss it; reaching for the
+         bubble itself (mouse moves, taps on the link) must not kill it */
+      if (suggestRef.current) {
+        const t = e.target;
+        if (!(t instanceof Element && t.closest(".cat-suggest"))) {
+          suggestRef.current = null;
+          setSuggest(null);
+        }
+      }
+      markActivity();
     };
     document.addEventListener("mousemove", onMove, { passive: true });
     document.addEventListener("touchmove", onTouch, { passive: true });
     document.addEventListener("pointerdown", onAny, { passive: true });
     document.addEventListener("keydown", onAny);
     window.addEventListener("wheel", onAny, { passive: true });
+
+    /* type "pspsps" to call the cat back to your cursor */
+    let psBuf = "";
+    let lastPs = 0;
+    const onKeyType = (e: Event) => {
+      const t = e as KeyboardEvent;
+      const el = document.activeElement;
+      if (
+        el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          (el as HTMLElement).isContentEditable)
+      )
+        return;
+      if (!t.key || t.key.length !== 1 || !/[a-z]/i.test(t.key)) return;
+      psBuf = (psBuf + t.key.toLowerCase()).slice(-6);
+      if (psBuf !== "pspsps") return;
+      psBuf = "";
+      const now = Date.now();
+      if (now - lastPs < 8000) return;
+      lastPs = now;
+      const neko = nekoRef.current;
+      if (!neko) return;
+      if (sleepingRef.current) {
+        sleepingRef.current = false;
+        neko.wake();
+        setSleeping(false);
+      }
+      seedPointer(lastPointer.current.x, lastPointer.current.y);
+      spawnSparkles(neko.position.x, neko.position.y);
+      showPhrase(`pspsps~ ${CAT_NAME} reporting.`, 3000);
+    };
+    document.addEventListener("keydown", onKeyType);
+
     return () => {
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("touchmove", onTouch);
       document.removeEventListener("pointerdown", onAny);
       document.removeEventListener("keydown", onAny);
+      document.removeEventListener("keydown", onKeyType);
       window.removeEventListener("wheel", onAny);
     };
-  }, [markActivity]);
+  }, [markActivity, showPhrase]);
 
   /* Alt+C shooes / summons the cat for this session (with a bye flourish) */
   useEffect(() => {
@@ -204,6 +266,10 @@ const CatCompanion = () => {
     }
     if (prevPath.current === location.pathname) return;
     prevPath.current = location.pathname;
+    if (suggestRef.current) {
+      suggestRef.current = null;
+      setSuggest(null);
+    }
     if (!nekoRef.current) return;
     const now = Date.now();
     if (now - lastRoutePhrase.current < 9000) return;
@@ -221,6 +287,7 @@ const CatCompanion = () => {
     let sleepTick = 0;
     let runCalm = 0;
     let lastWheee = 0;
+    let suggestFiring = false;
     let prevScrollY = window.scrollY;
     let lastScrollEvent = 0;
     const timers: number[] = [];
@@ -232,6 +299,45 @@ const CatCompanion = () => {
       void el.offsetWidth;
       el.classList.add("cat-hop");
       timers.push(window.setTimeout(() => el.classList.remove("cat-hop"), 500));
+    };
+
+    /* long idle → the cat wakes up with an idea and pitches one post */
+    const fireSuggestion = async () => {
+      if (suggestFiring) return;
+      suggestFiring = true;
+      try {
+        const { pickSuggestion } = await import("../lib/blogSuggestions");
+        if (cancelled || suggestRef.current || !nekoRef.current) return;
+        const sg = pickSuggestion(
+          window.location.pathname,
+          suggestUsed.current,
+        );
+        if (!sg) return;
+        lastSuggestAt.current = Date.now();
+        suggestRef.current = sg;
+        setSuggest(sg);
+        window.clearTimeout(phraseTimer.current);
+        setPhrase(null);
+        const neko = nekoRef.current;
+        if (sleepingRef.current) {
+          sleepingRef.current = false;
+          neko.wake();
+          setSleeping(false);
+        }
+        spawnSparkles(neko.position.x, neko.position.y);
+        timers.push(
+          window.setTimeout(
+            () => {
+              if (cancelled) return;
+              suggestRef.current = null;
+              setSuggest(null);
+            },
+            SUGGEST_LIFE_MS,
+          ),
+        );
+      } finally {
+        suggestFiring = false;
+      }
     };
 
     const spawn = async () => {
@@ -280,7 +386,6 @@ const CatCompanion = () => {
         breed: breeds[rand(breeds.length)],
       });
       nekoRef.current = neko;
-      nameRef.current = pickName();
 
       const el = document.querySelector<HTMLElement>('[data-neko="0"]');
       if (el) el.style.zIndex = "60"; /* under navbar (100) + tab bar (80) */
@@ -308,9 +413,8 @@ const CatCompanion = () => {
         lastActivity.current = Date.now();
         safeSet(localStorage, GREETED_KEY, "1");
         spawnSparkles(x, y);
-        const name = nameRef.current || "cat";
         showPhrase(
-          returning ? RETURNING(name)[rand(3)] : GREETING(name),
+          returning ? RETURNING(CAT_NAME)[rand(3)] : GREETING(CAT_NAME),
           returning ? 2600 : 5400,
         );
         /* then wander toward the visitor's pointer (or screen centre) */
@@ -327,7 +431,8 @@ const CatCompanion = () => {
         chatterTimer = window.setTimeout(
           () => {
             if (cancelled) return;
-            showPhrase(CHATTER[rand(CHATTER.length)], 3200);
+            if (!suggestRef.current)
+              showPhrase(CHATTER[rand(CHATTER.length)], 3200);
             scheduleChatter();
           },
           40_000 + Math.random() * 35_000,
@@ -383,10 +488,9 @@ const CatCompanion = () => {
       const stored = Number(safeGet(localStorage, PET_KEY));
       const pets = (Number.isFinite(stored) ? stored : 0) + 1;
       safeSet(localStorage, PET_KEY, String(pets));
-      const name = nameRef.current || "cat";
       showPhrase(
         pets % 10 === 0
-          ? `${pets} pets. ${name} approves.`
+          ? `${pets} pets. ${CAT_NAME} approves.`
           : PET_LINES[rand(PET_LINES.length)],
         2800,
       );
@@ -441,16 +545,26 @@ const CatCompanion = () => {
       const moving = Math.hypot(x - prevPos.x, y - prevPos.y) > 2;
       prevPos = { x, y };
       if (moving) lastActivity.current = Date.now();
+      const now = Date.now();
       if (
+        !suggestRef.current &&
         !sleepingRef.current &&
         !petNap.current &&
         !document.hidden &&
-        Date.now() - lastActivity.current > 6000
+        now - lastActivity.current > 6000
       ) {
         sleepingRef.current = true;
-        lastSleptAt.current = Date.now();
+        lastSleptAt.current = now;
         neko.sleep();
         setSleeping(true);
+      }
+      if (
+        !suggestRef.current &&
+        !document.hidden &&
+        now - lastInput.current > SUGGEST_IDLE_MS &&
+        now - lastSuggestAt.current > SUGGEST_GAP_MS
+      ) {
+        void fireSuggestion();
       }
     }, 1000);
 
@@ -458,6 +572,8 @@ const CatCompanion = () => {
       const neko = nekoRef.current;
       if (!neko || cancelled) return;
       if (document.hidden) {
+        suggestRef.current = null;
+        setSuggest(null);
         if (!sleepingRef.current) {
           sleepingRef.current = true;
           lastSleptAt.current = Date.now();
@@ -492,6 +608,8 @@ const CatCompanion = () => {
       window.clearTimeout(phraseTimer.current);
       setPhrase(null);
       setSleeping(false);
+      suggestRef.current = null;
+      setSuggest(null);
       sleepingRef.current = false;
       petNap.current = false;
       running.current = false;
@@ -505,7 +623,7 @@ const CatCompanion = () => {
 
   /* keep the bubble + zZz parked next to the cat */
   useEffect(() => {
-    if (!phrase && !sleeping) return;
+    if (!phrase && !sleeping && !suggest) return;
     const neko = nekoRef.current;
     if (!neko) return;
     let raf = 0;
@@ -522,6 +640,17 @@ const CatCompanion = () => {
         const top = Math.max(y - 34 - bh, 8);
         b.style.transform = `translate(${Math.round(cx - bw / 2)}px, ${Math.round(top)}px)`;
       }
+      const s = suggestAnchorRef.current;
+      if (s && suggest) {
+        const sw = s.offsetWidth;
+        const sh = s.offsetHeight;
+        const cx = Math.min(
+          Math.max(x, sw / 2 + 8),
+          window.innerWidth - sw / 2 - 8,
+        );
+        const top = Math.max(y - 34 - sh, 8);
+        s.style.transform = `translate(${Math.round(cx - sw / 2)}px, ${Math.round(top)}px)`;
+      }
       const z = zzzRef.current;
       if (z && sleeping) {
         z.style.transform = `translate(${Math.round(x + 12)}px, ${Math.round(y - 40)}px)`;
@@ -530,7 +659,13 @@ const CatCompanion = () => {
     };
     place();
     return () => cancelAnimationFrame(raf);
-  }, [phrase, sleeping]);
+  }, [phrase, sleeping, suggest]);
+
+  /* the meme punchline over each suggestion (stable while bubble lives) */
+  const suggestHeader = useMemo(
+    () => (suggest ? JOGI_HEADERS[rand(JOGI_HEADERS.length)] : null),
+    [suggest],
+  );
 
   if (reduced || !enabled) return null;
 
@@ -540,6 +675,25 @@ const CatCompanion = () => {
         <div ref={bubbleRef} className="cat-bubble-anchor" aria-hidden="true">
           <div className="cat-bubble rounded-2xl border border-black-50 bg-black-200/95 px-3.5 py-2 text-xs font-medium text-blue-50 text-center leading-snug shadow-xl backdrop-blur-md max-w-[230px]">
             {phrase.text}
+          </div>
+        </div>
+      )}
+      {suggest && (
+        <div ref={suggestAnchorRef} className="cat-bubble-anchor">
+          <div className="cat-bubble cat-suggest rounded-2xl border border-blue-500/40 bg-black-200/95 px-3.5 py-2 text-xs font-medium text-blue-50 text-center leading-snug shadow-xl backdrop-blur-md max-w-[240px]">
+            {suggestHeader && (
+              <span className="cat-suggest-jogi" aria-hidden="true">
+                {suggestHeader}
+              </span>
+            )}
+            <span className="cat-suggest-msg">{suggest.msg}</span>
+            <Link
+              to={`/blog/post/${suggest.path}`}
+              className="cat-suggest-link"
+            >
+              <span aria-hidden="true">✦</span>
+              <span>{suggest.title}</span>
+            </Link>
           </div>
         </div>
       )}
