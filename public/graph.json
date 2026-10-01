@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-09-30T14:21:24.162Z",
+ "generatedAt": "2026-10-01T14:25:09.180Z",
  "counts": {
-  "notes": 329,
+  "notes": 330,
   "folders": 60,
-  "links": 585,
+  "links": 586,
   "wikiLinks": 204
  },
  "nodes": [
@@ -50,6 +50,12 @@
    "dir": "Programing/Concepts/FDE and GenAI"
   },
   {
+   "id": "Programing/Concepts/FDE and GenAI/3.AI chatbot",
+   "title": "Example",
+   "kind": "note",
+   "dir": "Programing/Concepts/FDE and GenAI"
+  },
+  {
    "id": "Programing/Concepts/LLD/0.Intro",
    "title": "What is LLD",
    "kind": "note",
@@ -80,7 +86,7 @@
    "dir": "Programing/Concepts/LLD"
   },
   {
-   "id": "Programing/Concepts/LLD/12.AI chatbot",
+   "id": "Programing/Concepts/LLD/12.Decorator design patter",
    "title": "Example",
    "kind": "note",
    "dir": "Programing/Concepts/LLD"
@@ -3399,6 +3405,11 @@
    "kind": "member"
   },
   {
+   "source": "Programing/Concepts/FDE and GenAI/3.AI chatbot",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "member"
+  },
+  {
    "source": "Programing/Concepts/LLD/0.Intro",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
@@ -3424,7 +3435,7 @@
    "kind": "member"
   },
   {
-   "source": "Programing/Concepts/LLD/12.AI chatbot",
+   "source": "Programing/Concepts/LLD/12.Decorator design patter",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
   },

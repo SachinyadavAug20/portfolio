@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { X, Search, Network } from "lucide-react";
@@ -14,6 +14,7 @@ const PRESS = {
   transition: { type: "spring", stiffness: 650, damping: 30 },
 } as const;
 import type { BlogPost } from "../blog/types";
+import { BLOG_SUGGESTIONS } from "../lib/blogSuggestions";
 import TitleHeader from "../components/TitleHeader";
 import FileExplorer from "../components/FileExplorer";
 import { useReducedMotion } from "../hooks/useReducedMotion";
@@ -29,7 +30,67 @@ const BlogList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
   const reduced = useReducedMotion();
+
+  const updateParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const next = new URLSearchParams(searchParams);
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === null || value === "") {
+          next.delete(key);
+        } else {
+          next.set(key, value);
+        }
+      }
+      setSearchParams(next);
+    },
+    [searchParams, setSearchParams],
+  );
+
+  /*
+   * Search text lives in local state while typing; the URL updates on a
+   * debounce. Reading the value back from useSearchParams per keystroke
+   * dropped characters (the router round-trip lags the input). Refs track
+   * what we pushed so browser back/forward never fights the input.
+   */
+  const [qInput, setQInput] = useState(currentQuery);
+  const lastPushedQ = useRef(currentQuery);
+  useEffect(() => {
+    if (qInput === currentQuery) {
+      lastPushedQ.current = currentQuery;
+      return;
+    }
+    if (currentQuery !== lastPushedQ.current) {
+      /* URL changed externally (back/forward) — leave the input alone */
+      lastPushedQ.current = currentQuery;
+      return;
+    }
+    const id = window.setTimeout(() => {
+      lastPushedQ.current = qInput;
+      updateParams({ q: qInput || null, path: null, tag: null });
+    }, 250);
+    return () => window.clearTimeout(id);
+  }, [qInput, currentQuery, updateParams]);
+
+  /* "/" jumps to search (unless you're already typing somewhere) */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = document.activeElement;
+      if (
+        el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          (el as HTMLElement).isContentEditable)
+      )
+        return;
+      e.preventDefault();
+      searchRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // Remember scroll per view so returning from a post lands you where
   // you left off instead of back at the top.
@@ -114,15 +175,29 @@ const BlogList = () => {
     { scope: rootRef, dependencies: [loading, viewKey, reduced], revertOnUpdate: true },
   );
 
-  const allTags = useMemo(() => {
-    const set = new Set<string>();
+  const tagCounts = useMemo(() => {
+    const map = new Map<string, number>();
     for (const post of posts) {
       for (const tag of post.dir.split("/").filter(Boolean)) {
-        set.add(tag);
+        map.set(tag, (map.get(tag) ?? 0) + 1);
       }
     }
-    return Array.from(set).sort();
+    return Array.from(map, ([tag, count]) => ({ tag, count })).sort((a, b) =>
+      a.tag.localeCompare(b.tag),
+    );
   }, [posts]);
+
+  /* header stats: how big the vault actually is */
+  const stats = useMemo(() => {
+    const folders = new Set(posts.map((p) => p.dir).filter(Boolean)).size;
+    return { notes: posts.length, folders, tags: tagCounts.length };
+  }, [posts, tagCounts]);
+
+  /* the cat has "read" all of these — six of them, spread across topics */
+  const catPicks = useMemo(
+    () => BLOG_SUGGESTIONS.filter((_, i) => i % 8 === 0).slice(0, 6),
+    [],
+  );
 
   const filteredPosts = useMemo(() => {
     let result = posts;
@@ -143,18 +218,6 @@ const BlogList = () => {
 
   const tree = buildTree(filteredPosts);
   const folder = getFolderAtPath(tree, currentPath);
-
-  const updateParams = (updates: Record<string, string | null>) => {
-    const next = new URLSearchParams(searchParams);
-    for (const [key, value] of Object.entries(updates)) {
-      if (value === null || value === "") {
-        next.delete(key);
-      } else {
-        next.set(key, value);
-      }
-    }
-    setSearchParams(next);
-  };
 
   const handleNavigate = (path: string) => {
     updateParams({ path: path || null });
@@ -184,6 +247,11 @@ const BlogList = () => {
         <div className="blog-intro">
           <TitleHeader title="Blog" sub="Notes from my Obsidian vault" />
         </div>
+        {!loading && !error && stats.notes > 0 && (
+          <p className="blog-intro text-center text-xs text-white-50/50 mt-3">
+            {stats.notes} notes · {stats.folders} folders · {stats.tags} tags
+          </p>
+        )}
         <div className="blog-intro flex justify-center mt-5">
           <MotionLink
             to="/graph"
@@ -213,26 +281,82 @@ const BlogList = () => {
             </div>
           ) : (
             <>
+              {!currentQuery && !currentTag && (
+                <div className="blog-intro mt-8 mb-6">
+                  <div className="flex items-center gap-3 mb-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-blue-300">
+                      Bhupendra Jogi recommends
+                    </span>
+                    <span className="h-px flex-1 bg-black-50" />
+                  </div>
+                  <p className="text-[11px] italic text-white-50/45 mb-3">
+                    he's read all {BLOG_SUGGESTIONS.length} of these. naam
+                    bataiye— Bhupendra Jogi.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {catPicks.map((s) => (
+                      <MotionLink
+                        key={s.path}
+                        to={`/blog/post/${s.path}`}
+                        className="blog-tile group flex flex-col gap-1.5 rounded-xl border border-black-50 bg-black-200/60 p-4 transition-colors hover:border-blue-500/40 hover:bg-black-100"
+                        {...PRESS}
+                      >
+                        <span className="text-sm font-semibold leading-snug text-blue-50 transition-colors group-hover:text-blue-300">
+                          {s.title}
+                        </span>
+                        <span className="line-clamp-2 text-xs leading-relaxed text-white-50/60">
+                          {s.msg}
+                        </span>
+                        <span className="mt-auto pt-1 text-[10px] text-white-50/40">
+                          {s.path.split("/").slice(0, 2).join(" / ")}
+                        </span>
+                      </MotionLink>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="blog-intro relative mt-8 mb-4">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white-50/40" />
                 <input
+                  ref={searchRef}
                   type="text"
-                  value={currentQuery}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search notes..."
+                  value={qInput}
+                  onChange={(e) => setQInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      setQInput("");
+                      setSearch("");
+                      e.currentTarget.blur();
+                    }
+                  }}
+                  placeholder="Search notes... (press /)"
                   className="w-full pl-11 pr-11 py-3.5 rounded-xl bg-black-200 border border-black-50 text-white-50 placeholder:text-white-50/30 focus:border-blue-500/50 transition-colors text-base"
                 />
-                {currentQuery && (
+                {qInput ? (
                   <button
-                    onClick={() => setSearch("")}
+                    onClick={() => {
+                      setQInput("");
+                      setSearch("");
+                    }}
                     aria-label="Clear search"
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full text-white-50/40 hover:text-white-50 active:bg-black-100 transition-colors"
                   >
                     <X className="size-4" />
                   </button>
+                ) : (
+                  <kbd className="pointer-events-none absolute right-3 top-1/2 hidden size-6 -translate-y-1/2 items-center justify-center rounded-md border border-black-50 bg-black-100 text-xs text-white-50/40 md:flex">
+                    /
+                  </kbd>
                 )}
               </div>
-              {allTags.length > 0 && (
+              {(currentQuery || currentTag) && (
+                <p className="blog-intro mb-3 text-xs text-white-50/55">
+                  {filteredPosts.length} of {posts.length} notes
+                  {currentTag ? ` in #${currentTag}` : ""}
+                  {currentQuery ? ` match "${currentQuery}"` : ""}
+                </p>
+              )}
+              {tagCounts.length > 0 && (
                 <div className="blog-intro flex flex-nowrap md:flex-wrap gap-2 mb-6 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
                   {currentTag && (
                     <motion.button
@@ -244,32 +368,59 @@ const BlogList = () => {
                       <X className="size-3" />
                     </motion.button>
                   )}
-                  {allTags
-                    .filter((t) => t !== currentTag)
-                    .map((tag) => (
+                  {tagCounts
+                    .filter((t) => t.tag !== currentTag)
+                    .map(({ tag, count }) => (
                       <motion.button
                         key={tag}
                         onClick={() => setTag(tag)}
                         className="chip shrink-0 px-3.5 py-1.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground"
                         {...PRESS}
                       >
-                        {tag}
+                        {tag}{" "}
+                        <span className="opacity-45">{count}</span>
                       </motion.button>
                     ))}
                 </div>
               )}
-              {folder ? (
+              {folder && (folder.children?.length ?? 0) > 0 ? (
                 <FileExplorer
                   folder={folder}
                   currentPath={currentPath}
                   onNavigate={handleNavigate}
                 />
               ) : (
-                <p className="text-blue-50 text-center mt-16">
-                  {currentQuery
-                    ? `No notes matching "${currentQuery}".`
-                    : "Folder not found."}
-                </p>
+                <div className="py-14 text-center">
+                  <p className="text-blue-50">
+                    {currentQuery
+                      ? `No notes matching "${currentQuery}".`
+                      : "Folder not found."}
+                  </p>
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                    {currentQuery &&
+                      tagCounts
+                        .filter((t) => t.tag.toLowerCase().includes(currentQuery.toLowerCase()))
+                        .slice(0, 6)
+                        .map(({ tag }) => (
+                          <button
+                            key={tag}
+                            onClick={() => setTag(tag)}
+                            className="chip px-3.5 py-1.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground transition-colors"
+                          >
+                            #{tag}
+                          </button>
+                        ))}
+                    <button
+                      onClick={() => {
+                        setQInput("");
+                        setSearch("");
+                      }}
+                      className="chip px-3.5 py-1.5 text-xs rounded-full border border-black-50 bg-black-100 text-white-50 hover:bg-black-200 transition-colors"
+                    >
+                      {currentQuery ? "Clear search" : "Back to root"}
+                    </button>
+                  </div>
+                </div>
               )}
             </>
           )}
