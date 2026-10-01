@@ -1616,6 +1616,50 @@ h4 {
   }
 }
 
+/* slow-network hint under skeletons: CSS-delayed to 4s so it needs no
+   state (no setState-in-effect); reduced motion keeps the delay via a
+   near-zero duration — the wait is information, the fade is the only motion */
+.skeleton-hint {
+  margin-top: 1.25rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  color: rgb(148 163 184 / 0.85);
+  opacity: 0;
+  animation: skeleton-hint-in 0.35s var(--ease-standard) 4s forwards;
+}
+.skeleton-retry {
+  margin-left: 0.35rem;
+  padding: 0.15rem 0.65rem;
+  border: 1px solid rgb(148 163 184 / 0.35);
+  border-radius: 999px;
+  color: rgb(148 163 184 / 0.95);
+  font-size: 0.7rem;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+.skeleton-retry:hover {
+  color: #fff;
+  border-color: rgb(148 163 184 / 0.75);
+}
+.skeleton-retry:active {
+  transform: scale(0.96);
+}
+@keyframes skeleton-hint-in {
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-hint {
+    animation-duration: 0.01ms;
+  }
+  .skeleton-retry {
+    transition: none;
+  }
+}
+
 @keyframes page-enter {
   from {
     opacity: 0;

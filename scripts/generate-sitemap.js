@@ -7,6 +7,9 @@ const BRANCH = "main";
 const BLOG_ROOT = "Notes";
 
 const SITEMAP_PATH = resolve(import.meta.dirname, "../public/sitemap.xml");
+/* static post index the client uses when the GitHub API is blocked
+   (see src/blog/github.ts listFiles ladder) */
+const TREE_PATH = resolve(import.meta.dirname, "../public/blog-tree.json");
 
 function getBaseUrl() {
   try {
@@ -42,7 +45,7 @@ async function fetchBlogSlugs() {
         const data = await res.json();
         const prefix = `${BLOG_ROOT}/`;
         return (data.tree || [])
-          .filter((item) => item.type === "blob" && item.path.endsWith(".md") && item.path.startsWith(prefix))
+          .filter((item) => item.type === "blob" && item.path.endsWith(".md") && item.path.startsWith(prefix) && !item.path.includes(".obsidian"))
           .map((item) => item.path.slice(prefix.length).replace(/\.md$/, ""));
       }
       if (res.status === 403 || res.status === 429 || res.status >= 500) {
@@ -70,7 +73,7 @@ async function main() {
 
   const slugs = await fetchBlogSlugs();
   if (slugs === null) {
-    console.warn("GitHub API unavailable; keeping existing sitemap.");
+    console.warn("GitHub API unavailable; keeping existing sitemap + blog-tree.");
     return;
   }
 
@@ -108,6 +111,9 @@ async function main() {
   lines.push("</urlset>");
   writeFileSync(SITEMAP_PATH, lines.join("\n") + "\n");
   console.log(`Generated sitemap with ${slugs.length} blog post URLs at ${SITEMAP_PATH}`);
+
+  writeFileSync(TREE_PATH, JSON.stringify(slugs) + "\n");
+  console.log(`Generated static blog index with ${slugs.length} slugs at ${TREE_PATH}`);
 }
 
 main();

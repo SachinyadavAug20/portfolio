@@ -268,6 +268,16 @@ const BlogList = () => {
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="skeleton h-12 rounded-lg bg-black-200" />
               ))}
+              <div className="skeleton-hint" role="status">
+                still fetching notes from github…{" "}
+                <button
+                  type="button"
+                  className="skeleton-retry"
+                  onClick={() => window.location.reload()}
+                >
+                  retry
+                </button>
+              </div>
             </div>
           ) : error ? (
             <div className="text-center py-20">

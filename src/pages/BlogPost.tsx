@@ -226,6 +226,17 @@ const Skeleton = () => (
         <div className="skeleton h-4 w-full bg-black-200 rounded" />
         <div className="skeleton h-4 w-3/4 bg-black-200 rounded" />
       </div>
+      {/* surfaces at 4s (CSS-delayed) so a slow GitHub looks intentional */}
+      <div className="skeleton-hint" role="status">
+        still fetching the note from github…{" "}
+        <button
+          type="button"
+          className="skeleton-retry"
+          onClick={() => window.location.reload()}
+        >
+          retry
+        </button>
+      </div>
     </div>
   </section>
 );
