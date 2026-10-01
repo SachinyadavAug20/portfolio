@@ -9,7 +9,6 @@ import FeatureCards from "../sections/FeatureCards";
 import Hero from "../sections/Hero";
 import ShowCaseSection from "../sections/ShowCaseSection";
 import TechStack from "../sections/TechStack";
-import Testimonials from "../sections/Testimonials";
 
 const HomePage = () => {
   return (
@@ -25,7 +24,6 @@ const HomePage = () => {
       <LogoSection />
       <FeatureCards />
       <ExperienceSection />
-      <Testimonials />
       <TechStack />
       <Contact />
     </>

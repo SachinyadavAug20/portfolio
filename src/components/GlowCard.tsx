@@ -1,5 +1,5 @@
 import type { JSX } from "react/jsx-dev-runtime";
-import type { expCardProps, testimonialProps } from "../../constants";
+import type { expCardProps } from "../../constants";
 import { useEffect, useRef } from "react";
 
 const GlowCard = ({
@@ -7,7 +7,7 @@ const GlowCard = ({
   children,
   index,
 }: {
-  card: expCardProps | testimonialProps;
+  card: expCardProps;
   children: JSX.Element;
   index: number;
 }) => {
