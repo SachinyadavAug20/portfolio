@@ -402,23 +402,25 @@ const BlogList = () => {
                         .filter((t) => t.tag.toLowerCase().includes(currentQuery.toLowerCase()))
                         .slice(0, 6)
                         .map(({ tag }) => (
-                          <button
+                          <motion.button
                             key={tag}
                             onClick={() => setTag(tag)}
+                            {...PRESS}
                             className="chip px-3.5 py-1.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground transition-colors"
                           >
                             #{tag}
-                          </button>
+                          </motion.button>
                         ))}
-                    <button
+                    <motion.button
                       onClick={() => {
                         setQInput("");
                         setSearch("");
                       }}
+                      {...PRESS}
                       className="chip px-3.5 py-1.5 text-xs rounded-full border border-black-50 bg-black-100 text-white-50 hover:bg-black-200 transition-colors"
                     >
                       {currentQuery ? "Clear search" : "Back to root"}
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
               )}

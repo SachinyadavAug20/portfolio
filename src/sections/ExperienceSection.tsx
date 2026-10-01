@@ -73,6 +73,21 @@ const ExperienceSection = () => {
               start: "top 85%",
             },
           });
+          const items = text.querySelectorAll("li");
+          if (items.length) {
+            gsap.from(items, {
+              x: -10,
+              opacity: 0,
+              duration: dur * 0.8,
+              ease: "power2.out",
+              stagger: 0.07,
+              clearProps: "transform,opacity",
+              scrollTrigger: {
+                trigger: text,
+                start: "top 85%",
+              },
+            });
+          }
         });
       },
     );

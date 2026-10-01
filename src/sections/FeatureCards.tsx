@@ -40,7 +40,7 @@ const FeatureCards = () => {
             key={title}
             className="feature-card card-border rounded-xl p-6 sm:p-8 flex flex-col gap-4"
           >
-            <div className="size-14 flex items-center justify-center rounded-full bg-blue-500/10 border border-blue-500/15">
+            <div className="fc-icon size-14 flex items-center justify-center rounded-full bg-blue-500/10 border border-blue-500/15">
               <img src={imgPath} alt={title} className="size-7" loading="lazy" decoding="async" />
             </div>
             <h3 className="text-foreground text-2xl font-semibold mt-2">{title}</h3>

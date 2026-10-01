@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
+import { motion } from "motion/react";
 import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown, Share2 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -23,6 +24,12 @@ import ReadAloud from "../components/ReadAloud";
 import { toast } from "sonner";
 import { tap } from "../lib/haptics";
 import "prismjs/themes/prism-tomorrow.css";
+
+const MotionLink = motion.create(Link);
+const PRESS = {
+  whileTap: { scale: 0.94 },
+  transition: { type: "spring", stiffness: 650, damping: 30 },
+} as const;
 
 interface TocItem {
   level: number;
@@ -452,13 +459,14 @@ const BlogPost = () => {
             {post.dir && (
               <div className="post-anim flex flex-wrap gap-2 mb-8">
                 {post.dir.split("/").filter(Boolean).map((tag) => (
-                  <Link
+                  <MotionLink
                     key={tag}
                     to={`/blog?tag=${encodeURIComponent(tag)}`}
+                    {...PRESS}
                     className="chip px-3.5 py-1.5 text-xs rounded-full bg-black-200/80 text-blue-50/70 hover:bg-blue-500/15 hover:text-blue-50 border border-black-50/50 hover:border-blue-50/30"
                   >
                     {tag}
-                  </Link>
+                  </MotionLink>
                 ))}
               </div>
             )}

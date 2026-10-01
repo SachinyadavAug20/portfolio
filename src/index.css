@@ -475,12 +475,37 @@ section {
   .theme-toggle-item {
     @apply flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium cursor-pointer;
     color: var(--flip-white-50);
-    transition: background-color 0.15s, color 0.15s;
+    transition: background-color 0.15s, color 0.15s, transform 0.15s var(--ease-standard);
+    animation: menu-item-in 0.22s var(--ease-standard) backwards;
+  }
+
+  .theme-toggle-item:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+
+  .theme-toggle-item:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+
+  .theme-toggle-item:nth-child(3) {
+    animation-delay: 0.15s;
+  }
+
+  @keyframes menu-item-in {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .theme-toggle-item:hover {
     color: var(--nav-link-hover);
     background-color: var(--drawer-link-hover-bg);
+    transform: translateX(2px);
   }
 
   .theme-toggle-check {
@@ -663,6 +688,27 @@ section {
     .group:hover .arrow-wrapper img {
       transform: translateY(0);
     }
+
+    /* one-shot gloss sweep across the button on hover */
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        105deg,
+        transparent 40%,
+        rgb(255 255 255 / 0.22) 50%,
+        transparent 60%
+      );
+      transform: translateX(-130%);
+      transition: transform 0.7s ease;
+      pointer-events: none;
+    }
+
+    .group:hover &::after,
+    .group:focus-visible &::after {
+      transform: translateX(130%);
+    }
   }
 
   .cta-wrapper:active .cta-button {
@@ -712,6 +758,12 @@ section {
     .group:hover .tech-card-animated-bg {
       transform: translateY(0);
     }
+    .tech-card {
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .tech-card:hover {
+      transform: translateY(-4px);
+    }
   }
 
   .tech-card-content {
@@ -756,6 +808,18 @@ section {
     textarea[aria-invalid="true"] {
       border-color: #f87171;
       box-shadow: 0 0 0 3px rgb(248 113 113 / 0.18);
+    }
+
+    /* label nudges toward the accent while its field is focused */
+    > div:has(input:focus, textarea:focus) label {
+      color: var(--tab-accent);
+      transform: translateX(3px);
+    }
+
+    label {
+      transition:
+        color var(--dur-fast) var(--ease-standard),
+        transform var(--dur-fast) var(--ease-standard);
     }
 
     .field-error {
@@ -1589,6 +1653,14 @@ h4 {
     border-color: rgb(98 224 255 / 0.35);
   }
 
+  .feature-card .fc-icon {
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .feature-card:hover .fc-icon {
+    transform: rotate(-8deg) scale(1.08);
+  }
+
   .counter-tile {
     transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -1603,6 +1675,15 @@ h4 {
 
   .app-showcase a:hover .text-content h2,
   .app-showcase a:focus-visible .text-content h2 {
+    color: var(--tab-accent);
+  }
+
+  .app-showcase .project-list-wrapper h2 {
+    transition: color var(--dur-base) var(--ease-standard);
+  }
+
+  .app-showcase .project-list-wrapper a:hover h2,
+  .app-showcase .project-list-wrapper a:focus-visible h2 {
     color: var(--tab-accent);
   }
 

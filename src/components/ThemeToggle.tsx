@@ -86,6 +86,7 @@ const ThemeToggle = () => {
         type="button"
         className="theme-toggle-btn"
         whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.06 }}
         transition={{ type: "spring", stiffness: 650, damping: 30 }}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={(e) => {
