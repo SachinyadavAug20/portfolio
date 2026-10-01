@@ -101,8 +101,11 @@ async function main() {
   ];
 
   for (const slug of slugs) {
+    /* percent-encode each segment — slugs contain spaces/parens and a
+       sitemap <loc> must be a valid URI */
+    const encoded = slug.split("/").map(encodeURIComponent).join("/");
     lines.push("  <url>");
-    lines.push(`    <loc>${escapeXml(baseUrl)}/blog/post/${escapeXml(slug)}</loc>`);
+    lines.push(`    <loc>${escapeXml(baseUrl)}/blog/post/${escapeXml(encoded)}</loc>`);
     lines.push("    <priority>0.6</priority>");
     lines.push(`    <lastmod>${getLastmod(slug)}</lastmod>`);
     lines.push("  </url>");

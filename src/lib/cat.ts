@@ -110,6 +110,7 @@ export const spawnHearts = (x: number, y: number, count = 5) => {
   for (let i = 0; i < count; i++) {
     const heart = document.createElement("span");
     heart.className = "cat-heart";
+    heart.setAttribute("aria-hidden", "true");
     heart.textContent = "♥";
     heart.style.left = `${x + rand(36) - 18}px`;
     heart.style.top = `${y - 14 - rand(8)}px`;
@@ -127,6 +128,7 @@ export const spawnSparkles = (x: number, y: number) => {
     const dist = 26 + Math.random() * 24;
     const s = document.createElement("span");
     s.className = "cat-sparkle";
+    s.setAttribute("aria-hidden", "true");
     s.textContent = "✦";
     s.style.left = `${x}px`;
     s.style.top = `${y}px`;
@@ -149,6 +151,7 @@ const FISH_SVG = `<svg width="24" height="14" viewBox="0 0 12 7" shape-rendering
 export const spawnFish = (x: number, y: number, edge: 1 | -1) => {
   const fish = document.createElement("div");
   fish.className = "cat-treat";
+  fish.setAttribute("aria-hidden", "true");
   fish.style.left = `${x + edge * 64}px`;
   fish.style.top = `${y - 7}px`;
   fish.style.setProperty("--treat-dx", `${-edge * 64}px`);
@@ -162,6 +165,7 @@ export const spawnFish = (x: number, y: number, edge: 1 | -1) => {
 export const spawnYarn = (x: number, y: number): HTMLElement => {
   const ball = document.createElement("div");
   ball.className = "cat-yarn";
+  ball.setAttribute("aria-hidden", "true");
   ball.style.left = `${x + (Math.random() < 0.5 ? -48 : 48)}px`;
   ball.style.top = `${y - 30 - Math.random() * 24}px`;
   ball.style.setProperty("--yarn-dx", Math.random() < 0.5 ? "-1" : "1");
@@ -174,6 +178,7 @@ export const spawnYarn = (x: number, y: number): HTMLElement => {
 export const spawnDrop = (x: number, y: number) => {
   const drop = document.createElement("div");
   drop.className = "cat-drop";
+  drop.setAttribute("aria-hidden", "true");
   drop.style.left = `${x}px`;
   drop.style.top = `${y}px`;
   document.body.appendChild(drop);
