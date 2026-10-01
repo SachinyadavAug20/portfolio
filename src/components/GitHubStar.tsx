@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Star } from "lucide-react";
 import { SiGithub } from "react-icons/si";
 import { GITHUB_REPO, GITHUB_REPO_URL } from "../../constants";
 import { tap } from "../lib/haptics";
+import { gsap } from "../lib/gsapSetup";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 const CACHE_KEY = "gh-star-count";
 const TTL_MS = 60 * 60 * 1000;
@@ -37,6 +39,19 @@ const writeCache = (v: number) => {
 // tab bar already covers navigation on small screens.
 const GitHubStar = () => {
   const [stars, setStars] = useState<number | null>(null);
+  const anchorRef = useRef<HTMLAnchorElement>(null);
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    if (stars === null || reduced || !anchorRef.current) return;
+    const count = anchorRef.current.querySelector(".gh-star-count");
+    if (!count) return;
+    gsap.fromTo(
+      count,
+      { scale: 1.35 },
+      { scale: 1, duration: 0.45, ease: "back.out(3)", clearProps: "transform" },
+    );
+  }, [stars, reduced]);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,6 +82,7 @@ const GitHubStar = () => {
 
   return (
     <a
+      ref={anchorRef}
       className="gh-star"
       href={GITHUB_REPO_URL}
       target="_blank"

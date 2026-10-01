@@ -1,22 +1,44 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { motion } from "motion/react";
+import { useGSAP } from "@gsap/react";
 import { navLinks } from "../../constants";
 import ThemeToggle from "./ThemeToggle";
 import GitHubStar from "./GitHubStar";
 import { useMagnetic } from "../hooks/useMagnetic";
+import { gsap } from "../lib/gsapSetup";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 const MotionLink = motion.create(Link);
 const PRESS = {
   whileTap: { scale: 0.94 },
   transition: { type: "spring", stiffness: 650, damping: 30 },
 } as const;
+const HOVER_LIFT = { whileHover: { y: -1.5 } };
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { pathname, hash } = useLocation();
   const isHome = pathname === "/";
   const contactRef = useMagnetic<HTMLAnchorElement>();
+  const innerRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  useGSAP(
+    () => {
+      if (reduced) return;
+      gsap.from(".navbar .inner > *", {
+        y: -10,
+        opacity: 0,
+        duration: 0.5,
+        delay: 0.1,
+        stagger: 0.06,
+        ease: "power2.out",
+        clearProps: "transform,opacity",
+      });
+    },
+    { dependencies: [reduced], revertOnUpdate: true },
+  );
 
   const isActive = (link: string) => {
     if (link.startsWith("http")) return false;
@@ -44,7 +66,7 @@ const Navbar = () => {
     <header
       className={`navbar ${scrolled || !isHome ? "scrolled" : "not-scrolled"}`}
     >
-      <div className="inner">
+      <div className="inner" ref={innerRef}>
         <Link
           className={`logo ${scrolled ? "text-shadow-zinc-500 font-bold" : ""}`}
           to="/"
@@ -60,6 +82,7 @@ const Navbar = () => {
                     href={`/${link}`}
                     aria-current={isActive(link) ? "page" : undefined}
                     {...PRESS}
+                    {...HOVER_LIFT}
                   >
                     <span>{name}</span>
                     <span className="underline" />
@@ -70,6 +93,7 @@ const Navbar = () => {
                     target="_blank"
                     rel="noreferrer"
                     {...PRESS}
+                    {...HOVER_LIFT}
                   >
                     <span>{name}</span>
                     <span className="underline" />
@@ -79,6 +103,7 @@ const Navbar = () => {
                     to={link}
                     aria-current={isActive(link) ? "page" : undefined}
                     {...PRESS}
+                    {...HOVER_LIFT}
                   >
                     <span>{name}</span>
                     <span className="underline" />

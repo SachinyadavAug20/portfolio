@@ -1,6 +1,9 @@
 import { useMemo, useRef } from "react";
+import { useGSAP } from "@gsap/react";
 import { logoIconsList } from "../../constants";
 import { useMarqueeMotion } from "../hooks/useMarqueeMotion";
+import { gsap } from "../lib/gsapSetup";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 import { TechPill } from "./TechPill";
 
 const GHOST_NAMES = [
@@ -24,11 +27,36 @@ const GHOST_NAMES = [
 const LogoSection = () => {
   const rowA = useRef<HTMLDivElement>(null);
   const rowB = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
   const rows = useMemo(() => [rowA, rowB], []);
   useMarqueeMotion(rows, 32);
 
+  useGSAP(
+    () => {
+      if (reduced) return;
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: rootRef.current, start: "top 92%", once: true },
+      });
+      tl.from(".marquee-ghost", { opacity: 0, duration: 0.4, ease: "power2.out" }).from(
+        ".tech-pill",
+        {
+          y: 14,
+          scale: 0.86,
+          opacity: 0,
+          duration: 0.4,
+          ease: "back.out(1.4)",
+          stagger: { each: 0.02, amount: 0.5 },
+          clearProps: "transform,opacity",
+        },
+        "-=.25",
+      );
+    },
+    { scope: rootRef, dependencies: [reduced], revertOnUpdate: true },
+  );
+
   return (
-    <div className="marquee-section">
+    <div className="marquee-section" ref={rootRef}>
       <div className="marquee-ghost" aria-hidden="true">
         <div className="marquee-ghost-track">
           {[0, 1].map((copy) => (

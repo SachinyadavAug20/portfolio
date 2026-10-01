@@ -16,15 +16,29 @@ const Footer = () => {
       if (!scope) return;
       const cols = scope.querySelectorAll(".footer-container > *");
       if (!cols.length) return;
-      gsap.from(cols, {
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: scope, start: "top 96%", once: true },
+      });
+      tl.from(cols, {
         y: 18,
         opacity: 0,
         duration: 0.4,
         ease: "power2.out",
         stagger: 0.08,
         clearProps: "transform,opacity",
-        scrollTrigger: { trigger: scope, start: "top 96%", once: true },
-      });
+      }).from(
+        ".socials .icon",
+        {
+          scale: 0.5,
+          opacity: 0,
+          rotation: -14,
+          duration: 0.4,
+          ease: "back.out(2.2)",
+          stagger: 0.05,
+          clearProps: "transform,opacity",
+        },
+        "-=.45",
+      );
     },
     { scope: ref, dependencies: [reduced], revertOnUpdate: true },
   );
@@ -33,8 +47,17 @@ const Footer = () => {
     <footer className="footer" ref={ref}>
       <div className="footer-container">
         <div className="flex flex-col justify-center items-center md:items-start">
-          <Link to="/blog" className="py-2 -my-1 px-1 -mx-1 active:opacity-70 transition-opacity">
+          <Link
+            to="/blog"
+            className="group inline-flex items-center gap-1.5 py-2 -my-1 px-1 -mx-1 active:opacity-70 transition-opacity"
+          >
             Visit my blog
+            <span
+              aria-hidden="true"
+              className="inline-block transition-transform duration-300 group-hover:translate-x-1.5"
+            >
+              &rarr;
+            </span>
           </Link>
         </div>
         <div className="socials">
