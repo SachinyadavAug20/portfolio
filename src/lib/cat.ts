@@ -157,3 +157,25 @@ export const spawnFish = (x: number, y: number, edge: 1 | -1) => {
   document.body.appendChild(fish);
   window.setTimeout(() => fish.remove(), 650);
 };
+
+/** yarn ball for the chase act — arcs out and loops back (3s life) */
+export const spawnYarn = (x: number, y: number): HTMLElement => {
+  const ball = document.createElement("div");
+  ball.className = "cat-yarn";
+  ball.style.left = `${x + (Math.random() < 0.5 ? -48 : 48)}px`;
+  ball.style.top = `${y - 30 - Math.random() * 24}px`;
+  ball.style.setProperty("--yarn-dx", Math.random() < 0.5 ? "-1" : "1");
+  document.body.appendChild(ball);
+  window.setTimeout(() => ball.remove(), 3000);
+  return ball;
+};
+
+/** knocked object for the gravity-test act — tips, falls, fades */
+export const spawnDrop = (x: number, y: number) => {
+  const drop = document.createElement("div");
+  drop.className = "cat-drop";
+  drop.style.left = `${x}px`;
+  drop.style.top = `${y}px`;
+  document.body.appendChild(drop);
+  window.setTimeout(() => drop.remove(), 900);
+};

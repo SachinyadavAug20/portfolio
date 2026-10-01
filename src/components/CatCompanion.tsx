@@ -23,10 +23,14 @@ import {
   routeLine,
   safeGet,
   safeSet,
+  spawnDrop,
   spawnFish,
   spawnHearts,
   spawnSparkles,
+  spawnYarn,
 } from "../lib/cat";
+import type { CatContext } from "../lib/catTypes";
+import type { ActId } from "../lib/catBrain";
 import type { BlogSuggestion } from "../lib/blogSuggestions";
 import { Link, useLocation } from "react-router-dom";
 
@@ -47,7 +51,17 @@ import { Link, useLocation } from "react-router-dom";
  *   (dynamic import keeps the reading list out of the entry bundle).
  * - Persona: Bhupendra Jogi — whatever you ask, the answer is his name.
  * - Type "pspsps" anywhere to call him back to your cursor.
+ * - The brain (src/lib/catBrain) lazy-loads: 100k+ combinatorial lines,
+ *   session context (route/hour/scroll/pets/typing), and weighted random
+ *   acts (zoomies, yarn chase, knock, prophecy…) — cat.ts lines are the
+ *   fallback until the chunk lands.
  */
+
+/* background chatter respects this gap between any two idle phrases;
+   user-facing reactions (greet, pet, acts) pass force=true and skip it */
+const PHRASE_GAP_MS = 5000;
+
+type Brain = typeof import("../lib/catBrain");
 
 const seedPointer = (x: number, y: number) => {
   document.body.dispatchEvent(
@@ -58,8 +72,9 @@ const seedPointer = (x: number, y: number) => {
 const CatCompanion = () => {
   const reduced = useReducedMotion();
   const location = useLocation();
+  /* shooing sticks across reloads so opting out is actually easy */
   const [enabled, setEnabled] = useState(
-    () => safeGet(sessionStorage, SHOO_KEY) !== "1",
+    () => safeGet(localStorage, SHOO_KEY) !== "1",
   );
   const [phrase, setPhrase] = useState<{ text: string; ms: number } | null>(
     null,
@@ -68,10 +83,12 @@ const CatCompanion = () => {
   const [suggest, setSuggest] = useState<BlogSuggestion | null>(null);
 
   const nekoRef = useRef<Neko | null>(null);
+  const brainRef = useRef<Brain | null>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const suggestAnchorRef = useRef<HTMLDivElement>(null);
   const zzzRef = useRef<HTMLDivElement>(null);
   const phraseTimer = useRef(0);
+  const lastPhraseAt = useRef(0);
   const lastPetAt = useRef(0);
   const treatActive = useRef(false);
   const petNap = useRef(false);
@@ -89,12 +106,78 @@ const CatCompanion = () => {
   const prevPath = useRef<string | null>(null);
   const lastRoutePhrase = useRef(0);
   const lastThemePhrase = useRef(0);
+  const lastTypingLine = useRef(0);
+  /* session context the brain reads (see catTypes.CatContext) */
+  const scrollPctRef = useRef(0);
+  const visitsRef = useRef(1);
+  const keyTimesRef = useRef<number[]>([]);
+  const darkRef = useRef(
+    document.documentElement.classList.contains("dark"),
+  );
+  const midSpokenRef = useRef(false);
+  const endSpokenRef = useRef(false);
+  const pendingProphecy = useRef<{
+    verify: "scroll" | "click";
+    hit: string;
+    miss: string;
+  } | null>(null);
+  const prophecyTimer = useRef(0);
 
-  const showPhrase = useCallback((text: string, ms = 3200) => {
-    if (suggestRef.current) return; /* the suggestion bubble has the floor */
-    window.clearTimeout(phraseTimer.current);
-    setPhrase({ text, ms });
-    phraseTimer.current = window.setTimeout(() => setPhrase(null), ms);
+  const showPhrase = useCallback(
+    (text: string, ms = 3200, force = false) => {
+      if (suggestRef.current) return; /* the suggestion bubble has the floor */
+      const now = Date.now();
+      if (!force && now - lastPhraseAt.current < PHRASE_GAP_MS) return;
+      window.clearTimeout(phraseTimer.current);
+      lastPhraseAt.current = now;
+      setPhrase({ text, ms });
+      phraseTimer.current = window.setTimeout(() => setPhrase(null), ms);
+    },
+    [],
+  );
+
+  /* live context for the brain: route, hour, depth, pets, typing tempo */
+  const getCtx = useCallback((): CatContext => {
+    const now = Date.now();
+    const kt = keyTimesRef.current;
+    while (kt.length && now - kt[0] > 2000) kt.shift();
+    return {
+      path: window.location.pathname,
+      hour: new Date().getHours(),
+      scrollPct: scrollPctRef.current,
+      visits: visitsRef.current,
+      pets: Number(safeGet(localStorage, PET_KEY)) || 0,
+      dark: darkRef.current,
+      keyRate: kt.length / 2,
+    };
+  }, []);
+
+  /* prophecies resolve here: matching gesture inside the window → hit */
+  const checkProphecy = useCallback(
+    (kind: "scroll" | "click") => {
+      const p = pendingProphecy.current;
+      if (!p || p.verify !== kind) return;
+      pendingProphecy.current = null;
+      window.clearTimeout(prophecyTimer.current);
+      showPhrase(p.hit, 3000, true);
+    },
+    [showPhrase],
+  );
+
+  /* load the brain in the background — stays out of the entry bundle;
+     if the chunk never lands, cat.ts phrase banks keep working */
+  useEffect(() => {
+    let cancelled = false;
+    void import("../lib/catBrain")
+      .then((m) => {
+        if (!cancelled) brainRef.current = m;
+      })
+      .catch(() => {
+        /* offline / blocked chunk — fallback lines are already wired */
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const markActivity = useCallback(() => {
@@ -106,7 +189,14 @@ const CatCompanion = () => {
       nekoRef.current.wake();
       setSleeping(false);
       if (now - lastSleptAt.current > 14_000) {
-        showPhrase(WAKE_LINES[wakeLine.current++ % WAKE_LINES.length], 2400);
+        const brain = brainRef.current;
+        showPhrase(
+          brain
+            ? brain.wakeLine()
+            : WAKE_LINES[wakeLine.current++ % WAKE_LINES.length],
+          2400,
+          true,
+        );
       }
     }
   }, [showPhrase]);
@@ -136,6 +226,10 @@ const CatCompanion = () => {
     };
     const onAny = (e: Event) => {
       if (!e.isTrusted) return;
+      /* gestures resolve a pending prophecy (wheel counts as scrolling) */
+      if (e.type !== "keydown") {
+        checkProphecy(e.type === "wheel" ? "scroll" : "click");
+      }
       /* clicks/keys outside the suggestion dismiss it; reaching for the
          bubble itself (mouse moves, taps on the link) must not kill it */
       if (suggestRef.current) {
@@ -152,6 +246,44 @@ const CatCompanion = () => {
     document.addEventListener("pointerdown", onAny, { passive: true });
     document.addEventListener("keydown", onAny);
     window.addEventListener("wheel", onAny, { passive: true });
+
+    /* typing tempo feeds ctx.keyRate; a fast burst outside inputs earns
+       an occasional comment (gap + 45s cooldown keep it easy-going) */
+    const onKeyRate = (e: Event) => {
+      const t = e as KeyboardEvent;
+      if (!t.key || t.key.length !== 1) return;
+      const now = Date.now();
+      const kt = keyTimesRef.current;
+      kt.push(now);
+      while (kt.length && now - kt[0] > 2000) kt.shift();
+      const el = document.activeElement;
+      if (
+        el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          (el as HTMLElement).isContentEditable)
+      )
+        return;
+      if (kt.length < 6) return;
+      if (now - lastPhraseAt.current < PHRASE_GAP_MS) return;
+      if (now - lastTypingLine.current < 45_000) return;
+      const brain = brainRef.current;
+      if (!brain || !nekoRef.current || suggestRef.current) return;
+      lastTypingLine.current = now;
+      showPhrase(brain.typingLine(true), 2600);
+    };
+    document.addEventListener("keydown", onKeyRate);
+
+    /* copying text earns a one-liner (only real selections count) */
+    const onCopy = () => {
+      const sel = window.getSelection()?.toString();
+      if (!sel || !sel.trim()) return;
+      if (!nekoRef.current || suggestRef.current) return;
+      const brain = brainRef.current;
+      if (!brain) return;
+      showPhrase(brain.copyLine(), 3000);
+    };
+    document.addEventListener("copy", onCopy);
 
     /* type "pspsps" to call the cat back to your cursor */
     let psBuf = "";
@@ -182,7 +314,7 @@ const CatCompanion = () => {
       }
       seedPointer(lastPointer.current.x, lastPointer.current.y);
       spawnSparkles(neko.position.x, neko.position.y);
-      showPhrase(`pspsps~ ${CAT_NAME} reporting.`, 3000);
+      showPhrase(`pspsps~ ${CAT_NAME} reporting.`, 3000, true);
     };
     document.addEventListener("keydown", onKeyType);
 
@@ -192,11 +324,13 @@ const CatCompanion = () => {
       document.removeEventListener("pointerdown", onAny);
       document.removeEventListener("keydown", onAny);
       document.removeEventListener("keydown", onKeyType);
+      document.removeEventListener("keydown", onKeyRate);
+      document.removeEventListener("copy", onCopy);
       window.removeEventListener("wheel", onAny);
     };
-  }, [markActivity, showPhrase]);
+  }, [markActivity, showPhrase, checkProphecy]);
 
-  /* Alt+C shooes / summons the cat for this session (with a bye flourish) */
+  /* Alt+C shooes / summons the cat for good (the opt-out persists) */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = document.activeElement;
@@ -230,7 +364,7 @@ const CatCompanion = () => {
   }, [enabled]);
 
   useEffect(() => {
-    safeSet(sessionStorage, SHOO_KEY, enabled ? "0" : "1");
+    safeSet(localStorage, SHOO_KEY, enabled ? "0" : "1");
   }, [enabled]);
 
   /* cat reacts to theme flips */
@@ -244,12 +378,19 @@ const CatCompanion = () => {
         : "light";
       if (theme === lastTheme) return;
       lastTheme = theme;
+      darkRef.current = theme === "dark";
       if (!nekoRef.current) return;
       const now = Date.now();
       if (now - lastThemePhrase.current < 8000) return;
       lastThemePhrase.current = now;
-      const lines = THEME_LINES[theme as "dark" | "light"];
-      showPhrase(lines[rand(lines.length)], 2600);
+      const brain = brainRef.current;
+      showPhrase(
+        brain
+          ? brain.themeLine(darkRef.current)
+          : THEME_LINES[theme as "dark" | "light"][rand(2)],
+        2600,
+        true,
+      );
     });
     obs.observe(document.documentElement, {
       attributes: true,
@@ -266,6 +407,13 @@ const CatCompanion = () => {
     }
     if (prevPath.current === location.pathname) return;
     prevPath.current = location.pathname;
+    visitsRef.current += 1;
+    scrollPctRef.current = 0;
+    midSpokenRef.current = false;
+    endSpokenRef.current = false;
+    /* a prophecy belongs to the page it was made on */
+    pendingProphecy.current = null;
+    window.clearTimeout(prophecyTimer.current);
     if (suggestRef.current) {
       suggestRef.current = null;
       setSuggest(null);
@@ -274,8 +422,15 @@ const CatCompanion = () => {
     const now = Date.now();
     if (now - lastRoutePhrase.current < 9000) return;
     lastRoutePhrase.current = now;
-    showPhrase(routeLine(location.pathname), 2600);
-  }, [location.pathname, showPhrase]);
+    const brain = brainRef.current;
+    showPhrase(
+      brain
+        ? brain.routeLine(location.pathname, getCtx())
+        : routeLine(location.pathname),
+      2600,
+      true,
+    );
+  }, [location.pathname, showPhrase, getCtx]);
 
   /* spawn / lifetime */
   useEffect(() => {
@@ -291,6 +446,11 @@ const CatCompanion = () => {
     let prevScrollY = window.scrollY;
     let lastScrollEvent = 0;
     const timers: number[] = [];
+    const intervals: number[] = [];
+    /* weighted random acts: first one lands 15–30s in, then every 45–80s,
+       never while a suggestion owns the floor or the tab is hidden */
+    const recentActs = new Set<ActId>();
+    let actTimer = 0;
 
     const hop = () => {
       const el = document.querySelector<HTMLElement>('[data-neko="0"]');
@@ -338,6 +498,167 @@ const CatCompanion = () => {
       } finally {
         suggestFiring = false;
       }
+    };
+
+    /* random acts: a line from the brain plus a cheap neko/DOM behavior */
+    const scheduleAct = (first = false) => {
+      window.clearTimeout(actTimer);
+      actTimer = window.setTimeout(
+        runAct,
+        first
+          ? 15_000 + Math.random() * 15_000
+          : 45_000 + Math.random() * 35_000,
+      );
+    };
+
+    const runAct = () => {
+      if (cancelled) return;
+      const brain = brainRef.current;
+      const neko = nekoRef.current;
+      if (
+        !greeted ||
+        !brain ||
+        !neko ||
+        suggestRef.current ||
+        document.hidden ||
+        petNap.current
+      ) {
+        scheduleAct();
+        return;
+      }
+      /* a napping cat gets woken by its own idea; petted cat is left alone */
+      if (sleepingRef.current) {
+        sleepingRef.current = false;
+        neko.wake();
+        setSleeping(false);
+      }
+
+      const id = brain.pickAct(recentActs);
+      recentActs.add(id);
+      if (recentActs.size > 5)
+        recentActs.delete(recentActs.values().next().value as ActId);
+
+      const { x, y } = neko.position;
+      const el = document.querySelector<HTMLElement>('[data-neko="0"]');
+
+      if (id === "prophecy") {
+        const p = brain.nextProphecy();
+        pendingProphecy.current = {
+          verify: p.verify,
+          hit: p.hit,
+          miss: p.miss,
+        };
+        window.clearTimeout(prophecyTimer.current);
+        prophecyTimer.current = window.setTimeout(() => {
+          pendingProphecy.current = null;
+          if (cancelled || suggestRef.current) return;
+          showPhrase(p.miss, 3000, true);
+        }, 10_000);
+        showPhrase(p.say, 4200, true);
+      } else {
+        showPhrase(brain.actLine(id, getCtx()), 3200, true);
+      }
+
+      switch (id) {
+        case "zoomies": {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          neko.setSpeed(34);
+          seedPointer(
+            Math.random() < 0.5 ? 48 : w - 48,
+            h * (0.3 + Math.random() * 0.45),
+          );
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled) return;
+              neko.setSpeed(12);
+              seedPointer(lastPointer.current.x, lastPointer.current.y);
+            }, 1600),
+          );
+          break;
+        }
+        case "yarn": {
+          const ball = spawnYarn(x, y);
+          const chase = window.setInterval(() => {
+            if (cancelled || !ball.isConnected) {
+              window.clearInterval(chase);
+              return;
+            }
+            const r = ball.getBoundingClientRect();
+            seedPointer(r.left + r.width / 2, r.top + r.height / 2);
+          }, 200);
+          intervals.push(chase);
+          timers.push(
+            window.setTimeout(() => {
+              window.clearInterval(chase);
+              ball.remove();
+              if (!cancelled)
+                seedPointer(lastPointer.current.x, lastPointer.current.y);
+            }, 3000),
+          );
+          break;
+        }
+        case "knock": {
+          spawnDrop(
+            x + (x < window.innerWidth / 2 ? -16 : 16),
+            y + 6,
+          );
+          hop();
+          break;
+        }
+        case "loaf": {
+          sleepingRef.current = true;
+          lastSleptAt.current = Date.now();
+          neko.sleep();
+          setSleeping(true);
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled || !sleepingRef.current) return;
+              sleepingRef.current = false;
+              nekoRef.current?.wake();
+              setSleeping(false);
+            }, 2600),
+          );
+          break;
+        }
+        case "dance": {
+          hop();
+          timers.push(window.setTimeout(hop, 480));
+          break;
+        }
+        case "hide": {
+          if (el) {
+            el.classList.add("cat-peek");
+            timers.push(
+              window.setTimeout(() => el.classList.remove("cat-peek"), 1700),
+            );
+          }
+          break;
+        }
+        case "stare": {
+          /* park the target right next to the cat so it stops and watches */
+          seedPointer(
+            Math.max(
+              24,
+              Math.min(
+                window.innerWidth - 24,
+                x + (x < window.innerWidth / 2 ? -64 : 64),
+              ),
+            ),
+            y,
+          );
+          break;
+        }
+        case "groom":
+        case "chirp":
+        case "stretch": {
+          hop();
+          break;
+        }
+        default:
+          break; /* stats / deep / audit — the line is the act */
+      }
+      scheduleAct();
     };
 
     const spawn = async () => {
@@ -413,9 +734,13 @@ const CatCompanion = () => {
         lastActivity.current = Date.now();
         safeSet(localStorage, GREETED_KEY, "1");
         spawnSparkles(x, y);
+        const brain = brainRef.current;
         showPhrase(
-          returning ? RETURNING(CAT_NAME)[rand(3)] : GREETING(CAT_NAME),
-          returning ? 2600 : 5400,
+          returning
+            ? (brain ? brain.returnLine() : RETURNING(CAT_NAME)[rand(3)])
+            : GREETING(CAT_NAME),
+          returning ? 3200 : 5400,
+          true,
         );
         /* then wander toward the visitor's pointer (or screen centre) */
         timers.push(
@@ -426,19 +751,28 @@ const CatCompanion = () => {
         );
       }, 250);
 
-      /* idle chatter every 40–75s */
+      /* idle chatter every 40–75s — brain lines when loaded, else the bank */
       const scheduleChatter = () => {
         chatterTimer = window.setTimeout(
           () => {
             if (cancelled) return;
-            if (!suggestRef.current)
-              showPhrase(CHATTER[rand(CHATTER.length)], 3200);
+            if (!suggestRef.current) {
+              const brain = brainRef.current;
+              showPhrase(
+                brain
+                  ? brain.chatterLine(getCtx())
+                  : CHATTER[rand(CHATTER.length)],
+                3200,
+              );
+            }
             scheduleChatter();
           },
           40_000 + Math.random() * 35_000,
         );
       };
       scheduleChatter();
+
+      scheduleAct(true);
     };
 
     /* petting / feeding — cat is pointer-events:none, so listen globally */
@@ -466,7 +800,14 @@ const CatCompanion = () => {
         treatActive.current = true;
         lastPetAt.current = 0;
         spawnFish(x, y, x > window.innerWidth / 2 ? -1 : 1);
-        showPhrase(TREAT_LINES[rand(TREAT_LINES.length)], 2600);
+        const treatBrain = brainRef.current;
+        showPhrase(
+          treatBrain
+            ? treatBrain.treatLine()
+            : TREAT_LINES[rand(TREAT_LINES.length)],
+          2600,
+          true,
+        );
         timers.push(
           window.setTimeout(
             () => {
@@ -488,11 +829,15 @@ const CatCompanion = () => {
       const stored = Number(safeGet(localStorage, PET_KEY));
       const pets = (Number.isFinite(stored) ? stored : 0) + 1;
       safeSet(localStorage, PET_KEY, String(pets));
+      const petBrain = brainRef.current;
       showPhrase(
-        pets % 10 === 0
-          ? `${pets} pets. ${CAT_NAME} approves.`
-          : PET_LINES[rand(PET_LINES.length)],
+        petBrain
+          ? petBrain.petLine(pets)
+          : pets % 10 === 0
+            ? `${pets} pets. ${CAT_NAME} approves.`
+            : PET_LINES[rand(PET_LINES.length)],
         2800,
+        true,
       );
       spawnHearts(x, y);
       hop();
@@ -507,7 +852,8 @@ const CatCompanion = () => {
       );
     };
 
-    /* scroll fast and the cat breaks into a run */
+    /* scroll fast and the cat breaks into a run; depth feeds the brain
+       and once-per-route milestones get a line */
     const onScroll = () => {
       const now = Date.now();
       const y = window.scrollY;
@@ -516,6 +862,25 @@ const CatCompanion = () => {
       prevScrollY = y;
       lastScrollEvent = now;
       markActivity();
+      checkProphecy("scroll");
+      const pct = Math.round(
+        ((y + window.innerHeight) /
+          Math.max(document.documentElement.scrollHeight, 1)) *
+          100,
+      );
+      if (pct > scrollPctRef.current)
+        scrollPctRef.current = Math.min(pct, 100);
+      const brain = brainRef.current;
+      if (brain && !suggestRef.current) {
+        if (!endSpokenRef.current && scrollPctRef.current >= 96) {
+          endSpokenRef.current = true;
+          midSpokenRef.current = true; /* reaching the end moots "halfway" */
+          showPhrase(brain.scrollLine("end"), 2800, true);
+        } else if (!midSpokenRef.current && scrollPctRef.current >= 50) {
+          midSpokenRef.current = true;
+          showPhrase(brain.scrollLine("mid"), 2800, true);
+        }
+      }
       const fast = dy >= 150 || (dt > 0 && (dy / dt) * 1000 > 700);
       if (!fast || !nekoRef.current) return;
       if (!running.current) {
@@ -532,7 +897,7 @@ const CatCompanion = () => {
       );
       if (now - lastWheee > 25_000) {
         lastWheee = now;
-        showPhrase(WHEEE_LINES[rand(WHEEE_LINES.length)], 2200);
+        showPhrase(WHEEE_LINES[rand(WHEEE_LINES.length)], 2200, true);
       }
     };
 
@@ -602,8 +967,12 @@ const CatCompanion = () => {
       window.clearTimeout(spawnDelay);
       window.clearTimeout(chatterTimer);
       window.clearTimeout(runCalm);
+      window.clearTimeout(actTimer);
+      window.clearTimeout(prophecyTimer.current);
+      pendingProphecy.current = null;
       window.clearInterval(greetInterval);
       window.clearInterval(sleepTick);
+      intervals.forEach((id) => window.clearInterval(id));
       timers.forEach((id) => window.clearTimeout(id));
       window.clearTimeout(phraseTimer.current);
       setPhrase(null);
@@ -619,7 +988,7 @@ const CatCompanion = () => {
       nekoRef.current?.destroy();
       nekoRef.current = null;
     };
-  }, [reduced, enabled, showPhrase, markActivity]);
+  }, [reduced, enabled, showPhrase, markActivity, getCtx, checkProphecy]);
 
   /* keep the bubble + zZz parked next to the cat */
   useEffect(() => {

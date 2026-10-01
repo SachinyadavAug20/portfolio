@@ -1998,6 +1998,74 @@ h4 {
   }
 }
 
+/* yarn ball: arcs out, loops back — the cat chases the live rect */
+.cat-yarn {
+  position: fixed;
+  z-index: 61;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  pointer-events: none;
+  will-change: transform;
+  background:
+    radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.55) 0 16%, transparent 18%),
+    repeating-linear-gradient(48deg, #ff7aa8 0 4px, #ff9ec1 4px 8px);
+  box-shadow: inset -2px -2px 0 rgb(0 0 0 / 0.2);
+  animation: cat-yarn-toss 3s cubic-bezier(0.33, 0, 0.25, 1) forwards;
+}
+@keyframes cat-yarn-toss {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(calc(var(--yarn-dx, 1) * -118px), -72px) rotate(190deg);
+  }
+  55% {
+    transform: translate(calc(var(--yarn-dx, 1) * 108px), -34px) rotate(430deg);
+  }
+  80% {
+    transform: translate(calc(var(--yarn-dx, 1) * -42px), -12px) rotate(620deg);
+  }
+  100% {
+    transform: translate(0, 8px) rotate(750deg);
+  }
+}
+
+/* knocked object: tips off the edge, tumbles, fades */
+.cat-drop {
+  position: fixed;
+  z-index: 61;
+  width: 10px;
+  height: 12px;
+  pointer-events: none;
+  background: #f2765b;
+  border: 1px solid rgb(0 0 0 / 0.35);
+  border-radius: 2px;
+  animation: cat-drop-fall 0.85s cubic-bezier(0.45, 0, 0.8, 0.55) forwards;
+}
+@keyframes cat-drop-fall {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  35% {
+    transform: translate(7px, -9px) rotate(26deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(15px, 66px) rotate(128deg);
+    opacity: 0;
+  }
+}
+
+/* hide act: sinks into the whitespace, pops back when the class lifts */
+[data-neko="0"] {
+  transition: opacity 0.45s ease;
+}
+[data-neko="0"].cat-peek {
+  opacity: 0.3;
+}
+
 /* clickable blog suggestion: the anchor stays inert, the pill opts back in */
 .cat-suggest {
   pointer-events: auto;

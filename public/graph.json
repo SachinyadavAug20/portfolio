@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-01T14:53:55.902Z",
+ "generatedAt": "2026-10-01T16:01:46.595Z",
  "counts": {
   "notes": 330,
   "folders": 60,
@@ -86,7 +86,7 @@
    "dir": "Programing/Concepts/LLD"
   },
   {
-   "id": "Programing/Concepts/LLD/12.Decorator design patter",
+   "id": "Programing/Concepts/LLD/12.Decorator design pattern",
    "title": "Example",
    "kind": "note",
    "dir": "Programing/Concepts/LLD"
@@ -3435,7 +3435,7 @@
    "kind": "member"
   },
   {
-   "source": "Programing/Concepts/LLD/12.Decorator design patter",
+   "source": "Programing/Concepts/LLD/12.Decorator design pattern",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
   },
