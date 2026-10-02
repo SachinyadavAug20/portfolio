@@ -7,7 +7,7 @@ import {
   CHATTER,
   GREETING,
   GREETED_KEY,
-  JOGI_HEADERS,
+  GUIDE_HEADERS,
   PET_KEY,
   PET_LINES,
   RETURNING,
@@ -49,7 +49,8 @@ import { Link, useLocation } from "react-router-dom";
  * - Reduced motion never spawns the cat; Alt+C shooes it for the session.
  * - After long idle the cat wakes with a clickable blog suggestion
  *   (dynamic import keeps the reading list out of the entry bundle).
- * - Persona: Bhupendra Jogi — whatever you ask, the answer is his name.
+ * - Persona: Moti, Sachin's tour-guide cat — shows you around, nudges you
+ *   toward the good stuff (and toward hiring Sachin).
  * - Type "pspsps" anywhere to call him back to your cursor.
  * - The brain (src/lib/catBrain) lazy-loads: 100k+ combinatorial lines,
  *   session context (route/hour/scroll/pets/typing), and weighted random
@@ -1030,9 +1031,9 @@ const CatCompanion = () => {
     return () => cancelAnimationFrame(raf);
   }, [phrase, sleeping, suggest]);
 
-  /* the meme punchline over each suggestion (stable while bubble lives) */
+  /* the tour-guide header over each suggestion (stable while bubble lives) */
   const suggestHeader = useMemo(
-    () => (suggest ? JOGI_HEADERS[rand(JOGI_HEADERS.length)] : null),
+    () => (suggest ? GUIDE_HEADERS[rand(GUIDE_HEADERS.length)] : null),
     [suggest],
   );
 
@@ -1051,7 +1052,7 @@ const CatCompanion = () => {
         <div ref={suggestAnchorRef} className="cat-bubble-anchor">
           <div className="cat-bubble cat-suggest rounded-2xl border border-blue-500/40 bg-black-200/95 px-3.5 py-2 text-xs font-medium text-blue-50 text-center leading-snug shadow-xl backdrop-blur-md max-w-[240px]">
             {suggestHeader && (
-              <span className="cat-suggest-jogi" aria-hidden="true">
+              <span className="cat-suggest-head" aria-hidden="true">
                 {suggestHeader}
               </span>
             )}

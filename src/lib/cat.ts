@@ -5,13 +5,12 @@ export const GREETED_KEY = "cat-companion:greeted";
 export const SHOO_KEY = "cat-companion:shooed";
 
 /*
- * The cat's persona is Bhupendra Jogi — the 2018 Lallantop interview that
- * went viral in 2023: asked "name the places you visited in the US?", he
- * confidently answers with his own name again. Whatever you ask, the answer
- * is "Bhupendra Jogi" (spellings vary: Bupendra Joj, #bupendrajodi…).
- * So this cat has "visited all the blogs" — and says so the same way.
+ * The cat's persona: Moti — Sachin's personal tour-guide cat. She lives in
+ * the corner of the portfolio, points out rooms worth visiting, gently
+ * nudges you toward the good stuff (and toward hiring Sachin), and keeps a
+ * warm Hinglish streak. A guide, not a meme.
  */
-export const CAT_NAME = "Bhupendra Jogi";
+export const CAT_NAME = "Moti";
 
 export const GREETING = (name: string) =>
   `${name} reporting for duty. (pspsps to call, alt+c to shoo me)`;
@@ -29,7 +28,7 @@ export const PET_LINES = [
   "*stretches*",
   "you have good hands.",
   "purr purr purr.",
-  "pet bataiye? Bhupendra Jogi.",
+  "pets accepted. tour resumes shortly.",
 ];
 
 export const TREAT_LINES = ["nom nom~", "fish!! my favorite.", "crunchy. ♥"];
@@ -42,19 +41,19 @@ export const CHATTER = [
   "zZz… oh— you moved.",
   "this portfolio passes the cat test.",
   "i checked the source. nice tabs.",
-  "naam bataiye? Bhupendra Jogi.",
-  "which blogs have i read? Bhupendra Jogi.",
-  "name a place in the US. …Bhupendra Jogi.",
-  "they spell it 'Bupendra Joj' sometimes. naam me kya rakha hai.",
-  "roads of mp > roads of us. trust.",
-  "everywhere you go, you see me.",
+  "this way~ the good stuff is further down.",
+  "guided tour, free of charge. i accept pets.",
+  "chalo, next room~",
+  "looking to hire sachin? his email is one scroll away.",
+  "ask me where to go. i'll say: keep scrolling.",
+  "you move, i follow. that's basically a tour.",
 ];
 
 export const WAKE_LINES = [
   "hm? oh— hi.",
   "i was not sleeping.",
   "yawn~",
-  "naam bataiye? …Bhupendra Jogi.",
+  "hm? oh— hi. where were we? right— touring.",
 ];
 
 export const WHEEE_LINES = ["wheee~", "slow down, i have little legs!"];
@@ -70,7 +69,7 @@ export const THEME_LINES = {
 };
 
 export const ROUTE_LINES: Record<string, string> = {
-  "/blog": "which blogs have i read? Bhupendra Jogi.",
+  "/blog": "330 notes~ i've read every one of them.",
   "/graph": "so many nodes~",
   "/": "home again~",
 };
@@ -79,12 +78,12 @@ export const routeLine = (path: string) =>
     ? "mmm. good read~"
     : (ROUTE_LINES[path] ?? "new room~");
 
-/* header jokes for the idle blog-suggestion bubble (meme Q&A format) */
-export const JOGI_HEADERS = [
-  "kaunsa blog dekhe? Bhupendra Jogi.",
-  "blogs visited? naam bataiye— Bhupendra Jogi.",
-  "US mein kis-kis jagah gaye? …Bhupendra Jogi.",
-  "name one blog you've read: Bhupendra Jogi.",
+/* tour-guide headers for the idle blog-suggestion bubble */
+export const GUIDE_HEADERS = [
+  "psst— this one's worth your time.",
+  "next stop on the tour:",
+  "if you read one note today:",
+  "the cat recommends:",
 ];
 
 export const rand = (n: number) => Math.floor(Math.random() * n);

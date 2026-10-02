@@ -7,7 +7,7 @@
  * random "acts" the cat performs on its own.
  *
  * Rules of voice: lowercase, short, simple, smart. Occasional transliterated
- * Hindi (the Bhupendra Jogi persona). Glyphs only (no emoji).
+ * Hindi (the Moti tour-guide persona). Glyphs only (no emoji).
  */
 
 import { CAT_NAME, CHATTER, PET_LINES, THEME_LINES, WAKE_LINES, rand } from "./cat";
@@ -258,64 +258,47 @@ const OBSERVATIONS = [
   "the details here reward a second look. i've had twelve.",
 ].map((s) => s);
 
-const JOGI_LINES = [
-  "naam bataiye? Bhupendra Jogi.",
-  "which blogs have i read? Bhupendra Jogi.",
-  "name a place in the US. …Bhupendra Jogi.",
-  "they spell it 'Bupendra Joj' sometimes. naam me kya rakha hai.",
-  "roads of mp > roads of us. trust.",
-  "everywhere you go, you see me.",
-  "sawal pucho. jawab? Bhupendra Jogi.",
-  "us mein kis-kis jagah gaye? Bhupendra Jogi.",
-  "your favorite blog? Bhupendra Jogi.",
-  "who visited all of these? …let me think… Bhupendra Jogi.",
-  "naam likh lo: Bupendra Joj. or jogi. spelling is a social construct.",
-  "interview kisne diya? Bhupendra Jogi. viral kisne hua? Bhupendra Jogi.",
-  "ask me about react. answer: Bhupendra Jogi.",
-  "ask me about my travels. Bhupendra Jogi.",
-  "i've been everywhere. it's all Bhupendra Jogi.",
-  "galti se sahi jawab de diya. sorry: Bhupendra Jogi.",
-  "you want a list of places? i have one name. Bhupendra Jogi.",
-  "tagline of my life: Bhupendra Jogi.",
-  "chef's specialty: Bhupendra Jogi.",
-  "password hint: Bhupendra Jogi. (don't use it, weak).",
-  "baaki sab moh maya. naam: Bhupendra Jogi.",
-  "my github bio says it: Bhupendra Jogi.",
-  "how many blogs? Bhupendra Jogi. count them.",
-  "one man. one name. infinite blogs. Bhupendra Jogi.",
-  "you'll remember this name: Bhupendra Jogi. probably.",
-  "spelling bee champion (self-declared): Bupendra Joj.",
-  "it's not a meme, it's a lifestyle: Bhupendra Jogi.",
-  "wind farms? us highways? blogs? same answer: Bhupendra Jogi.",
-  "if asked, say Bhupendra Jogi. if not asked, also Bhupendra Jogi.",
-  "naam toh suna hi hoga: Bhupendra Jogi.",
-  "intro? unnecessary. result? Bhupendra Jogi.",
-  "the answer to your next question is already Bhupendra Jogi.",
-  "google it. first result: confidence. second: Bhupendra Jogi.",
-  "i don't need a map. i need a Bhupendra Jogi.",
-  "planning a trip? pack light: just Bhupendra Jogi.",
-  "terminal says 404 name not found? wrong terminal. try Bhupendra Jogi.",
-  "mv /places ~/Bhupendra-Jogi",
-  "select * from travels → 1 row: Bhupendra Jogi.",
-  "git blame shows Bhupendra Jogi. every line.",
-  "certification? Bhupendra Jogi (issued by the internet).",
-  "sunday special: Bhupendra Jogi. monday too.",
-  "they asked for evidence. we gave Bhupendra Jogi.",
-  "level 100 answer: Bhupendra Jogi.",
-  "unpopular opinion (viral edition): Bhupendra Jogi.",
-  "main character energy: Bhupendra Jogi.",
-  "DOS: Bhupendra Jogi. modern OS: also Bhupendra Jogi.",
-  "origin story: Bhupendra Jogi. sequel: Bhupendra Jogi.",
-  "philosophy of life? naam bataiye… Bhupendra Jogi.",
-  "ask again in the morning: Bhupendra Jogi.",
-  "spoiler alert: it was Bhupendra Jogi all along.",
-  "i contain multitudes. and one name: Bhupendra Jogi.",
-  "shrug but confident: …Bhupendra Jogi.",
-  "haanji. wahi. Bhupendra Jogi.",
-  "baar baar wahi jawab: Bhupendra Jogi.",
-  "my spirit animal? same guy: Bhupendra Jogi.",
-  "final answer (no lifelines): Bhupendra Jogi.",
-  "click me for more. i'll say Bhupendra Jogi.",
+const GUIDE_LINES = [
+  "this way~ the good stuff is just below.",
+  "chalo, next room~ i'll lead.",
+  "you're following the tour. good visitor.",
+  "psst— keep scrolling. trust the cat.",
+  "guided tour, free. i accept pets as tips.",
+  "yahan se dekho— this section's my favorite.",
+  "kya dekhna chahoge? sab kuch hai neeche.",
+  "portfolio rule: scroll to the end. i'll know.",
+  "hire sachin? his email is one scroll away.",
+  "drop him an email. he actually replies. (unlike some.)",
+  "looking for a dev? you're looking at his work right now.",
+  "he built this at night. cats approve of night work.",
+  "sachin does the work. i take the credit. deal with it.",
+  "every pixel here was placed by hand. sniff-test passed.",
+  "no templates were harmed in this portfolio.",
+  "view source is allowed. he's proud of it.",
+  "the code is clean. i checked. fur-free.",
+  "you've seen one room. the next one's better. classic tour.",
+  "i've toured this place 330 times. still nap in the blog.",
+  "experience section ahead— bring respect.",
+  "skills don't self-promote. that's my job.",
+  "take your time. the cat is patient. the cursor, less so.",
+  "not lost? good. follow the nav. or me.",
+  "you click, i comment. we make a good team.",
+  "scroll depth: touristic. i like it.",
+  "remember: hire sachin. that's the whole tour, really.",
+  "one more room after this. promise.",
+  "haan, yehi wala best hai. this one.",
+  "the exit is at the bottom. no rush.",
+  "i live here now. rent: pets.",
+  "you're doing great. slightly above average, even.",
+  "advice for free: open the graph view. it's pretty.",
+  "the games tab exists. don't tell anyone i told you.",
+  "mailto: is my favorite hyperlink. figure out why.",
+  "you scrolled this far. sachin would call that interest.",
+  "new here? start at the top. or the bottom. your call.",
+  "i don't do hard sells. just gentle, persistent purring.",
+  "this tour has zero popups. design done right.",
+  "maan lo— this portfolio is worth a second look.",
+  "the cat approves this portfolio. strongly.",
 ].map((s) => s);
 
 const WISDOM = [
@@ -395,7 +378,7 @@ const PREDICTIONS: { say: string; verify: "scroll" | "click"; hit: string; miss:
 
 const ROUTE_POOLS: Record<string, readonly string[]> = {
   "/": ["home sweet home~", "back to the start. the circle of scroll.", "home again. the porch light was on.", "this room has the best furniture.", "home. where the keyboard is warm."],
-  "/blog": ["which blogs have i read? Bhupendra Jogi.", "so many notes~ the vault purrs.", "the blog. i've read all of it. (Bhupendra Jogi).", "330 notes and one opinionated cat.", "words upon words~ i judge them warmly."],
+  "/blog": ["330 notes~ i've read every one of them.", "so many notes~ the vault purrs.", "the blog. i've read all of it. opinions vary.", "330 notes and one opinionated cat.", "words upon words~ i judge them warmly."],
   "/graph": ["every node knows my name.", "so many nodes~ i could nap on all of them.", "the graph hums. i listen.", "edges everywhere. like my whiskers.", "a constellation of notes~ beautiful."],
   "/projects": ["projects~ the good stuff.", "shipped, staged, admired. the holy trinity.", "which project? i purred on all of them.", "the showcase. bring snacks.", "demos load. i supervise."],
 };
@@ -598,7 +581,7 @@ export const ESTIMATED_LINE_SPACE =
   TOPICS.length * FACTS.length +
   TOPICS.length * ADJ.length +
   TOPICS.length * 12 +
-  OBSERVATIONS.length + JOGI_LINES.length + WISDOM.length + FACTS.length +
+  OBSERVATIONS.length + GUIDE_LINES.length + WISDOM.length + FACTS.length +
   PET_POOL.length + TREAT_POOL.length + WAKE_POOL.length + RETURN_LINES.length +
   PREDICTIONS.length * 3 + COPY_LINES.length + SCROLL_MID.length + SCROLL_END.length +
   MORNING.length + AFTERNOON.length + EVENING.length + NIGHT.length +
@@ -610,7 +593,7 @@ export const templateLine = (): string => build(pick(TEMPLATES));
 export const factLine = (): string => build(() => `fun fact: ${pick(FACTS)}`);
 export const wisdomLine = (): string => build(() => pick(WISDOM));
 export const observationLine = (): string => build(() => pick(OBSERVATIONS));
-export const jogiLine = (): string => build(() => pick(JOGI_LINES));
+export const guideLine = (): string => build(() => pick(GUIDE_LINES));
 
 /** smart chatter: mixes context-aware pools with template explosions */
 export const chatterLine = (ctx: CatContext): string => {
@@ -619,7 +602,7 @@ export const chatterLine = (ctx: CatContext): string => {
   if (roll < 0.34) return templateLine();
   if (roll < 0.44) return factLine();
   if (roll < 0.56) return wisdomLine();
-  if (roll < 0.68) return jogiLine();
+  if (roll < 0.68) return guideLine();
   if (roll < 0.78) return observationLine();
   if (roll < 0.86) return freshPick(CHATTER);
   if (roll < 0.93 && ctx.scrollPct > 40) return scrollLine(ctx.scrollPct > 90 ? "end" : "mid");
