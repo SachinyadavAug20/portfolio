@@ -222,6 +222,10 @@ section {
     @apply grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-5 xl:gap-7;
   }
 
+  .grid-abilities {
+    @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6;
+  }
+
   .grid-12-cols {
     @apply grid grid-cols-1 xl:grid-cols-12 gap-10;
   }
@@ -1865,15 +1869,16 @@ h4 {
 .cat-bubble::after {
   content: "";
   position: absolute;
-  left: 50%;
+  left: var(--bubble-arrow-x, 50%);
   bottom: -5px;
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   background: inherit;
   border-right: 1px solid;
   border-bottom: 1px solid;
   border-color: inherit;
   transform: translateX(-50%) rotate(45deg);
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.5));
 }
 @keyframes cat-bubble-in {
   from {

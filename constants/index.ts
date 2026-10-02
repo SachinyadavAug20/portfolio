@@ -173,6 +173,11 @@ export const abilities = [
     title: "Relentless Exploration",
     desc: "Driven by curiosity to continuously explore new technical domains—from configuring custom Linux environments to experimenting with game engines and modern backends.",
   },
+  {
+    imgPath: "/images/craft.svg",
+    title: "Full-Stack Engineering",
+    desc: "Building reliable systems end to end—from Spring Boot banking backends with strict transactional integrity to polished, animated React frontends—where clean architecture and data safety are non-negotiable.",
+  },
 ];
 
 export interface expCardProps {

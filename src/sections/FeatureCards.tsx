@@ -34,7 +34,7 @@ const FeatureCards = () => {
 
   return (
     <div ref={rootRef} className="w-full padding-x-lg">
-      <div className="mx-auto grid-3-cols">
+      <div className="mx-auto grid-abilities">
         {abilities.map(({ imgPath, title, desc }) => (
           <div
             key={title}

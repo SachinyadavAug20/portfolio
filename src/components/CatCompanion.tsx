@@ -1045,6 +1045,9 @@ const CatCompanion = () => {
         );
         const top = Math.max(y - 34 - bh, 8);
         b.style.transform = `translate(${Math.round(cx - bw / 2)}px, ${Math.round(top)}px)`;
+        /* the tail always points at the cat, even when clamped to an edge */
+        const tail = Math.min(Math.max(x - (cx - bw / 2), 18), bw - 18);
+        b.style.setProperty("--bubble-arrow-x", `${Math.round(tail)}px`);
       }
       const s = suggestAnchorRef.current;
       if (s && suggest) {
@@ -1056,6 +1059,8 @@ const CatCompanion = () => {
         );
         const top = Math.max(y - 34 - sh, 8);
         s.style.transform = `translate(${Math.round(cx - sw / 2)}px, ${Math.round(top)}px)`;
+        const tail = Math.min(Math.max(x - (cx - sw / 2), 18), sw - 18);
+        s.style.setProperty("--bubble-arrow-x", `${Math.round(tail)}px`);
       }
       const z = zzzRef.current;
       if (z && sleeping) {
