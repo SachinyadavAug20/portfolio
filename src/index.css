@@ -2150,3 +2150,38 @@ h4 {
   outline: 2px solid rgb(96 165 250);
   outline-offset: 2px;
 }
+/* accept / skip tap targets for the suggestion (keys a and d) */
+.cat-suggest-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.cat-suggest-btn {
+  flex: 1 1 0;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid rgb(51 65 85);
+  border-radius: 10px;
+  background: rgb(30 41 59 / 0.95);
+  color: rgb(226 232 240);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s var(--ease-standard);
+}
+.cat-suggest-btn:hover {
+  background: rgb(51 65 85);
+}
+.cat-suggest-btn:focus-visible {
+  outline: 2px solid rgb(96 165 250);
+  outline-offset: 2px;
+}
+.cat-suggest-btn-ghost {
+  background: transparent;
+  color: rgb(148 163 184);
+}
+.cat-suggest-btn-ghost:hover {
+  background: rgb(30 41 59 / 0.95);
+  color: rgb(203 213 225);
+}

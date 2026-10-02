@@ -182,6 +182,8 @@ const DevShortcuts = () => {
             </p>
             <ShortcutRow keys="Alt + C" desc="Show / shoo the cat" />
             <ShortcutRow keys="pspsps" desc="Call the cat to your cursor" />
+            <ShortcutRow keys="a" desc="Open the cat's suggestion" />
+            <ShortcutRow keys="d" desc="Skip the cat's suggestion" />
           </div>
         </div>
       </div>

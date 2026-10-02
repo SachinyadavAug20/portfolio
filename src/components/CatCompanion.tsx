@@ -12,6 +12,7 @@ import {
   PET_LINES,
   RETURNING,
   SHOO_KEY,
+  SUGGEST_DENY,
   SUGGEST_GAP_MS,
   SUGGEST_IDLE_MS,
   SUGGEST_LIFE_MS,
@@ -32,7 +33,7 @@ import {
 import type { CatContext } from "../lib/catTypes";
 import type { ActId } from "../lib/catBrain";
 import type { BlogSuggestion } from "../lib/blogSuggestions";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 /*
  * Cat companion — a neko-ts desktop pet that sneaks in from a screen edge,
@@ -73,6 +74,7 @@ const seedPointer = (x: number, y: number) => {
 const CatCompanion = () => {
   const reduced = useReducedMotion();
   const location = useLocation();
+  const navigate = useNavigate();
   /* shooing sticks across reloads so opting out is actually easy */
   const [enabled, setEnabled] = useState(
     () => safeGet(localStorage, SHOO_KEY) !== "1",
@@ -131,11 +133,29 @@ const CatCompanion = () => {
       if (!force && now - lastPhraseAt.current < PHRASE_GAP_MS) return;
       window.clearTimeout(phraseTimer.current);
       lastPhraseAt.current = now;
-      setPhrase({ text, ms });
-      phraseTimer.current = window.setTimeout(() => setPhrase(null), ms);
+      /* phrases linger a touch longer so they can be read to the end */
+      const life = Math.min(Math.round(ms * 1.4), 6500);
+      setPhrase({ text, ms: life });
+      phraseTimer.current = window.setTimeout(() => setPhrase(null), life);
     },
     [],
   );
+
+  /* suggestion accept (a / open button) · skip (d / skip button) */
+  const acceptSuggestion = useCallback(() => {
+    const sg = suggestRef.current;
+    if (!sg) return;
+    suggestRef.current = null;
+    setSuggest(null);
+    navigate(`/blog/post/${sg.path}`);
+  }, [navigate]);
+
+  const denySuggestion = useCallback(() => {
+    if (!suggestRef.current) return;
+    suggestRef.current = null;
+    setSuggest(null);
+    showPhrase(SUGGEST_DENY[rand(SUGGEST_DENY.length)], 2800, true);
+  }, [showPhrase]);
 
   /* live context for the brain: route, hour, depth, pets, typing tempo */
   const getCtx = useCallback((): CatContext => {
@@ -231,9 +251,25 @@ const CatCompanion = () => {
       if (e.type !== "keydown") {
         checkProphecy(e.type === "wheel" ? "scroll" : "click");
       }
-      /* clicks/keys outside the suggestion dismiss it; reaching for the
-         bubble itself (mouse moves, taps on the link) must not kill it */
       if (suggestRef.current) {
+        /* a opens the suggestion, d skips it — unless the visitor is typing */
+        if (e.type === "keydown") {
+          const k = (e as KeyboardEvent).key.toLowerCase();
+          const el = document.activeElement;
+          const typing =
+            !!el &&
+            (el.tagName === "INPUT" ||
+              el.tagName === "TEXTAREA" ||
+              (el as HTMLElement).isContentEditable);
+          if (!typing && (k === "a" || k === "d")) {
+            if (k === "a") acceptSuggestion();
+            else denySuggestion();
+            markActivity();
+            return;
+          }
+        }
+        /* clicks/keys outside the suggestion dismiss it; reaching for the
+           bubble itself (mouse moves, taps on the link) must not kill it */
         const t = e.target;
         if (!(t instanceof Element && t.closest(".cat-suggest"))) {
           suggestRef.current = null;
@@ -329,7 +365,7 @@ const CatCompanion = () => {
       document.removeEventListener("copy", onCopy);
       window.removeEventListener("wheel", onAny);
     };
-  }, [markActivity, showPhrase, checkProphecy]);
+  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion]);
 
   /* Alt+C shooes / summons the cat for good (the opt-out persists) */
   useEffect(() => {
@@ -1064,6 +1100,24 @@ const CatCompanion = () => {
               <span aria-hidden="true">✦</span>
               <span>{suggest.title}</span>
             </Link>
+            <div className="cat-suggest-actions">
+              <button
+                type="button"
+                className="cat-suggest-btn"
+                onClick={acceptSuggestion}
+                aria-label={`Open ${suggest.title}`}
+              >
+                open · a
+              </button>
+              <button
+                type="button"
+                className="cat-suggest-btn cat-suggest-btn-ghost"
+                onClick={denySuggestion}
+                aria-label="Skip this suggestion"
+              >
+                skip · d
+              </button>
+            </div>
           </div>
         </div>
       )}

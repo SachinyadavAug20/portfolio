@@ -61,7 +61,16 @@ export const WHEEE_LINES = ["wheee~", "slow down, i have little legs!"];
 /* long-idle blog suggestion: when it may fire, how often, how long it stays */
 export const SUGGEST_IDLE_MS = 40_000;
 export const SUGGEST_GAP_MS = 60_000;
-export const SUGGEST_LIFE_MS = 12_000;
+export const SUGGEST_LIFE_MS = 16_000;
+
+/* reply when the visitor skips the suggestion (keys: d / skip button) */
+export const SUGGEST_DENY = [
+  "fair. suit yourself.",
+  "noted. the note stays fabulous though.",
+  "okay okay. next time.",
+  "skipped. no hard feelings. (some feelings).",
+  "your loss~ the tour goes on.",
+];
 
 export const THEME_LINES = {
   dark: ["nya~ dim lights. big naps.", "dark mode = cat mode."],
