@@ -402,6 +402,139 @@ export const routeLine = (path: string, ctx: CatContext): string => {
   return freshPick(pool ?? GENERIC_ROOMS);
 };
 
+/* ------------------------ click awareness ------------------------ */
+
+export type ClickKind =
+  | "email" | "games" | "github" | "linkedin"
+  | "external" | "card" | "graph";
+
+const CLICK_POOLS: Record<ClickKind, readonly string[]> = {
+  email: [
+    "you found the mail. he replies faster than you'd think.",
+    "one message, one candidate. smart move.",
+    "compose wisely — he reads every single one.",
+    "the email button's favorite visitor. (biased cat.)",
+    "inbox, meet sachin's next team. honestly.",
+  ],
+  games: [
+    "games~ win one, hire him. i don't make the rules. (i do.)",
+    "play first, hire later. or both. i support both.",
+    "itch.io~ serious research territory. have fun.",
+    "his games. built for fun, shipped with proof.",
+  ],
+  github: [
+    "the commits live here. stars are free. (he checks.)",
+    "github~ mind the history. it's clean.",
+    "fork it. clone it. hire him. (order is flexible.)",
+    "his code in the wild. be gentle. or be impressed.",
+  ],
+  linkedin: [
+    "professional mode: engaged.",
+    "very employable energy. the cat approves.",
+    "recruiters live here. lately, so does he.",
+  ],
+  external: [
+    "outside the portfolio~ come back, the cat gets lonely.",
+    "a new tab. brave.",
+    "tell them the cat sent you.",
+    "the open web. wild place. come back safely.",
+  ],
+  card: [
+    "that box? checked. he's good at those.",
+    "click, inspect, scrutinize. it all holds up.",
+    "you're reading the cards? the fourth one is my favorite.",
+    "certified by the cat. multiple times.",
+    "solid card. excellent leading. i napped on it.",
+  ],
+  graph: [
+    "ooh, that corner of the vault.",
+    "good node. it purrs.",
+    "click around~ every path leads to a note.",
+    "330 nodes, one cat. simple math.",
+  ],
+};
+export const clickLine = (kind: ClickKind): string =>
+  freshPick(CLICK_POOLS[kind]);
+
+/* ----------------------- section awareness ----------------------- */
+
+const SECTION_POOLS: Record<string, readonly string[]> = {
+  work: [
+    "project time~ start with the shiny ones.",
+    "his work. i've purred on every card.",
+    "the demos actually load. i checked. twice.",
+    "this is the 'he ships things' section.",
+    "case studies below. snacks recommended.",
+  ],
+  experience: [
+    "his story so far~ good growth curve.",
+    "recruiters screenshot this part. usually.",
+    "every entry is real. i was there for some of it. (napping.)",
+    "2nd year, already building banking systems. noted.",
+    "the timeline reads well. excellent pacing.",
+  ],
+  skills: [
+    "the skills shelf~ dusted, aligned, ready.",
+    "tools of the trade. he wields all of them.",
+    "hover the pills — each links to proof. efficient.",
+    "a wide shelf. i nap on the top row.",
+    "everything here has receipts. nice.",
+  ],
+  contact: [
+    "want to hire sachin? the form's right here. he replies fast.",
+    "this is the part where you say hello. no pressure. (some pressure.)",
+    "drop him a message — he actually answers.",
+    "fun fact: every message gets read. even 'hi'.",
+    "the fastest hire starts 30 seconds from here.",
+    "your move. the cat believes in you.",
+    "psst— say 'the cat sent you'. he'll smile. probably.",
+  ],
+};
+export const sectionLine = (id: string): string =>
+  freshPick(SECTION_POOLS[id] ?? ["ooh, a new corner~"]);
+
+/* ------------------ weird-behaviour reactions ------------------ */
+
+export type TapKind = "wake" | "many" | "melt" | "ctx" | "purr";
+
+const TAP_LINES: Record<TapKind, readonly string[]> = {
+  wake: [
+    "eek— you clicked a sleeping cat. bold.",
+    "hmph. i was dreaming of green builds.",
+    "disturbing a professional napper. noted.",
+    "you poke, i wake. that's the treaty.",
+    "i WAS sleeping. now i'm watching you. kindly.",
+  ],
+  many: [
+    "steady~ one cat, many taps.",
+    "why do you keep clicking me? (don't stop.)",
+    "i'm not made of treats. tap again and find out.",
+    "that's five. i'm counting. cats count.",
+    "okay okay— i'm RIGHT here. seen?",
+    "my tail is getting dizzy from all this.",
+  ],
+  melt: [
+    "ZOOM. you asked for it. (you tapped for it.)",
+    "that's it— i'm going. (across the screen. i'll be back.)",
+    "meltdown complete. purr system restarting...",
+    "seven taps. i have FEELINGS.",
+    "employee morale: shaken. pets required immediately.",
+  ],
+  ctx: [
+    "right-clicking the cat. bold. (do it again.)",
+    "context menu: pet, treat, hire sachin — all valid options.",
+    "that's myContextMenu. thank you kindly.",
+    "you brought up MY menu. impressive.",
+  ],
+  purr: [
+    "purr... okay, you may stay.",
+    "held me down and patted. bold strategy. it worked.",
+    "a long press of affection. cat-approved.",
+    "this. exactly this. hold it.",
+  ],
+};
+export const tapLine = (kind: TapKind): string => freshPick(TAP_LINES[kind]);
+
 const MORNING = [
   "morning. i've been up since the build.", "sunrise detected. bowls refilled (in spirit).",
   "morning person? no. morning cat? absolutely.", "dawn patrol begins. tip: hydrate first.",
@@ -586,6 +719,9 @@ export const ESTIMATED_LINE_SPACE =
   PREDICTIONS.length * 3 + COPY_LINES.length + SCROLL_MID.length + SCROLL_END.length +
   MORNING.length + AFTERNOON.length + EVENING.length + NIGHT.length +
   Object.values(ROUTE_POOLS).reduce((n, p) => n + p.length, 0) +
+  Object.values(CLICK_POOLS).reduce((n, p) => n + p.length, 0) +
+  Object.values(SECTION_POOLS).reduce((n, p) => n + p.length, 0) +
+  Object.values(TAP_LINES).reduce((n, p) => n + p.length, 0) +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
 export const templateLine = (): string => build(pick(TEMPLATES));

@@ -136,6 +136,13 @@ const CatCompanion = () => {
   const lastRoutePhrase = useRef(0);
   const lastThemePhrase = useRef(0);
   const lastTypingLine = useRef(0);
+  /* context-aware reactions: clicks, sections, contact form focus */
+  const lastClickLine = useRef(0);
+  const lastSectionAt = useRef(0);
+  const lastContactFocus = useRef(0);
+  const seenSections = useRef<Set<string>>(new Set());
+  /* cat-tap streak for repeated-click escalation */
+  const tapStreak = useRef<number[]>([]);
   /* session context the brain reads (see catTypes.CatContext) */
   const scrollPctRef = useRef(0);
   const visitsRef = useRef(1);
@@ -315,6 +322,89 @@ const CatCompanion = () => {
     document.addEventListener("keydown", onAny);
     window.addEventListener("wheel", onAny, { passive: true });
 
+    /* clicks: react to what the visitor is exploring — mail, external
+       links, cards, graph nodes. in-app navigation stays quiet because
+       the route line already comments on arrivals */
+    const onCatClick = (e: Event) => {
+      const t = e.target;
+      if (
+        !e.isTrusted ||
+        !(t instanceof Element) ||
+        document.hidden ||
+        suggestRef.current
+      )
+        return;
+      if (t.closest(".cat-suggest, .cat-bubble-anchor, [data-neko]")) return;
+      /* clicks ON the cat belong to the pet/tap handlers, not us */
+      const nearNeko = nekoRef.current;
+      const pt = e as MouseEvent;
+      if (
+        nearNeko &&
+        Math.hypot(pt.clientX - nearNeko.position.x, pt.clientY - nearNeko.position.y) < 56
+      )
+        return;
+      const now = Date.now();
+      if (now - lastClickLine.current < 7000) return;
+      const brain = brainRef.current;
+      if (!brain || !nekoRef.current) return;
+      const a = t.closest("a");
+      let line: string | null = null;
+      if (a) {
+        const href = a.getAttribute("href") || "";
+        if (href.startsWith("mailto:")) {
+          line = brain.clickLine("email");
+        } else if (href.includes("#") && !href.startsWith("http")) {
+          /* in-page anchor: speak for the destination section and let the
+             scroll have the stage (suppress observer + route lines) */
+          const id = href.split("#")[1];
+          if (id) {
+            lastSectionAt.current = now;
+            lastRoutePhrase.current = now;
+            line = brain.sectionLine(id);
+          }
+        } else if (href.startsWith("http") || a.target === "_blank") {
+          let host = "";
+          try {
+            host = new URL(href, window.location.href).hostname;
+          } catch {
+            /* odd href — generic external line below */
+          }
+          if (host.includes("itch.io")) line = brain.clickLine("games");
+          else if (host.includes("github.com")) line = brain.clickLine("github");
+          else if (host.includes("linkedin.com")) line = brain.clickLine("linkedin");
+          else line = brain.clickLine("external");
+        }
+        /* same-tab internal links: the route line speaks on arrival */
+      } else if (
+        t.closest(".feature-card, .exp-card-wrapper, .app-showcase")
+      ) {
+        line = brain.clickLine("card");
+      } else if (t.closest("canvas") && window.location.pathname === "/graph") {
+        line = brain.clickLine("graph");
+      }
+      if (!line) return;
+      lastClickLine.current = now;
+      showPhrase(line, 3600, true);
+    };
+
+    /* touching the contact form earns a nudge (once, politely) */
+    const onContactFocus = (e: Event) => {
+      const t = e.target;
+      if (!(t instanceof Element) || document.hidden || suggestRef.current)
+        return;
+      if (!t.closest("#contact")) return;
+      const now = Date.now();
+      if (now - lastContactFocus.current < 25_000) return;
+      if (now - lastSectionAt.current < 12_000) return;
+      const brain = brainRef.current;
+      if (!brain || !nekoRef.current) return;
+      lastContactFocus.current = now;
+      showPhrase(brain.sectionLine("contact"), 3600, true);
+    };
+
+    document.addEventListener("click", onCatClick);
+    document.addEventListener("focusin", onContactFocus);
+
     /* typing tempo feeds ctx.keyRate; a fast burst outside inputs earns
        an occasional comment (gap + 45s cooldown keep it easy-going) */
     const onKeyRate = (e: Event) => {
@@ -394,6 +484,8 @@ const CatCompanion = () => {
       document.removeEventListener("keydown", onKeyType);
       document.removeEventListener("keydown", onKeyRate);
       document.removeEventListener("copy", onCopy);
+      document.removeEventListener("click", onCatClick);
+      document.removeEventListener("focusin", onContactFocus);
       window.removeEventListener("wheel", onAny);
     };
   }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion]);
@@ -500,6 +592,38 @@ const CatCompanion = () => {
     );
   }, [location.pathname, showPhrase, getCtx]);
 
+  /* section awareness: when a home section takes the stage, Moti has a
+     line about it — always the first time, sometimes after that */
+  useEffect(() => {
+    if (reduced || !enabled) return;
+    const els = ["work", "experience", "skills", "contact"]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (els.length === 0) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const now = Date.now();
+        for (const en of entries) {
+          if (!en.isIntersecting) continue;
+          const id = en.target.id;
+          if (now - lastSectionAt.current < 14_000) continue;
+          if (now - lastContactFocus.current < 12_000) continue;
+          const first = !seenSections.current.has(id);
+          if (!first && Math.random() < 0.7) continue;
+          const brain = brainRef.current;
+          if (!brain || suggestRef.current || document.hidden || !nekoRef.current)
+            continue;
+          seenSections.current.add(id);
+          lastSectionAt.current = now;
+          showPhrase(brain.sectionLine(id), 3600, true);
+        }
+      },
+      { threshold: 0, rootMargin: "-25% 0px -45% 0px" },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [location.pathname, showPhrase, enabled, reduced]);
+
   /* spawn / lifetime */
   useEffect(() => {
     if (reduced || !enabled) return;
@@ -519,6 +643,8 @@ const CatCompanion = () => {
        never while a suggestion owns the floor or the tab is hidden */
     const recentActs = new Set<ActId>();
     let actTimer = 0;
+    /* set on pointer-down over the cat; long hold on release = purr */
+    let pressAt = 0;
 
     const hop = () => {
       const el = document.querySelector<HTMLElement>('[data-neko="0"]');
@@ -863,7 +989,14 @@ const CatCompanion = () => {
       if (Math.hypot(e.clientX - x, e.clientY - y) > radius) return;
 
       const now = Date.now();
-      if (now - lastPetAt.current < 600) {
+      pressAt = now;
+      /* every cat tap feeds a streak — repetition earns new answers */
+      tapStreak.current.push(now);
+      tapStreak.current = tapStreak.current.filter((t) => now - t <= 2500);
+      const streak = tapStreak.current.length;
+      const tapBrain = brainRef.current;
+
+      if (now - lastPetAt.current < 600 && streak < 5) {
         if (treatActive.current) return;
         treatActive.current = true;
         lastPetAt.current = 0;
@@ -887,6 +1020,52 @@ const CatCompanion = () => {
             560,
           ),
         );
+        return;
+      }
+
+      /* poking a sleeping cat: startled awake with an opinion */
+      if (sleepingRef.current) {
+        sleepingRef.current = false;
+        neko.wake();
+        setSleeping(false);
+        lastPetAt.current = now;
+        tap(8);
+        spawnHearts(x, y, 3);
+        if (tapBrain) showPhrase(tapBrain.tapLine("wake"), 3200, true);
+        return;
+      }
+
+      /* tap-storm: repeated clicks get escalating answers */
+      if (streak >= 7 && tapBrain) {
+        lastPetAt.current = now;
+        tap(10);
+        tapStreak.current = [];
+        showPhrase(tapBrain.tapLine("melt"), 3600, true);
+        spawnHearts(x, y, 8);
+        spawnSparkles(x, y);
+        neko.setSpeed(30);
+        seedPointer(
+          x < window.innerWidth / 2 ? 48 : window.innerWidth - 48,
+          window.innerHeight * 0.78,
+        );
+        timers.push(
+          window.setTimeout(
+            () => {
+              if (cancelled) return;
+              nekoRef.current?.setSpeed(12);
+              seedPointer(lastPointer.current.x, lastPointer.current.y);
+            },
+            1700,
+          ),
+        );
+        return;
+      }
+      if (streak >= 5 && tapBrain) {
+        lastPetAt.current = now;
+        tap(6);
+        showPhrase(tapBrain.tapLine("many"), 3200, true);
+        hop();
+        spawnHearts(x, y, 5);
         return;
       }
 
@@ -1019,7 +1198,41 @@ const CatCompanion = () => {
       }
     };
 
+    /* long hold on the cat = extra purr; right-click near it = a wink */
+    const onPointerUp = () => {
+      const held = pressAt ? Date.now() - pressAt : 0;
+      pressAt = 0;
+      if (held < 750) return;
+      const neko = nekoRef.current;
+      if (!neko || suggestRef.current || document.hidden) return;
+      const brain = brainRef.current;
+      if (!brain) return;
+      const now = Date.now();
+      if (now - lastClickLine.current < 7000) return;
+      lastClickLine.current = now;
+      const { x, y } = neko.position;
+      showPhrase(brain.tapLine("purr"), 3200, true);
+      spawnHearts(x, y, 6);
+    };
+
+    const onCtxMenu = (e: MouseEvent) => {
+      if (!e.isTrusted || suggestRef.current || document.hidden) return;
+      const neko = nekoRef.current;
+      if (!neko) return;
+      const { x, y } = neko.position;
+      if (Math.hypot(e.clientX - x, e.clientY - y) > 52) return;
+      const brain = brainRef.current;
+      if (!brain) return;
+      const now = Date.now();
+      if (now - lastClickLine.current < 7000) return;
+      lastClickLine.current = now;
+      spawnSparkles(e.clientX, e.clientY);
+      showPhrase(brain.tapLine("ctx"), 3200, true);
+    };
+
     document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("pointerup", onPointerUp);
+    document.addEventListener("contextmenu", onCtxMenu);
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("scroll", onScroll, { passive: true });
 
@@ -1051,6 +1264,8 @@ const CatCompanion = () => {
       petNap.current = false;
       running.current = false;
       document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("pointerup", onPointerUp);
+      document.removeEventListener("contextmenu", onCtxMenu);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("scroll", onScroll);
       nekoRef.current?.destroy();
