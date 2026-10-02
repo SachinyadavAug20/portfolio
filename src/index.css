@@ -1890,6 +1890,19 @@ h4 {
     transform: translateY(0) scale(1);
   }
 }
+/* streaming typewriter caret: blinks only while the line types in */
+.cat-caret {
+  display: inline-block;
+  margin-left: 1px;
+  color: rgb(148 163 184);
+  font-weight: 700;
+  animation: cat-caret-blink 0.7s steps(1) infinite;
+}
+@keyframes cat-caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
 .cat-heart {
   position: fixed;
   z-index: 61;

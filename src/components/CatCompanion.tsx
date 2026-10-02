@@ -71,6 +71,32 @@ const seedPointer = (x: number, y: number) => {
   );
 };
 
+/* streaming typewriter: bubble text types itself in, char by char.
+   reduced motion shows the full line at once. */
+const typeSpeed = (len: number) => (len > 70 ? 10 : len > 40 ? 14 : 18);
+
+const useTypewriter = (text: string | null): string => {
+  const reduced = useReducedMotion();
+  const [cur, setCur] = useState<{ src: string | null; out: string }>({
+    src: null,
+    out: "",
+  });
+  useEffect(() => {
+    if (!text || reduced) return;
+    let i = 0;
+    const id = window.setInterval(() => {
+      i += 1;
+      setCur({ src: text, out: text.slice(0, i) });
+      if (i >= text.length) window.clearInterval(id);
+    }, typeSpeed(text.length));
+    return () => window.clearInterval(id);
+  }, [text, reduced]);
+  if (!text) return "";
+  if (reduced) return text;
+  /* a new text shows nothing until its first tick — never the old line */
+  return cur.src === text ? cur.out : "";
+};
+
 const CatCompanion = () => {
   const reduced = useReducedMotion();
   const location = useLocation();
@@ -133,8 +159,13 @@ const CatCompanion = () => {
       if (!force && now - lastPhraseAt.current < PHRASE_GAP_MS) return;
       window.clearTimeout(phraseTimer.current);
       lastPhraseAt.current = now;
-      /* phrases linger a touch longer so they can be read to the end */
-      const life = Math.min(Math.round(ms * 1.4), 6500);
+      /* phrases linger so the streamed text can be read to the end:
+         cover worst-case typing time (slow devices) plus read time */
+      const typeBudget = text.length * 40;
+      const life = Math.min(
+        Math.max(Math.round(ms * 1.6), typeBudget + 2400),
+        9000,
+      );
       setPhrase({ text, ms: life });
       phraseTimer.current = window.setTimeout(() => setPhrase(null), life);
     },
@@ -1044,10 +1075,13 @@ const CatCompanion = () => {
           window.innerWidth - bw / 2 - 8,
         );
         const top = Math.max(y - 34 - bh, 8);
-        b.style.transform = `translate(${Math.round(cx - bw / 2)}px, ${Math.round(top)}px)`;
+        const t = `translate(${Math.round(cx - bw / 2)}px, ${Math.round(top)}px)`;
+        if (b.style.transform !== t) b.style.transform = t;
         /* the tail always points at the cat, even when clamped to an edge */
         const tail = Math.min(Math.max(x - (cx - bw / 2), 18), bw - 18);
-        b.style.setProperty("--bubble-arrow-x", `${Math.round(tail)}px`);
+        const tailPx = `${Math.round(tail)}px`;
+        if (b.style.getPropertyValue("--bubble-arrow-x") !== tailPx)
+          b.style.setProperty("--bubble-arrow-x", tailPx);
       }
       const s = suggestAnchorRef.current;
       if (s && suggest) {
@@ -1058,13 +1092,17 @@ const CatCompanion = () => {
           window.innerWidth - sw / 2 - 8,
         );
         const top = Math.max(y - 34 - sh, 8);
-        s.style.transform = `translate(${Math.round(cx - sw / 2)}px, ${Math.round(top)}px)`;
+        const t = `translate(${Math.round(cx - sw / 2)}px, ${Math.round(top)}px)`;
+        if (s.style.transform !== t) s.style.transform = t;
         const tail = Math.min(Math.max(x - (cx - sw / 2), 18), sw - 18);
-        s.style.setProperty("--bubble-arrow-x", `${Math.round(tail)}px`);
+        const tailPx = `${Math.round(tail)}px`;
+        if (s.style.getPropertyValue("--bubble-arrow-x") !== tailPx)
+          s.style.setProperty("--bubble-arrow-x", tailPx);
       }
       const z = zzzRef.current;
       if (z && sleeping) {
-        z.style.transform = `translate(${Math.round(x + 12)}px, ${Math.round(y - 40)}px)`;
+        const t = `translate(${Math.round(x + 12)}px, ${Math.round(y - 40)}px)`;
+        if (z.style.transform !== t) z.style.transform = t;
       }
       raf = requestAnimationFrame(place);
     };
@@ -1078,6 +1116,9 @@ const CatCompanion = () => {
     [suggest],
   );
 
+  const typedPhrase = useTypewriter(phrase?.text ?? null);
+  const typedSuggest = useTypewriter(suggest?.msg ?? null);
+
   if (reduced || !enabled) return null;
 
   return (
@@ -1085,7 +1126,10 @@ const CatCompanion = () => {
       {phrase && (
         <div ref={bubbleRef} className="cat-bubble-anchor" aria-hidden="true">
           <div className="cat-bubble rounded-2xl border border-black-50 bg-black-200/95 px-3.5 py-2 text-xs font-medium text-blue-50 text-center leading-snug shadow-xl backdrop-blur-md max-w-[230px]">
-            {phrase.text}
+            {typedPhrase}
+            {typedPhrase.length < phrase.text.length && (
+              <span className="cat-caret">▌</span>
+            )}
           </div>
         </div>
       )}
@@ -1097,7 +1141,12 @@ const CatCompanion = () => {
                 {suggestHeader}
               </span>
             )}
-            <span className="cat-suggest-msg">{suggest.msg}</span>
+            <span className="cat-suggest-msg">
+              {typedSuggest}
+              {typedSuggest.length < suggest.msg.length && (
+                <span className="cat-caret">▌</span>
+              )}
+            </span>
             <Link
               to={`/blog/post/${suggest.path}`}
               className="cat-suggest-link"
