@@ -6,6 +6,8 @@ import Navbar from "../components/Navbar";
 import BottomTabBar from "../components/BottomTabBar";
 import CursorGlow from "../components/CursorGlow";
 import CatCompanion from "../components/CatCompanion";
+import CommandPalette from "../components/CommandPalette";
+import DevShortcuts from "../components/DevShortcuts";
 import Footer from "../sections/Footer";
 import { Toaster } from "../components/ui/sonner";
 import { SITE_NAME, SOCIAL_HANDLE, SITE_DESCRIPTION } from "../seo/config";
@@ -78,6 +80,8 @@ const RootLayout = () => {
         <Navbar />
         <CursorGlow />
         <CatCompanion />
+        <CommandPalette />
+        <DevShortcuts />
         <div
           key={rendered.pathname}
           className={canViewTransition ? undefined : "page-enter"}
