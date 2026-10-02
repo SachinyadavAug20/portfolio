@@ -134,7 +134,7 @@ const PREFERRED_TOPS = [
    has nothing left to solve, so the graph is dense, structured and static. */
 
 const RINGS = [125, 265, 410, 560, 680, 775];
-const MIN_ARC = 16;
+const MIN_ARC = 20;
 
 const ringOf = (depth: number) => RINGS[Math.min(depth, RINGS.length - 1)];
 
@@ -265,6 +265,83 @@ function applyRadialLayout(nodes: GraphNodeData[]): void {
   }
 }
 
+/* gap relaxation — the radial floors can still leave dense fans touching;
+   nudge overlapping nodes apart along their connecting axis (Jacobi-style,
+   one correction pass per iteration) and re-pin the final spot */
+function relaxNodeGaps(
+  nodes: GraphNodeData[],
+  links: LinkObject<GraphNodeData, GraphLinkData>[],
+  gap = 14,
+  iterations = 40,
+): void {
+  const deg = new Map<string, number>();
+  for (const l of links) {
+    const s = sid(l.source);
+    const t = sid(l.target);
+    if (s) deg.set(s, (deg.get(s) ?? 0) + 1);
+    if (t) deg.set(t, (deg.get(t) ?? 0) + 1);
+  }
+  const arr = nodes.filter(
+    (n) => typeof n.x === "number" && typeof n.y === "number",
+  ) as (GraphNodeData & { x: number; y: number })[];
+  if (arr.length < 2) return;
+  const rad = arr.map((n) => {
+    const base = n.kind === "folder" ? 4 : 3.2;
+    return base + Math.sqrt(Math.min(deg.get(n.id) ?? 0, 40)) * 0.92;
+  });
+  const px = new Float64Array(arr.length);
+  const py = new Float64Array(arr.length);
+
+  for (let it = 0; it < iterations; it++) {
+    px.fill(0);
+    py.fill(0);
+    let overlaps = 0;
+    for (let i = 0; i < arr.length; i++) {
+      const a = arr[i];
+      for (let j = i + 1; j < arr.length; j++) {
+        const b = arr[j];
+        const minD = rad[i] + rad[j] + gap;
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 >= minD * minD) continue;
+        overlaps++;
+        let ux: number;
+        let uy: number;
+        let dist = Math.sqrt(d2);
+        if (dist < 0.001) {
+          /* coincident — deterministic golden-angle nudge */
+          const ang = i * 2.399963229728653;
+          ux = Math.cos(ang);
+          uy = Math.sin(ang);
+          dist = 0;
+        } else {
+          ux = dx / dist;
+          uy = dy / dist;
+        }
+        const push = (minD - dist) / 2;
+        px[i] -= ux * push;
+        py[i] -= uy * push;
+        px[j] += ux * push;
+        py[j] += uy * push;
+      }
+    }
+    if (!overlaps) break;
+    for (let i = 0; i < arr.length; i++) {
+      arr[i].x += px[i];
+      arr[i].y += py[i];
+    }
+  }
+  for (const n of arr) {
+    n.fx = n.x;
+    n.fy = n.y;
+    n.ox = n.x;
+    n.oy = n.y;
+    n.vx = 0;
+    n.vy = 0;
+  }
+}
+
 /* ── page ─────────────────────────────────────────────────────────────── */
 
 const GraphPage = () => {
@@ -359,6 +436,7 @@ const GraphPage = () => {
         const json = (await res.json()) as GraphData;
         if (!alive) return;
         applyRadialLayout(json.nodes);
+        relaxNodeGaps(json.nodes, json.links);
         cachedGraph = json;
         setData(json);
         setStatus("ready");
@@ -450,6 +528,7 @@ const GraphPage = () => {
       dimA: light ? 0.12 : 0.14,
       label: v("--flip-blue-50", "#839cb5"),
       labelStrong: v("--flip-white-50", "#d9ecff"),
+      halo: light ? "rgba(255,255,255,0.9)" : "rgba(8,9,12,0.9)",
     };
   }, [resolvedTheme]);
 
@@ -680,6 +759,94 @@ const GraphPage = () => {
 
   /* rendering --------------------------------------------------------- */
 
+  /* label decluttering: the graph is static, so once per zoom bucket we
+     pre-decide which labels fit without overlapping — highest-degree nodes
+     win. Decisions live in a ref; paint just consults the map. */
+  type LabelBox = { x: number; y: number; w: number; h: number };
+  const nodesRef = useRef<GraphNodeData[] | null>(null);
+  const measureRef = useRef<CanvasRenderingContext2D | null>(null);
+  const labelCacheRef = useRef<{
+    scaleQ: number;
+    nodes: GraphNodeData[] | null;
+    focus: typeof focus;
+    boxes: Map<string, LabelBox | null>;
+  }>({ scaleQ: -1, nodes: null, focus: null, boxes: new Map() });
+
+  useEffect(() => {
+    nodesRef.current = filtered?.nodes ?? null;
+  }, [filtered]);
+
+  const getLabelBoxes = useCallback(
+    (globalScale: number): Map<string, LabelBox | null> => {
+      const scaleQ = Math.round(globalScale * 20) / 20; /* 5% buckets */
+      const nodes = nodesRef.current;
+      const cache = labelCacheRef.current;
+      if (cache.scaleQ === scaleQ && cache.nodes === nodes && cache.focus === focus)
+        return cache.boxes;
+
+      const boxes = new Map<string, LabelBox | null>();
+      if (!nodes || scaleQ <= 0.6) {
+        labelCacheRef.current = { scaleQ, nodes, focus, boxes };
+        return boxes;
+      }
+      if (!measureRef.current)
+        measureRef.current = document
+          .createElement("canvas")
+          .getContext("2d");
+      const m = measureRef.current;
+      if (!m) {
+        labelCacheRef.current = { scaleQ, nodes, focus, boxes };
+        return boxes;
+      }
+      const pad = 3 / scaleQ;
+      const baseShow = (n: GraphNodeData): boolean => {
+        const deg = degreeMap.get(n.id) ?? 0;
+        return (
+          (n.kind === "folder" && scaleQ > 0.75) ||
+          (deg >= 25 && scaleQ > 0.65) ||
+          scaleQ > 1.15
+        );
+      };
+      const accepted: LabelBox[] = [];
+      const ordered = nodes
+        .filter(baseShow)
+        .sort(
+          (a, b) =>
+            (degreeMap.get(b.id) ?? 0) - (degreeMap.get(a.id) ?? 0),
+        );
+      for (const n of ordered) {
+        const isFolder = n.kind === "folder";
+        const fontSize = Math.max(11 / scaleQ, 3);
+        const text = truncate(n.title, isFolder ? 24 : 20);
+        m.font = `${isFolder ? 600 : 500} ${fontSize}px "Geist Variable", Inter, system-ui, sans-serif`;
+        const w = m.measureText(text).width;
+        const r = radiusOf(n);
+        const box: LabelBox = {
+          x: (n.x ?? 0) - w / 2 - pad,
+          y: (n.y ?? 0) + r + 3 / scaleQ - pad,
+          w: w + pad * 2,
+          h: fontSize * 1.35 + pad * 2,
+        };
+        const hits = accepted.some(
+          (o) =>
+            o.x < box.x + box.w &&
+            box.x < o.x + o.w &&
+            o.y < box.y + box.h &&
+            box.y < o.y + o.h,
+        );
+        if (hits) {
+          boxes.set(n.id, null);
+          continue;
+        }
+        accepted.push(box);
+        boxes.set(n.id, box);
+      }
+      labelCacheRef.current = { scaleQ, nodes, focus, boxes };
+      return boxes;
+    },
+    [degreeMap, radiusOf, focus],
+  );
+
   const paintNode = useCallback(
     (n: FgNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
       const id = n.id ?? "";
@@ -712,31 +879,30 @@ const GraphPage = () => {
         ctx.stroke();
       }
 
-      const deg = degreeMap.get(id) ?? 0;
+      /* selected/hovered always labelled; everything else follows the
+         pre-computed decluttered decisions for this zoom bucket */
       const showLabel =
         !dim &&
-        (globalScale > 0.9 ||
-          isSel ||
-          isHot ||
-          (n.kind === "folder" && globalScale > 0.75) ||
-          (deg >= 25 && globalScale > 0.6));
+        (isSel || isHot || getLabelBoxes(globalScale).get(id) != null);
 
       if (showLabel) {
         const fontSize = Math.max(11 / globalScale, 3);
+        const text = truncate(n.title, n.kind === "folder" ? 24 : 20);
+        const ty = y + r + 3 / globalScale;
         ctx.font = `${n.kind === "folder" ? 600 : 500} ${fontSize}px "Geist Variable", Inter, system-ui, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 3 / globalScale;
+        ctx.strokeStyle = tc.halo;
+        ctx.strokeText(text, x, ty);
         ctx.fillStyle = n.kind === "folder" ? tc.labelStrong : tc.label;
-        ctx.fillText(
-          truncate(n.title, n.kind === "folder" ? 24 : 20),
-          x,
-          y + r + 3 / globalScale,
-        );
+        ctx.fillText(text, x, ty);
       }
 
       ctx.globalAlpha = 1;
     },
-    [selectedId, focus, radiusOf, tc, degreeMap],
+    [selectedId, focus, radiusOf, tc, getLabelBoxes],
   );
 
   const linkColor = useCallback(

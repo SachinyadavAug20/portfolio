@@ -43,9 +43,20 @@ const CommandPalette = () => {
      Reads window.location — React's rendered location can lag during view
      transitions. Back/forward closes the palette (backdrop already blocks
      pointer navigation while open). */
+  const openRef = useRef(open);
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const k = e.key;
+      if (k === "Escape" && openRef.current) {
+        /* works even if the input hasn't received focus yet */
+        e.preventDefault();
+        setOpen(false);
+        return;
+      }
       if ((e.metaKey || e.ctrlKey) && k.toLowerCase() === "k") {
         e.preventDefault();
         setOpen((o) => !o);
