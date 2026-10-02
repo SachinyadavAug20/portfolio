@@ -26,24 +26,35 @@ const FlickeringText = ({
 
       const text = el.textContent || "";
       if (!text.trim()) return;
+      /* reduced motion: keep the plain text — no split needed */
+      if (reduced) return;
 
       el.textContent = "";
       const chars: HTMLSpanElement[] = [];
 
-      for (const ch of text) {
-        const span = document.createElement("span");
-        span.textContent = ch === " " ? " " : ch;
-        span.style.display = "inline-block";
-        el.appendChild(span);
-        chars.push(span);
-      }
+      /* Split per WORD, not per char:
+         - each word is an inline-block with white-space:nowrap, so the line
+           only breaks between words (char-level spans let the browser break
+           mid-word: "Engin / eering")
+         - spaces stay as real text nodes between words — a space inside its
+           own inline-block collapses to zero width ("intoSeamlessExperiences") */
+      text.split(" ").forEach((word, i) => {
+        if (i > 0) el.appendChild(document.createTextNode(" "));
+        if (!word) return;
+        const wordSpan = document.createElement("span");
+        wordSpan.style.display = "inline-block";
+        wordSpan.style.whiteSpace = "nowrap";
+        for (const ch of word) {
+          const span = document.createElement("span");
+          span.textContent = ch;
+          span.style.display = "inline-block";
+          wordSpan.appendChild(span);
+          chars.push(span);
+        }
+        el.appendChild(wordSpan);
+      });
 
       if (chars.length === 0) return;
-
-      if (reduced) {
-        gsap.set(chars, { opacity: 1 });
-        return;
-      }
 
       const tl = gsap.timeline({ delay: 0.6 });
 
