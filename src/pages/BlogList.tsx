@@ -14,7 +14,6 @@ const PRESS = {
   transition: { type: "spring", stiffness: 650, damping: 30 },
 } as const;
 import type { BlogPost } from "../blog/types";
-import { BLOG_SUGGESTIONS } from "../lib/blogSuggestions";
 import TitleHeader from "../components/TitleHeader";
 import FileExplorer from "../components/FileExplorer";
 import { useReducedMotion } from "../hooks/useReducedMotion";
@@ -193,12 +192,6 @@ const BlogList = () => {
     return { notes: posts.length, folders, tags: tagCounts.length };
   }, [posts, tagCounts]);
 
-  /* the cat has "read" all of these — six of them, spread across topics */
-  const catPicks = useMemo(
-    () => BLOG_SUGGESTIONS.filter((_, i) => i % 8 === 0).slice(0, 6),
-    [],
-  );
-
   const filteredPosts = useMemo(() => {
     let result = posts;
     if (currentTag) {
@@ -291,40 +284,6 @@ const BlogList = () => {
             </div>
           ) : (
             <>
-              {!currentQuery && !currentTag && (
-                <div className="blog-intro mt-8 mb-6">
-                  <div className="flex items-center gap-3 mb-1">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-blue-300">
-                      Bhupendra Jogi recommends
-                    </span>
-                    <span className="h-px flex-1 bg-black-50" />
-                  </div>
-                  <p className="text-[11px] italic text-white-50/45 mb-3">
-                    he's read all {BLOG_SUGGESTIONS.length} of these. naam
-                    bataiye— Bhupendra Jogi.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {catPicks.map((s) => (
-                      <MotionLink
-                        key={s.path}
-                        to={`/blog/post/${s.path}`}
-                        className="blog-tile group flex flex-col gap-1.5 rounded-xl border border-black-50 bg-black-200/60 p-4 transition-colors hover:border-blue-500/40 hover:bg-black-100"
-                        {...PRESS}
-                      >
-                        <span className="text-sm font-semibold leading-snug text-blue-50 transition-colors group-hover:text-blue-300">
-                          {s.title}
-                        </span>
-                        <span className="line-clamp-2 text-xs leading-relaxed text-white-50/60">
-                          {s.msg}
-                        </span>
-                        <span className="mt-auto pt-1 text-[10px] text-white-50/40">
-                          {s.path.split("/").slice(0, 2).join(" / ")}
-                        </span>
-                      </MotionLink>
-                    ))}
-                  </div>
-                </div>
-              )}
               <div className="blog-intro relative mt-8 mb-4">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white-50/40" />
                 <input
