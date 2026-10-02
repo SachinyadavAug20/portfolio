@@ -7,7 +7,7 @@
  * random "acts" the cat performs on its own.
  *
  * Rules of voice: lowercase, short, simple, smart. Occasional transliterated
- * Hindi (the Moti tour-guide persona). Glyphs only (no emoji).
+ * Hindi (the Luna tour-guide persona). Glyphs only (no emoji).
  */
 
 import { CAT_NAME, CHATTER, PET_LINES, THEME_LINES, WAKE_LINES, rand } from "./cat";
@@ -299,6 +299,13 @@ const GUIDE_LINES = [
   "this tour has zero popups. design done right.",
   "maan lo— this portfolio is worth a second look.",
   "the cat approves this portfolio. strongly.",
+  "he runs arch linux and neovim. config files are public. nerdy. good.",
+  "there's a repo called Meow Mega Corp Bank. yes, meow. yes, spring boot.",
+  "he watched the MIT asymptotics lecture. big-O, but educational.",
+  "he has 34 repos. i have 9 lives. we're both collectors.",
+  "his obsidian vault has a zomato clone hiding in the LLD notes.",
+  "dhun is his spotify clone — plain html, css, js. css did the heavy lifting.",
+  "his itch.io page has games you can play. then hire him. sequence matters.",
 ].map((s) => s);
 
 const WISDOM = [
@@ -405,7 +412,7 @@ export const routeLine = (path: string, ctx: CatContext): string => {
 /* ------------------------ click awareness ------------------------ */
 
 export type ClickKind =
-  | "email" | "games" | "github" | "linkedin"
+  | "email" | "games" | "github" | "linkedin" | "leetcode" | "x"
   | "external" | "card" | "graph";
 
 const CLICK_POOLS: Record<ClickKind, readonly string[]> = {
@@ -427,11 +434,30 @@ const CLICK_POOLS: Record<ClickKind, readonly string[]> = {
     "github~ mind the history. it's clean.",
     "fork it. clone it. hire him. (order is flexible.)",
     "his code in the wild. be gentle. or be impressed.",
+    "34 repos in there. i've buried fewer bones.",
+    "AlienBlaster lives here — a 2D platformer he wrote in C#.",
+    "BaseCase is the flagship. q&a platform, zod schemas, dark mode.",
+    "Arch-config: hyprland + lua dotfiles. they slap.",
+    "he cloned twitter with tailwind + express + ejs. old stack, new polish.",
+    "Quantyx — a web calculator. everyone starts somewhere; he shipped it anyway.",
   ],
   linkedin: [
     "professional mode: engaged.",
     "very employable energy. the cat approves.",
     "recruiters live here. lately, so does he.",
+  ],
+  leetcode: [
+    "the leetcode grind is real. b2mIkNz0h5 — nobody said profiling was pretty.",
+    "problem solved somewhere in there. another cat nap unlocked.",
+    "dsa mode: on. hired mode: pending.",
+    "MIT asymptotics notes back this up. big-O, bigger effort.",
+    "he solves algorithms for fun. imagine what he'd do for payroll.",
+  ],
+  x: [
+    "@samtagon38824. the cat does not run the account. unfortunately.",
+    "he posts between commits. so: rarely, but with intent.",
+    "follow for code. the cat content is theoretical.",
+    "the tweets are real. unlike his sleep schedule.",
   ],
   external: [
     "outside the portfolio~ come back, the cat gets lonely.",
@@ -455,6 +481,35 @@ const CLICK_POOLS: Record<ClickKind, readonly string[]> = {
 };
 export const clickLine = (kind: ClickKind): string =>
   freshPick(CLICK_POOLS[kind]);
+
+/* ---------------------- typed keyword lines ---------------------- */
+
+export const MEOW_LINES = [
+  "meow detected. translation: hire him.",
+  "you're meowing at a cat. bold. i respect it.",
+  "mrow~ that's 'send the offer' in cat.",
+  "meow means yes. meow also means hire. mostly hire.",
+  "cat support online. your issue: not hired yet. your fix: the form below.",
+  "meow meow. no dog detected. you're safe.",
+  "typing meow costs nothing. hiring sachin costs his competitors.",
+  "he taught me that word. lies. i was born with it.",
+  "mrow? that's '404: dog not found' in cat.",
+  "again? the contact form works too, you know.",
+];
+export const HIRE_LINES = [
+  "you spelled it right. gold star. now use the form.",
+  "HIRE — the correct keyword. rewards: one (1) sachin.",
+  "type it here all day; the form below actually sends it.",
+  "cat hr department: offer letters go to the contact section.",
+  "he's 2nd year b.tech and ships like it's year four. just saying.",
+  "cheat code accepted. console is #contact.",
+  "no takebacks. the cat heard you.",
+  "yes. hire. next question.",
+  "escalated your case. destination: the footer, then the form.",
+  "one keyword closer. next stop: contact section.",
+];
+export const meowLine = (): string => freshPick(MEOW_LINES);
+export const hireLine = (): string => freshPick(HIRE_LINES);
 
 /* ----------------------- section awareness ----------------------- */
 
@@ -722,6 +777,7 @@ export const ESTIMATED_LINE_SPACE =
   Object.values(CLICK_POOLS).reduce((n, p) => n + p.length, 0) +
   Object.values(SECTION_POOLS).reduce((n, p) => n + p.length, 0) +
   Object.values(TAP_LINES).reduce((n, p) => n + p.length, 0) +
+  MEOW_LINES.length + HIRE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
 export const templateLine = (): string => build(pick(TEMPLATES));

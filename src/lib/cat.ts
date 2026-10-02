@@ -5,12 +5,12 @@ export const GREETED_KEY = "cat-companion:greeted";
 export const SHOO_KEY = "cat-companion:shooed";
 
 /*
- * The cat's persona: Moti — Sachin's personal tour-guide cat. She lives in
+ * The cat's persona: Luna — Sachin's personal tour-guide cat. She lives in
  * the corner of the portfolio, points out rooms worth visiting, gently
  * nudges you toward the good stuff (and toward hiring Sachin), and keeps a
  * warm Hinglish streak. A guide, not a meme.
  */
-export const CAT_NAME = "Moti";
+export const CAT_NAME = "Luna";
 
 export const GREETING = (name: string) =>
   `${name} reporting for duty. (pspsps to call, alt+c to shoo me)`;

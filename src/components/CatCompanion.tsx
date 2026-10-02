@@ -50,9 +50,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
  * - Reduced motion never spawns the cat; Alt+C shooes it for the session.
  * - After long idle the cat wakes with a clickable blog suggestion
  *   (dynamic import keeps the reading list out of the entry bundle).
- * - Persona: Moti, Sachin's tour-guide cat — shows you around, nudges you
+ * - Persona: Luna, Sachin's tour-guide cat — shows you around, nudges you
  *   toward the good stuff (and toward hiring Sachin).
- * - Type "pspsps" anywhere to call him back to your cursor.
+ * - Type "pspsps" anywhere to call him back to your cursor; type "meow"
+ *   or "hire" to get an answer (only outside form fields).
  * - The brain (src/lib/catBrain) lazy-loads: 100k+ combinatorial lines,
  *   session context (route/hour/scroll/pets/typing), and weighted random
  *   acts (zoomies, yarn chase, knock, prophecy…) — cat.ts lines are the
@@ -372,6 +373,9 @@ const CatCompanion = () => {
           if (host.includes("itch.io")) line = brain.clickLine("games");
           else if (host.includes("github.com")) line = brain.clickLine("github");
           else if (host.includes("linkedin.com")) line = brain.clickLine("linkedin");
+          else if (host.includes("leetcode.com")) line = brain.clickLine("leetcode");
+          else if (host.includes("x.com") || host.includes("twitter.com"))
+            line = brain.clickLine("x");
           else line = brain.clickLine("external");
         }
         /* same-tab internal links: the route line speaks on arrival */
@@ -443,9 +447,10 @@ const CatCompanion = () => {
     };
     document.addEventListener("copy", onCopy);
 
-    /* type "pspsps" to call the cat back to your cursor */
+    /* type "pspsps" to call the cat back; "meow" / "hire" earn answers */
     let psBuf = "";
     let lastPs = 0;
+    let lastWord = 0;
     const onKeyType = (e: Event) => {
       const t = e as KeyboardEvent;
       const el = document.activeElement;
@@ -458,21 +463,46 @@ const CatCompanion = () => {
         return;
       if (!t.key || t.key.length !== 1 || !/[a-z]/i.test(t.key)) return;
       psBuf = (psBuf + t.key.toLowerCase()).slice(-6);
-      if (psBuf !== "pspsps") return;
+      if (psBuf === "pspsps") {
+        psBuf = "";
+        const now = Date.now();
+        if (now - lastPs < 8000) return;
+        lastPs = now;
+        const neko = nekoRef.current;
+        if (!neko) return;
+        if (sleepingRef.current) {
+          sleepingRef.current = false;
+          neko.wake();
+          setSleeping(false);
+        }
+        seedPointer(lastPointer.current.x, lastPointer.current.y);
+        spawnSparkles(neko.position.x, neko.position.y);
+        showPhrase(`pspsps~ ${CAT_NAME} reporting.`, 3000, true);
+        return;
+      }
+      const word = psBuf.endsWith("meow")
+        ? "meow"
+        : psBuf.endsWith("hire")
+          ? "hire"
+          : null;
+      if (!word) return;
       psBuf = "";
       const now = Date.now();
-      if (now - lastPs < 8000) return;
-      lastPs = now;
+      if (now - lastWord < 6000) return;
+      const brain = brainRef.current;
+      if (!brain || document.hidden) return;
+      lastWord = now;
       const neko = nekoRef.current;
-      if (!neko) return;
-      if (sleepingRef.current) {
+      if (neko && sleepingRef.current) {
         sleepingRef.current = false;
         neko.wake();
         setSleeping(false);
       }
-      seedPointer(lastPointer.current.x, lastPointer.current.y);
-      spawnSparkles(neko.position.x, neko.position.y);
-      showPhrase(`pspsps~ ${CAT_NAME} reporting.`, 3000, true);
+      showPhrase(
+        word === "meow" ? brain.meowLine() : brain.hireLine(),
+        4400,
+        true,
+      );
     };
     document.addEventListener("keydown", onKeyType);
 
@@ -592,7 +622,7 @@ const CatCompanion = () => {
     );
   }, [location.pathname, showPhrase, getCtx]);
 
-  /* section awareness: when a home section takes the stage, Moti has a
+  /* section awareness: when a home section takes the stage, Luna has a
      line about it — always the first time, sometimes after that */
   useEffect(() => {
     if (reduced || !enabled) return;
