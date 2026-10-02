@@ -115,7 +115,7 @@ section {
   --counter-text: #18181b;
   --counter-muted: #52525b;
   --tab-accent: #0284c7;
-  --tab-bar-bg: rgba(255, 255, 255, 0.88);
+  --tab-bar-bg: rgba(255, 255, 255, 0.96);
 }
 
 @layer base {
@@ -526,8 +526,8 @@ section {
     @apply fixed bottom-0 left-0 right-0 z-[80] items-stretch justify-around;
     background-color: var(--tab-bar-bg);
     border-top: 1px solid var(--nav-border);
-    backdrop-filter: blur(12px) saturate(1.5);
-    -webkit-backdrop-filter: blur(12px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.6);
+    -webkit-backdrop-filter: blur(16px) saturate(1.6);
     padding-bottom: env(safe-area-inset-bottom, 0px);
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
@@ -539,7 +539,7 @@ section {
   .bottom-tab {
     @apply relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium;
     color: var(--nav-link-hover);
-    opacity: 0.5;
+    opacity: 0.78;
     transition: opacity 0.15s, color 0.15s, transform 0.1s;
     -webkit-tap-highlight-color: transparent;
   }
@@ -1265,7 +1265,7 @@ section {
   --counter-text: #f4f4f5;
   --counter-muted: #a1a1aa;
   --tab-accent: #38bdf8;
-  --tab-bar-bg: rgba(0, 0, 0, 0.82);
+  --tab-bar-bg: rgba(0, 0, 0, 0.94);
 }
 
 .blog-content {
