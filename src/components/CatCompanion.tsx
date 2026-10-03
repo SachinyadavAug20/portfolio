@@ -52,8 +52,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
  *   (dynamic import keeps the reading list out of the entry bundle).
  * - Persona: Luna, Sachin's tour-guide cat — shows you around, nudges you
  *   toward the good stuff (and toward hiring Sachin).
- * - Type "pspsps" anywhere to call him back to your cursor; type "meow"
- *   or "hire" to get an answer (only outside form fields).
+ * - Type "pspsps" anywhere to call him back to your cursor; typed words
+ *   (luna, meow, hire, joke, help, thanks, fish, sachin, hi) earn answers
+ *   outside form fields.
  * - The brain (src/lib/catBrain) lazy-loads: 100k+ combinatorial lines,
  *   session context (route/hour/scroll/pets/typing), and weighted random
  *   acts (zoomies, yarn chase, knock, prophecy…) — cat.ts lines are the
@@ -447,7 +448,8 @@ const CatCompanion = () => {
     };
     document.addEventListener("copy", onCopy);
 
-    /* type "pspsps" to call the cat back; "meow" / "hire" earn answers */
+    /* type "pspsps" to call the cat back; words like luna/meow/hire/joke
+       help/fish/thanks/sachin earn answers (outside form fields) */
     let psBuf = "";
     let lastPs = 0;
     let lastWord = 0;
@@ -480,17 +482,13 @@ const CatCompanion = () => {
         showPhrase(`pspsps~ ${CAT_NAME} reporting.`, 3000, true);
         return;
       }
-      const word = psBuf.endsWith("meow")
-        ? "meow"
-        : psBuf.endsWith("hire")
-          ? "hire"
-          : null;
+      const brain = brainRef.current;
+      if (!brain || document.hidden) return;
+      const word = brain.matchKeyword(psBuf);
       if (!word) return;
       psBuf = "";
       const now = Date.now();
       if (now - lastWord < 6000) return;
-      const brain = brainRef.current;
-      if (!brain || document.hidden) return;
       lastWord = now;
       const neko = nekoRef.current;
       if (neko && sleepingRef.current) {
@@ -498,11 +496,13 @@ const CatCompanion = () => {
         neko.wake();
         setSleeping(false);
       }
-      showPhrase(
-        word === "meow" ? brain.meowLine() : brain.hireLine(),
-        4400,
-        true,
-      );
+      if (neko) {
+        const { x, y } = neko.position;
+        if (word === "fish") spawnFish(x, y, x > window.innerWidth / 2 ? -1 : 1);
+        else if (word === "luna" || word === "thanks") spawnHearts(x, y, 5);
+        else if (word === "sachin") spawnSparkles(x, y);
+      }
+      showPhrase(brain.keywordLine(word), 4400, true);
     };
     document.addEventListener("keydown", onKeyType);
 
@@ -577,7 +577,7 @@ const CatCompanion = () => {
       showPhrase(
         brain
           ? brain.themeLine(darkRef.current)
-          : THEME_LINES[theme as "dark" | "light"][rand(2)],
+          : THEME_LINES[theme as "dark" | "light"][rand(THEME_LINES[theme as "dark" | "light"].length)],
         2600,
         true,
       );
@@ -636,10 +636,14 @@ const CatCompanion = () => {
         for (const en of entries) {
           if (!en.isIntersecting) continue;
           const id = en.target.id;
-          if (now - lastSectionAt.current < 14_000) continue;
-          if (now - lastContactFocus.current < 12_000) continue;
           const first = !seenSections.current.has(id);
-          if (!first && Math.random() < 0.7) continue;
+          /* the first visit to a section always speaks; re-entries respect
+             the cooldowns (and mostly stay quiet) */
+          if (!first) {
+            if (now - lastSectionAt.current < 14_000) continue;
+            if (now - lastContactFocus.current < 12_000) continue;
+            if (Math.random() < 0.7) continue;
+          }
           const brain = brainRef.current;
           if (!brain || suggestRef.current || document.hidden || !nekoRef.current)
             continue;

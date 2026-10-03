@@ -484,32 +484,113 @@ export const clickLine = (kind: ClickKind): string =>
 
 /* ---------------------- typed keyword lines ---------------------- */
 
-export const MEOW_LINES = [
-  "meow detected. translation: hire him.",
-  "you're meowing at a cat. bold. i respect it.",
-  "mrow~ that's 'send the offer' in cat.",
-  "meow means yes. meow also means hire. mostly hire.",
-  "cat support online. your issue: not hired yet. your fix: the form below.",
-  "meow meow. no dog detected. you're safe.",
-  "typing meow costs nothing. hiring sachin costs his competitors.",
-  "he taught me that word. lies. i was born with it.",
-  "mrow? that's '404: dog not found' in cat.",
-  "again? the contact form works too, you know.",
-];
-export const HIRE_LINES = [
-  "you spelled it right. gold star. now use the form.",
-  "HIRE — the correct keyword. rewards: one (1) sachin.",
-  "type it here all day; the form below actually sends it.",
-  "cat hr department: offer letters go to the contact section.",
-  "he's 2nd year b.tech and ships like it's year four. just saying.",
-  "cheat code accepted. console is #contact.",
-  "no takebacks. the cat heard you.",
-  "yes. hire. next question.",
-  "escalated your case. destination: the footer, then the form.",
-  "one keyword closer. next stop: contact section.",
-];
-export const meowLine = (): string => freshPick(MEOW_LINES);
-export const hireLine = (): string => freshPick(HIRE_LINES);
+export const KEYWORD_LINES: Record<string, readonly string[]> = {
+  luna: [
+    "that's ME. say it again, i dare you.",
+    "you typed my name~ pets accepted here.",
+    "luna reporting. obviously.",
+    "yes? oh— you mean the cat. that's me.",
+    "luna: professional napper, certified guide.",
+    "four letters, infinite charm.",
+    "you know my name. we're friends now.",
+    "calling me by name? bold. i like you.",
+  ],
+  meow: [
+    "meow detected. translation: hire him.",
+    "you're meowing at a cat. bold. i respect it.",
+    "mrow~ that's 'send the offer' in cat.",
+    "meow means yes. meow also means hire. mostly hire.",
+    "cat support online. your issue: not hired yet. your fix: the form below.",
+    "meow meow. no dog detected. you're safe.",
+    "typing meow costs nothing. hiring sachin costs his competitors.",
+    "he taught me that word. lies. i was born with it.",
+    "mrow? that's '404: dog not found' in cat.",
+    "again? the contact form works too, you know.",
+  ],
+  hire: [
+    "you spelled it right. gold star. now use the form.",
+    "HIRE — the correct keyword. rewards: one (1) sachin.",
+    "type it here all day; the form below actually sends it.",
+    "cat hr department: offer letters go to the contact section.",
+    "he's 2nd year b.tech and ships like it's year four. just saying.",
+    "cheat code accepted. console is #contact.",
+    "no takebacks. the cat heard you.",
+    "yes. hire. next question.",
+    "escalated your case. destination: the footer, then the form.",
+    "one keyword closer. next stop: contact section.",
+  ],
+  hi: [
+    "hi~ you found the cat.",
+    "hello. tours start whenever you scroll.",
+    "nya— hi. i'm luna, obviously.",
+    "hey. sass included at no extra cost.",
+    "hi! pet me or scroll. both work.",
+    "greetings. i'm the HR department. and the office.",
+    "oh, hi. i was pretending to nap.",
+    "hello human. the other human here is hireable.",
+  ],
+  joke: [
+    "why don't cats play poker in the jungle? too many cheetahs. (i'm sorry.)",
+    "i told sachin a javascript joke. he returned undefined.",
+    "what's a cat's favorite color? purr-ple.",
+    "how do cats end a fight? they hiss and make up.",
+    "i asked the yarn for directions. it led me in circles. perfect.",
+    "why was the cat on the computer? to keep an eye on the mouse.",
+    "the joke repo has34 stars. all self-published.",
+    "that's the whole joke. the real joke is unpaid internships.",
+  ],
+  help: [
+    "shortcuts: pspsps = call me, a/d = accept/skip suggestion, alt+c = shoo.",
+    "type these at me: luna, meow, hire, joke, thanks, fish, sachin.",
+    "you're doing great. to hire him: #contact. to pet me: click.",
+    "keyboard: a accepts, d dismisses, alt+c bans me (don't).",
+    "tip: type 'fish' for science.",
+    "manual: scroll, click, type nonsense. i react to everything.",
+    "help desk open. issue: not enough pets. solution: more pets.",
+    "lost? pspsps brings me. the nav brings you.",
+  ],
+  thanks: [
+    "you're welcome. pets accepted as payment.",
+    "gratitude detected~ purring resumed.",
+    "anytime. that's what tour guides do.",
+    "thanks back. now hire him, we're all set.",
+    "politely received. very employable human.",
+    "mwrow~ (that's 'thanks' in cat).",
+  ],
+  fish: [
+    "fish?! where— oh. you're my favorite.",
+    "tuna detected. i'm listening.",
+    "a fish! this meeting just improved.",
+    "accepting fish as a signing bonus.",
+    "you brought fish. sachin brings code. good team.",
+    "nom nom. hire him, fish me later.",
+  ],
+  sachin: [
+    "sachin: the reason this site exists. hire him.",
+    "that's my human. 2nd year, full-stack, questionable sleep.",
+    "you called? oh— HIM. he's the one with the skills.",
+    "sachin chandra yadav. remember the name. recruiters do.",
+    "he coded this, i supervised. division of labor.",
+    "sachin: available for hire. cat: available for pets.",
+  ],
+};
+/* longest first so "sachin" never trips the "hi" inside it */
+const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
+
+/** longest keyword the buffer ends with, unless the buffer is still a
+    prefix of a longer keyword in progress (typing "sachin" won't fire "hi") */
+export const matchKeyword = (buf: string): string | null => {
+  for (const w of KEYWORD_ORDER) {
+    if (!buf.endsWith(w)) continue;
+    const growing = KEYWORD_ORDER.some(
+      (k) => k.length > w.length && k.startsWith(buf),
+    );
+    if (!growing) return w;
+  }
+  return null;
+};
+export const keywordLine = (word: string): string =>
+  freshPick(KEYWORD_LINES[word] ?? KEYWORD_LINES.meow);
 
 /* ----------------------- section awareness ----------------------- */
 
@@ -777,7 +858,7 @@ export const ESTIMATED_LINE_SPACE =
   Object.values(CLICK_POOLS).reduce((n, p) => n + p.length, 0) +
   Object.values(SECTION_POOLS).reduce((n, p) => n + p.length, 0) +
   Object.values(TAP_LINES).reduce((n, p) => n + p.length, 0) +
-  MEOW_LINES.length + HIRE_LINES.length +
+  Object.values(KEYWORD_LINES).reduce((n, p) => n + p.length, 0) +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
 export const templateLine = (): string => build(pick(TEMPLATES));

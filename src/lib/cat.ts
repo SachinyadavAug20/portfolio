@@ -73,8 +73,22 @@ export const SUGGEST_DENY = [
 ];
 
 export const THEME_LINES = {
-  dark: ["nya~ dim lights. big naps.", "dark mode = cat mode."],
-  light: ["so bright! but cute.", "sunlight detected~"],
+  dark: [
+    "nya~ dim lights. big naps.",
+    "dark mode = cat mode.",
+    "the dark. my pupils: fully committed.",
+    "midnight vibes at any hour. i approve.",
+    "dark mode finally. my retina thanks you.",
+    "black on black. very formal. very cat.",
+  ],
+  light: [
+    "so bright! but cute.",
+    "sunlight detected~",
+    "light mode: the sunbeam finds ME.",
+    "everything is visible. even his commit history.",
+    "too bright! pupils: shrink mode.",
+    "daylight. productivity. (i'll nap through it.)",
+  ],
 };
 
 export const ROUTE_LINES: Record<string, string> = {

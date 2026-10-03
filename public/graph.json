@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-10-02T10:34:20.715Z",
+ "generatedAt": "2026-10-03T04:32:44.268Z",
  "counts": {
-  "notes": 330,
+  "notes": 331,
   "folders": 60,
-  "links": 586,
+  "links": 587,
   "wikiLinks": 204
  },
  "nodes": [
@@ -88,6 +88,12 @@
   {
    "id": "Programing/Concepts/LLD/12.Decorator design pattern",
    "title": "Example",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/13.Notification engine",
+   "title": "PS",
    "kind": "note",
    "dir": "Programing/Concepts/LLD"
   },
@@ -3436,6 +3442,11 @@
   },
   {
    "source": "Programing/Concepts/LLD/12.Decorator design pattern",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/13.Notification engine",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
   },
