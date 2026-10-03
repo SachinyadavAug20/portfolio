@@ -98,6 +98,11 @@ const CommandPalette = () => {
     }
   }
 
+  /* the cat has an opinion about the search box */
+  useEffect(() => {
+    if (open) window.dispatchEvent(new Event("palette-opened"));
+  }, [open]);
+
   /* lazily pull the note list the first time the palette opens */
   useEffect(() => {
     if (!open || notes) return;

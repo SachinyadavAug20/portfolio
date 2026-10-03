@@ -781,6 +781,34 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "because someone has to ship good things. it's him.",
     "why are you still reading? go say hello.",
   ],
+  node: [
+    "node_modules: 400 mb of pure faith.",
+    "npm install sachin. zero vulnerabilities, i checked.",
+    "the event loop never sleeps. unlike me, professionally.",
+    "one layer deep in dependencies, two deep in naps.",
+    "node? runs everywhere except my nap schedule.",
+  ],
+  deploy: [
+    "deploy: the moment everyone pretends to be calm.",
+    "green pipeline detected. purring intensifies.",
+    "rollback is a state of mind. deploy anyway.",
+    "friday 5 pm deploy? bold. i'd nap and reconsider.",
+    "ci says pass. i says purr. we are both correct.",
+  ],
+  vim: [
+    "vim: normal mode is a lifestyle.",
+    "esc esc esc. still home. vim circle of life.",
+    "you don't learn vim. vim keeps you.",
+    "hjkl: four directions, zero progress, infinite style.",
+    "`:wq` and out. that's the whole tutorial.",
+  ],
+  linux: [
+    "linux: everything is a file, even my nap log.",
+    "sudo makes anyone feel like an admin. even cats.",
+    "i distro-hop weekly. currently arch, obviously.",
+    "chmod +x your dreams. or at least the build script.",
+    "the penguin and i have an understanding. i nap on the kernel.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -946,6 +974,24 @@ const POST_STREAK = [
   "studying, are we? he'd hire that energy.",
 ];
 export const streakPostLine = (): string => freshPick(POST_STREAK);
+
+const PALETTE_OPEN = [
+  "the command palette. everything sachin wrote, one key away.",
+  "`/` opens this too. we share custody of it.",
+  "try `blog` or `graph` in there. `contact` if you're brave.",
+  "cmd+k on mac, ctrl+k elsewhere. i checked both.",
+  "search box: online. typing required, judgement optional.",
+];
+export const paletteLine = (): string => freshPick(PALETTE_OPEN);
+
+const HELP_OPEN = [
+  "the `?` sheet. i taught it everything i know.",
+  "that's my curriculum. escape closes the school.",
+  "`g` then `h` is home, `g` then `b` is blog. smooth moves.",
+  "shortcuts listed. half of them are just me.",
+  "help open. `t` flips the theme while you're in there.",
+];
+export const helpLine = (): string => freshPick(HELP_OPEN);
 
 /* ------------------ weird-behaviour reactions ------------------ */
 
@@ -1179,6 +1225,7 @@ export const ESTIMATED_LINE_SPACE =
   Object.values(KEYWORD_LINES).reduce((n, p) => n + p.length, 0) +
   TOUR_DONE.length + HOVER_AWAKE.length + HOVER_ASLEEP.length +
   MESSAGE_POOL.length + CELEBRATION.length + POST_STREAK.length +
+  PALETTE_OPEN.length + HELP_OPEN.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 

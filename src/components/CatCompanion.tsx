@@ -149,6 +149,8 @@ const CatCompanion = () => {
   const lastContactFocus = useRef(0);
   const seenSections = useRef<Set<string>>(new Set());
   const lastHoverLine = useRef(0);
+  const lastPaletteLine = useRef(0);
+  const lastHelpLine = useRef(0);
   const tourDone = useRef(false);
   /* cat-tap streak for repeated-click escalation */
   const tapStreak = useRef<number[]>([]);
@@ -452,6 +454,27 @@ const CatCompanion = () => {
     };
     window.addEventListener("contact-sent", onSent);
 
+    /* the palette and the shortcuts sheet each earn one word, 30s apart,
+       and never while a suggestion holds the floor */
+    const onPalette = () => {
+      const now = Date.now();
+      const brain = brainRef.current;
+      if (!brain || suggestRef.current || document.hidden) return;
+      if (now - lastPaletteLine.current < 30_000) return;
+      lastPaletteLine.current = now;
+      showPhrase(brain.paletteLine(), 3000, false);
+    };
+    const onHelpSheet = () => {
+      const now = Date.now();
+      const brain = brainRef.current;
+      if (!brain || suggestRef.current || document.hidden) return;
+      if (now - lastHelpLine.current < 30_000) return;
+      lastHelpLine.current = now;
+      showPhrase(brain.helpLine(), 3000, false);
+    };
+    window.addEventListener("palette-opened", onPalette);
+    window.addEventListener("help-opened", onHelpSheet);
+
     /* proximity hover: the sprite has pointer-events:none (neko-ts inline),
        so pointerover never fires — we do the distance math ourselves.
        Hysteresis (40 in, 64 out) keeps the perk-up from flickering */
@@ -608,6 +631,13 @@ const CatCompanion = () => {
           neko.setSpeed(20);
           window.setTimeout(() => nekoRef.current?.setSpeed(12), 1000);
         }
+        else if (word === "node" || word === "linux") spawnSparkles(x, y);
+        else if (word === "vim") spawnHearts(x, y, 6);
+        else if (word === "deploy") {
+          spawnSparkles(x, y);
+          neko.setSpeed(20);
+          window.setTimeout(() => nekoRef.current?.setSpeed(12), 1000);
+        }
         else if (word === "dog") {
           /* dogs get chased off the premises */
           spawnSparkles(x, y);
@@ -706,6 +736,9 @@ const CatCompanion = () => {
       document.removeEventListener("keydown", onKeyRate);
       document.removeEventListener("copy", onCopy);
       document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("contact-sent", onSent);
+      window.removeEventListener("palette-opened", onPalette);
+      window.removeEventListener("help-opened", onHelpSheet);
       window.removeEventListener("wheel", onWheelRush);
       window.removeEventListener("resize", onResize);
       window.clearTimeout(resizeTimer);

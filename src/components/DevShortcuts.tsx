@@ -59,6 +59,11 @@ const DevShortcuts = () => {
     return () => window.removeEventListener("show-shortcuts-help", onShow);
   }, []);
 
+  /* the cat teaches the sheet, then comments on it */
+  useEffect(() => {
+    if (helpOpen) window.dispatchEvent(new Event("help-opened"));
+  }, [helpOpen]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
