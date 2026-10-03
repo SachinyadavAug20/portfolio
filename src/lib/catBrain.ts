@@ -893,6 +893,41 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "biryani deployment: slow-cooked, worth the wait.",
     "one plate of biryani = one clean build. i don't make the rules.",
   ],
+  mouse: [
+    "a mouse! ...oh. not the draggable kind.",
+    "mouse detected. pounce protocol: pending.",
+    "the real mouse lives in the wall. shy guy.",
+    "click it twice. that's how you catch mice.",
+    "mouse? where. (nowhere. always nowhere.)",
+  ],
+  bird: [
+    "birds out there. i'm in here. life is hard.",
+    "a bird! ...wait. a leaf. carry on.",
+    "my inside voice wants to chirp at that.",
+    "i could catch that bird. theoretically. spiritually.",
+    "birds chirp at 6am. i judge them at 6am.",
+  ],
+  tea: [
+    "tea > coffee. sachin disagrees, respectfully.",
+    "cup of tea: the warm build.",
+    "steeping... do not disturb the cat.",
+    "two sugars and a review comment.",
+    "tea: liquid focus. served purring.",
+  ],
+  pizza: [
+    "pizza: the deploy food. arrives hot, gone fast.",
+    "extra cheese = extra story points.",
+    "pizza code reviews end badly. pizza code pairs don't.",
+    "one slice per merged PR. fair trade.",
+    "flat, folded, flawless. like a good layout.",
+  ],
+  travel: [
+    "travel: bug reports from new timezones.",
+    "the best stack is somewhere with good wifi.",
+    "passport stamped. laptop packed. cat? unimpressed.",
+    "wanderlust and push notifications.",
+    "take the trip. the standup can wait.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -1140,6 +1175,24 @@ const TAB_LINES = [
 ];
 export const tabLine = (): string => freshPick(TAB_LINES);
 
+const RUSH_UP = [
+  "rewinding. the plot thickens in reverse.",
+  "up! against gravity. impressive.",
+  "scrolling up fast: regret or revision?",
+  "back to the top. classic cat u-turn.",
+  "reverse gear engaged. purr-fect parallel parking.",
+];
+export const rushUpLine = (): string => freshPick(RUSH_UP);
+
+const SELECT_ALL = [
+  "the whole page? ambitious. i approve.",
+  "ctrl+a. the nuclear option.",
+  "everything, at once. very inclusive.",
+  "select-all detected. maximum context.",
+  "you selected the source. i saw everything.",
+];
+export const selectAllLine = (): string => freshPick(SELECT_ALL);
+
 /* ------------------ weird-behaviour reactions ------------------ */
 
 export type TapKind = "wake" | "many" | "melt" | "ctx" | "purr";
@@ -1375,7 +1428,7 @@ export const ESTIMATED_LINE_SPACE =
   PALETTE_OPEN.length + HELP_OPEN.length + SELECTION_POOL.length +
   FOCUS_LINES.name.length + FOCUS_LINES.email.length +
   FOCUS_LINES.message.length + G_ARMED.length + PRINT_POOL.length +
-  RAPID_NAV.length + TAB_LINES.length +
+  RAPID_NAV.length + TAB_LINES.length + RUSH_UP.length + SELECT_ALL.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 

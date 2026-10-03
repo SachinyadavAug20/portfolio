@@ -158,6 +158,8 @@ const CatCompanion = () => {
   const navTimesRef = useRef<number[]>([]);
   const lastRapidLine = useRef(0);
   const lastTabLine = useRef(0);
+  const lastRushUp = useRef(0);
+  const lastSelectAll = useRef(0);
   const tourDone = useRef(false);
   /* cat-tap streak for repeated-click escalation */
   const tapStreak = useRef<number[]>([]);
@@ -436,9 +438,14 @@ const CatCompanion = () => {
        each get one quiet word (non-force: a fresh phrase keeps the floor) */
     const onSelectChange = () => {
       const sel = document.getSelection();
-      if (!sel || sel.toString().length < 120) return;
+      const len = sel ? sel.toString().length : 0;
+      if (len < 120) return;
       const brain = brainRef.current;
       if (!brain) return;
+      if (len >= 3000) {
+        sayUiLine(() => brain.selectAllLine(), lastSelectAll, 30_000, 3000);
+        return;
+      }
       sayUiLine(() => brain.selectionLine(), lastSelectionLine, 30_000, 3000);
     };
     const onFieldFocus = (e: Event) => {
@@ -730,6 +737,15 @@ const CatCompanion = () => {
           neko.setSpeed(20);
           window.setTimeout(() => nekoRef.current?.setSpeed(12), 1000);
         }
+        else if (word === "mouse") spawnYarn(x, y);
+        else if (word === "bird") {
+          spawnSparkles(x, y);
+          neko.setSpeed(16);
+          window.setTimeout(() => nekoRef.current?.setSpeed(12), 900);
+        }
+        else if (word === "tea") spawnHearts(x, y, 4);
+        else if (word === "pizza") spawnHearts(x, y, 6);
+        else if (word === "travel") spawnSparkles(x, y);
         else if (word === "vim") spawnHearts(x, y, 6);
         else if (word === "deploy") {
           spawnSparkles(x, y);
@@ -781,6 +797,7 @@ const CatCompanion = () => {
 
     /* a violent wheel burst gets called out (once in a while) */
     let rushSum = 0;
+    let rushSumDir = 0;
     let rushAt = 0;
     let lastRushLine = 0;
     const onWheelRush = (e: Event) => {
@@ -789,14 +806,23 @@ const CatCompanion = () => {
         rushSum = 0;
         rushAt = now;
       }
-      rushSum += Math.abs((e as WheelEvent).deltaY);
+      const dy = (e as WheelEvent).deltaY;
+      rushSum += Math.abs(dy);
+      rushSumDir += dy;
       if (rushSum < 1400) return;
+      const upward = rushSumDir < 0;
       rushSum = 0;
+      rushSumDir = 0;
       if (now - lastRushLine < 20_000) return;
       const brain = brainRef.current;
       if (!brain || suggestRef.current || document.hidden || !nekoRef.current)
         return;
       lastRushLine = now;
+      if (upward && now - lastRushUp.current >= 45_000) {
+        lastRushUp.current = now;
+        showPhrase(brain.rushUpLine(), 3200, true);
+        return;
+      }
       showPhrase(brain.rushLine(), 3200, true);
     };
     window.addEventListener("wheel", onWheelRush, { passive: true });
