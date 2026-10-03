@@ -573,6 +573,49 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "he coded this, i supervised. division of labor.",
     "sachin: available for hire. cat: available for pets.",
   ],
+  nya: [
+    "nya nya~ back at you.",
+    "the official cat language. fluent.",
+    "nya means everything. context: vibes.",
+    "you speak nya? impressive. hireable, even.",
+    "nya. (translation below.) — there is no translation.",
+  ],
+  tuna: [
+    "TUNA? speak more slowly.",
+    "the good stuff. spring-loaded for tuna.",
+    "tuna: accepted as payment. one can = one tour.",
+    "you know my weakness. we're close now.",
+    "tuna detected over here~",
+  ],
+  yarn: [
+    "yarn! deploying ball...",
+    "you said yarn. instincts: activated.",
+    "where?! — oh, you meant emotionally. still good.",
+    "yarn is my love language.",
+    "rolling out the yarn. watch the corners.",
+  ],
+  nap: [
+    "nap accepted. zZz incoming.",
+    "you typed the magic word. eyelids: closing.",
+    "official nap request granted. do not disturb.",
+    "i was going to nap anyway. thanks for the push.",
+    "nap mode: engaged. hire sachin while i rest.",
+  ],
+  chai: [
+    "chai detected. sachin runs on it.",
+    "one chai = two commits. science.",
+    "masala or cardamom? the cat judges silently.",
+    "spill the chai AND the hiring details.",
+    "steaming cup energy~ the code reviews itself.",
+  ],
+  dog: [
+    "WOOF—?! where. where is it. (phew.)",
+    "a dog? in THIS portfolio? tact.",
+    "dog mentioned. whiskers: fully bristled.",
+    "wrong house, good boy. MOVE ALONG.",
+    "i heard a bark once. never again.",
+    "dogs: 0, cats: 1. final standings.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);

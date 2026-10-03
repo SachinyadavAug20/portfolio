@@ -54,8 +54,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
  * - Persona: Luna, Sachin's tour-guide cat — shows you around, nudges you
  *   toward the good stuff (and toward hiring Sachin).
  * - Type "pspsps" anywhere to call him back to your cursor; typed words
- *   (luna, meow, hire, joke, help, thanks, fish, sachin, hi) earn answers
- *   outside form fields.
+ *   (luna, meow, hire, joke, help, thanks, fish, sachin, hi, nya, tuna,
+ *   yarn, nap, chai, dog) earn answers outside form fields — some come
+ *   with props (fish, yarn) or consequences (nap sleeps, dog gets chased).
  * - The brain (src/lib/catBrain) lazy-loads: 100k+ combinatorial lines,
  *   session context (route/hour/scroll/pets/typing), and weighted random
  *   acts (zoomies, yarn chase, knock, prophecy…) — cat.ts lines are the
@@ -500,9 +501,29 @@ const CatCompanion = () => {
       }
       if (neko) {
         const { x, y } = neko.position;
-        if (word === "fish") spawnFish(x, y, x > window.innerWidth / 2 ? -1 : 1);
-        else if (word === "luna" || word === "thanks") spawnHearts(x, y, 5);
-        else if (word === "sachin") spawnSparkles(x, y);
+        if (word === "fish" || word === "tuna")
+          spawnFish(x, y, x > window.innerWidth / 2 ? -1 : 1);
+        else if (word === "luna" || word === "thanks" || word === "nya")
+          spawnHearts(x, y, 5);
+        else if (word === "sachin" || word === "chai") spawnSparkles(x, y);
+        else if (word === "yarn") spawnYarn(x, y);
+        else if (word === "dog") {
+          /* dogs get chased off the premises */
+          spawnSparkles(x, y);
+          neko.setSpeed(30);
+          seedPointer(
+            x < window.innerWidth / 2 ? window.innerWidth - 64 : 64,
+            window.innerHeight * 0.24,
+          );
+          window.setTimeout(() => {
+            nekoRef.current?.setSpeed(12);
+            seedPointer(lastPointer.current.x, lastPointer.current.y);
+          }, 1400);
+        } else if (word === "nap") {
+          sleepingRef.current = true;
+          neko.sleep();
+          setSleeping(true);
+        }
       }
       showPhrase(brain.keywordLine(word), 4400, true);
     };
