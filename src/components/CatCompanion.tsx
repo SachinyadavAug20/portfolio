@@ -146,6 +146,7 @@ const CatCompanion = () => {
   const lastSectionAt = useRef(0);
   const lastContactFocus = useRef(0);
   const seenSections = useRef<Set<string>>(new Set());
+  const tourDone = useRef(false);
   /* cat-tap streak for repeated-click escalation */
   const tapStreak = useRef<number[]>([]);
   /* session context the brain reads (see catTypes.CatContext) */
@@ -365,7 +366,13 @@ const CatCompanion = () => {
           if (id) {
             lastSectionAt.current = now;
             lastRoutePhrase.current = now;
-            line = brain.sectionLine(id);
+            seenSections.current.add(id);
+            if (!tourDone.current && seenSections.current.size >= 4) {
+              tourDone.current = true;
+              line = brain.tourLine();
+            } else {
+              line = brain.sectionLine(id);
+            }
           }
         } else if (href.startsWith("http") || a.target === "_blank") {
           let host = "";
@@ -452,7 +459,8 @@ const CatCompanion = () => {
     document.addEventListener("copy", onCopy);
 
     /* type "pspsps" to call the cat back; words like luna/meow/hire/joke
-       help/fish/thanks/sachin earn answers (outside form fields) */
+       help/fish/thanks/sachin/nya/tuna/yarn/nap/chai/dog/cat/box earn
+       answers — and sometimes props — outside form fields */
     let psBuf = "";
     let lastPs = 0;
     let lastWord = 0;
@@ -489,6 +497,9 @@ const CatCompanion = () => {
       if (!brain || document.hidden) return;
       const word = brain.matchKeyword(psBuf);
       if (!word) return;
+      /* a real cat word owns this keypress — don't let window-level
+         shortcuts (like the 't' theme flip) shadow the reply */
+      t.stopPropagation();
       psBuf = "";
       const now = Date.now();
       if (now - lastWord < 6000) return;
@@ -507,6 +518,8 @@ const CatCompanion = () => {
           spawnHearts(x, y, 5);
         else if (word === "sachin" || word === "chai") spawnSparkles(x, y);
         else if (word === "yarn") spawnYarn(x, y);
+        else if (word === "cat") spawnSparkles(x, y);
+        else if (word === "box") spawnHearts(x, y, 4);
         else if (word === "dog") {
           /* dogs get chased off the premises */
           spawnSparkles(x, y);
@@ -742,7 +755,12 @@ const CatCompanion = () => {
             continue;
           seenSections.current.add(id);
           lastSectionAt.current = now;
-          showPhrase(brain.sectionLine(id), 3600, true);
+          if (!tourDone.current && seenSections.current.size >= 4) {
+            tourDone.current = true;
+            showPhrase(brain.tourLine(), 4600, true);
+          } else {
+            showPhrase(brain.sectionLine(id), 3600, true);
+          }
         }
       },
       { threshold: 0, rootMargin: "-25% 0px -45% 0px" },

@@ -180,6 +180,14 @@ const FACTS = [
   "the purr heals bones. the pull request heals morale.",
   "cats always land on their feet. my fallback handlers agree.",
   "cats are crepuscular. so are my best ideas: dawn and dusk.",
+  "cats hold eye contact to say 'yours'. mine says 'hire him'.",
+  "cats spend half their waking hours grooming. i optimize comments.",
+  "the internet's first meme was a cat. natural order restored.",
+  "cats ignore the box the toy came in. devs ignore the docs. universal.",
+  "whiskers are rangefinders. mine ping on every button you hover.",
+  "small boxes calm cats. small diffs calm devs. physics.",
+  "every cat is the main character. honestly, same about sachin.",
+  "a cat's slow blink is 'i trust you'. do that to the contact form.",
   "cat pupils carry emotion. my ui states too.",
   "a cat's tongue has 1100 papillae. my code review: equally rough, lovingly.",
   "cats forget nothing important. also everything about your third tab.",
@@ -306,6 +314,22 @@ const GUIDE_LINES = [
   "his obsidian vault has a zomato clone hiding in the LLD notes.",
   "dhun is his spotify clone — plain html, css, js. css did the heavy lifting.",
   "his itch.io page has games you can play. then hire him. sequence matters.",
+  "the nav works. i tested it. with my face.",
+  "every link here leads somewhere real. verified. whisker-tested.",
+  "somewhere below, a contact form waits for you. patiently.",
+  "scroll depth is my favorite metric. you're crushing it.",
+  "this section brought to you by: caffeine and a cat.",
+  "he wrote the copy. i approved the tone.",
+  "portfolio reviews: cat, unbiased (extremely biased).",
+  "recruiter? the feeling is mutual — we've been expecting you.",
+  "the projects below survive daily scrutiny. i scrutinize.",
+  "nothing here is a placeholder. i eat placeholders.",
+  "his commit messages make sense. i purr at them.",
+  "you're at the part where curiosity becomes an email.",
+  "been here a while? the cat notices. fondly.",
+  "there's a graph view for visual thinkers. i see triangles too.",
+  "take a screenshot — the cat will remember your face.",
+  "one scroll deeper and i start counting your clicks. (already did.)",
 ].map((s) => s);
 
 const WISDOM = [
@@ -355,6 +379,14 @@ const WISDOM = [
   "attention is the rarest currency. spend it on one tab.",
   "make it work, make it right, make it fast. then nap.",
   "there's dignity in every honest commit.",
+  "the yarn ball's lesson: pull one thread, enjoy the chaos.",
+  "consistency beats intensity. so does a daily nap.",
+  "write it down or it never happened. that's what notes are for.",
+  "the best debug session ends with a walk. i'll supervise.",
+  "hire slow, ship fast. pet generous, nap always.",
+  "a clean repo is a clean mind. a clean desk is optional.",
+  "your future self thanks your past self. mine naps in both.",
+  "ship the small thing. the big thing fears momentum.",
   "what gets measured gets managed. what gets napped gets... napped.",
   "you can't pour from an empty cup. you can't code from an un-napped brain.",
   "kindness ships better than urgency. also compiles faster.",
@@ -616,6 +648,20 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "i heard a bark once. never again.",
     "dogs: 0, cats: 1. final standings.",
   ],
+  cat: [
+    "correct. i am a cat. gold star.",
+    "cat detected. ambient purr engaged.",
+    "meow's formal cousin: 'cat'.",
+    "you typed the species. i typed 'hire'. different priorities.",
+    "100% cat. 0% dog. certified.",
+  ],
+  box: [
+    "a BOX? where. — oh. emotionally. i'm already in one.",
+    "boxes: the original design system.",
+    "if i fits: i sits. if you hire: we're set.",
+    "box mentioned. loafing is a valid response.",
+    "cardboard > cloud computing. (i am the rule.)",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -717,6 +763,17 @@ const SECTION_POOLS: Record<string, readonly string[]> = {
 };
 export const sectionLine = (id: string): string =>
   freshPick(SECTION_POOLS[id] ?? ["ooh, a new corner~"]);
+
+/* the cap: all four home sections seen in one session */
+const TOUR_DONE = [
+  "tour complete~ stamp: hire him. (that's the whole brochure.)",
+  "you saw every section. certificate: yours. verdict: excellent taste.",
+  "four for four. the cat watched you grow.",
+  "full tour done — the gift shop is the contact form.",
+  "you've seen it all. the only button left: send message.",
+  "climbed every room. respect. sachin noticed.",
+];
+export const tourLine = () => freshPick(TOUR_DONE);
 
 /* ------------------ weird-behaviour reactions ------------------ */
 
@@ -948,6 +1005,7 @@ export const ESTIMATED_LINE_SPACE =
   Object.values(SECTION_POOLS).reduce((n, p) => n + p.length, 0) +
   Object.values(TAP_LINES).reduce((n, p) => n + p.length, 0) +
   Object.values(KEYWORD_LINES).reduce((n, p) => n + p.length, 0) +
+  TOUR_DONE.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
