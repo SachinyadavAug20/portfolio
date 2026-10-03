@@ -592,6 +592,52 @@ export const matchKeyword = (buf: string): string | null => {
 export const keywordLine = (word: string): string =>
   freshPick(KEYWORD_LINES[word] ?? KEYWORD_LINES.meow);
 
+/* ------------- absence / scroll-rush / resize ------------- */
+
+const ABSENT_SHORT = [
+  "{s}s. you blinked. i counted.",
+  "gone {s} seconds. the nerve.",
+  "the tab wandered off for {s}s. forgiven. mostly.",
+  "{s}s away~ i held your spot.",
+  "i timed your absence: {s}s. sloppy, but welcome back.",
+  "back already? {s}s felt longer to the yarn.",
+];
+const ABSENT_LONG = [
+  "{s} seconds! the yarn barely noticed. i noticed.",
+  "a whole {m} minutes. i aged nine lives minus one.",
+  "{s}s of solitude. i've written three poems.",
+  "you left for {m}m. i forgave you halfway. (kidding.)",
+  "back! absence: {s}s. verdict: tolerated.",
+  "{m} minutes gone. the portfolio missed you. so did the cat.",
+];
+export const absentLine = (ms: number): string => {
+  const s = Math.max(1, Math.round(ms / 1000));
+  const m = Math.max(1, Math.round(s / 60));
+  const pool = s < 45 ? ABSENT_SHORT : ABSENT_LONG;
+  return freshPick(pool)
+    .replace(/\{s\}/g, String(s))
+    .replace(/\{m\}/g, String(m));
+};
+
+const RUSH_LINES = [
+  "whoa— the wheel's not a pedal. this isn't a speedrun.",
+  "speed scroll detected. the content is still there, promise.",
+  "blurring past~ even i can't nap that fast.",
+  "scroll: 11/10. comprehension: pending.",
+  "easy— the good parts can't run away.",
+  "flick budget exhausted. take a breath.",
+];
+export const rushLine = (): string => freshPick(RUSH_LINES);
+
+const RESIZE_LINES = [
+  "new window shape~ recalculating nap coordinates.",
+  "resize detected. my proportions remain perfect.",
+  "bigger canvas, same cat. math checks out.",
+  "window: resized. whiskers: recalibrated.",
+  "you resized the universe. bold.",
+];
+export const resizeLine = (): string => freshPick(RESIZE_LINES);
+
 /* ----------------------- section awareness ----------------------- */
 
 const SECTION_POOLS: Record<string, readonly string[]> = {
@@ -859,6 +905,7 @@ export const ESTIMATED_LINE_SPACE =
   Object.values(SECTION_POOLS).reduce((n, p) => n + p.length, 0) +
   Object.values(TAP_LINES).reduce((n, p) => n + p.length, 0) +
   Object.values(KEYWORD_LINES).reduce((n, p) => n + p.length, 0) +
+  ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
 export const templateLine = (): string => build(pick(TEMPLATES));

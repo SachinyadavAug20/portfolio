@@ -144,6 +144,23 @@ export const spawnHearts = (x: number, y: number, count = 5) => {
   }
 };
 
+let pawsAlive = 0;
+export const spawnPaw = (x: number, y: number) => {
+  if (pawsAlive >= 14) return;
+  const paw = document.createElement("span");
+  paw.className = "cat-paw";
+  paw.setAttribute("aria-hidden", "true");
+  paw.style.left = `${Math.round(x - 5)}px`;
+  paw.style.top = `${Math.round(y - 5)}px`;
+  paw.style.setProperty("--paw-rot", `${rand(50) - 25}deg`);
+  document.body.appendChild(paw);
+  pawsAlive += 1;
+  window.setTimeout(() => {
+    paw.remove();
+    pawsAlive -= 1;
+  }, 1500);
+};
+
 export const spawnSparkles = (x: number, y: number) => {
   for (let i = 0; i < 7; i++) {
     const angle = (Math.PI * 2 * i) / 7 + Math.random() * 0.5;

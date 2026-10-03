@@ -1928,6 +1928,34 @@ h4 {
   }
 }
 
+/* faint paw prints left behind while the cat walks */
+.cat-paw {
+  position: fixed;
+  z-index: 61;
+  width: 11px;
+  height: 11px;
+  pointer-events: none;
+  rotate: var(--paw-rot, 0deg);
+  opacity: 0;
+  animation: cat-paw-fade 1.45s var(--ease-out) forwards;
+  background:
+    radial-gradient(circle at 50% 72%, rgb(148 163 184 / 0.9) 0 3.2px, transparent 3.6px),
+    radial-gradient(circle at 18% 34%, rgb(148 163 184 / 0.9) 0 1.7px, transparent 2.1px),
+    radial-gradient(circle at 50% 20%, rgb(148 163 184 / 0.9) 0 1.7px, transparent 2.1px),
+    radial-gradient(circle at 82% 34%, rgb(148 163 184 / 0.9) 0 1.7px, transparent 2.1px);
+}
+@keyframes cat-paw-fade {
+  0% {
+    opacity: 0;
+  }
+  14% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 /* playful hop when petted (neko only writes left/top, so transform is free) */
 .cat-hop {
   animation: cat-hop 0.45s var(--ease-standard);

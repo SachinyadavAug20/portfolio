@@ -27,6 +27,7 @@ import {
   spawnDrop,
   spawnFish,
   spawnHearts,
+  spawnPaw,
   spawnSparkles,
   spawnYarn,
 } from "../lib/cat";
@@ -131,6 +132,7 @@ const CatCompanion = () => {
   const lastActivity = useRef(0);
   const lastInput = useRef(0);
   const lastPointer = useRef({ x: 0, y: 0 });
+  const pawPrev = useRef<{ x: number; y: number } | null>(null);
   const wakeLine = useRef(0);
   const running = useRef(false);
   const leaving = useRef(false);
@@ -506,6 +508,72 @@ const CatCompanion = () => {
     };
     document.addEventListener("keydown", onKeyType);
 
+    /* coming back to the tab after a real absence earns a comment */
+    let hiddenAt = 0;
+    let lastReturnLine = 0;
+    const onVis = () => {
+      if (document.hidden) {
+        hiddenAt = Date.now();
+        return;
+      }
+      const away = hiddenAt ? Date.now() - hiddenAt : 0;
+      hiddenAt = 0;
+      if (away < 8000) return;
+      const now = Date.now();
+      if (now - lastReturnLine < 60_000) return;
+      const brain = brainRef.current;
+      if (!brain || suggestRef.current || !nekoRef.current) return;
+      lastReturnLine = now;
+      showPhrase(brain.absentLine(away), 4200, true);
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    /* a violent wheel burst gets called out (once in a while) */
+    let rushSum = 0;
+    let rushAt = 0;
+    let lastRushLine = 0;
+    const onWheelRush = (e: Event) => {
+      const now = Date.now();
+      if (now - rushAt > 500) {
+        rushSum = 0;
+        rushAt = now;
+      }
+      rushSum += Math.abs((e as WheelEvent).deltaY);
+      if (rushSum < 1400) return;
+      rushSum = 0;
+      if (now - lastRushLine < 20_000) return;
+      const brain = brainRef.current;
+      if (!brain || suggestRef.current || document.hidden || !nekoRef.current)
+        return;
+      lastRushLine = now;
+      showPhrase(brain.rushLine(), 3200, true);
+    };
+    window.addEventListener("wheel", onWheelRush, { passive: true });
+
+    /* a big window resize recalculates the nap coordinates */
+    let lastW = window.innerWidth;
+    let lastH = window.innerHeight;
+    let lastResizeLine = 0;
+    let resizeTimer = 0;
+    const onResize = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        const dw = Math.abs(window.innerWidth - lastW);
+        const dh = Math.abs(window.innerHeight - lastH);
+        lastW = window.innerWidth;
+        lastH = window.innerHeight;
+        if (dw < 150 && dh < 150) return;
+        const now = Date.now();
+        if (now - lastResizeLine < 30_000) return;
+        const brain = brainRef.current;
+        if (!brain || suggestRef.current || document.hidden || !nekoRef.current)
+          return;
+        lastResizeLine = now;
+        showPhrase(brain.resizeLine(), 3200, true);
+      }, 700);
+    };
+    window.addEventListener("resize", onResize);
+
     return () => {
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("touchmove", onTouch);
@@ -514,6 +582,10 @@ const CatCompanion = () => {
       document.removeEventListener("keydown", onKeyType);
       document.removeEventListener("keydown", onKeyRate);
       document.removeEventListener("copy", onCopy);
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("wheel", onWheelRush);
+      window.removeEventListener("resize", onResize);
+      window.clearTimeout(resizeTimer);
       document.removeEventListener("click", onCatClick);
       document.removeEventListener("focusin", onContactFocus);
       window.removeEventListener("wheel", onAny);
@@ -1353,11 +1425,20 @@ const CatCompanion = () => {
         const t = `translate(${Math.round(x + 12)}px, ${Math.round(y - 40)}px)`;
         if (z.style.transform !== t) z.style.transform = t;
       }
+      /* faint paw prints trail behind the walking cat */
+      if (!sleeping && !reduced) {
+        const prev = pawPrev.current;
+        if (!prev) pawPrev.current = { x, y };
+        else if (Math.hypot(x - prev.x, y - prev.y) > 54) {
+          pawPrev.current = { x, y };
+          spawnPaw(x, y);
+        }
+      }
       raf = requestAnimationFrame(place);
     };
     place();
     return () => cancelAnimationFrame(raf);
-  }, [phrase, sleeping, suggest]);
+  }, [phrase, sleeping, suggest, reduced]);
 
   /* the tour-guide header over each suggestion (stable while bubble lives) */
   const suggestHeader = useMemo(
