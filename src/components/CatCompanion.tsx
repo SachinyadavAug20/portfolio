@@ -157,6 +157,7 @@ const CatCompanion = () => {
   const lastPrintLine = useRef(0);
   const navTimesRef = useRef<number[]>([]);
   const lastRapidLine = useRef(0);
+  const lastTabLine = useRef(0);
   const tourDone = useRef(false);
   /* cat-tap streak for repeated-click escalation */
   const tapStreak = useRef<number[]>([]);
@@ -465,6 +466,33 @@ const CatCompanion = () => {
     window.addEventListener("g-armed", onGArmed);
     window.addEventListener("beforeprint", onBeforePrint);
 
+    /* four or more Tab presses in a row: the keyboard tour earns a word */
+    let tabTaps = 0;
+    let tabTimer = 0;
+    const onTabKey = (e: Event) => {
+      const t = e as KeyboardEvent;
+      if (t.key !== "Tab") return;
+      const el = document.activeElement;
+      if (
+        el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          (el as HTMLElement).isContentEditable)
+      )
+        return;
+      tabTaps += 1;
+      window.clearTimeout(tabTimer);
+      tabTimer = window.setTimeout(() => {
+        tabTaps = 0;
+      }, 12000);
+      if (tabTaps < 4) return;
+      tabTaps = 0;
+      const brain = brainRef.current;
+      if (!brain) return;
+      sayUiLine(() => brain.tabLine(), lastTabLine, 30_000, 3000);
+    };
+    document.addEventListener("keydown", onTabKey);
+
     document.addEventListener("focusin", onContactFocus);
 
     /* writing a real message earns one quiet word of encouragement */
@@ -694,6 +722,14 @@ const CatCompanion = () => {
         else if (word === "nice") spawnSparkles(x, y);
         else if (word === "cool") spawnHearts(x, y, 4);
         else if (word === "india") spawnSparkles(x, y);
+        else if (word === "sql" || word === "java") spawnSparkles(x, y);
+        else if (word === "api") spawnHearts(x, y, 4);
+        else if (word === "biryani") spawnHearts(x, y, 8);
+        else if (word === "rust") {
+          spawnSparkles(x, y);
+          neko.setSpeed(20);
+          window.setTimeout(() => nekoRef.current?.setSpeed(12), 1000);
+        }
         else if (word === "vim") spawnHearts(x, y, 6);
         else if (word === "deploy") {
           spawnSparkles(x, y);
@@ -805,6 +841,8 @@ const CatCompanion = () => {
       document.removeEventListener("focusin", onFieldFocus);
       window.removeEventListener("g-armed", onGArmed);
       window.removeEventListener("beforeprint", onBeforePrint);
+      document.removeEventListener("keydown", onTabKey);
+      window.clearTimeout(tabTimer);
       window.removeEventListener("wheel", onWheelRush);
       window.removeEventListener("resize", onResize);
       window.clearTimeout(resizeTimer);

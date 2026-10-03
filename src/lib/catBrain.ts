@@ -858,6 +858,41 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "india runs on chai. sachin runs on chai and ci.",
     "from india with bandwidth. remote-ready since forever.",
   ],
+  sql: [
+    "sql: i only purr in select statements.",
+    "drop table fear; -- executed.",
+    "joins: how relationships should work. indexed, too.",
+    "select * from sachin where available = true;",
+    "the database remembers. so do i. (naps, specifically.)",
+  ],
+  api: [
+    "rest api: the cat approves of statelessness.",
+    "http codes: 200 for vibes, 404 for missing treats.",
+    "api first. the ui can wait. the cat naps meanwhile.",
+    "endpoints: few. purrs: unlimited.",
+    "one endpoint away from hire. it's /contact.",
+  ],
+  java: [
+    "java: write once, debug everywhere. respectfully.",
+    "the jvm and i: both run everywhere and nap often.",
+    "null pointer? never met her.",
+    "springs: framework or season? yes.",
+    "garbage collection: my preferred lifestyle.",
+  ],
+  rust: [
+    "rust: the borrow checker never lets me down.",
+    "fearless concurrency. fearless napping too.",
+    "no null, no tears. ownership transferred to sachin.",
+    "rust compiles slow so you don't ship fast mistakes.",
+    "borrow checker said no. hire checker said yes.",
+  ],
+  biryani: [
+    "biryani: sachin runs on chai and biryani. mostly.",
+    "extra raita = extra confidence.",
+    "the correct stack: rice, patience, raita.",
+    "biryani deployment: slow-cooked, worth the wait.",
+    "one plate of biryani = one clean build. i don't make the rules.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -1096,6 +1131,15 @@ const RAPID_NAV = [
 ];
 export const rapidLine = (): string => freshPick(RAPID_NAV);
 
+const TAB_LINES = [
+  "tab tab tab. keyboard tour detected.",
+  "focus rings: my favorite jewelry.",
+  "no mouse? bold. i respect it.",
+  "the tab key and i: same rhythm.",
+  "tab further. the contact form is south.",
+];
+export const tabLine = (): string => freshPick(TAB_LINES);
+
 /* ------------------ weird-behaviour reactions ------------------ */
 
 export type TapKind = "wake" | "many" | "melt" | "ctx" | "purr";
@@ -1331,7 +1375,7 @@ export const ESTIMATED_LINE_SPACE =
   PALETTE_OPEN.length + HELP_OPEN.length + SELECTION_POOL.length +
   FOCUS_LINES.name.length + FOCUS_LINES.email.length +
   FOCUS_LINES.message.length + G_ARMED.length + PRINT_POOL.length +
-  RAPID_NAV.length +
+  RAPID_NAV.length + TAB_LINES.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
