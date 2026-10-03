@@ -161,6 +161,7 @@ const CatCompanion = () => {
   const lastRushUp = useRef(0);
   const lastSelectAll = useRef(0);
   const lastRepeatLine = useRef(0);
+  const lastBubbleCopy = useRef(0);
   const repeatTarget = useRef<Element | null>(null);
   const repeatStreak = useRef(0);
   const repeatReset = useRef(0);
@@ -254,7 +255,21 @@ const CatCompanion = () => {
     let cancelled = false;
     void import("../lib/catBrain")
       .then((m) => {
-        if (!cancelled) brainRef.current = m;
+        if (cancelled) return;
+        brainRef.current = m;
+        /* unknown path on a fresh load: speak once the greeting has had
+           the floor (attempt, then retry every 3s until it lands) */
+        const p = window.location.pathname;
+        if (m.isKnownPath(p)) return;
+        const line = m.routeLine(p, getCtx());
+        const attempt = (delay: number) => {
+          window.setTimeout(() => {
+            if (cancelled) return;
+            if (suggestRef.current || document.hidden) return;
+            if (!showPhrase(line, 2600, false)) attempt(3000);
+          }, delay);
+        };
+        attempt(2500);
       })
       .catch(() => {
         /* offline / blocked chunk — fallback lines are already wired */
@@ -262,7 +277,7 @@ const CatCompanion = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [getCtx, showPhrase]);
 
   const markActivity = useCallback(() => {
     const now = Date.now();
@@ -467,12 +482,22 @@ const CatCompanion = () => {
        each get one quiet word (non-force: a fresh phrase keeps the floor) */
     const onSelectChange = () => {
       const sel = document.getSelection();
-      const len = sel ? sel.toString().length : 0;
+      if (!sel) return;
+      const len = sel.toString().length;
       if (len < 120) return;
       const brain = brainRef.current;
       if (!brain) return;
       if (len >= 3000) {
         sayUiLine(() => brain.selectAllLine(), lastSelectAll, 30_000, 3000);
+        return;
+      }
+      const node = sel.anchorNode;
+      const inBubble =
+        (node instanceof Element ? node : node?.parentElement)?.closest(
+          ".cat-bubble",
+        ) !== null;
+      if (inBubble && len >= 15) {
+        sayUiLine(() => brain.bubbleCopyLine(), lastBubbleCopy, 30_000, 3000);
         return;
       }
       sayUiLine(() => brain.selectionLine(), lastSelectionLine, 30_000, 3000);
@@ -775,6 +800,15 @@ const CatCompanion = () => {
         else if (word === "tea") spawnHearts(x, y, 4);
         else if (word === "pizza") spawnHearts(x, y, 6);
         else if (word === "travel") spawnSparkles(x, y);
+        else if (word === "merge") spawnHearts(x, y, 4);
+        else if (word === "lint" || word === "art") spawnSparkles(x, y);
+        else if (word === "dream") {
+          /* dreaming counts as napping */
+          sleepingRef.current = true;
+          lastSleptAt.current = Date.now();
+          neko.sleep();
+          setSleeping(true);
+        }
         else if (word === "sing") spawnHearts(x, y, 5);
         else if (word === "play") spawnYarn(x, y);
         else if (word === "hide") spawnSparkles(x, y);

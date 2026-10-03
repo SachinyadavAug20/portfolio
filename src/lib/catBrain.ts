@@ -438,7 +438,9 @@ export const routeLine = (path: string, ctx: CatContext): string => {
     return base;
   }
   const pool = ROUTE_POOLS[path];
-  return freshPick(pool ?? GENERIC_ROOMS);
+  if (pool) return freshPick(pool);
+  if (!isKnownPath(path)) return freshPick(FOUR_OH_FOUR);
+  return freshPick(GENERIC_ROOMS);
 };
 
 /* ------------------------ click awareness ------------------------ */
@@ -956,6 +958,34 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "throw it yourself. i'll judge the arc.",
     "fetch is a feature. out of scope. purring.",
   ],
+  merge: [
+    "merge conflicts: two branches, one nap.",
+    "merge to main. gently. it's friday.",
+    "conflict markers resolved with purrs.",
+    "squash and merge: my favorite compression.",
+    "the diff said it all. i read it anyway.",
+  ],
+  lint: [
+    "lint: green like a promoted branch.",
+    "the linter and i: both unforgiving, both right.",
+    "warnings: counted. drama: contained.",
+    "lint clean. the cat approves of clean tails.",
+    "one warning away from perfect. relatable.",
+  ],
+  art: [
+    "art: pixels arranged with feeling.",
+    "that's design work. i can tell by the spacing.",
+    "aesthetics: considered. the cat nods.",
+    "visual hierarchy: the cat sits on top.",
+    "colors chosen like treats: carefully.",
+  ],
+  dream: [
+    "dreaming. it involves yarn and bandwidth.",
+    "rem: measured in naps per night.",
+    "i dream in 120 frames per second.",
+    "the dream: sachin, hired, everyone napping.",
+    "currently dreaming. do not push to main.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -1230,6 +1260,29 @@ const REPEAT_LINES = [
 ];
 export const repeatLine = (): string => freshPick(REPEAT_LINES);
 
+const BUBBLE_COPY = [
+  "you copied me. i'm flattered and mildly concerned.",
+  "clipboard: cat edition.",
+  "i knew i was quotable.",
+  "pasting that on your resume? bold.",
+  "you can pet me with words now.",
+];
+export const bubbleCopyLine = (): string => freshPick(BUBBLE_COPY);
+
+const FOUR_OH_FOUR = [
+  "wrong door. the cat opens it anyway.",
+  "404. i looked under the sofa too. nothing.",
+  "you've reached nowhere. lovely decor, though.",
+  "this page exists in a parallel repo.",
+  "error 404: treat not found. check the kitchen.",
+];
+
+/* known routes get their pools; anything else is a lost page */
+export const isKnownPath = (path: string): boolean => {
+  const p = path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+  return p === "/" || p === "/blog" || p === "/graph" || p.startsWith("/blog/post");
+};
+
 /* ------------------ weird-behaviour reactions ------------------ */
 
 export type TapKind = "wake" | "many" | "melt" | "ctx" | "purr";
@@ -1466,7 +1519,7 @@ export const ESTIMATED_LINE_SPACE =
   FOCUS_LINES.name.length + FOCUS_LINES.email.length +
   FOCUS_LINES.message.length + G_ARMED.length + PRINT_POOL.length +
   RAPID_NAV.length + TAB_LINES.length + RUSH_UP.length + SELECT_ALL.length +
-  REPEAT_LINES.length +
+  REPEAT_LINES.length + BUBBLE_COPY.length + FOUR_OH_FOUR.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
