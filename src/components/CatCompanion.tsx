@@ -6,6 +6,7 @@ import {
   CAT_NAME,
   CHATTER,
   GREETING,
+  WEEKEND_GREETING,
   GREETED_KEY,
   GUIDE_HEADERS,
   PET_KEY,
@@ -421,6 +422,35 @@ const CatCompanion = () => {
     document.addEventListener("click", onCatClick);
     document.addEventListener("focusin", onContactFocus);
 
+    /* writing a real message earns one quiet word of encouragement */
+    let messageNudged = false;
+    const onFormInput = (e: Event) => {
+      const t = e.target;
+      if (!(t instanceof HTMLTextAreaElement) || t.id !== "message") return;
+      if (messageNudged || t.value.length < 24) return;
+      if (suggestRef.current || document.hidden) return;
+      const brain = brainRef.current;
+      if (!brain || !nekoRef.current) return;
+      messageNudged = true;
+      showPhrase(brain.messageLine(), 3600, true);
+    };
+    document.addEventListener("input", onFormInput);
+
+    /* the contact form dispatches this after EmailJS resolves */
+    let celebDone = false;
+    const onSent = () => {
+      if (celebDone || suggestRef.current || document.hidden) return;
+      const brain = brainRef.current;
+      const neko = nekoRef.current;
+      if (!brain || !neko) return;
+      celebDone = true;
+      const { x, y } = neko.position;
+      spawnHearts(x, y, 8);
+      spawnSparkles(x, y);
+      showPhrase(brain.celebrationLine(), 5200, true);
+    };
+    window.addEventListener("contact-sent", onSent);
+
     /* proximity hover: the sprite has pointer-events:none (neko-ts inline),
        so pointerover never fires — we do the distance math ourselves.
        Hysteresis (40 in, 64 out) keeps the perk-up from flickering */
@@ -492,8 +522,8 @@ const CatCompanion = () => {
 
     /* type "pspsps" to call the cat back; words like luna/meow/hire/joke
        help/fish/thanks/sachin/nya/tuna/yarn/nap/chai/dog/cat/box/sudo/
-       ship/bug/coffee/music/game earn answers — and sometimes props —
-       outside form fields */
+       ship/bug/coffee/music/game/resume/job/love/dance/email earn answers —
+       and sometimes props — outside form fields */
     let psBuf = "";
     let lastPs = 0;
     let lastWord = 0;
@@ -561,6 +591,13 @@ const CatCompanion = () => {
           spawnSparkles(x, y);
           neko.setSpeed(18);
           window.setTimeout(() => nekoRef.current?.setSpeed(12), 1200);
+        }
+        else if (word === "love") spawnHearts(x, y, 8);
+        else if (word === "resume") spawnSparkles(x, y);
+        else if (word === "dance") {
+          spawnSparkles(x, y);
+          neko.setSpeed(16);
+          window.setTimeout(() => nekoRef.current?.setSpeed(12), 900);
         }
         else if (word === "dog") {
           /* dogs get chased off the premises */
@@ -1117,10 +1154,13 @@ const CatCompanion = () => {
         safeSet(localStorage, GREETED_KEY, "1");
         spawnSparkles(x, y);
         const brain = brainRef.current;
+        const weekend = [0, 6].includes(new Date().getDay());
         showPhrase(
           returning
             ? (brain ? brain.returnLine() : RETURNING(CAT_NAME)[rand(3)])
-            : GREETING(CAT_NAME),
+            : weekend
+              ? WEEKEND_GREETING(CAT_NAME)[rand(WEEKEND_GREETING(CAT_NAME).length)]
+              : GREETING(CAT_NAME),
           returning ? 3200 : 5400,
           true,
         );

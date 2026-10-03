@@ -704,6 +704,41 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "press start. i'll supervise.",
     "high score or it didn't happen. (he ships either way.)",
   ],
+  resume: [
+    "his resume is the page you're on. meta.",
+    "cv detected. the whole site IS the résumé.",
+    "resume? he ships proof instead. links above.",
+    "one page, many tabs. that's the vibe.",
+    "print it? just send the link. it's interactive.",
+  ],
+  job: [
+    "job detected. the cat endorses this message.",
+    "ideal job: shipping with a cat on the desk.",
+    "hire him. i'll handle references.",
+    "open to work — technically open to pets too.",
+    "the job search ends where the contact form begins.",
+  ],
+  love: [
+    "love detected. hearts deployed.",
+    "love? the cat accepts pets as currency.",
+    "spread love. and hire sachin.",
+    "affection received. returning it2x.",
+    "the greatest love language: merged PRs.",
+  ],
+  dance: [
+    "dance break~ the tail keeps the beat.",
+    "two hops minimum. house rules.",
+    "cats don't dance. (this one does.)",
+    "the paws say: four-four time.",
+    "drop the beat, not the build.",
+  ],
+  email: [
+    "samtagon777@gmail.com — warm inbox, warmer replies.",
+    "email him. the cat can't read it. yet.",
+    "one email away from a very good decision.",
+    "his inbox: alive and responsive. verified by cat.",
+    "compose. send. watch for the reply-purr.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -839,6 +874,25 @@ const HOVER_ASLEEP = [
 ];
 export const hoverLine = (sleeping: boolean): string =>
   freshPick(sleeping ? HOVER_ASLEEP : HOVER_AWAKE);
+
+/* writing a real message, and the moment it flies */
+const MESSAGE_POOL = [
+  "take your time — good words deserve a nap first.",
+  "writing him? short and honest beats long and fancy.",
+  "the message matters. the cat takes notes.",
+  "almost done? he reads every word. even 'hi'.",
+];
+export const messageLine = (): string => freshPick(MESSAGE_POOL);
+
+const CELEBRATION = [
+  "MESSAGE SENT~ the cat is honored. (there will be purring.)",
+  "it flew. sachin's inbox just got a good day.",
+  "sent! now we wait. i'm excellent at waiting.",
+  "brave. you actually hit send. respect + hearts.",
+  "the form purrs. message delivered. hire energy incoming.",
+  "off it goes~ watch for a reply before your next scroll.",
+];
+export const celebrationLine = (): string => freshPick(CELEBRATION);
 
 /* ------------------ weird-behaviour reactions ------------------ */
 
@@ -1071,6 +1125,7 @@ export const ESTIMATED_LINE_SPACE =
   Object.values(TAP_LINES).reduce((n, p) => n + p.length, 0) +
   Object.values(KEYWORD_LINES).reduce((n, p) => n + p.length, 0) +
   TOUR_DONE.length + HOVER_AWAKE.length + HOVER_ASLEEP.length +
+  MESSAGE_POOL.length + CELEBRATION.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 

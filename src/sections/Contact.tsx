@@ -108,6 +108,7 @@ const Contact = () => {
       );
       setFormData({ name: "", email: "", message: "" });
       setSubmitted(true);
+      window.dispatchEvent(new CustomEvent("contact-sent"));
       setTimeout(() => setSubmitted(false), 4000);
       tap([15, 40, 15]);
       toast.success("Message sent successfully!", {

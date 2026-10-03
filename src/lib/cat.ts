@@ -14,6 +14,15 @@ export const CAT_NAME = "Luna";
 
 export const GREETING = (name: string) =>
   `${name} reporting for duty. (pspsps to call, alt+c to shoo me)`;
+
+export const WEEKEND_GREETING = (name: string) => [
+  `${name} on duty — even on weekends. (that's the flex.)`,
+  `weekend~ ${name} still opens this tab. dedication.`,
+  `saturday rule: no deploys, only cuddles. ${name} approves.`,
+  `it's the weekend. recruiters relax. ${name} doesn't.`,
+  `weekend energy, ${name} edition. browse slowly, hire fast.`,
+  `sun's out, paws out. hi — it's ${name}.`,
+];
 export const RETURNING = (name: string) => [
   `${name} missed you.`,
   `${name} is back.`,
