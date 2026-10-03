@@ -160,6 +160,10 @@ const CatCompanion = () => {
   const lastTabLine = useRef(0);
   const lastRushUp = useRef(0);
   const lastSelectAll = useRef(0);
+  const lastRepeatLine = useRef(0);
+  const repeatTarget = useRef<Element | null>(null);
+  const repeatStreak = useRef(0);
+  const repeatReset = useRef(0);
   const tourDone = useRef(false);
   /* cat-tap streak for repeated-click escalation */
   const tapStreak = useRef<number[]>([]);
@@ -365,6 +369,31 @@ const CatCompanion = () => {
       )
         return;
       const now = Date.now();
+      /* three rapid clicks on one target: the repeat line beats the
+         per-click throttle (it is the point of the observation) */
+      const target =
+        t.closest("a, .feature-card, .exp-card-wrapper, .app-showcase, canvas") || t;
+      if (target === repeatTarget.current) repeatStreak.current += 1;
+      else {
+        repeatTarget.current = target;
+        repeatStreak.current = 1;
+      }
+      window.clearTimeout(repeatReset.current);
+      repeatReset.current = window.setTimeout(() => {
+        repeatStreak.current = 0;
+      }, 8000);
+      if (
+        repeatStreak.current >= 3 &&
+        now - lastRepeatLine.current >= 30_000 &&
+        brainRef.current &&
+        nekoRef.current
+      ) {
+        repeatStreak.current = 0;
+        lastRepeatLine.current = now;
+        lastClickLine.current = now;
+        showPhrase(brainRef.current.repeatLine(), 3600, true);
+        return;
+      }
       if (now - lastClickLine.current < 7000) return;
       const brain = brainRef.current;
       if (!brain || !nekoRef.current) return;
@@ -746,6 +775,17 @@ const CatCompanion = () => {
         else if (word === "tea") spawnHearts(x, y, 4);
         else if (word === "pizza") spawnHearts(x, y, 6);
         else if (word === "travel") spawnSparkles(x, y);
+        else if (word === "sing") spawnHearts(x, y, 5);
+        else if (word === "play") spawnYarn(x, y);
+        else if (word === "hide") spawnSparkles(x, y);
+        else if (word === "fetch") {
+          /* fetch is a dog word — the cat dashes off anyway */
+          spawnSparkles(x, y);
+          neko.setSpeed(26);
+          window.setTimeout(() => {
+            nekoRef.current?.setSpeed(12);
+          }, 1200);
+        }
         else if (word === "vim") spawnHearts(x, y, 6);
         else if (word === "deploy") {
           spawnSparkles(x, y);

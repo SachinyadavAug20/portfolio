@@ -928,6 +928,34 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "wanderlust and push notifications.",
     "take the trip. the standup can wait.",
   ],
+  sing: [
+    "i hum in frequencies only monitors understand.",
+    "♪ from the ninth life, now streaming.",
+    "my range: from purr to notification sound.",
+    "singing is just scrolling with your voice.",
+    "one note. held forever. very cat.",
+  ],
+  play: [
+    "play: the ceremony i skip for naps.",
+    "play with me. the yarn is right there.",
+    "let's play: you hire, i purr. rules explained.",
+    "playtime is just testing with enthusiasm.",
+    "yes. play. the floor is a toy, technically.",
+  ],
+  hide: [
+    "hiding: effective. visible. still hiding.",
+    "you can't find me. (you can. i'm by the footer.)",
+    "peekaboo: the original ui pattern.",
+    "hidden in the whitespace again.",
+    "hide and seek. i've been seeking snacks.",
+  ],
+  fetch: [
+    "fetch? that's a dog word. we've met, right?",
+    "i don't fetch. i supervise fetching.",
+    "fetch protocol: rejected by the cat board.",
+    "throw it yourself. i'll judge the arc.",
+    "fetch is a feature. out of scope. purring.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -1193,6 +1221,15 @@ const SELECT_ALL = [
 ];
 export const selectAllLine = (): string => freshPick(SELECT_ALL);
 
+const REPEAT_LINES = [
+  "that's three clicks on the same thing. it's a link, not a button.",
+  "clicking harder doesn't load it faster. (it does not.)",
+  "obsessive. i respect it. the target is fine.",
+  "three times a charm. you're at three. stop, or don't.",
+  "same target, same energy. it heard you the first time.",
+];
+export const repeatLine = (): string => freshPick(REPEAT_LINES);
+
 /* ------------------ weird-behaviour reactions ------------------ */
 
 export type TapKind = "wake" | "many" | "melt" | "ctx" | "purr";
@@ -1429,6 +1466,7 @@ export const ESTIMATED_LINE_SPACE =
   FOCUS_LINES.name.length + FOCUS_LINES.email.length +
   FOCUS_LINES.message.length + G_ARMED.length + PRINT_POOL.length +
   RAPID_NAV.length + TAB_LINES.length + RUSH_UP.length + SELECT_ALL.length +
+  REPEAT_LINES.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
