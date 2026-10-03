@@ -151,6 +151,10 @@ const CatCompanion = () => {
   const lastHoverLine = useRef(0);
   const lastPaletteLine = useRef(0);
   const lastHelpLine = useRef(0);
+  const lastSelectionLine = useRef(0);
+  const lastFieldFocus = useRef(0);
+  const lastGArmed = useRef(0);
+  const lastPrintLine = useRef(0);
   const tourDone = useRef(false);
   /* cat-tap streak for repeated-click escalation */
   const tapStreak = useRef<number[]>([]);
@@ -416,6 +420,7 @@ const CatCompanion = () => {
       const now = Date.now();
       if (now - lastContactFocus.current < 25_000) return;
       if (now - lastSectionAt.current < 12_000) return;
+      if (now - lastPhraseAt.current < 3000) return; /* fresh line has the floor */
       const brain = brainRef.current;
       if (!brain || !nekoRef.current) return;
       lastContactFocus.current = now;
@@ -423,6 +428,52 @@ const CatCompanion = () => {
     };
 
     document.addEventListener("click", onCatClick);
+    /* big selections, contact-field focus, the vim g-prefix, and printing
+       each get one quiet word (non-force: a fresh phrase keeps the floor) */
+    const onSelectChange = () => {
+      const sel = document.getSelection();
+      if (!sel || sel.toString().length < 120) return;
+      const now = Date.now();
+      const brain = brainRef.current;
+      if (!brain || suggestRef.current || document.hidden) return;
+      if (now - lastSelectionLine.current < 30_000) return;
+      lastSelectionLine.current = now;
+      showPhrase(brain.selectionLine(), 3000, false);
+    };
+    const onFieldFocus = (e: Event) => {
+      const t = e.target;
+      if (!(t instanceof HTMLElement)) return;
+      const field =
+        t.id === "name" ? "name" : t.id === "email" ? "email" : t.id === "message" ? "message" : null;
+      if (!field) return;
+      const now = Date.now();
+      const brain = brainRef.current;
+      if (!brain || suggestRef.current || document.hidden) return;
+      if (now - lastFieldFocus.current < 5_000) return;
+      lastFieldFocus.current = now;
+      showPhrase(brain.focusLine(field), 3000, false);
+    };
+    const onGArmed = () => {
+      const now = Date.now();
+      const brain = brainRef.current;
+      if (!brain || suggestRef.current || document.hidden) return;
+      if (now - lastGArmed.current < 30_000) return;
+      lastGArmed.current = now;
+      showPhrase(brain.gArmedLine(), 3000, false);
+    };
+    const onBeforePrint = () => {
+      const now = Date.now();
+      const brain = brainRef.current;
+      if (!brain || suggestRef.current || document.hidden) return;
+      if (now - lastPrintLine.current < 60_000) return;
+      lastPrintLine.current = now;
+      showPhrase(brain.printLine(), 3000, false);
+    };
+    document.addEventListener("selectionchange", onSelectChange);
+    document.addEventListener("focusin", onFieldFocus);
+    window.addEventListener("g-armed", onGArmed);
+    window.addEventListener("beforeprint", onBeforePrint);
+
     document.addEventListener("focusin", onContactFocus);
 
     /* writing a real message earns one quiet word of encouragement */
@@ -474,6 +525,7 @@ const CatCompanion = () => {
     };
     window.addEventListener("palette-opened", onPalette);
     window.addEventListener("help-opened", onHelpSheet);
+
 
     /* proximity hover: the sprite has pointer-events:none (neko-ts inline),
        so pointerover never fires — we do the distance math ourselves.
@@ -563,8 +615,8 @@ const CatCompanion = () => {
       )
         return;
       if (!t.key || t.key.length !== 1 || !/[a-z]/i.test(t.key)) return;
-      psBuf = (psBuf + t.key.toLowerCase()).slice(-6);
-      if (psBuf === "pspsps") {
+      psBuf = (psBuf + t.key.toLowerCase()).slice(-12);
+      if (psBuf.endsWith("pspsps")) {
         psBuf = "";
         const now = Date.now();
         if (now - lastPs < 8000) return;
@@ -600,7 +652,7 @@ const CatCompanion = () => {
       }
       if (neko) {
         const { x, y } = neko.position;
-        if (word === "fish" || word === "tuna")
+        if (word === "fish" || word === "tuna" || word === "docker")
           spawnFish(x, y, x > window.innerWidth / 2 ? -1 : 1);
         else if (word === "luna" || word === "thanks" || word === "nya")
           spawnHearts(x, y, 5);
@@ -631,7 +683,8 @@ const CatCompanion = () => {
           neko.setSpeed(20);
           window.setTimeout(() => nekoRef.current?.setSpeed(12), 1000);
         }
-        else if (word === "node" || word === "linux") spawnSparkles(x, y);
+        else if (word === "node" || word === "linux" || word === "typescript")
+          spawnSparkles(x, y);
         else if (word === "vim") spawnHearts(x, y, 6);
         else if (word === "deploy") {
           spawnSparkles(x, y);
@@ -739,6 +792,10 @@ const CatCompanion = () => {
       window.removeEventListener("contact-sent", onSent);
       window.removeEventListener("palette-opened", onPalette);
       window.removeEventListener("help-opened", onHelpSheet);
+      document.removeEventListener("selectionchange", onSelectChange);
+      document.removeEventListener("focusin", onFieldFocus);
+      window.removeEventListener("g-armed", onGArmed);
+      window.removeEventListener("beforeprint", onBeforePrint);
       window.removeEventListener("wheel", onWheelRush);
       window.removeEventListener("resize", onResize);
       window.clearTimeout(resizeTimer);

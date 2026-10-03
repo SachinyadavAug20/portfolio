@@ -119,6 +119,7 @@ const DevShortcuts = () => {
       }
       if (k === "g") {
         gRef.current = window.setTimeout(disarmG, G_TIMEOUT_MS);
+        window.dispatchEvent(new Event("g-armed"));
       }
     };
     window.addEventListener("keydown", onKey);

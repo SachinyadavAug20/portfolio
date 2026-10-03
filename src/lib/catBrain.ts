@@ -809,6 +809,20 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "chmod +x your dreams. or at least the build script.",
     "the penguin and i have an understanding. i nap on the kernel.",
   ],
+  typescript: [
+    "typescript: because `any` is a cry for help.",
+    "the type checker and i: same energy, more purring.",
+    "generics: types wearing types wearing types.",
+    "strict mode: on. my nap schedule: strict too.",
+    "type error in the cat file: expected meow, got purr.",
+  ],
+  docker: [
+    "docker: ships in boxes. i approve. boxes are great.",
+    "it works on my machine → it works in the container.",
+    "one image, many containers, zero excuses.",
+    "the whale carries the code. whales are just big fish.",
+    "compose up. the cats supervise.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -992,6 +1006,51 @@ const HELP_OPEN = [
   "help open. `t` flips the theme while you're in there.",
 ];
 export const helpLine = (): string => freshPick(HELP_OPEN);
+
+const SELECTION_POOL = [
+  "reading closely. i respect a close read.",
+  "so much text selected. thesis mode: on.",
+  "highlighting. sachin's words, your pen.",
+  "that's a paragraph and a half. bold crop.",
+  "select-all is a compliment. i'll take it.",
+];
+export const selectionLine = (): string => freshPick(SELECTION_POOL);
+
+const FOCUS_LINES = {
+  name: [
+    "the name field. yours, ideally.",
+    "names: the original primary keys.",
+    "type it like you mean to be remembered.",
+  ],
+  email: [
+    "the email field. where replies live.",
+    "an email a day keeps the silence away.",
+    "that's the one sachin actually checks.",
+  ],
+  message: [
+    "the message box. rambling is allowed.",
+    "say hi, say hire, say anything really.",
+    "draft mode: the cat is listening.",
+  ],
+} as const;
+export type FocusField = keyof typeof FOCUS_LINES;
+export const focusLine = (field: FocusField): string =>
+  freshPick(FOCUS_LINES[field]);
+
+const G_ARMED = [
+  "g is armed. g h home, g b blog, g p graph.",
+  "vim brain detected. g g takes you to the top.",
+  "prefix mode. the next key decides your fate.",
+  "g pressed. choose wisely: h, b, p, c, g.",
+];
+export const gArmedLine = (): string => freshPick(G_ARMED);
+
+const PRINT_POOL = [
+  "printing? ink is just pixel sweat.",
+  "paper mode. the DOM goes offline.",
+  "a printout. framed, hopefully. or fridge-worthy.",
+];
+export const printLine = (): string => freshPick(PRINT_POOL);
 
 /* ------------------ weird-behaviour reactions ------------------ */
 
@@ -1225,7 +1284,9 @@ export const ESTIMATED_LINE_SPACE =
   Object.values(KEYWORD_LINES).reduce((n, p) => n + p.length, 0) +
   TOUR_DONE.length + HOVER_AWAKE.length + HOVER_ASLEEP.length +
   MESSAGE_POOL.length + CELEBRATION.length + POST_STREAK.length +
-  PALETTE_OPEN.length + HELP_OPEN.length +
+  PALETTE_OPEN.length + HELP_OPEN.length + SELECTION_POOL.length +
+  FOCUS_LINES.name.length + FOCUS_LINES.email.length +
+  FOCUS_LINES.message.length + G_ARMED.length + PRINT_POOL.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
