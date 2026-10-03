@@ -823,6 +823,41 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "the whale carries the code. whales are just big fish.",
     "compose up. the cats supervise.",
   ],
+  hello: [
+    "hello. tours start whenever you scroll.",
+    "hi again. the keyboard and you: a classic duo.",
+    "greetings. you found the greeting. rare achievement.",
+    "hello back. sachin says hi too, silently.",
+    "hello~ the cat was expecting you roughly now.",
+  ],
+  nice: [
+    "nice. that word purrs well.",
+    "nice detected. filing under: good vibes.",
+    "you say nice, i hear treat.",
+    "flattery: the fastest way to my attention.",
+    "nice is nice. hire is nicer.",
+  ],
+  wow: [
+    "wow received. i do aim to impress.",
+    "wow! say it again. slower this time.",
+    "wow. modesty prevents me from agreeing loudly. (i agree loudly.)",
+    "the correct reaction to any page with a cat on it.",
+    "wow~ my favorite vowel combination.",
+  ],
+  cool: [
+    "cool. cooler. cat with a portfolio. (him, not me. mostly me.)",
+    "cool noted. temperature: unbothered.",
+    "you think it's cool? the deployment thinks so too.",
+    "cool is a state of mind. mine is 22 celsius.",
+    "cool. now type hire. for science.",
+  ],
+  india: [
+    "india: where the chai is strong and the commits stronger.",
+    "sachin yadav, from india, for the world. timezone-proof.",
+    "the land of festivals, frameworks, and flaky power backups.",
+    "india runs on chai. sachin runs on chai and ci.",
+    "from india with bandwidth. remote-ready since forever.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -1051,6 +1086,15 @@ const PRINT_POOL = [
   "a printout. framed, hopefully. or fridge-worthy.",
 ];
 export const printLine = (): string => freshPick(PRINT_POOL);
+
+const RAPID_NAV = [
+  "three hops in a blur. speed-running the portfolio.",
+  "zooming. pick a page, any page.",
+  "who needs a sitemap when you have momentum.",
+  "link-clicking cardio. sachin approves.",
+  "slow down... or don't. i can keep up.",
+];
+export const rapidLine = (): string => freshPick(RAPID_NAV);
 
 /* ------------------ weird-behaviour reactions ------------------ */
 
@@ -1287,6 +1331,7 @@ export const ESTIMATED_LINE_SPACE =
   PALETTE_OPEN.length + HELP_OPEN.length + SELECTION_POOL.length +
   FOCUS_LINES.name.length + FOCUS_LINES.email.length +
   FOCUS_LINES.message.length + G_ARMED.length + PRINT_POOL.length +
+  RAPID_NAV.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 

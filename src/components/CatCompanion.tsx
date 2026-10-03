@@ -155,6 +155,8 @@ const CatCompanion = () => {
   const lastFieldFocus = useRef(0);
   const lastGArmed = useRef(0);
   const lastPrintLine = useRef(0);
+  const navTimesRef = useRef<number[]>([]);
+  const lastRapidLine = useRef(0);
   const tourDone = useRef(false);
   /* cat-tap streak for repeated-click escalation */
   const tapStreak = useRef<number[]>([]);
@@ -175,10 +177,10 @@ const CatCompanion = () => {
   const prophecyTimer = useRef(0);
 
   const showPhrase = useCallback(
-    (text: string, ms = 3200, force = false) => {
-      if (suggestRef.current) return; /* the suggestion bubble has the floor */
+    (text: string, ms = 3200, force = false): boolean => {
+      if (suggestRef.current) return false; /* suggestion owns the floor */
       const now = Date.now();
-      if (!force && now - lastPhraseAt.current < PHRASE_GAP_MS) return;
+      if (!force && now - lastPhraseAt.current < PHRASE_GAP_MS) return false;
       window.clearTimeout(phraseTimer.current);
       lastPhraseAt.current = now;
       /* phrases linger so the streamed text can be read to the end:
@@ -189,6 +191,7 @@ const CatCompanion = () => {
         9000,
       );
       setPhrase({ text, ms: life });
+      return true;
       phraseTimer.current = window.setTimeout(() => setPhrase(null), life);
     },
     [],
@@ -433,12 +436,9 @@ const CatCompanion = () => {
     const onSelectChange = () => {
       const sel = document.getSelection();
       if (!sel || sel.toString().length < 120) return;
-      const now = Date.now();
       const brain = brainRef.current;
-      if (!brain || suggestRef.current || document.hidden) return;
-      if (now - lastSelectionLine.current < 30_000) return;
-      lastSelectionLine.current = now;
-      showPhrase(brain.selectionLine(), 3000, false);
+      if (!brain) return;
+      sayUiLine(() => brain.selectionLine(), lastSelectionLine, 30_000, 3000);
     };
     const onFieldFocus = (e: Event) => {
       const t = e.target;
@@ -446,28 +446,19 @@ const CatCompanion = () => {
       const field =
         t.id === "name" ? "name" : t.id === "email" ? "email" : t.id === "message" ? "message" : null;
       if (!field) return;
-      const now = Date.now();
       const brain = brainRef.current;
-      if (!brain || suggestRef.current || document.hidden) return;
-      if (now - lastFieldFocus.current < 5_000) return;
-      lastFieldFocus.current = now;
-      showPhrase(brain.focusLine(field), 3000, false);
+      if (!brain) return;
+      sayUiLine(() => brain.focusLine(field), lastFieldFocus, 5_000, 3000);
     };
     const onGArmed = () => {
-      const now = Date.now();
       const brain = brainRef.current;
-      if (!brain || suggestRef.current || document.hidden) return;
-      if (now - lastGArmed.current < 30_000) return;
-      lastGArmed.current = now;
-      showPhrase(brain.gArmedLine(), 3000, false);
+      if (!brain) return;
+      sayUiLine(() => brain.gArmedLine(), lastGArmed, 30_000, 3000);
     };
     const onBeforePrint = () => {
-      const now = Date.now();
       const brain = brainRef.current;
-      if (!brain || suggestRef.current || document.hidden) return;
-      if (now - lastPrintLine.current < 60_000) return;
-      lastPrintLine.current = now;
-      showPhrase(brain.printLine(), 3000, false);
+      if (!brain) return;
+      sayUiLine(() => brain.printLine(), lastPrintLine, 60_000, 3000);
     };
     document.addEventListener("selectionchange", onSelectChange);
     document.addEventListener("focusin", onFieldFocus);
@@ -478,7 +469,26 @@ const CatCompanion = () => {
 
     /* writing a real message earns one quiet word of encouragement */
     let messageNudged = false;
-    const onFormInput = (e: Event) => {
+    const sayUiLine = (
+    make: () => string,
+    cooldown: { current: number },
+    minGap: number,
+    ms: number,
+  ) => {
+    const attempt = () => {
+      const now = Date.now();
+      if (suggestRef.current || document.hidden) return;
+      if (now - cooldown.current < minGap) return;
+      if (showPhrase(make(), ms, false)) {
+        cooldown.current = now;
+        return;
+      }
+      window.setTimeout(attempt, PHRASE_GAP_MS + 500);
+    };
+    attempt();
+  };
+
+  const onFormInput = (e: Event) => {
       const t = e.target;
       if (!(t instanceof HTMLTextAreaElement) || t.id !== "message") return;
       if (messageNudged || t.value.length < 24) return;
@@ -508,20 +518,14 @@ const CatCompanion = () => {
     /* the palette and the shortcuts sheet each earn one word, 30s apart,
        and never while a suggestion holds the floor */
     const onPalette = () => {
-      const now = Date.now();
       const brain = brainRef.current;
-      if (!brain || suggestRef.current || document.hidden) return;
-      if (now - lastPaletteLine.current < 30_000) return;
-      lastPaletteLine.current = now;
-      showPhrase(brain.paletteLine(), 3000, false);
+      if (!brain) return;
+      sayUiLine(() => brain.paletteLine(), lastPaletteLine, 30_000, 3000);
     };
     const onHelpSheet = () => {
-      const now = Date.now();
       const brain = brainRef.current;
-      if (!brain || suggestRef.current || document.hidden) return;
-      if (now - lastHelpLine.current < 30_000) return;
-      lastHelpLine.current = now;
-      showPhrase(brain.helpLine(), 3000, false);
+      if (!brain) return;
+      sayUiLine(() => brain.helpLine(), lastHelpLine, 30_000, 3000);
     };
     window.addEventListener("palette-opened", onPalette);
     window.addEventListener("help-opened", onHelpSheet);
@@ -685,6 +689,11 @@ const CatCompanion = () => {
         }
         else if (word === "node" || word === "linux" || word === "typescript")
           spawnSparkles(x, y);
+        else if (word === "hello") spawnHearts(x, y, 5);
+        else if (word === "wow") spawnSparkles(x, y);
+        else if (word === "nice") spawnSparkles(x, y);
+        else if (word === "cool") spawnHearts(x, y, 4);
+        else if (word === "india") spawnSparkles(x, y);
         else if (word === "vim") spawnHearts(x, y, 6);
         else if (word === "deploy") {
           spawnSparkles(x, y);
@@ -876,12 +885,17 @@ const CatCompanion = () => {
 
   /* cat comments when you wander into another room */
   useEffect(() => {
+    const navTimes = navTimesRef.current;
     if (prevPath.current === null) {
       prevPath.current = location.pathname;
+      navTimes.push(Date.now());
+      if (navTimes.length > 3) navTimes.shift();
       return;
     }
     if (prevPath.current === location.pathname) return;
     prevPath.current = location.pathname;
+    navTimes.push(Date.now());
+    if (navTimes.length > 3) navTimes.shift();
     visitsRef.current += 1;
     scrollPctRef.current = 0;
     midSpokenRef.current = false;
@@ -903,10 +917,17 @@ const CatCompanion = () => {
       const isPost = location.pathname.startsWith("/blog/post");
       const isNew = !seenPosts.current.has(location.pathname);
       if (isPost) seenPosts.current.add(location.pathname);
+      const rapid =
+        navTimes.length >= 3 &&
+        now - navTimes[0] <= 18_000 &&
+        now - lastRapidLine.current >= 45_000;
+      if (rapid) lastRapidLine.current = now;
       line =
         isPost && isNew && seenPosts.current.size > 1
           ? brain.streakPostLine()
-          : brain.routeLine(location.pathname, getCtx());
+          : rapid
+            ? brain.rapidLine()
+            : brain.routeLine(location.pathname, getCtx());
     }
     showPhrase(line, 2600, true);
   }, [location.pathname, showPhrase, getCtx]);

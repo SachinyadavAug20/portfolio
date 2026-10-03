@@ -65,9 +65,13 @@ const DevShortcuts = () => {
   }, [helpOpen]);
 
   useEffect(() => {
+    /* `t` arms a 260ms flip that any other key cancels — typing words
+       that start with t (tuna, typescript) must not flip the theme */
+    let tArm = 0;
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const k = e.key;
+      if (k !== "t") window.clearTimeout(tArm);
 
       if (helpOpen) {
         if (k === "Escape" || k === "?") {
@@ -89,7 +93,11 @@ const DevShortcuts = () => {
         return;
       }
       if (k === "t") {
-        setTheme(resolvedTheme === "dark" ? "light" : "dark");
+        window.clearTimeout(tArm);
+        tArm = window.setTimeout(
+          () => setTheme(resolvedTheme === "dark" ? "light" : "dark"),
+          260,
+        );
         return;
       }
 
@@ -125,7 +133,10 @@ const DevShortcuts = () => {
     window.addEventListener("keydown", onKey);
     /* no disarmG here: deps changing (e.g. the rendered location catching
        up after navigation) must not eat a pending g-sequence */
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.clearTimeout(tArm);
+    };
   }, [goAnchor, helpOpen, navigate, resolvedTheme, setTheme]);
 
   if (!helpOpen) return null;
