@@ -139,6 +139,7 @@ const CatCompanion = () => {
   const running = useRef(false);
   const leaving = useRef(false);
   const prevPath = useRef<string | null>(null);
+  const seenPosts = useRef<Set<string>>(new Set());
   const lastRoutePhrase = useRef(0);
   const lastThemePhrase = useRef(0);
   const lastTypingLine = useRef(0);
@@ -522,8 +523,9 @@ const CatCompanion = () => {
 
     /* type "pspsps" to call the cat back; words like luna/meow/hire/joke
        help/fish/thanks/sachin/nya/tuna/yarn/nap/chai/dog/cat/box/sudo/
-       ship/bug/coffee/music/game/resume/job/love/dance/email earn answers —
-       and sometimes props — outside form fields */
+       ship/bug/coffee/music/game/resume/job/love/dance/email/git/python/
+       react/arch/who/why earn answers — and sometimes props — outside
+       form fields */
     let psBuf = "";
     let lastPs = 0;
     let lastWord = 0;
@@ -599,6 +601,13 @@ const CatCompanion = () => {
           neko.setSpeed(16);
           window.setTimeout(() => nekoRef.current?.setSpeed(12), 900);
         }
+        else if (word === "git" || word === "python" || word === "react")
+          spawnSparkles(x, y);
+        else if (word === "arch") {
+          spawnSparkles(x, y);
+          neko.setSpeed(20);
+          window.setTimeout(() => nekoRef.current?.setSpeed(12), 1000);
+        }
         else if (word === "dog") {
           /* dogs get chased off the premises */
           spawnSparkles(x, y);
@@ -613,6 +622,7 @@ const CatCompanion = () => {
           }, 1400);
         } else if (word === "nap") {
           sleepingRef.current = true;
+          lastSleptAt.current = Date.now();
           neko.sleep();
           setSleeping(true);
         }
@@ -798,13 +808,17 @@ const CatCompanion = () => {
     if (now - lastRoutePhrase.current < 9000) return;
     lastRoutePhrase.current = now;
     const brain = brainRef.current;
-    showPhrase(
-      brain
-        ? brain.routeLine(location.pathname, getCtx())
-        : routeLine(location.pathname),
-      2600,
-      true,
-    );
+    let line = routeLine(location.pathname);
+    if (brain) {
+      const isPost = location.pathname.startsWith("/blog/post");
+      const isNew = !seenPosts.current.has(location.pathname);
+      if (isPost) seenPosts.current.add(location.pathname);
+      line =
+        isPost && isNew && seenPosts.current.size > 1
+          ? brain.streakPostLine()
+          : brain.routeLine(location.pathname, getCtx());
+    }
+    showPhrase(line, 2600, true);
   }, [location.pathname, showPhrase, getCtx]);
 
   /* section awareness: when a home section takes the stage, Luna has a
@@ -945,7 +959,12 @@ const CatCompanion = () => {
         scheduleAct();
         return;
       }
-      /* a napping cat gets woken by its own idea; petted cat is left alone */
+      /* a napping cat gets woken by its own idea — but a nap younger than
+         8s (keyword-ordered or just dozed) keeps its zzz; petted cats too */
+      if (sleepingRef.current && Date.now() - lastSleptAt.current < 8000) {
+        scheduleAct();
+        return;
+      }
       if (sleepingRef.current) {
         sleepingRef.current = false;
         neko.wake();
@@ -1347,7 +1366,10 @@ const CatCompanion = () => {
       if (pct > scrollPctRef.current)
         scrollPctRef.current = Math.min(pct, 100);
       const brain = brainRef.current;
-      if (brain && !suggestRef.current) {
+      /* a fresh phrase (route lines, keywords) owns the next few seconds —
+         keep the milestone marker unset so it speaks on the next event */
+      const phraseFresh = now - lastPhraseAt.current < 2500;
+      if (brain && !suggestRef.current && !phraseFresh) {
         if (!endSpokenRef.current && scrollPctRef.current >= 96) {
           endSpokenRef.current = true;
           midSpokenRef.current = true; /* reaching the end moots "halfway" */
@@ -1371,7 +1393,7 @@ const CatCompanion = () => {
         },
         1300,
       );
-      if (now - lastWheee > 25_000) {
+      if (now - lastWheee > 25_000 && now - lastPhraseAt.current >= 2500) {
         lastWheee = now;
         showPhrase(WHEEE_LINES[rand(WHEEE_LINES.length)], 2200, true);
       }

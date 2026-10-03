@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-10-03T06:14:07.751Z",
+ "generatedAt": "2026-10-03T07:24:26.404Z",
  "counts": {
-  "notes": 331,
+  "notes": 332,
   "folders": 60,
-  "links": 587,
+  "links": 588,
   "wikiLinks": 204
  },
  "nodes": [
@@ -52,6 +52,12 @@
   {
    "id": "Programing/Concepts/FDE and GenAI/3.AI chatbot",
    "title": "Example",
+   "kind": "note",
+   "dir": "Programing/Concepts/FDE and GenAI"
+  },
+  {
+   "id": "Programing/Concepts/FDE and GenAI/4.AI Agents",
+   "title": "Raw LLM",
    "kind": "note",
    "dir": "Programing/Concepts/FDE and GenAI"
   },
@@ -3412,6 +3418,11 @@
   },
   {
    "source": "Programing/Concepts/FDE and GenAI/3.AI chatbot",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/FDE and GenAI/4.AI Agents",
    "target": "dir:Programing/Concepts/FDE and GenAI",
    "kind": "member"
   },

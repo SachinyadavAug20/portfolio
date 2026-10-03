@@ -739,6 +739,48 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "his inbox: alive and responsive. verified by cat.",
     "compose. send. watch for the reply-purr.",
   ],
+  git: [
+    "commit often. pet often. same energy.",
+    "git push --force on main? the cat disapproves. loudly.",
+    "his git graph: a work of art. i napped on it.",
+    "branch out. merge. nap. repeat.",
+    "merge conflicts build character. and rage.",
+  ],
+  python: [
+    "python detected. snake energy, zero emoji.",
+    "his python: leetcode grind and scripts that just work.",
+    "pythonic: readable, calm, well-mannered. like the cat.",
+    "import sachin — package-ready.",
+    "the GIL and i agree: take turns napping.",
+  ],
+  react: [
+    "react to THIS: you're already inside a react app.",
+    "components all the way down. like nesting boxes.",
+    "state management: the cat has none. (pure contentment.)",
+    "rerenders? only when petted.",
+    "use(cat) returns: purr.",
+  ],
+  arch: [
+    "arch linux + neovim. dotfiles public. brave.",
+    "he uses arch, btw. (you were waiting.)",
+    "AUR enjoyer. dotfiles believer.",
+    "rolling release, rolling with it.",
+    "arch install beat him up first. then the interview.",
+  ],
+  who: [
+    "sachin. obviously. you're talking to his cat.",
+    "who's a good dev? wrong question. wrong — he is.",
+    "the man, the myth, the commit history.",
+    "sachin yadav. remember it. spell it right.",
+    "him. obviously. now say hi.",
+  ],
+  why: [
+    "why? because the cat said so.",
+    "why not? — every great project's origin story.",
+    "why hire sachin? scroll to the contact form. that's why.",
+    "because someone has to ship good things. it's him.",
+    "why are you still reading? go say hello.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -893,6 +935,17 @@ const CELEBRATION = [
   "off it goes~ watch for a reply before your next scroll.",
 ];
 export const celebrationLine = (): string => freshPick(CELEBRATION);
+
+/* a second (or third...) distinct post = actual reader */
+const POST_STREAK = [
+  "another post~ reader detected. sachin writes for people like you.",
+  "two posts deep. the vault approves.",
+  "you're actually reading. that's rare. and lovely.",
+  "the blog has 330 notes. pace yourself. (or don't.)",
+  "a second helping of notes. the cat plates more.",
+  "studying, are we? he'd hire that energy.",
+];
+export const streakPostLine = (): string => freshPick(POST_STREAK);
 
 /* ------------------ weird-behaviour reactions ------------------ */
 
@@ -1125,7 +1178,7 @@ export const ESTIMATED_LINE_SPACE =
   Object.values(TAP_LINES).reduce((n, p) => n + p.length, 0) +
   Object.values(KEYWORD_LINES).reduce((n, p) => n + p.length, 0) +
   TOUR_DONE.length + HOVER_AWAKE.length + HOVER_ASLEEP.length +
-  MESSAGE_POOL.length + CELEBRATION.length +
+  MESSAGE_POOL.length + CELEBRATION.length + POST_STREAK.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
