@@ -146,6 +146,7 @@ const CatCompanion = () => {
   const lastSectionAt = useRef(0);
   const lastContactFocus = useRef(0);
   const seenSections = useRef<Set<string>>(new Set());
+  const lastHoverLine = useRef(0);
   const tourDone = useRef(false);
   /* cat-tap streak for repeated-click escalation */
   const tapStreak = useRef<number[]>([]);
@@ -420,6 +421,37 @@ const CatCompanion = () => {
     document.addEventListener("click", onCatClick);
     document.addEventListener("focusin", onContactFocus);
 
+    /* proximity hover: the sprite has pointer-events:none (neko-ts inline),
+       so pointerover never fires — we do the distance math ourselves.
+       Hysteresis (40 in, 64 out) keeps the perk-up from flickering */
+    let hoveringCat = false;
+    const onHoverMove = (e: Event) => {
+      const t = e as MouseEvent;
+      if (!t.isTrusted) return;
+      const neko = nekoRef.current;
+      const root = document.querySelector<HTMLElement>('[data-neko="0"]');
+      if (!neko || !root) {
+        hoveringCat = false;
+        return;
+      }
+      const d = Math.hypot(t.clientX - neko.position.x, t.clientY - neko.position.y);
+      if (d < 40 && !hoveringCat) {
+        hoveringCat = true;
+        root.classList.add("cat-curious");
+        const now = Date.now();
+        if (now - lastHoverLine.current < 28_000) return;
+        if (suggestRef.current || document.hidden) return;
+        const brain = brainRef.current;
+        if (!brain || !nekoRef.current) return;
+        lastHoverLine.current = now;
+        showPhrase(brain.hoverLine(sleepingRef.current), 2800, true);
+      } else if (d > 64 && hoveringCat) {
+        hoveringCat = false;
+        root.classList.remove("cat-curious");
+      }
+    };
+    document.addEventListener("mousemove", onHoverMove, { passive: true });
+
     /* typing tempo feeds ctx.keyRate; a fast burst outside inputs earns
        an occasional comment (gap + 45s cooldown keep it easy-going) */
     const onKeyRate = (e: Event) => {
@@ -459,8 +491,9 @@ const CatCompanion = () => {
     document.addEventListener("copy", onCopy);
 
     /* type "pspsps" to call the cat back; words like luna/meow/hire/joke
-       help/fish/thanks/sachin/nya/tuna/yarn/nap/chai/dog/cat/box earn
-       answers — and sometimes props — outside form fields */
+       help/fish/thanks/sachin/nya/tuna/yarn/nap/chai/dog/cat/box/sudo/
+       ship/bug/coffee/music/game earn answers — and sometimes props —
+       outside form fields */
     let psBuf = "";
     let lastPs = 0;
     let lastWord = 0;
@@ -520,6 +553,15 @@ const CatCompanion = () => {
         else if (word === "yarn") spawnYarn(x, y);
         else if (word === "cat") spawnSparkles(x, y);
         else if (word === "box") spawnHearts(x, y, 4);
+        else if (word === "bug") spawnSparkles(x, y);
+        else if (word === "game") spawnYarn(x, y);
+        else if (word === "music") spawnHearts(x, y, 5);
+        else if (word === "coffee") {
+          /* caffeine: a sparkly speed burst, then back to twelve */
+          spawnSparkles(x, y);
+          neko.setSpeed(18);
+          window.setTimeout(() => nekoRef.current?.setSpeed(12), 1200);
+        }
         else if (word === "dog") {
           /* dogs get chased off the premises */
           spawnSparkles(x, y);
@@ -860,7 +902,8 @@ const CatCompanion = () => {
         !neko ||
         suggestRef.current ||
         document.hidden ||
-        petNap.current
+        petNap.current ||
+        Date.now() - lastPhraseAt.current < 3000
       ) {
         scheduleAct();
         return;
@@ -1137,6 +1180,7 @@ const CatCompanion = () => {
       pressAt = now;
       /* every cat tap feeds a streak — repetition earns new answers */
       tapStreak.current.push(now);
+      lastHoverLine.current = 0;
       tapStreak.current = tapStreak.current.filter((t) => now - t <= 2500);
       const streak = tapStreak.current.length;
       const tapBrain = brainRef.current;

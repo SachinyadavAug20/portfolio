@@ -662,6 +662,48 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "box mentioned. loafing is a valid response.",
     "cardboard > cloud computing. (i am the rule.)",
   ],
+  sudo: [
+    "sudo does NOT work on cats. i checked from the inside.",
+    "root: me. you: guest with vibes.",
+    "nice try. cats are not daemons.",
+    "permission denied. (unless you carry tuna.)",
+    "sudo make me a sandwich? make it tuna.",
+  ],
+  ship: [
+    "ship it. i'll nap on the release notes.",
+    "deploy on friday? i'll pretend i didn't hear that.",
+    "it compiles — ship before it changes its mind.",
+    "green build? say less. SHIP.",
+    "release day~ my favorite kind of chaos.",
+  ],
+  bug: [
+    "bug found: cat refuses to leave keyboard. status: expected.",
+    "it's not a bug, it's an undocumented feature. i invented that.",
+    "a bug is just a toy that hasn't been patted yet.",
+    "debugging: staring until the bug apologizes.",
+    "works on my machine. (i am the machine.)",
+  ],
+  coffee: [
+    "coffee detected. sachin's second bloodstream.",
+    "one coffee = two standups of courage.",
+    "black coffee, clean code.",
+    "the coffee cup: enemy of warm laps, friend of deadlines.",
+    "caffeine, because adulting. same reason for naps.",
+  ],
+  music: [
+    "dhun is his music player — built it, so the volume is his.",
+    "music on? the tail starts keeping time.",
+    "a good playlist is just organized purring.",
+    "turn it up. cats hear everything. EVERYTHING.",
+    "folder-based music player. that's the kind of dev he is.",
+  ],
+  game: [
+    "his games live on itch.io. win one, hire him.",
+    "game detected. the cat accepts all controllers.",
+    "games are just interactive yarn.",
+    "press start. i'll supervise.",
+    "high score or it didn't happen. (he ships either way.)",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -743,6 +785,12 @@ const SECTION_POOLS: Record<string, readonly string[]> = {
     "every entry is real. i was there for some of it. (napping.)",
     "2nd year, already building banking systems. noted.",
     "the timeline reads well. excellent pacing.",
+    "genesis 1.0 hackathon — priority task built under pressure. i supervised.",
+    "he built BaseCase, a full stackoverflow clone. answers everywhere.",
+    "first year: C, C++, unity physics. foundations like a good box.",
+    "dhun started as a folder browser. grew up into a whole player.",
+    "the netflix clone was pixel-perfect. even the logos lined up.",
+    "his git history reads like a diary. a very disciplined diary.",
   ],
   skills: [
     "the skills shelf~ dusted, aligned, ready.",
@@ -774,6 +822,23 @@ const TOUR_DONE = [
   "climbed every room. respect. sachin noticed.",
 ];
 export const tourLine = () => freshPick(TOUR_DONE);
+
+/* hovering the cat earns a glance — awake or asleep */
+const HOVER_AWAKE = [
+  "pet me. i dare you.",
+  "hovering is free. petting is priceless.",
+  "my tail flicked. that's a compliment.",
+  "you're just here for the cat. i respect that.",
+  "whiskers up. visitor detected.",
+  "a hover! hold still, i'm memorizing you.",
+];
+const HOVER_ASLEEP = [
+  "zzZ... hover gently. i'm counting fish.",
+  "your cursor is warm. go away. (stay.)",
+  "zzz. petting must be earned. in dreams.",
+];
+export const hoverLine = (sleeping: boolean): string =>
+  freshPick(sleeping ? HOVER_ASLEEP : HOVER_AWAKE);
 
 /* ------------------ weird-behaviour reactions ------------------ */
 
@@ -1005,7 +1070,7 @@ export const ESTIMATED_LINE_SPACE =
   Object.values(SECTION_POOLS).reduce((n, p) => n + p.length, 0) +
   Object.values(TAP_LINES).reduce((n, p) => n + p.length, 0) +
   Object.values(KEYWORD_LINES).reduce((n, p) => n + p.length, 0) +
-  TOUR_DONE.length +
+  TOUR_DONE.length + HOVER_AWAKE.length + HOVER_ASLEEP.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 

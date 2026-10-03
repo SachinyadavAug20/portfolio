@@ -1976,6 +1976,24 @@ h4 {
 }
 
 /* goodbye flourish before Alt+C shoo removes the cat */
+.cat-curious {
+  animation: cat-curious 0.8s var(--ease-standard);
+}
+@keyframes cat-curious {
+  0% {
+    transform: scale(1) rotate(0);
+  }
+  30% {
+    transform: scale(1.07) rotate(4deg);
+  }
+  62% {
+    transform: scale(1.03) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
 .cat-leaving {
   animation: cat-leaving 0.34s ease-in forwards;
 }
