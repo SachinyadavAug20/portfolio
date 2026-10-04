@@ -192,6 +192,7 @@ const CatCompanion = () => {
   const lastStandoffLine = useRef(0);
   const lastRetreat = useRef(0);
   const lastCloseIn = useRef(0);
+  const lastFormErr = useRef(0);
   const repeatTarget = useRef<Element | null>(null);
   const repeatStreak = useRef(0);
   const repeatReset = useRef(0);
@@ -291,14 +292,19 @@ const CatCompanion = () => {
     const setDist = (d: number) => {
       (neko as unknown as { distanceFromMouse: number }).distanceFromMouse = d;
     };
-    gsap.to(standoffNum.current, {
-      d: STANDOFF_DIST[mode],
-      duration: 0.7,
-      ease: "power2.out",
-      overwrite: true,
-      onUpdate: () => setDist(standoffNum.current.d),
-    });
-    setDist(standoffNum.current.d);
+    if (isReducedMotion()) {
+      standoffNum.current.d = STANDOFF_DIST[mode];
+      setDist(STANDOFF_DIST[mode]);
+    } else {
+      gsap.to(standoffNum.current, {
+        d: STANDOFF_DIST[mode],
+        duration: 0.7,
+        ease: "power2.out",
+        overwrite: true,
+        onUpdate: () => setDist(standoffNum.current.d),
+      });
+      setDist(standoffNum.current.d);
+    }
     neko.setSpeed(STANDOFF_SPEED[mode]);
   }, []);
 
@@ -848,6 +854,17 @@ const CatCompanion = () => {
     };
     window.addEventListener("contact-sent", onSent);
 
+    /* rejected send: one word for the whole miss, capped at once per 45s */
+    const onInvalid = () => {
+      const now = Date.now();
+      if (now - lastFormErr.current < 45_000) return;
+      const brain = brainRef.current;
+      if (!brain || suggestRef.current || document.hidden || !nekoRef.current) return;
+      lastFormErr.current = now;
+      showPhrase(brain.formErrorLine(), 2800, true);
+    };
+    window.addEventListener("contact-invalid", onInvalid);
+
     /* the palette and the shortcuts sheet each earn one word, 30s apart,
        and never while a suggestion holds the floor */
     const onPalette = () => {
@@ -897,12 +914,16 @@ const CatCompanion = () => {
         showPhrase(brain.hoverLine(sleepingRef.current), 2800, true);
       } else if (d > 64 && hoveringCat) {
         hoveringCat = false;
-        gsap.to(root, {
-          scale: 1,
-          rotation: 0,
-          duration: 0.18,
-          overwrite: "auto",
-        });
+        if (isReducedMotion()) {
+          gsap.set(root, { scale: 1, rotation: 0 });
+        } else {
+          gsap.to(root, {
+            scale: 1,
+            rotation: 0,
+            duration: 0.18,
+            overwrite: "auto",
+          });
+        }
       }
     };
     document.addEventListener("mousemove", onHoverMove, { passive: true });
@@ -1215,6 +1236,7 @@ const CatCompanion = () => {
       document.removeEventListener("copy", onCopy);
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("contact-sent", onSent);
+      window.removeEventListener("contact-invalid", onInvalid);
       window.removeEventListener("palette-opened", onPalette);
       window.removeEventListener("help-opened", onHelpSheet);
       document.removeEventListener("selectionchange", onSelectChange);
@@ -1310,6 +1332,24 @@ const CatCompanion = () => {
   /* cat comments when you wander into another room */
   useEffect(() => {
     const navTimes = navTimesRef.current;
+    /* on the graph she claims a bottom corner post and watches — retried
+       so a fresh deep load lands too (the cat spawns a beat later) */
+    const perchGraph = (tries = 0) => {
+      if (window.location.pathname !== "/graph") return;
+      const perch = nekoRef.current;
+      if (!perch) {
+        if (tries < 24) window.setTimeout(() => perchGraph(tries + 1), 250);
+        return;
+      }
+      window.setTimeout(() => {
+        if (!nekoRef.current || window.location.pathname !== "/graph") return;
+        const cornerX =
+          window.innerWidth / 2 < perch.position.x
+            ? 60
+            : window.innerWidth - 60;
+        seedPointer(cornerX, window.innerHeight - 60);
+      }, 800);
+    };
     /* which standoff shape this room wants: the graph is watched from the
        rim, blog posts get a calm reading distance, everything else is
        right beside you — settled before the first-run return so a fresh
@@ -1328,10 +1368,10 @@ const CatCompanion = () => {
       prevPath.current = location.pathname;
       navTimes.push(Date.now());
       if (navTimes.length > 3) navTimes.shift();
+      if (location.pathname === "/graph") perchGraph();
       return;
     }
     if (prevPath.current === location.pathname) return;
-    const from = prevPath.current;
     prevPath.current = location.pathname;
     navTimes.push(Date.now());
     if (navTimes.length > 3) navTimes.shift();
@@ -1346,19 +1386,8 @@ const CatCompanion = () => {
       suggestRef.current = null;
       setSuggest(null);
     }
+    if (location.pathname === "/graph") perchGraph();
     if (!nekoRef.current) return;
-    /* arriving at the graph: she claims a bottom corner post and watches */
-    if (from === "/graph") {
-      const perch = nekoRef.current;
-      window.setTimeout(() => {
-        if (nekoRef.current !== perch || prevPath.current !== "/graph") return;
-        const cornerX =
-          window.innerWidth / 2 < perch.position.x
-            ? 60
-            : window.innerWidth - 60;
-        seedPointer(cornerX, window.innerHeight - 60);
-      }, 800);
-    }
     const now = Date.now();
     if (now - lastRoutePhrase.current < 9000) return;
     lastRoutePhrase.current = now;
@@ -1763,10 +1792,11 @@ const CatCompanion = () => {
           returning ? 3200 : 5400,
           true,
         );
-        /* then wander toward the visitor's pointer (or screen centre) */
+        /* then wander toward the visitor's pointer (or screen centre) —
+           never off a graph perch, where the corner post holds */
         timers.push(
           window.setTimeout(() => {
-            if (!cancelled)
+            if (!cancelled && window.location.pathname !== "/graph")
               seedPointer(lastPointer.current.x, lastPointer.current.y);
           }, 2400),
         );
@@ -2115,7 +2145,7 @@ const CatCompanion = () => {
           ? suggestAnchorRef.current?.querySelector<HTMLElement>(".cat-bubble")
           : null
     );
-    if (pill)
+    if (pill && !reduced)
       gsap.fromTo(
         pill,
         { y: 9, scale: 0.93, autoAlpha: 0 },

@@ -1333,6 +1333,15 @@ export type FocusField = keyof typeof FOCUS_LINES;
 export const focusLine = (field: FocusField): string =>
   freshPick(FOCUS_LINES[field]);
 
+const FORM_INVALID_LINES = [
+  "required means required. even cats know.",
+  "the fields turned red. bold choice — fill them?",
+  "name, email, message. one's missing. i checked.",
+  "validation says hi. again, but with text? ♥",
+  "red underline = the love language: required.",
+];
+export const formErrorLine = (): string => freshPick(FORM_INVALID_LINES);
+
 const G_ARMED = [
   "g is armed. g h home, g b blog, g p graph.",
   "vim brain detected. g g takes you to the top.",
@@ -1699,7 +1708,8 @@ export const ESTIMATED_LINE_SPACE =
   MESSAGE_POOL.length + CELEBRATION.length + POST_STREAK.length +
   PALETTE_OPEN.length + HELP_OPEN.length + SELECTION_POOL.length +
   FOCUS_LINES.name.length + FOCUS_LINES.email.length +
-  FOCUS_LINES.message.length + G_ARMED.length + PRINT_POOL.length +
+  FOCUS_LINES.message.length + FORM_INVALID_LINES.length + G_ARMED.length +
+  PRINT_POOL.length +
   RAPID_NAV.length + TAB_LINES.length + RUSH_UP.length + SELECT_ALL.length +
   REPEAT_LINES.length + BUBBLE_COPY.length + FOUR_OH_FOUR.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +

@@ -90,6 +90,7 @@ const Contact = () => {
     if (!formData.message.trim()) nextErrors.message = "Message is required";
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
+      window.dispatchEvent(new CustomEvent("contact-invalid"));
       shake();
       tap(30);
       document
