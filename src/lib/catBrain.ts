@@ -1322,6 +1322,24 @@ const FOUR_OH_FOUR = [
   "error 404: treat not found. check the kitchen.",
 ];
 
+/* keeping her distance: the graph canvas, a highlighted passage */
+const OBSERVE_LINES = [
+  "i'll watch the graph from right here. you drive.",
+  "so many edges~ paws off the canvas.",
+  "graph mode: safe distance, full attention.",
+  "the vault is yours. i supervise from the rim.",
+  "nodes everywhere. spectating from the edge.",
+];
+const BACK_LINES = [
+  "easy, i can read it fine from here.",
+  "highlight away~ i'll keep my whiskers back.",
+  "you select, i observe. good system.",
+  "the text is yours. i've got the overview.",
+  "step back? done. take your time.",
+];
+export const standoffLine = (kind: "observe" | "back"): string =>
+  freshPick(kind === "observe" ? OBSERVE_LINES : BACK_LINES);
+
 /* known routes get their pools; anything else is a lost page */
 export const isKnownPath = (path: string): boolean => {
   const p = path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
@@ -1566,6 +1584,7 @@ export const ESTIMATED_LINE_SPACE =
   RAPID_NAV.length + TAB_LINES.length + RUSH_UP.length + SELECT_ALL.length +
   REPEAT_LINES.length + BUBBLE_COPY.length + FOUR_OH_FOUR.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
+  OBSERVE_LINES.length + BACK_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
 export const templateLine = (): string => build(pick(TEMPLATES));

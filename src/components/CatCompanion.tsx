@@ -36,6 +36,25 @@ import type { CatContext } from "../lib/catTypes";
 import type { ActId } from "../lib/catBrain";
 import type { BlogSuggestion } from "../lib/blogSuggestions";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { gsap } from "../lib/gsapSetup";
+
+/* context-aware standoff: how much room Luna keeps between herself and the
+   cursor — follow close, read calmly, watch the graph from the rim, step
+   back from a highlight (the number feeds neko's distanceFromMouse) */
+type StandoffBase = "follow" | "calm" | "observe";
+type StandoffMode = StandoffBase | "back";
+const STANDOFF_DIST: Record<StandoffMode, number> = {
+  follow: 25,
+  calm: 70,
+  observe: 170,
+  back: 200,
+};
+const STANDOFF_SPEED: Record<StandoffMode, number> = {
+  follow: 12,
+  calm: 10,
+  observe: 11,
+  back: 14,
+};
 
 /*
  * Cat companion — a neko-ts desktop pet that sneaks in from a screen edge,
@@ -164,6 +183,14 @@ const CatCompanion = () => {
   const lastBubbleCopy = useRef(0);
   const lastJiggle = useRef(0);
   const lastEscapeLine = useRef(0);
+  /* standoff intelligence: route-shaped base mode + temporary reasons to
+     step back (selection, palette/help, form focus) */
+  const standoffBase = useRef<StandoffBase>("follow");
+  const standoffReasons = useRef<Set<"select" | "overlay" | "form">>(new Set());
+  const standoffModeRef = useRef<StandoffMode>("follow");
+  const standoffNum = useRef({ d: STANDOFF_DIST.follow });
+  const lastStandoffLine = useRef(0);
+  const lastRetreat = useRef(0);
   const repeatTarget = useRef<Element | null>(null);
   const repeatStreak = useRef(0);
   const repeatReset = useRef(0);
@@ -251,6 +278,40 @@ const CatCompanion = () => {
     [showPhrase],
   );
 
+  /* settle on the right standoff: GSAP eases the distance so the cat
+     glides between "come here" and "i'll watch from here" instead of
+     teleporting its stop point */
+  const applyStandoff = useCallback(() => {
+    const mode: StandoffMode =
+      standoffReasons.current.size > 0 ? "back" : standoffBase.current;
+    standoffModeRef.current = mode;
+    const neko = nekoRef.current;
+    if (!neko) return;
+    const setDist = (d: number) => {
+      (neko as unknown as { distanceFromMouse: number }).distanceFromMouse = d;
+    };
+    gsap.to(standoffNum.current, {
+      d: STANDOFF_DIST[mode],
+      duration: 0.7,
+      ease: "power2.out",
+      overwrite: true,
+      onUpdate: () => setDist(standoffNum.current.d),
+    });
+    setDist(standoffNum.current.d);
+    neko.setSpeed(STANDOFF_SPEED[mode]);
+  }, []);
+
+  const setStandoffReason = useCallback(
+    (reason: "select" | "overlay" | "form", on: boolean) => {
+      const set = standoffReasons.current;
+      if (set.has(reason) === on) return;
+      if (on) set.add(reason);
+      else set.delete(reason);
+      applyStandoff();
+    },
+    [applyStandoff],
+  );
+
   /* load the brain in the background — stays out of the entry bundle;
      if the chunk never lands, cat.ts phrase banks keep working */
   useEffect(() => {
@@ -317,6 +378,7 @@ const CatCompanion = () => {
     let lastPY = -1;
     let jiggleFlips = 0;
     let jiggleWindow = 0;
+    const standoffObj = standoffNum.current;
     const onMove = (e: Event) => {
       const t = e as MouseEvent;
       if (!t.isTrusted) return;
@@ -344,6 +406,69 @@ const CatCompanion = () => {
         const brain = brainRef.current;
         if (brain) {
           sayUiLine(() => brain.jiggleLine(), lastJiggle, 45_000, 3000);
+        }
+      }
+      /* standoff intelligence: in observe/back mode a crowding cursor gets
+         gently shown a wider berth — pick the escape heading that gains the
+         most ground (corners and walls included) and say so, once a while */
+      const mode = standoffModeRef.current;
+      if (
+        (mode === "observe" || mode === "back") &&
+        !sleepingRef.current &&
+        nekoRef.current
+      ) {
+        const neko = nekoRef.current;
+        const sd = standoffNum.current.d;
+        const rx = neko.position.x - t.clientX;
+        const ry = neko.position.y - t.clientY;
+        const rdist = Math.hypot(rx, ry);
+        if (rdist > 1 && rdist < sd && now - lastRetreat.current > 140) {
+          const travel = sd + 100;
+          const ux = rx / rdist;
+          const uy = ry / rdist;
+          let bx = 0;
+          let by = 0;
+          let bgain = -1;
+          for (const deg of [0, 60, -60, 120, -120, 180]) {
+            const a = (deg * Math.PI) / 180;
+            const hx = Math.cos(a) * ux - Math.sin(a) * uy;
+            const hy = Math.sin(a) * ux + Math.cos(a) * uy;
+            const tx = Math.min(
+              Math.max(neko.position.x + hx * travel, 48),
+              window.innerWidth - 48,
+            );
+            const ty = Math.min(
+              Math.max(neko.position.y + hy * travel, 48),
+              window.innerHeight - 48,
+            );
+            const moved = Math.hypot(
+              tx - neko.position.x,
+              ty - neko.position.y,
+            );
+            if (moved < 80) continue;
+            const away = Math.hypot(tx - t.clientX, ty - t.clientY);
+            if (away > bgain) {
+              bgain = away;
+              bx = tx;
+              by = ty;
+            }
+          }
+          if (bgain > rdist) {
+            lastRetreat.current = now;
+            seedPointer(bx, by);
+            const brain = brainRef.current;
+            if (
+              brain &&
+              now - lastStandoffLine.current >= 45_000 &&
+              showPhrase(
+                brain.standoffLine(mode === "observe" ? "observe" : "back"),
+                3200,
+                true,
+              )
+            ) {
+              lastStandoffLine.current = now;
+            }
+          }
         }
       }
     };
@@ -522,9 +647,10 @@ const CatCompanion = () => {
        each get one quiet word (non-force: a fresh phrase keeps the floor) */
     const onSelectChange = () => {
       const sel = document.getSelection();
-      if (!sel) return;
-      const len = sel.toString().length;
-      if (len < 120) return;
+      const len = sel ? sel.toString().length : 0;
+      /* any highlight backs her off the words; longer ones also get a line */
+      setStandoffReason("select", len > 0);
+      if (!sel || len < 120) return;
       const brain = brainRef.current;
       if (!brain) return;
       if (len >= 3000) {
@@ -543,6 +669,7 @@ const CatCompanion = () => {
       sayUiLine(() => brain.selectionLine(), lastSelectionLine, 30_000, 3000);
     };
     const onFieldFocus = (e: Event) => {
+      syncFormReason();
       const t = e.target;
       if (!(t instanceof HTMLElement)) return;
       const field =
@@ -552,6 +679,37 @@ const CatCompanion = () => {
       if (!brain) return;
       sayUiLine(() => brain.focusLine(field), lastFieldFocus, 5_000, 3000);
     };
+    /* typing in a field (any field) = she stops hovering over your words */
+    const syncFormReason = () => {
+      const el = document.activeElement;
+      setStandoffReason(
+        "form",
+        !!el &&
+          (el.tagName === "INPUT" ||
+            el.tagName === "TEXTAREA" ||
+            (el as HTMLElement).isContentEditable),
+      );
+    };
+    const onFocusOut = () => {
+      window.setTimeout(syncFormReason, 0);
+    };
+    /* the palette and the shortcuts sheet are someone else's moment —
+       watch for their mount/unmount and give them the room */
+    let overlayRaf = 0;
+    const syncOverlay = () => {
+      if (overlayRaf) return;
+      overlayRaf = window.requestAnimationFrame(() => {
+        overlayRaf = 0;
+        setStandoffReason(
+          "overlay",
+          document.querySelector(
+            '[data-testid="command-palette"], [data-testid="shortcuts-help"]',
+          ) !== null,
+        );
+      });
+    };
+    const overlayObs = new MutationObserver(syncOverlay);
+    overlayObs.observe(document.body, { childList: true, subtree: true });
     const onGArmed = () => {
       const brain = brainRef.current;
       if (!brain) return;
@@ -564,6 +722,7 @@ const CatCompanion = () => {
     };
     document.addEventListener("selectionchange", onSelectChange);
     document.addEventListener("focusin", onFieldFocus);
+    document.addEventListener("focusout", onFocusOut);
     window.addEventListener("g-armed", onGArmed);
     window.addEventListener("beforeprint", onBeforePrint);
 
@@ -706,7 +865,12 @@ const CatCompanion = () => {
       const d = Math.hypot(t.clientX - neko.position.x, t.clientY - neko.position.y);
       if (d < 40 && !hoveringCat) {
         hoveringCat = true;
-        root.classList.add("cat-curious");
+        /* a curious tilt-lean, tweened (transform stays neko-free) */
+        gsap
+          .timeline({ overwrite: "auto" })
+          .to(root, { scale: 1.07, rotation: 4, duration: 0.24, ease: "power2.out" })
+          .to(root, { scale: 1.03, rotation: -3, duration: 0.24, ease: "sine.inOut" })
+          .to(root, { scale: 1, rotation: 0, duration: 0.32, ease: "sine.out" });
         const now = Date.now();
         if (now - lastHoverLine.current < 28_000) return;
         if (suggestRef.current || document.hidden) return;
@@ -716,7 +880,12 @@ const CatCompanion = () => {
         showPhrase(brain.hoverLine(sleepingRef.current), 2800, true);
       } else if (d > 64 && hoveringCat) {
         hoveringCat = false;
-        root.classList.remove("cat-curious");
+        gsap.to(root, {
+          scale: 1,
+          rotation: 0,
+          duration: 0.18,
+          overwrite: "auto",
+        });
       }
     };
     document.addEventListener("mousemove", onHoverMove, { passive: true });
@@ -1012,6 +1181,10 @@ const CatCompanion = () => {
       window.removeEventListener("help-opened", onHelpSheet);
       document.removeEventListener("selectionchange", onSelectChange);
       document.removeEventListener("focusin", onFieldFocus);
+      document.removeEventListener("focusout", onFocusOut);
+      overlayObs.disconnect();
+      if (overlayRaf) window.cancelAnimationFrame(overlayRaf);
+      gsap.killTweensOf(standoffObj);
       window.removeEventListener("g-armed", onGArmed);
       window.removeEventListener("beforeprint", onBeforePrint);
       document.removeEventListener("keydown", onTabKey);
@@ -1025,7 +1198,7 @@ const CatCompanion = () => {
       document.removeEventListener("focusin", onContactFocus);
       window.removeEventListener("wheel", onAny);
     };
-  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion]);
+  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion, setStandoffReason]);
 
   /* Alt+C shooes / summons the cat for good (the opt-out persists) */
   useEffect(() => {
@@ -1099,6 +1272,20 @@ const CatCompanion = () => {
   /* cat comments when you wander into another room */
   useEffect(() => {
     const navTimes = navTimesRef.current;
+    /* which standoff shape this room wants: the graph is watched from the
+       rim, blog posts get a calm reading distance, everything else is
+       right beside you — settled before the first-run return so a fresh
+       deep load still lands correctly */
+    const base: StandoffBase =
+      location.pathname === "/graph"
+        ? "observe"
+        : location.pathname.startsWith("/blog")
+          ? "calm"
+          : "follow";
+    if (standoffBase.current !== base) {
+      standoffBase.current = base;
+      applyStandoff();
+    }
     if (prevPath.current === null) {
       prevPath.current = location.pathname;
       navTimes.push(Date.now());
@@ -1106,6 +1293,7 @@ const CatCompanion = () => {
       return;
     }
     if (prevPath.current === location.pathname) return;
+    const from = prevPath.current;
     prevPath.current = location.pathname;
     navTimes.push(Date.now());
     if (navTimes.length > 3) navTimes.shift();
@@ -1121,6 +1309,18 @@ const CatCompanion = () => {
       setSuggest(null);
     }
     if (!nekoRef.current) return;
+    /* arriving at the graph: she claims a bottom corner post and watches */
+    if (from === "/graph") {
+      const perch = nekoRef.current;
+      window.setTimeout(() => {
+        if (nekoRef.current !== perch || prevPath.current !== "/graph") return;
+        const cornerX =
+          window.innerWidth / 2 < perch.position.x
+            ? 60
+            : window.innerWidth - 60;
+        seedPointer(cornerX, window.innerHeight - 60);
+      }, 800);
+    }
     const now = Date.now();
     if (now - lastRoutePhrase.current < 9000) return;
     lastRoutePhrase.current = now;
@@ -1143,7 +1343,7 @@ const CatCompanion = () => {
             : brain.routeLine(location.pathname, getCtx());
     }
     showPhrase(line, 2600, true);
-  }, [location.pathname, showPhrase, getCtx]);
+  }, [location.pathname, showPhrase, getCtx, applyStandoff]);
 
   /* section awareness: when a home section takes the stage, Luna has a
      line about it — always the first time, sometimes after that */
@@ -1201,7 +1401,7 @@ const CatCompanion = () => {
     let lastScrollEvent = 0;
     const timers: number[] = [];
     const intervals: number[] = [];
-    /* weighted random acts: first one lands 15–30s in, then every 45–80s,
+    /* weighted random acts: first one lands 15–30s in, then every 60–95s,
        never while a suggestion owns the floor or the tab is hidden */
     const recentActs = new Set<ActId>();
     let actTimer = 0;
@@ -1211,10 +1411,24 @@ const CatCompanion = () => {
     const hop = () => {
       const el = document.querySelector<HTMLElement>('[data-neko="0"]');
       if (!el) return;
-      el.classList.remove("cat-hop");
-      void el.offsetWidth;
-      el.classList.add("cat-hop");
-      timers.push(window.setTimeout(() => el.classList.remove("cat-hop"), 500));
+      gsap
+        .timeline()
+        .to(el, {
+          y: -11,
+          rotation: -6,
+          scale: 1.06,
+          duration: 0.16,
+          ease: "power2.out",
+          overwrite: "auto",
+        })
+        .to(el, {
+          y: 0,
+          rotation: 0,
+          scale: 1,
+          duration: 0.34,
+          ease: "back.out(2.2)",
+          overwrite: "auto",
+        });
     };
 
     /* long idle → the cat wakes up with an idea and pitches one post */
@@ -1263,7 +1477,7 @@ const CatCompanion = () => {
         runAct,
         first
           ? 15_000 + Math.random() * 15_000
-          : 45_000 + Math.random() * 35_000,
+          : 60_000 + Math.random() * 35_000,
       );
     };
 
@@ -1462,13 +1676,16 @@ const CatCompanion = () => {
         nekoSize:
           w < 768
             ? core.NekoSizeVariations.SMALL
-            : core.NekoSizeVariations.MEDIUM,
+            : core.NekoSizeVariations.LARGE,
         speed: 12,
         origin,
         defaultState: "awake",
         breed: breeds[rand(breeds.length)],
       });
       nekoRef.current = neko;
+      /* settle the room's standoff now that she exists (graph = rim,
+         blog = calm, selection/form/overlay = a respectful step back) */
+      applyStandoff();
 
       const el = document.querySelector<HTMLElement>('[data-neko="0"]');
       if (el) el.style.zIndex = "60"; /* under navbar (100) + tab bar (80) */
@@ -1516,7 +1733,7 @@ const CatCompanion = () => {
         );
       }, 250);
 
-      /* idle chatter every 40–75s — brain lines when loaded, else the bank */
+      /* idle chatter every 52–90s — brain lines when loaded, else the bank */
       const scheduleChatter = () => {
         chatterTimer = window.setTimeout(
           () => {
@@ -1532,7 +1749,7 @@ const CatCompanion = () => {
             }
             scheduleChatter();
           },
-          40_000 + Math.random() * 35_000,
+          52_000 + Math.random() * 38_000,
         );
       };
       scheduleChatter();
@@ -1846,10 +2063,32 @@ const CatCompanion = () => {
       nekoRef.current?.destroy();
       nekoRef.current = null;
     };
-  }, [reduced, enabled, showPhrase, markActivity, getCtx, checkProphecy]);
+  }, [reduced, enabled, showPhrase, markActivity, getCtx, checkProphecy, applyStandoff]);
 
   /* keep the bubble + zZz parked next to the cat */
   useEffect(() => {
+    /* spring the pill in (transform on the inner pill; the anchor owns
+       positioning, so the two never fight over the same property) */
+    const pill = (
+      phrase
+        ? bubbleRef.current?.querySelector<HTMLElement>(".cat-bubble")
+        : suggest
+          ? suggestAnchorRef.current?.querySelector<HTMLElement>(".cat-bubble")
+          : null
+    );
+    if (pill)
+      gsap.fromTo(
+        pill,
+        { y: 9, scale: 0.93, autoAlpha: 0 },
+        {
+          y: 0,
+          scale: 1,
+          autoAlpha: 1,
+          duration: 0.42,
+          ease: "back.out(1.8)",
+          overwrite: "auto",
+        },
+      );
     if (!phrase && !sleeping && !suggest) return;
     const neko = nekoRef.current;
     if (!neko) return;
