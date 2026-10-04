@@ -1014,6 +1014,111 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "the logic checks out. i checked it twice.",
     "boolean cats: also true. always true.",
   ],
+  css: [
+    "cascade? i cascade naps.",
+    "selectors named after me? flattering.",
+    "css: the art of making boxes lie.",
+    "specificity wars: the cat wins.",
+    "flexbox until it flexes back.",
+  ],
+  html: [
+    "semantic! even my meows are semantic.",
+    "div soup with a cat on top.",
+    "the original markup language of boxes.",
+    "alt text: cat doing important work.",
+    "tags closed, naps open.",
+  ],
+  aws: [
+    "aws: a well-shed service.",
+    "the cloud is just someone else's sunbeam.",
+    "s3: simple storage of treats.",
+    "elastic compute, inelastic naps.",
+    "your bill sleeps better than you.",
+  ],
+  tests: [
+    "tests pass? that's my favorite sound.",
+    "green suite, green yarn.",
+    "coverage: i cover the keyboard.",
+    "flaky tests fear the cat.",
+    "write it twice, nap once.",
+  ],
+  graphql: [
+    "ask for exactly the fields you need. no more.",
+    "one endpoint to rule the queries.",
+    "no over-fetching. i barely fetch at all.",
+    "mutation? i mutate naps.",
+    "the schema already knows what you want.",
+  ],
+  redis: [
+    "redis: cached in place, like a sunbeam.",
+    "in-memory naps, zero latency.",
+    "ttl: time to lounge.",
+    "cache hits feel like warm keyboards.",
+    "persistence? overrated. ask mysql.",
+  ],
+  figma: [
+    "figma: the yarn ball of design files.",
+    "auto-layout or chaos. i choose loaf.",
+    "components all the way down.",
+    "handoff? i hand off the mouse.",
+    "the artboard is warm. i sit here now.",
+  ],
+  tailwind: [
+    "utility classes: my claws, but useful.",
+    "no build step for the zoomies.",
+    "mx-auto? the cat is never centered.",
+    "dark mode: obviously.",
+    "every class a small, good decision.",
+  ],
+  remote: [
+    "remote work: the cat approves loudly.",
+    "commute: 0 seconds to the desk.",
+    "async means nap-sync.",
+    "camera off, purr on.",
+    "work from anywhere with a warm spot.",
+  ],
+  offer: [
+    "an offer! i accept on his behalf.",
+    "offer letter: written in treats.",
+    "negotiate. he won't. i will.",
+    "sign it. i'll supervise.",
+    "one offer, one very smug cat.",
+  ],
+  salary: [
+    "salary talk: i only take kibble.",
+    "comp bands are just yarn with numbers.",
+    "ask high. he's worth the treat budget.",
+    "equity? i prefer equity of sunbeams.",
+    "number goes up, cat naps better.",
+  ],
+  internship: [
+    "internship era: every senior starts tiny.",
+    "he'd mentor. he taught me sit.",
+    "first-PR energy is unmatched.",
+    "learn fast, nap faster.",
+    "the ladder starts at the windowsill.",
+  ],
+  seo: [
+    "seo: the cat is already findable.",
+    "meta tags or it didn't happen.",
+    "crawl budget: naps and whiskers.",
+    "ranking #1 for 'cat'. we're working on it.",
+    "alt text wins. i said what i said.",
+  ],
+  llm: [
+    "llm? i'm more of an s-m: small mammal.",
+    "tokens are just very small treats.",
+    "hallucinated? i do that with lasers.",
+    "context window: one lap.",
+    "the model purred back.",
+  ],
+  ramen: [
+    "ramen: broth-based happiness.",
+    "slurp loudly. code quietly.",
+    "extra chashu, extra commits.",
+    "noodles: yarn you can eat.",
+    "one bowl, one build, zero errors.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -1329,6 +1434,8 @@ const OBSERVE_LINES = [
   "graph mode: safe distance, full attention.",
   "the vault is yours. i supervise from the rim.",
   "nodes everywhere. spectating from the edge.",
+  "one tab, one graph, one very distant cat.",
+  "i'll stay where the zoom doesn't reach.",
 ];
 const BACK_LINES = [
   "easy, i can read it fine from here.",
@@ -1336,9 +1443,21 @@ const BACK_LINES = [
   "you select, i observe. good system.",
   "the text is yours. i've got the overview.",
   "step back? done. take your time.",
+  "highlighting is a solo sport. i'll spectate.",
+  "words yours, whiskers mine. deal.",
 ];
 export const standoffLine = (kind: "observe" | "back"): string =>
   freshPick(kind === "observe" ? OBSERVE_LINES : BACK_LINES);
+
+/* ...and the mirror: once the reason to step back is gone */
+const CLOSE_IN_LINES = [
+  "understood~ back in close.",
+  "selection dropped. come closer, it's fine.",
+  "overlays away. personal space reverts to normal.",
+  "field done? i'll hover again. briefly.",
+  "the words are cool again.",
+];
+export const closeInLine = (): string => freshPick(CLOSE_IN_LINES);
 
 /* known routes get their pools; anything else is a lost page */
 export const isKnownPath = (path: string): boolean => {
@@ -1584,7 +1703,7 @@ export const ESTIMATED_LINE_SPACE =
   RAPID_NAV.length + TAB_LINES.length + RUSH_UP.length + SELECT_ALL.length +
   REPEAT_LINES.length + BUBBLE_COPY.length + FOUR_OH_FOUR.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
-  OBSERVE_LINES.length + BACK_LINES.length +
+  OBSERVE_LINES.length + BACK_LINES.length + CLOSE_IN_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
 
 export const templateLine = (): string => build(pick(TEMPLATES));

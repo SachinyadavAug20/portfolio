@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Neko } from "neko-ts";
-import { useReducedMotion } from "../hooks/useReducedMotion";
+import { useReducedMotion, isReducedMotion } from "../hooks/useReducedMotion";
 import { tap } from "../lib/haptics";
 import {
   CAT_NAME,
@@ -191,6 +191,7 @@ const CatCompanion = () => {
   const standoffNum = useRef({ d: STANDOFF_DIST.follow });
   const lastStandoffLine = useRef(0);
   const lastRetreat = useRef(0);
+  const lastCloseIn = useRef(0);
   const repeatTarget = useRef<Element | null>(null);
   const repeatStreak = useRef(0);
   const repeatReset = useRef(0);
@@ -308,8 +309,22 @@ const CatCompanion = () => {
       if (on) set.add(reason);
       else set.delete(reason);
       applyStandoff();
+      /* stepping back is quiet; coming back close earns a word now and then */
+      if (!on && set.size === 0) {
+        const now = Date.now();
+        const brain = brainRef.current;
+        if (
+          brain &&
+          nekoRef.current &&
+          !sleepingRef.current &&
+          now - lastCloseIn.current >= 45_000 &&
+          showPhrase(brain.closeInLine(), 2600, false)
+        ) {
+          lastCloseIn.current = now;
+        }
+      }
     },
-    [applyStandoff],
+    [applyStandoff, showPhrase],
   );
 
   /* load the brain in the background — stays out of the entry bundle;
@@ -866,11 +881,13 @@ const CatCompanion = () => {
       if (d < 40 && !hoveringCat) {
         hoveringCat = true;
         /* a curious tilt-lean, tweened (transform stays neko-free) */
-        gsap
-          .timeline({ overwrite: "auto" })
-          .to(root, { scale: 1.07, rotation: 4, duration: 0.24, ease: "power2.out" })
-          .to(root, { scale: 1.03, rotation: -3, duration: 0.24, ease: "sine.inOut" })
-          .to(root, { scale: 1, rotation: 0, duration: 0.32, ease: "sine.out" });
+        if (!isReducedMotion()) {
+          gsap
+            .timeline({ overwrite: "auto" })
+            .to(root, { scale: 1.07, rotation: 4, duration: 0.24, ease: "power2.out" })
+            .to(root, { scale: 1.03, rotation: -3, duration: 0.24, ease: "sine.inOut" })
+            .to(root, { scale: 1, rotation: 0, duration: 0.32, ease: "sine.out" });
+        }
         const now = Date.now();
         if (now - lastHoverLine.current < 28_000) return;
         if (suggestRef.current || document.hidden) return;
@@ -1086,6 +1103,27 @@ const CatCompanion = () => {
           neko.sleep();
           setSleeping(true);
         }
+        else if (
+          word === "css" ||
+          word === "html" ||
+          word === "aws" ||
+          word === "graphql" ||
+          word === "redis" ||
+          word === "figma" ||
+          word === "tailwind" ||
+          word === "seo" ||
+          word === "llm" ||
+          word === "remote"
+        )
+          spawnSparkles(x, y);
+        else if (word === "tests") {
+          /* green tests: a small zoomie */
+          spawnSparkles(x, y);
+          neko.setSpeed(16);
+          window.setTimeout(() => nekoRef.current?.setSpeed(12), 900);
+        }
+        else if (word === "offer" || word === "salary") spawnHearts(x, y, 8);
+        else if (word === "internship" || word === "ramen") spawnHearts(x, y, 6);
       }
       showPhrase(brain.keywordLine(word), 4400, true);
     };
@@ -1401,7 +1439,7 @@ const CatCompanion = () => {
     let lastScrollEvent = 0;
     const timers: number[] = [];
     const intervals: number[] = [];
-    /* weighted random acts: first one lands 15–30s in, then every 60–95s,
+    /* weighted random acts: first one lands 22–42s in, then every 60–95s,
        never while a suggestion owns the floor or the tab is hidden */
     const recentActs = new Set<ActId>();
     let actTimer = 0;
@@ -1409,6 +1447,7 @@ const CatCompanion = () => {
     let pressAt = 0;
 
     const hop = () => {
+      if (isReducedMotion()) return;
       const el = document.querySelector<HTMLElement>('[data-neko="0"]');
       if (!el) return;
       gsap
@@ -1476,7 +1515,7 @@ const CatCompanion = () => {
       actTimer = window.setTimeout(
         runAct,
         first
-          ? 15_000 + Math.random() * 15_000
+          ? 22_000 + Math.random() * 20_000
           : 60_000 + Math.random() * 35_000,
       );
     };
