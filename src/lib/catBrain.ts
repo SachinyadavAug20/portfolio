@@ -986,6 +986,34 @@ export const KEYWORD_LINES: Record<string, readonly string[]> = {
     "the dream: sachin, hired, everyone napping.",
     "currently dreaming. do not push to main.",
   ],
+  treat: [
+    "you can't type treats into existence. ...okay, one.",
+    "treat detected. dispensing approval.",
+    "treats: the real currency here.",
+    "one treat = one purr. inflation-proof.",
+    "fine. a treat. but ask nicely.",
+  ],
+  belly: [
+    "belly: a trap. classic.",
+    "you looked at the belly. brave.",
+    "belly rubs: application pending review.",
+    "the belly button of the ui. proceed carefully.",
+    "show belly = trust. you're hired-ish.",
+  ],
+  star: [
+    "star the repo? the cat stars you back.",
+    "stars: collected like sunbeams.",
+    "one star per visitor. this one's yours.",
+    "stargazing: developer edition.",
+    "fork it. it's free. so are naps.",
+  ],
+  logic: [
+    "logic: cats invented it. mostly.",
+    "if this then that. if nap then always.",
+    "boolean moods: purring (true).",
+    "the logic checks out. i checked it twice.",
+    "boolean cats: also true. always true.",
+  ],
 };
 /* longest first so "sachin" never trips the "hi" inside it */
 const KEYWORD_ORDER = Object.keys(KEYWORD_LINES).sort((a, b) => b.length - a.length);
@@ -1268,6 +1296,23 @@ const BUBBLE_COPY = [
   "you can pet me with words now.",
 ];
 export const bubbleCopyLine = (): string => freshPick(BUBBLE_COPY);
+
+const JIGGLE_LINES = [
+  "the mouse has the zoomies too.",
+  "wiggle detected. same energy, smaller scale.",
+  "is the cursor okay? should i fetch it? (i don't fetch.)",
+  "jiggling: the human equivalent of chasing yarn.",
+  "shake it off. that's what the pointer said.",
+];
+export const jiggleLine = (): string => freshPick(JIGGLE_LINES);
+
+const ESCAPE_LINES = [
+  "escape: the universal undo. mood.",
+  "esc pressed. nothing happened. peaceful.",
+  "escape hatch: armed. (nothing to escape yet.)",
+  "the escape key and naps: both coping mechanisms.",
+];
+export const escapeLine = (): string => freshPick(ESCAPE_LINES);
 
 const FOUR_OH_FOUR = [
   "wrong door. the cat opens it anyway.",

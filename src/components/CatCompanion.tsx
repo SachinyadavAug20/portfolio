@@ -162,6 +162,8 @@ const CatCompanion = () => {
   const lastSelectAll = useRef(0);
   const lastRepeatLine = useRef(0);
   const lastBubbleCopy = useRef(0);
+  const lastJiggle = useRef(0);
+  const lastEscapeLine = useRef(0);
   const repeatTarget = useRef<Element | null>(null);
   const repeatStreak = useRef(0);
   const repeatReset = useRef(0);
@@ -308,11 +310,42 @@ const CatCompanion = () => {
       x: window.innerWidth / 2,
       y: window.innerHeight * 0.55,
     };
+    /* rapid direction changes: the cursor is chasing something too */
+    let lastDx = 0;
+    let lastDy = 0;
+    let lastPX = -1;
+    let lastPY = -1;
+    let jiggleFlips = 0;
+    let jiggleWindow = 0;
     const onMove = (e: Event) => {
       const t = e as MouseEvent;
       if (!t.isTrusted) return;
       lastPointer.current = { x: t.clientX, y: t.clientY };
       markActivity();
+      const dx = lastPX < 0 ? 0 : t.clientX - lastPX;
+      const dy = lastPY < 0 ? 0 : t.clientY - lastPY;
+      lastPX = t.clientX;
+      lastPY = t.clientY;
+      const now = Date.now();
+      const flipped =
+        (Math.abs(dx) > 3 && lastDx !== 0 && Math.sign(dx) !== Math.sign(lastDx)) ||
+        (Math.abs(dy) > 3 && lastDy !== 0 && Math.sign(dy) !== Math.sign(lastDy));
+      /* the window advances only on flips, so the count covers changes
+         within 1.2s of each other — not "since the mouse last paused" */
+      if (flipped) {
+        if (now - jiggleWindow > 1200) jiggleFlips = 0;
+        jiggleWindow = now;
+        jiggleFlips += 1;
+      }
+      if (dx !== 0) lastDx = dx;
+      if (dy !== 0) lastDy = dy;
+      if (jiggleFlips >= 7) {
+        jiggleFlips = 0;
+        const brain = brainRef.current;
+        if (brain) {
+          sayUiLine(() => brain.jiggleLine(), lastJiggle, 45_000, 3000);
+        }
+      }
     };
     const onTouch = (e: Event) => {
       const t = e as TouchEvent;
@@ -323,6 +356,10 @@ const CatCompanion = () => {
       };
       markActivity();
     };
+    /* set by onAny when Escape is what dismissed the suggestion, so the
+       escape line stays quiet even though onAny runs first and clears
+       suggestRef before onEscapeKey sees it */
+    let escapeDismissedSuggest = false;
     const onAny = (e: Event) => {
       if (!e.isTrusted) return;
       /* gestures resolve a pending prophecy (wheel counts as scrolling) */
@@ -350,6 +387,9 @@ const CatCompanion = () => {
            bubble itself (mouse moves, taps on the link) must not kill it */
         const t = e.target;
         if (!(t instanceof Element && t.closest(".cat-suggest"))) {
+          if (e.type === "keydown" && (e as KeyboardEvent).key === "Escape") {
+            escapeDismissedSuggest = true;
+          }
           suggestRef.current = null;
           setSuggest(null);
         }
@@ -553,6 +593,36 @@ const CatCompanion = () => {
       sayUiLine(() => brain.tabLine(), lastTabLine, 30_000, 3000);
     };
     document.addEventListener("keydown", onTabKey);
+
+    /* escape with nothing open: a comment, not a correction */
+    const onEscapeKey = (e: Event) => {
+      const t = e as KeyboardEvent;
+      const dismissedSuggest = escapeDismissedSuggest;
+      escapeDismissedSuggest = false;
+      if (t.key !== "Escape") return;
+      const el = document.activeElement;
+      if (
+        el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          (el as HTMLElement).isContentEditable)
+      )
+        return;
+      /* escape also closes overlays elsewhere (help sheet, theme menu,
+         graph node card, palette). React has not committed their removal
+         yet, so they are still queryable from this handler. */
+      if (
+        document.querySelector(
+          '[role="dialog"], .theme-toggle-menu, .graph-card-in',
+        )
+      )
+        return;
+      const brain = brainRef.current;
+      if (!brain || dismissedSuggest || suggestRef.current || document.hidden)
+        return;
+      sayUiLine(() => brain.escapeLine(), lastEscapeLine, 30_000, 3000);
+    };
+    document.addEventListener("keydown", onEscapeKey);
 
     document.addEventListener("focusin", onContactFocus);
 
@@ -809,6 +879,9 @@ const CatCompanion = () => {
           neko.sleep();
           setSleeping(true);
         }
+        else if (word === "treat") spawnHearts(x, y, 6);
+        else if (word === "belly") spawnHearts(x, y, 5);
+        else if (word === "star" || word === "logic") spawnSparkles(x, y);
         else if (word === "sing") spawnHearts(x, y, 5);
         else if (word === "play") spawnYarn(x, y);
         else if (word === "hide") spawnSparkles(x, y);
@@ -943,6 +1016,8 @@ const CatCompanion = () => {
       window.removeEventListener("beforeprint", onBeforePrint);
       document.removeEventListener("keydown", onTabKey);
       window.clearTimeout(tabTimer);
+      document.removeEventListener("keydown", onEscapeKey);
+      window.clearTimeout(repeatReset.current);
       window.removeEventListener("wheel", onWheelRush);
       window.removeEventListener("resize", onResize);
       window.clearTimeout(resizeTimer);
