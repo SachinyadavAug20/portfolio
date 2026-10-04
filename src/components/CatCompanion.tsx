@@ -228,8 +228,8 @@ const CatCompanion = () => {
         9000,
       );
       setPhrase({ text, ms: life });
-      return true;
       phraseTimer.current = window.setTimeout(() => setPhrase(null), life);
+      return true;
     },
     [],
   );

@@ -130,11 +130,20 @@ const DevShortcuts = () => {
         window.dispatchEvent(new Event("g-armed"));
       }
     };
+    /* a keyword reply swallows its final keydown (stopPropagation), so the
+       260ms arm set by a penultimate 't' ("remote", "tests") would never
+       see its cancel — releasing any non-t key clears it instead */
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key !== "t") window.clearTimeout(tArm);
+    };
     window.addEventListener("keydown", onKey);
+    window.addEventListener("keyup", onKeyUp);
     /* no disarmG here: deps changing (e.g. the rendered location catching
        up after navigation) must not eat a pending g-sequence */
     return () => {
       window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keyup", onKeyUp);
       window.clearTimeout(tArm);
     };
   }, [goAnchor, helpOpen, navigate, resolvedTheme, setTheme]);
