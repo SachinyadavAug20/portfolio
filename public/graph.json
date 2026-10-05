@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-10-04T12:18:25.854Z",
+ "generatedAt": "2026-10-05T12:04:47.436Z",
  "counts": {
-  "notes": 332,
+  "notes": 334,
   "folders": 60,
-  "links": 588,
+  "links": 590,
   "wikiLinks": 204
  },
  "nodes": [
@@ -62,6 +62,12 @@
    "dir": "Programing/Concepts/FDE and GenAI"
   },
   {
+   "id": "Programing/Concepts/FDE and GenAI/5.Streaming output",
+   "title": "time to first token",
+   "kind": "note",
+   "dir": "Programing/Concepts/FDE and GenAI"
+  },
+  {
    "id": "Programing/Concepts/LLD/0.Intro",
    "title": "What is LLD",
    "kind": "note",
@@ -100,6 +106,12 @@
   {
    "id": "Programing/Concepts/LLD/13.Notification engine",
    "title": "PS",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD"
+  },
+  {
+   "id": "Programing/Concepts/LLD/14.Command design pattern",
+   "title": "Command pattern",
    "kind": "note",
    "dir": "Programing/Concepts/LLD"
   },
@@ -3427,6 +3439,11 @@
    "kind": "member"
   },
   {
+   "source": "Programing/Concepts/FDE and GenAI/5.Streaming output",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "member"
+  },
+  {
    "source": "Programing/Concepts/LLD/0.Intro",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
@@ -3458,6 +3475,11 @@
   },
   {
    "source": "Programing/Concepts/LLD/13.Notification engine",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/14.Command design pattern",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
   },

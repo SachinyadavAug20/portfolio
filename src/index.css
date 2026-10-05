@@ -129,18 +129,18 @@ section {
   }
 }
 
-/* Cursor glow tokens */
+/* Cursor glow tokens — sky-blue so the glow matches the site accent */
 :root {
   /* ambient cursor glow (CursorGlow) — themeable tokens */
-  --glow-color: rgba(180, 50, 255, 0.15);
-  --glow-color-faint: rgba(120, 20, 180, 0.06);
-  --glow-border: rgba(180, 50, 255, 0.2);
-  --glow-size: 200px;
+  --glow-color: rgba(2, 132, 199, 0.18);
+  --glow-color-faint: rgba(2, 132, 199, 0.07);
+  --glow-border: rgba(56, 189, 248, 0.22);
+  --glow-size: 320px;
 }
 :root:not(.dark) {
-  --glow-color: rgba(180, 50, 255, 0.1);
-  --glow-color-faint: rgba(120, 20, 180, 0.045);
-  --glow-border: rgba(180, 50, 255, 0.15);
+  --glow-color: rgba(2, 132, 199, 0.12);
+  --glow-color-faint: rgba(2, 132, 199, 0.05);
+  --glow-border: rgba(2, 132, 199, 0.16);
 }
 
 .cursor-glow {
@@ -2118,6 +2118,50 @@ h4 {
   100% {
     transform: translate(15px, 66px) rotate(128deg);
     opacity: 0;
+  }
+}
+
+/* prey mouse: bolts across the floor while the cat gives chase */
+.cat-mouse {
+  position: fixed;
+  z-index: 61;
+  width: 16px;
+  height: 12px;
+  pointer-events: none;
+  image-rendering: pixelated;
+  transition: left 4.6s linear, top 4.6s linear;
+}
+.cat-mouse svg {
+  display: block;
+  width: 16px;
+  height: 12px;
+}
+
+/* butterfly: sky-blue pixel flutter the cat chases — each hop eases in
+   over .7s, so her pursuit reads as pursuit (CSS drives the path, the
+   component re-aims her every tick) */
+.cat-butterfly {
+  position: fixed;
+  z-index: 61;
+  width: 20px;
+  height: 16px;
+  pointer-events: none;
+  image-rendering: pixelated;
+  transition: left 0.7s ease-in-out, top 0.7s ease-in-out;
+  animation: cat-butterfly-flap 0.16s steps(2, end) infinite alternate;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+}
+.cat-butterfly svg {
+  display: block;
+  width: 20px;
+  height: 16px;
+}
+@keyframes cat-butterfly-flap {
+  from {
+    transform: translateY(0) scaleY(1);
+  }
+  to {
+    transform: translateY(-3px) scaleY(0.7);
   }
 }
 

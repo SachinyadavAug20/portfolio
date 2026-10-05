@@ -4,6 +4,21 @@ export const PET_KEY = "cat-companion:pets";
 export const GREETED_KEY = "cat-companion:greeted";
 export const SHOO_KEY = "cat-companion:shooed";
 
+/* hidden fast-test mode: the Playwright suite sets localStorage.catFast
+   = "1" so behavioral cooldowns run 8× quicker — default (no flag) is
+   plain normal speed, so visitors never see this. Physics, animation,
+   act schedules, wander/nap windows, and suggestions stay on real time. */
+const readFast = (): boolean => {
+  try {
+    return localStorage.getItem("catFast") === "1";
+  } catch {
+    return false;
+  }
+};
+export const FAST = readFast();
+export const cd = (ms: number) =>
+  FAST ? Math.max(150, Math.round(ms / 8)) : ms;
+
 /*
  * The cat's persona: Luna — Sachin's personal tour-guide cat. She lives in
  * the corner of the portfolio, points out rooms worth visiting, gently
@@ -56,6 +71,15 @@ export const CHATTER = [
   "looking to hire sachin? his email is one scroll away.",
   "ask me where to go. i'll say: keep scrolling.",
   "you move, i follow. that's basically a tour.",
+  "i like you. you scroll with feeling.",
+  "tip: the graph view is pretty. bring a paw.",
+  "sachin replies fast. i've seen the inbox. it's scary.",
+  "you're doing fine. the cat's opinion: validated.",
+  "meow means hello, mostly. sometimes: hire him.",
+  "pet me and i'll put in a good word. all my words are good, but still.",
+  "walk or run? i do both. badly, but fast.",
+  "that button looked clicky. i sat on it. problem solved.",
+  "haan, i'm cute. also: the contact form works. try both.",
 ];
 
 export const WAKE_LINES = [
@@ -231,4 +255,63 @@ export const spawnDrop = (x: number, y: number) => {
   drop.style.top = `${y}px`;
   document.body.appendChild(drop);
   window.setTimeout(() => drop.remove(), 900);
+};
+
+const MOUSE_SVG = `<svg width="16" height="12" viewBox="0 0 16 12" shape-rendering="crispEdges" aria-hidden="true">
+  <rect x="1" y="6" width="2" height="1" fill="#8b9098"/><rect x="0" y="5" width="1" height="2" fill="#8b9098"/>
+  <rect x="3" y="5" width="9" height="5" fill="#b7bcc4"/><rect x="5" y="3" width="6" height="3" fill="#c9cdd4"/>
+  <rect x="6" y="2" width="2" height="2" fill="#f2a0a8"/><rect x="11" y="5" width="3" height="3" fill="#c9cdd4"/>
+  <rect x="13" y="6" width="1" height="1" fill="#f2a0a8"/><rect x="11" y="5" width="1" height="1" fill="#20202a"/>
+  <rect x="4" y="10" width="2" height="1" fill="#8b9098"/><rect x="9" y="10" width="2" height="1" fill="#8b9098"/>
+</svg>`;
+
+/** pixel mouse for the prey chase — bolts away from the cat in a straight
+    line (slower than a running cat, so she can actually catch it; 5.6s life) */
+export const spawnMouse = (from: { x: number; y: number }): HTMLElement => {
+  const mouse = document.createElement("div");
+  mouse.className = "cat-mouse";
+  mouse.setAttribute("aria-hidden", "true");
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const dir = from.x < w / 2 ? 1 : -1;
+  const sx = Math.min(Math.max(from.x + dir * 34, 24), w - 44);
+  const sy = Math.min(Math.max(from.y + 10, 130), h - 64);
+  mouse.style.left = `${sx}px`;
+  mouse.style.top = `${sy}px`;
+  if (dir < 0) mouse.style.transform = "scaleX(-1)";
+  mouse.innerHTML = MOUSE_SVG;
+  document.body.appendChild(mouse);
+  /* run at most ~420px so the sprinting cat closes the gap */
+  const edge = dir > 0 ? w - 40 - sx : sx - 28;
+  const tx = sx + dir * Math.min(420, Math.max(edge, 120));
+  const ty = Math.min(Math.max(sy + Math.round(Math.random() * 180 - 90), 124), h - 58);
+  requestAnimationFrame(() => {
+    mouse.style.left = `${tx}px`;
+    mouse.style.top = `${ty}px`;
+  });
+  window.setTimeout(() => mouse.remove(), 5600);
+  return mouse;
+};
+
+const BUTTERFLY_SVG = `<svg width="20" height="16" viewBox="0 0 10 8" shape-rendering="crispEdges" aria-hidden="true">
+  <rect x="3" y="0" width="1" height="1" fill="#1e293b"/><rect x="6" y="0" width="1" height="1" fill="#1e293b"/>
+  <rect x="0" y="1" width="3" height="2" fill="#38bdf8"/><rect x="7" y="1" width="3" height="2" fill="#38bdf8"/>
+  <rect x="1" y="3" width="2" height="1" fill="#7dd3fc"/><rect x="7" y="3" width="2" height="1" fill="#7dd3fc"/>
+  <rect x="1" y="4" width="2" height="2" fill="#0284c7"/><rect x="7" y="4" width="2" height="2" fill="#0284c7"/>
+  <rect x="0" y="4" width="1" height="1" fill="#38bdf8"/><rect x="9" y="4" width="1" height="1" fill="#38bdf8"/>
+  <rect x="4" y="1" width="2" height="6" fill="#1e293b"/><rect x="4" y="1" width="1" height="1" fill="#38bdf8"/>
+</svg>`;
+
+/** pixel butterfly for the chase act — sky-blue to match the theme; the
+    component flies it around, this just births it (5.4s life) */
+export const spawnButterfly = (x: number, y: number): HTMLElement => {
+  const bf = document.createElement("div");
+  bf.className = "cat-butterfly";
+  bf.setAttribute("aria-hidden", "true");
+  bf.style.left = `${Math.round(x)}px`;
+  bf.style.top = `${Math.round(y)}px`;
+  bf.innerHTML = BUTTERFLY_SVG;
+  document.body.appendChild(bf);
+  window.setTimeout(() => bf.remove(), 5400);
+  return bf;
 };

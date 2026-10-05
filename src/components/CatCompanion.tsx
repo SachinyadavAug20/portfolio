@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Neko } from "neko-ts";
+import type { Neko, NekoSizeVariations } from "neko-ts";
 import { useReducedMotion, isReducedMotion } from "../hooks/useReducedMotion";
 import { tap } from "../lib/haptics";
 import {
   CAT_NAME,
   CHATTER,
+  FAST,
   GREETING,
   WEEKEND_GREETING,
   GREETED_KEY,
@@ -21,13 +22,16 @@ import {
   THEME_LINES,
   WHEEE_LINES,
   WAKE_LINES,
+  cd,
   rand,
   routeLine,
   safeGet,
   safeSet,
+  spawnButterfly,
   spawnDrop,
   spawnFish,
   spawnHearts,
+  spawnMouse,
   spawnPaw,
   spawnSparkles,
   spawnYarn,
@@ -55,6 +59,31 @@ const STANDOFF_SPEED: Record<StandoffMode, number> = {
   observe: 11,
   back: 14,
 };
+/* legs match the pace: animationSpeed is the frame refresh in ms, so
+   lower = faster feet (stroll ambles, sprint blurs) */
+const STANDOFF_ANIM: Record<StandoffMode, number> = {
+  follow: 100,
+  calm: 125,
+  observe: 112,
+  back: 86,
+};
+
+/* movement gears — walking vs running is speed AND foot cadence */
+const PACE = {
+  stroll: { speed: 10, anim: 130 },
+  walk: { speed: 12, anim: 100 },
+  trot: { speed: 14, anim: 84 },
+  run: { speed: 17, anim: 62 },
+  sprint: { speed: 20, anim: 46 },
+} as const;
+type PaceTier = keyof typeof PACE;
+
+/* acts that drag the cat across the screen — skipped on the graph, where
+   the perch is the whole point */
+const ROAMING_ACTS: readonly ActId[] = [
+  "zoomies", "yarn", "stare", "knock", "seat", "prey",
+  "scratch", "butterfly", "paw",
+];
 
 /*
  * Cat companion — a neko-ts desktop pet that sneaks in from a screen edge,
@@ -69,6 +98,13 @@ const STANDOFF_SPEED: Record<StandoffMode, number> = {
  * - The element is pointer-events:none, so petting listens globally and
  *   hit-tests against neko.position — real UI clicks are never hijacked.
  * - Reduced motion never spawns the cat; Alt+C shooes it for the session.
+ * - While the visitor rests she keeps herself busy: strolling the page
+ *   (5–20s idle), fidgeting in place every few seconds, then settling
+ *   toward a nap — walk/run/sprint gears on the way, leaps sprinkled in.
+ * - Random acts include game-y bits: chasing a pixel mouse or a sky-blue
+ *   butterfly, claiming a seat on real UI (buttons/cards), clawing cards,
+ *   multi-leg zoomies, spin/sneeze/flop showpieces, yarn pursuits, and
+ *   sprinting over to high-five your cursor.
  * - After long idle the cat wakes with a clickable blog suggestion
  *   (dynamic import keeps the reading list out of the entry bundle).
  * - Persona: Luna, Sachin's tour-guide cat — shows you around, nudges you
@@ -85,7 +121,7 @@ const STANDOFF_SPEED: Record<StandoffMode, number> = {
 
 /* background chatter respects this gap between any two idle phrases;
    user-facing reactions (greet, pet, acts) pass force=true and skip it */
-const PHRASE_GAP_MS = 5000;
+const PHRASE_GAP_MS = cd(5000);
 
 type Brain = typeof import("../lib/catBrain");
 
@@ -96,8 +132,9 @@ const seedPointer = (x: number, y: number) => {
 };
 
 /* streaming typewriter: bubble text types itself in, char by char.
-   reduced motion shows the full line at once. */
-const typeSpeed = (len: number) => (len > 70 ? 10 : len > 40 ? 14 : 18);
+   reduced motion shows the full line at once. fast-test mode snaps. */
+const typeSpeed = (len: number) =>
+  FAST ? 2 : len > 70 ? 10 : len > 40 ? 14 : 18;
 
 const useTypewriter = (text: string | null): string => {
   const reduced = useReducedMotion();
@@ -182,6 +219,8 @@ const CatCompanion = () => {
   const lastRepeatLine = useRef(0);
   const lastBubbleCopy = useRef(0);
   const lastJiggle = useRef(0);
+  const lastScurry = useRef(0);
+  const lastHighFive = useRef(0);
   const lastEscapeLine = useRef(0);
   /* standoff intelligence: route-shaped base mode + temporary reasons to
      step back (selection, palette/help, form focus) */
@@ -306,6 +345,24 @@ const CatCompanion = () => {
       setDist(standoffNum.current.d);
     }
     neko.setSpeed(STANDOFF_SPEED[mode]);
+    neko.setAnimationSpeed(STANDOFF_ANIM[mode]);
+  }, []);
+
+  /* shift gears: speed + foot cadence together; restorePace returns to
+     whatever the room's standoff asks for */
+  const pace = useCallback((tier: PaceTier) => {
+    const n = nekoRef.current;
+    if (!n) return;
+    n.setSpeed(PACE[tier].speed);
+    n.setAnimationSpeed(PACE[tier].anim);
+  }, []);
+
+  const restorePace = useCallback(() => {
+    const n = nekoRef.current;
+    if (!n) return;
+    const mode = standoffModeRef.current;
+    n.setSpeed(STANDOFF_SPEED[mode]);
+    n.setAnimationSpeed(STANDOFF_ANIM[mode]);
   }, []);
 
   const setStandoffReason = useCallback(
@@ -323,7 +380,7 @@ const CatCompanion = () => {
           brain &&
           nekoRef.current &&
           !sleepingRef.current &&
-          now - lastCloseIn.current >= 45_000 &&
+          now - lastCloseIn.current >= cd(45_000) &&
           showPhrase(brain.closeInLine(), 2600, false)
         ) {
           lastCloseIn.current = now;
@@ -371,7 +428,7 @@ const CatCompanion = () => {
       sleepingRef.current = false;
       nekoRef.current.wake();
       setSleeping(false);
-      if (now - lastSleptAt.current > 14_000) {
+      if (now - lastSleptAt.current > cd(14_000)) {
         const brain = brainRef.current;
         showPhrase(
           brain
@@ -399,6 +456,9 @@ const CatCompanion = () => {
     let lastPY = -1;
     let jiggleFlips = 0;
     let jiggleWindow = 0;
+    /* sustained cursor speed: one friendly word when you're flying */
+    let lastMoveAt = 0;
+    let speedStreak = 0;
     const standoffObj = standoffNum.current;
     const onMove = (e: Event) => {
       const t = e as MouseEvent;
@@ -410,6 +470,31 @@ const CatCompanion = () => {
       lastPX = t.clientX;
       lastPY = t.clientY;
       const now = Date.now();
+      /* px/ms: a frantic sweep cruises past ~1.3, normal pointing sits
+         well under — eight fast samples in a row earns the scurry line */
+      const dt = now - lastMoveAt;
+      lastMoveAt = now;
+      if (dx !== 0 || dy !== 0) {
+        if (dt >= 8 && dt < 400) {
+          const v = Math.hypot(dx, dy) / dt;
+          if (v > 1.3) speedStreak += 1;
+          else speedStreak = Math.max(0, speedStreak - 1);
+          if (speedStreak >= 8) {
+            speedStreak = 0;
+            const speedBrain = brainRef.current;
+            if (speedBrain) {
+              sayUiLine(
+                () => speedBrain.speedLine(),
+                lastScurry,
+                cd(70_000),
+                2800,
+              );
+            }
+          }
+        }
+      } else if (dt > 400) {
+        speedStreak = 0;
+      }
       const flipped =
         (Math.abs(dx) > 3 && lastDx !== 0 && Math.sign(dx) !== Math.sign(lastDx)) ||
         (Math.abs(dy) > 3 && lastDy !== 0 && Math.sign(dy) !== Math.sign(lastDy));
@@ -426,7 +511,7 @@ const CatCompanion = () => {
         jiggleFlips = 0;
         const brain = brainRef.current;
         if (brain) {
-          sayUiLine(() => brain.jiggleLine(), lastJiggle, 45_000, 3000);
+          sayUiLine(() => brain.jiggleLine(), lastJiggle, cd(45_000), 3000);
         }
       }
       /* standoff intelligence: in observe/back mode a crowding cursor gets
@@ -480,7 +565,7 @@ const CatCompanion = () => {
             const brain = brainRef.current;
             if (
               brain &&
-              now - lastStandoffLine.current >= 45_000 &&
+              now - lastStandoffLine.current >= cd(45_000) &&
               showPhrase(
                 brain.standoffLine(mode === "observe" ? "observe" : "back"),
                 3200,
@@ -585,7 +670,7 @@ const CatCompanion = () => {
       }, 8000);
       if (
         repeatStreak.current >= 3 &&
-        now - lastRepeatLine.current >= 30_000 &&
+        now - lastRepeatLine.current >= cd(30_000) &&
         brainRef.current &&
         nekoRef.current
       ) {
@@ -595,7 +680,7 @@ const CatCompanion = () => {
         showPhrase(brainRef.current.repeatLine(), 3600, true);
         return;
       }
-      if (now - lastClickLine.current < 7000) return;
+      if (now - lastClickLine.current < cd(7000)) return;
       const brain = brainRef.current;
       if (!brain || !nekoRef.current) return;
       const a = t.closest("a");
@@ -654,8 +739,8 @@ const CatCompanion = () => {
         return;
       if (!t.closest("#contact")) return;
       const now = Date.now();
-      if (now - lastContactFocus.current < 25_000) return;
-      if (now - lastSectionAt.current < 12_000) return;
+      if (now - lastContactFocus.current < cd(25_000)) return;
+      if (now - lastSectionAt.current < cd(12_000)) return;
       if (now - lastPhraseAt.current < 3000) return; /* fresh line has the floor */
       const brain = brainRef.current;
       if (!brain || !nekoRef.current) return;
@@ -664,6 +749,10 @@ const CatCompanion = () => {
     };
 
     document.addEventListener("click", onCatClick);
+    /* the contact nudge registers before the per-field word: both listen
+       on focusin, and the force line must claim the floor first (the field
+       word is non-force and would otherwise win the same event) */
+    document.addEventListener("focusin", onContactFocus);
     /* big selections, contact-field focus, the vim g-prefix, and printing
        each get one quiet word (non-force: a fresh phrase keeps the floor) */
     const onSelectChange = () => {
@@ -675,7 +764,7 @@ const CatCompanion = () => {
       const brain = brainRef.current;
       if (!brain) return;
       if (len >= 3000) {
-        sayUiLine(() => brain.selectAllLine(), lastSelectAll, 30_000, 3000);
+        sayUiLine(() => brain.selectAllLine(), lastSelectAll, cd(30_000), 3000);
         return;
       }
       const node = sel.anchorNode;
@@ -684,10 +773,10 @@ const CatCompanion = () => {
           ".cat-bubble",
         ) !== null;
       if (inBubble && len >= 15) {
-        sayUiLine(() => brain.bubbleCopyLine(), lastBubbleCopy, 30_000, 3000);
+        sayUiLine(() => brain.bubbleCopyLine(), lastBubbleCopy, cd(30_000), 3000);
         return;
       }
-      sayUiLine(() => brain.selectionLine(), lastSelectionLine, 30_000, 3000);
+      sayUiLine(() => brain.selectionLine(), lastSelectionLine, cd(30_000), 3000);
     };
     const onFieldFocus = (e: Event) => {
       syncFormReason();
@@ -698,7 +787,7 @@ const CatCompanion = () => {
       if (!field) return;
       const brain = brainRef.current;
       if (!brain) return;
-      sayUiLine(() => brain.focusLine(field), lastFieldFocus, 5_000, 3000);
+      sayUiLine(() => brain.focusLine(field), lastFieldFocus, cd(5_000), 3000);
     };
     /* typing in a field (any field) = she stops hovering over your words */
     const syncFormReason = () => {
@@ -734,12 +823,12 @@ const CatCompanion = () => {
     const onGArmed = () => {
       const brain = brainRef.current;
       if (!brain) return;
-      sayUiLine(() => brain.gArmedLine(), lastGArmed, 30_000, 3000);
+      sayUiLine(() => brain.gArmedLine(), lastGArmed, cd(30_000), 3000);
     };
     const onBeforePrint = () => {
       const brain = brainRef.current;
       if (!brain) return;
-      sayUiLine(() => brain.printLine(), lastPrintLine, 60_000, 3000);
+      sayUiLine(() => brain.printLine(), lastPrintLine, cd(60_000), 3000);
     };
     document.addEventListener("selectionchange", onSelectChange);
     document.addEventListener("focusin", onFieldFocus);
@@ -770,7 +859,7 @@ const CatCompanion = () => {
       tabTaps = 0;
       const brain = brainRef.current;
       if (!brain) return;
-      sayUiLine(() => brain.tabLine(), lastTabLine, 30_000, 3000);
+      sayUiLine(() => brain.tabLine(), lastTabLine, cd(30_000), 3000);
     };
     document.addEventListener("keydown", onTabKey);
 
@@ -800,11 +889,9 @@ const CatCompanion = () => {
       const brain = brainRef.current;
       if (!brain || dismissedSuggest || suggestRef.current || document.hidden)
         return;
-      sayUiLine(() => brain.escapeLine(), lastEscapeLine, 30_000, 3000);
+      sayUiLine(() => brain.escapeLine(), lastEscapeLine, cd(30_000), 3000);
     };
     document.addEventListener("keydown", onEscapeKey);
-
-    document.addEventListener("focusin", onContactFocus);
 
     /* writing a real message earns one quiet word of encouragement */
     let messageNudged = false;
@@ -857,7 +944,7 @@ const CatCompanion = () => {
     /* rejected send: one word for the whole miss, capped at once per 45s */
     const onInvalid = () => {
       const now = Date.now();
-      if (now - lastFormErr.current < 45_000) return;
+      if (now - lastFormErr.current < cd(45_000)) return;
       const brain = brainRef.current;
       if (!brain || suggestRef.current || document.hidden || !nekoRef.current) return;
       lastFormErr.current = now;
@@ -870,12 +957,12 @@ const CatCompanion = () => {
     const onPalette = () => {
       const brain = brainRef.current;
       if (!brain) return;
-      sayUiLine(() => brain.paletteLine(), lastPaletteLine, 30_000, 3000);
+      sayUiLine(() => brain.paletteLine(), lastPaletteLine, cd(30_000), 3000);
     };
     const onHelpSheet = () => {
       const brain = brainRef.current;
       if (!brain) return;
-      sayUiLine(() => brain.helpLine(), lastHelpLine, 30_000, 3000);
+      sayUiLine(() => brain.helpLine(), lastHelpLine, cd(30_000), 3000);
     };
     window.addEventListener("palette-opened", onPalette);
     window.addEventListener("help-opened", onHelpSheet);
@@ -906,7 +993,7 @@ const CatCompanion = () => {
             .to(root, { scale: 1, rotation: 0, duration: 0.32, ease: "sine.out" });
         }
         const now = Date.now();
-        if (now - lastHoverLine.current < 28_000) return;
+        if (now - lastHoverLine.current < cd(28_000)) return;
         if (suggestRef.current || document.hidden) return;
         const brain = brainRef.current;
         if (!brain || !nekoRef.current) return;
@@ -947,7 +1034,7 @@ const CatCompanion = () => {
         return;
       if (kt.length < 6) return;
       if (now - lastPhraseAt.current < PHRASE_GAP_MS) return;
-      if (now - lastTypingLine.current < 45_000) return;
+      if (now - lastTypingLine.current < cd(45_000)) return;
       const brain = brainRef.current;
       if (!brain || !nekoRef.current || suggestRef.current) return;
       lastTypingLine.current = now;
@@ -989,7 +1076,7 @@ const CatCompanion = () => {
       if (psBuf.endsWith("pspsps")) {
         psBuf = "";
         const now = Date.now();
-        if (now - lastPs < 8000) return;
+        if (now - lastPs < cd(8000)) return;
         lastPs = now;
         const neko = nekoRef.current;
         if (!neko) return;
@@ -1001,6 +1088,8 @@ const CatCompanion = () => {
         seedPointer(lastPointer.current.x, lastPointer.current.y);
         spawnSparkles(neko.position.x, neko.position.y);
         showPhrase(`pspsps~ ${CAT_NAME} reporting.`, 3000, true);
+        pace("run");
+        window.setTimeout(() => restorePace(), 2000);
         return;
       }
       const brain = brainRef.current;
@@ -1012,7 +1101,7 @@ const CatCompanion = () => {
       t.stopPropagation();
       psBuf = "";
       const now = Date.now();
-      if (now - lastWord < 6000) return;
+      if (now - lastWord < cd(6000)) return;
       lastWord = now;
       const neko = nekoRef.current;
       if (neko && sleepingRef.current) {
@@ -1034,24 +1123,24 @@ const CatCompanion = () => {
         else if (word === "game") spawnYarn(x, y);
         else if (word === "music") spawnHearts(x, y, 5);
         else if (word === "coffee") {
-          /* caffeine: a sparkly speed burst, then back to twelve */
+          /* caffeine: a sparkly run, then back to whatever the room asks */
           spawnSparkles(x, y);
-          neko.setSpeed(18);
-          window.setTimeout(() => nekoRef.current?.setSpeed(12), 1200);
+          pace("run");
+          window.setTimeout(() => restorePace(), 1200);
         }
         else if (word === "love") spawnHearts(x, y, 8);
         else if (word === "resume") spawnSparkles(x, y);
         else if (word === "dance") {
           spawnSparkles(x, y);
-          neko.setSpeed(16);
-          window.setTimeout(() => nekoRef.current?.setSpeed(12), 900);
+          pace("trot");
+          window.setTimeout(() => restorePace(), 900);
         }
         else if (word === "git" || word === "python" || word === "react")
           spawnSparkles(x, y);
         else if (word === "arch") {
           spawnSparkles(x, y);
-          neko.setSpeed(20);
-          window.setTimeout(() => nekoRef.current?.setSpeed(12), 1000);
+          pace("sprint");
+          window.setTimeout(() => restorePace(), 1000);
         }
         else if (word === "node" || word === "linux" || word === "typescript")
           spawnSparkles(x, y);
@@ -1065,14 +1154,14 @@ const CatCompanion = () => {
         else if (word === "biryani") spawnHearts(x, y, 8);
         else if (word === "rust") {
           spawnSparkles(x, y);
-          neko.setSpeed(20);
-          window.setTimeout(() => nekoRef.current?.setSpeed(12), 1000);
+          pace("sprint");
+          window.setTimeout(() => restorePace(), 1000);
         }
         else if (word === "mouse") spawnYarn(x, y);
         else if (word === "bird") {
           spawnSparkles(x, y);
-          neko.setSpeed(16);
-          window.setTimeout(() => nekoRef.current?.setSpeed(12), 900);
+          pace("trot");
+          window.setTimeout(() => restorePace(), 900);
         }
         else if (word === "tea") spawnHearts(x, y, 4);
         else if (word === "pizza") spawnHearts(x, y, 6);
@@ -1093,29 +1182,27 @@ const CatCompanion = () => {
         else if (word === "play") spawnYarn(x, y);
         else if (word === "hide") spawnSparkles(x, y);
         else if (word === "fetch") {
-          /* fetch is a dog word — the cat dashes off anyway */
+          /* fetch is a dog word — the cat sprints off anyway */
           spawnSparkles(x, y);
-          neko.setSpeed(26);
-          window.setTimeout(() => {
-            nekoRef.current?.setSpeed(12);
-          }, 1200);
+          pace("sprint");
+          window.setTimeout(() => restorePace(), 1200);
         }
         else if (word === "vim") spawnHearts(x, y, 6);
         else if (word === "deploy") {
           spawnSparkles(x, y);
-          neko.setSpeed(20);
-          window.setTimeout(() => nekoRef.current?.setSpeed(12), 1000);
+          pace("sprint");
+          window.setTimeout(() => restorePace(), 1000);
         }
         else if (word === "dog") {
           /* dogs get chased off the premises */
           spawnSparkles(x, y);
-          neko.setSpeed(30);
+          pace("sprint");
           seedPointer(
             x < window.innerWidth / 2 ? window.innerWidth - 64 : 64,
             window.innerHeight * 0.24,
           );
           window.setTimeout(() => {
-            nekoRef.current?.setSpeed(12);
+            restorePace();
             seedPointer(lastPointer.current.x, lastPointer.current.y);
           }, 1400);
         } else if (word === "nap") {
@@ -1138,10 +1225,10 @@ const CatCompanion = () => {
         )
           spawnSparkles(x, y);
         else if (word === "tests") {
-          /* green tests: a small zoomie */
+          /* green tests: a happy trot */
           spawnSparkles(x, y);
-          neko.setSpeed(16);
-          window.setTimeout(() => nekoRef.current?.setSpeed(12), 900);
+          pace("trot");
+          window.setTimeout(() => restorePace(), 900);
         }
         else if (word === "offer" || word === "salary") spawnHearts(x, y, 8);
         else if (word === "internship" || word === "ramen") spawnHearts(x, y, 6);
@@ -1160,9 +1247,9 @@ const CatCompanion = () => {
       }
       const away = hiddenAt ? Date.now() - hiddenAt : 0;
       hiddenAt = 0;
-      if (away < 8000) return;
+      if (away < cd(8000)) return;
       const now = Date.now();
-      if (now - lastReturnLine < 60_000) return;
+      if (now - lastReturnLine < cd(60_000)) return;
       const brain = brainRef.current;
       if (!brain || suggestRef.current || !nekoRef.current) return;
       lastReturnLine = now;
@@ -1193,7 +1280,7 @@ const CatCompanion = () => {
       if (!brain || suggestRef.current || document.hidden || !nekoRef.current)
         return;
       lastRushLine = now;
-      if (upward && now - lastRushUp.current >= 45_000) {
+      if (upward && now - lastRushUp.current >= cd(45_000)) {
         lastRushUp.current = now;
         showPhrase(brain.rushUpLine(), 3200, true);
         return;
@@ -1216,7 +1303,7 @@ const CatCompanion = () => {
         lastH = window.innerHeight;
         if (dw < 150 && dh < 150) return;
         const now = Date.now();
-        if (now - lastResizeLine < 30_000) return;
+        if (now - lastResizeLine < cd(30_000)) return;
         const brain = brainRef.current;
         if (!brain || suggestRef.current || document.hidden || !nekoRef.current)
           return;
@@ -1258,7 +1345,7 @@ const CatCompanion = () => {
       document.removeEventListener("focusin", onContactFocus);
       window.removeEventListener("wheel", onAny);
     };
-  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion, setStandoffReason]);
+  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion, setStandoffReason, pace, restorePace]);
 
   /* Alt+C shooes / summons the cat for good (the opt-out persists) */
   useEffect(() => {
@@ -1311,7 +1398,7 @@ const CatCompanion = () => {
       darkRef.current = theme === "dark";
       if (!nekoRef.current) return;
       const now = Date.now();
-      if (now - lastThemePhrase.current < 8000) return;
+      if (now - lastThemePhrase.current < cd(8000)) return;
       lastThemePhrase.current = now;
       const brain = brainRef.current;
       showPhrase(
@@ -1389,7 +1476,7 @@ const CatCompanion = () => {
     if (location.pathname === "/graph") perchGraph();
     if (!nekoRef.current) return;
     const now = Date.now();
-    if (now - lastRoutePhrase.current < 9000) return;
+    if (now - lastRoutePhrase.current < cd(9000)) return;
     lastRoutePhrase.current = now;
     const brain = brainRef.current;
     let line = routeLine(location.pathname);
@@ -1400,7 +1487,7 @@ const CatCompanion = () => {
       const rapid =
         navTimes.length >= 3 &&
         now - navTimes[0] <= 18_000 &&
-        now - lastRapidLine.current >= 45_000;
+        now - lastRapidLine.current >= cd(45_000);
       if (rapid) lastRapidLine.current = now;
       line =
         isPost && isNew && seenPosts.current.size > 1
@@ -1430,7 +1517,7 @@ const CatCompanion = () => {
           /* the first visit to a section always speaks; re-entries respect
              the cooldowns (and mostly stay quiet) */
           if (!first) {
-            if (now - lastSectionAt.current < 14_000) continue;
+            if (now - lastSectionAt.current < cd(14_000)) continue;
             if (now - lastContactFocus.current < 12_000) continue;
             if (Math.random() < 0.7) continue;
           }
@@ -1475,14 +1562,14 @@ const CatCompanion = () => {
     /* set on pointer-down over the cat; long hold on release = purr */
     let pressAt = 0;
 
-    const hop = () => {
+    const hop = (amp = 11) => {
       if (isReducedMotion()) return;
       const el = document.querySelector<HTMLElement>('[data-neko="0"]');
       if (!el) return;
       gsap
         .timeline()
         .to(el, {
-          y: -11,
+          y: -amp,
           rotation: -6,
           scale: 1.06,
           duration: 0.16,
@@ -1496,6 +1583,47 @@ const CatCompanion = () => {
           duration: 0.34,
           ease: "back.out(2.2)",
           overwrite: "auto",
+        });
+    };
+
+    /* a proper jump: anticipation squash, airtime stretch, landing squash —
+       reads very differently from the little walk-hop above */
+    const jump = (amp = 22) => {
+      if (isReducedMotion()) return;
+      const el = document.querySelector<HTMLElement>('[data-neko="0"]');
+      if (!el) return;
+      gsap
+        .timeline()
+        .to(el, {
+          scaleY: 0.82,
+          scaleX: 1.12,
+          duration: 0.1,
+          ease: "power1.in",
+          overwrite: "auto",
+        })
+        .to(el, {
+          y: -amp,
+          rotation: -8,
+          scaleY: 1.16,
+          scaleX: 0.9,
+          duration: 0.18,
+          ease: "power2.out",
+          overwrite: "auto",
+        })
+        .to(el, {
+          y: 0,
+          rotation: 0,
+          scaleY: 0.88,
+          scaleX: 1.1,
+          duration: 0.16,
+          ease: "power1.in",
+          overwrite: "auto",
+        })
+        .to(el, {
+          scaleY: 1,
+          scaleX: 1,
+          duration: 0.3,
+          ease: "back.out(2.6)",
         });
     };
 
@@ -1544,8 +1672,8 @@ const CatCompanion = () => {
       actTimer = window.setTimeout(
         runAct,
         first
-          ? 22_000 + Math.random() * 20_000
-          : 60_000 + Math.random() * 35_000,
+          ? 12_000 + Math.random() * 10_000
+          : 30_000 + Math.random() * 24_000,
       );
     };
 
@@ -1581,6 +1709,12 @@ const CatCompanion = () => {
       recentActs.add(id);
       if (recentActs.size > 5)
         recentActs.delete(recentActs.values().next().value as ActId);
+      /* the graph perch is sacred: roaming acts reschedule instead of
+         yanking her off the corner post */
+      if (ROAMING_ACTS.includes(id) && window.location.pathname === "/graph") {
+        scheduleAct();
+        return;
+      }
 
       const { x, y } = neko.position;
       const el = document.querySelector<HTMLElement>('[data-neko="0"]');
@@ -1607,22 +1741,29 @@ const CatCompanion = () => {
         case "zoomies": {
           const w = window.innerWidth;
           const h = window.innerHeight;
-          neko.setSpeed(34);
-          seedPointer(
-            Math.random() < 0.5 ? 48 : w - 48,
-            h * (0.3 + Math.random() * 0.45),
+          pace("sprint");
+          const left = Math.random() < 0.5;
+          seedPointer(left ? 48 : w - 48, h * (0.3 + Math.random() * 0.3));
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled) return;
+              jump(22);
+              seedPointer(left ? w - 48 : 48, h * (0.34 + Math.random() * 0.4));
+            }, 1100),
           );
           timers.push(
             window.setTimeout(() => {
               if (cancelled) return;
-              neko.setSpeed(12);
+              restorePace();
               seedPointer(lastPointer.current.x, lastPointer.current.y);
-            }, 1600),
+            }, 2300),
           );
           break;
         }
         case "yarn": {
           const ball = spawnYarn(x, y);
+          pace("run");
+          let chaseHops = 0;
           const chase = window.setInterval(() => {
             if (cancelled || !ball.isConnected) {
               window.clearInterval(chase);
@@ -1630,15 +1771,137 @@ const CatCompanion = () => {
             }
             const r = ball.getBoundingClientRect();
             seedPointer(r.left + r.width / 2, r.top + r.height / 2);
+            /* a leaping chase reads as a chase — hop every ~second */
+            chaseHops += 1;
+            if (chaseHops % 5 === 0) jump(14 + Math.round(Math.random() * 6));
           }, 200);
           intervals.push(chase);
           timers.push(
             window.setTimeout(() => {
               window.clearInterval(chase);
               ball.remove();
+              restorePace();
               if (!cancelled)
                 seedPointer(lastPointer.current.x, lastPointer.current.y);
             }, 3000),
+          );
+          break;
+        }
+        case "seat": {
+          /* claim a spot on real UI — buttons, cards, headings, form fields
+             (like sitting on the send button); the contact form is a
+             favorite, so its button gets an extra vote when it's on screen */
+          const cand = Array.from(
+            document.querySelectorAll<HTMLElement>(
+              "button, [role=button], a[class*=btn], textarea, input, .chip, kbd, .card, article, h2, h3, .feature-card, .exp-card-wrapper, .app-showcase, .tech-pill, canvas",
+            ),
+          );
+          const spots = cand
+            .map((c) => ({ el: c, r: c.getBoundingClientRect() }))
+            .filter(
+              ({ r }) =>
+                r.width >= 70 &&
+                r.width <= 640 &&
+                r.height <= 320 &&
+                r.top > 116 &&
+                r.bottom < window.innerHeight - 44 &&
+                r.left > 8 &&
+                r.right < window.innerWidth - 8 &&
+                Math.hypot(r.left + r.width / 2 - x, r.top + r.height / 2 - y) > 90,
+            );
+          if (spots.length) {
+            /* half the time, if a contact-form button is in play, sit on it —
+               the send button is prime real estate */
+            const formIdx = spots.findIndex(
+              ({ el }) => el.closest("#contact") && el.tagName === "BUTTON",
+            );
+            const roll =
+              formIdx >= 0 && Math.random() < 0.5
+                ? formIdx
+                : Math.floor(Math.random() * spots.length);
+            const r = spots[roll].r;
+            const tx = r.left + r.width / 2;
+            const ty = r.bottom - 8;
+            seedPointer(tx, ty);
+            const arrive = Math.min(
+              Math.max((Math.hypot(tx - x, ty - y) / 120) * 1000, 500),
+              4500,
+            );
+            timers.push(window.setTimeout(() => hop(15), arrive));
+            /* once settled she shows off: hop down, or tuck into a mini-loaf
+               right on the button before returning to the cursor */
+            timers.push(
+              window.setTimeout(() => {
+                if (cancelled) return;
+                if (Math.random() < 0.35) {
+                  sleepingRef.current = true;
+                  lastSleptAt.current = Date.now();
+                  neko.sleep();
+                  setSleeping(true);
+                  timers.push(
+                    window.setTimeout(() => {
+                      if (cancelled || !sleepingRef.current) return;
+                      sleepingRef.current = false;
+                      nekoRef.current?.wake();
+                      setSleeping(false);
+                    }, 3200),
+                  );
+                } else if (Math.random() < 0.5) {
+                  jump(20);
+                }
+              }, arrive + 2600),
+            );
+            timers.push(
+              window.setTimeout(
+                () => {
+                  if (!cancelled)
+                    seedPointer(lastPointer.current.x, lastPointer.current.y);
+                },
+                arrive + 7000,
+              ),
+            );
+          }
+          break;
+        }
+        case "prey": {
+          /* the classic: a pixel mouse bolts, she gives chase */
+          const mouse = spawnMouse({ x, y });
+          pace("run");
+          const hunt = window.setInterval(() => {
+            if (cancelled || !mouse.isConnected || !el) {
+              window.clearInterval(hunt);
+              return;
+            }
+            const mr = mouse.getBoundingClientRect();
+            const cx = mr.left + mr.width / 2;
+            const cy = mr.top + mr.height / 2;
+            seedPointer(cx, cy);
+            const nr = el.getBoundingClientRect();
+            if (
+              Math.hypot(nr.x + nr.width / 2 - cx, nr.y + nr.height / 2 - cy) <
+              40
+            ) {
+              window.clearInterval(hunt);
+              mouse.remove();
+              restorePace();
+              hop(16);
+              const nb = el.getBoundingClientRect();
+              spawnHearts(nb.x + nb.width / 2, nb.y + nb.height / 2, 6);
+              const caught = brainRef.current?.preyResult("catch");
+              if (caught) showPhrase(caught, 2400, true);
+            }
+          }, 150);
+          intervals.push(hunt);
+          timers.push(
+            window.setTimeout(() => {
+              window.clearInterval(hunt);
+              restorePace();
+              if (mouse.isConnected) {
+                mouse.remove();
+                const got = brainRef.current?.preyResult("escape");
+                if (got) showPhrase(got, 2400, true);
+              }
+            }, 5200),
           );
           break;
         }
@@ -1667,7 +1930,7 @@ const CatCompanion = () => {
         }
         case "dance": {
           hop();
-          timers.push(window.setTimeout(hop, 480));
+          timers.push(window.setTimeout(() => hop(16), 480));
           break;
         }
         case "hide": {
@@ -1697,6 +1960,223 @@ const CatCompanion = () => {
         case "chirp":
         case "stretch": {
           hop();
+          break;
+        }
+        case "scratch": {
+          /* claw a nearby card or heading like it's a scratching post */
+          const cand = Array.from(
+            document.querySelectorAll<HTMLElement>(
+              ".card, .feature-card, .contact-card, .exp-card-wrapper, article, h2, h3",
+            ),
+          );
+          const near = cand
+            .map((c) => ({ el: c, r: c.getBoundingClientRect() }))
+            .filter(
+              ({ r }) =>
+                r.width >= 70 &&
+                r.top > 116 &&
+                r.bottom < window.innerHeight - 44 &&
+                r.left > 8 &&
+                r.right < window.innerWidth - 8 &&
+                Math.hypot(r.left + r.width / 2 - x, r.top + r.height / 2 - y) >
+                  72,
+            )
+            .sort(
+              (a, b) =>
+                Math.hypot(
+                  a.r.left + a.r.width / 2 - x,
+                  a.r.top + a.r.height / 2 - y,
+                ) -
+                Math.hypot(
+                  b.r.left + b.r.width / 2 - x,
+                  b.r.top + b.r.height / 2 - y,
+                ),
+            );
+          if (near.length && el) {
+            const { r } = near[0];
+            const side = x < r.left + r.width / 2 ? -1 : 1;
+            const tx = side < 0 ? r.left + 10 : r.right - 10;
+            const ty = r.bottom - 12;
+            seedPointer(tx, ty);
+            const arrive = Math.min(
+              Math.max((Math.hypot(tx - x, ty - y) / 130) * 1000, 500),
+              4200,
+            );
+            timers.push(
+              window.setTimeout(() => {
+                if (cancelled || !el) return;
+                /* wiggle hard against the edge, kicking up little puffs */
+                gsap
+                  .timeline({ overwrite: "auto" })
+                  .to(el, {
+                    rotation: side * 7,
+                    duration: 0.11,
+                    repeat: 7,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                  })
+                  .to(el, { rotation: 0, duration: 0.2 });
+                spawnDrop(tx, ty + 6);
+                timers.push(
+                  window.setTimeout(() => spawnDrop(tx + 6, ty + 10), 420),
+                );
+                hop(8);
+              }, arrive),
+            );
+            timers.push(
+              window.setTimeout(
+                () => {
+                  if (!cancelled)
+                    seedPointer(lastPointer.current.x, lastPointer.current.y);
+                },
+                arrive + 3400,
+              ),
+            );
+          } else {
+            hop();
+          }
+          break;
+        }
+        case "spin": {
+          if (el) {
+            gsap
+              .timeline({ overwrite: "auto" })
+              .to(el, { scale: 1.06, duration: 0.12, ease: "power1.out" })
+              .to(el, {
+                rotation: 360,
+                duration: 0.72,
+                ease: "power1.inOut",
+              })
+              .set(el, { rotation: 0 })
+              .to(el, { scale: 1, duration: 0.24, ease: "back.out(1.8)" });
+            spawnSparkles(x, y - 14);
+          }
+          break;
+        }
+        case "sneeze": {
+          if (el) {
+            /* wind-up squash, recoil pop, wobble back — plus a pixel poof */
+            gsap
+              .timeline({ overwrite: "auto" })
+              .to(el, { scaleX: 0.84, scaleY: 0.88, duration: 0.14, ease: "power2.in" })
+              .to(el, { scaleX: 1.12, scaleY: 0.94, duration: 0.09, ease: "power2.out" })
+              .to(el, { scale: 1, duration: 0.4, ease: "elastic.out(1.2, 0.4)" });
+            spawnSparkles(
+              x + (x < window.innerWidth / 2 ? 22 : -22),
+              y - 8,
+            );
+          }
+          break;
+        }
+        case "butterfly": {
+          /* a sky-blue pixel flutter wanders the viewport; she gives chase
+             at a run, leaping every few strides, until it escapes (5.4s) */
+          const bf = spawnButterfly(
+            Math.min(Math.max(x + (x < window.innerWidth / 2 ? 90 : -90), 40), window.innerWidth - 60),
+            Math.min(Math.max(y - 60 - Math.random() * 80, 130), window.innerHeight - 90),
+          );
+          pace("run");
+          let steps = 0;
+          const aim = () => {
+            if (cancelled || !bf.isConnected) return;
+            const bx = Math.min(
+              Math.max(parseFloat(bf.style.left) + Math.random() * 320 - 160, 36),
+              window.innerWidth - 56,
+            );
+            const by = Math.min(
+              Math.max(parseFloat(bf.style.top) + Math.random() * 240 - 150, 124),
+              window.innerHeight - 76,
+            );
+            bf.style.left = `${Math.round(bx)}px`;
+            bf.style.top = `${Math.round(by)}px`;
+          };
+          aim();
+          const chase = window.setInterval(() => {
+            if (cancelled || !bf.isConnected) {
+              window.clearInterval(chase);
+              return;
+            }
+            const br = bf.getBoundingClientRect();
+            seedPointer(br.left + br.width / 2, br.top + br.height / 2);
+            steps += 1;
+            if (steps % 5 === 0) jump(14 + Math.round(Math.random() * 6));
+            if (steps % 4 === 0) aim();
+            const n = nekoRef.current;
+            if (
+              n &&
+              Math.hypot(
+                n.position.x - (br.left + br.width / 2),
+                n.position.y - (br.top + br.height / 2),
+              ) < 44
+            ) {
+              window.clearInterval(chase);
+              bf.remove();
+              spawnSparkles(br.left + br.width / 2, br.top + br.height / 2);
+              hop(16);
+              restorePace();
+              const got = brainRef.current?.preyResult("catch");
+              if (got) showPhrase(got, 2400, true);
+            }
+          }, 150);
+          intervals.push(chase);
+          timers.push(
+            window.setTimeout(() => {
+              window.clearInterval(chase);
+              restorePace();
+              if (!cancelled)
+                seedPointer(lastPointer.current.x, lastPointer.current.y);
+              if (bf.isConnected) bf.remove();
+            }, 5400),
+          );
+          break;
+        }
+        case "flop": {
+          /* dramatic play-dead: tip over, hold the bit, rise ungracefully */
+          if (el) {
+            gsap
+              .timeline({ overwrite: "auto" })
+              .to(el, {
+                rotation: 82,
+                y: "+=6",
+                duration: 0.32,
+                ease: "power2.out",
+              })
+              .to(el, { rotation: 84, duration: 1.3 })
+              .to(el, {
+                rotation: 0,
+                y: "-=6",
+                duration: 0.42,
+                ease: "power2.inOut",
+              });
+            spawnSparkles(x, y + 4);
+          }
+          break;
+        }
+        case "paw": {
+          /* sprint to the cursor and leap — a high five for the pointer */
+          const { x: px, y: py } = lastPointer.current;
+          seedPointer(px, py);
+          pace("run");
+          const arrive = Math.min(
+            Math.max((Math.hypot(px - x, py - y) / 160) * 1000, 400),
+            2600,
+          );
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled) return;
+              jump(20);
+              spawnSparkles(px, py - 8);
+              spawnPaw(px, py);
+            }, arrive),
+          );
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled) return;
+              restorePace();
+              spawnHearts(px, py, 3);
+              seedPointer(lastPointer.current.x, lastPointer.current.y);
+            }, arrive + 900),
+          );
           break;
         }
         default:
@@ -1741,15 +2221,15 @@ const CatCompanion = () => {
 
       const neko = new core.Neko({
         nekoId: 0,
-        nekoSize:
-          w < 768
-            ? core.NekoSizeVariations.SMALL
-            : core.NekoSizeVariations.LARGE,
+        nekoSize: core.NekoSizeVariations.LARGE,
         speed: 12,
         origin,
         defaultState: "awake",
         breed: breeds[rand(breeds.length)],
       });
+      /* a good chunk bigger than LARGE on desktop — same pixelated sprite,
+         setSize rescales the sheet; the constructor offset stays valid */
+      if (w >= 768) neko.setSize(60 as unknown as NekoSizeVariations);
       nekoRef.current = neko;
       /* settle the room's standoff now that she exists (graph = rim,
          blog = calm, selection/form/overlay = a respectful step back) */
@@ -1802,7 +2282,7 @@ const CatCompanion = () => {
         );
       }, 250);
 
-      /* idle chatter every 52–90s — brain lines when loaded, else the bank */
+      /* idle chatter every 44–72s — brain lines when loaded, else the bank */
       const scheduleChatter = () => {
         chatterTimer = window.setTimeout(
           () => {
@@ -1818,12 +2298,89 @@ const CatCompanion = () => {
             }
             scheduleChatter();
           },
-          52_000 + Math.random() * 38_000,
+          44_000 + Math.random() * 28_000,
         );
       };
       scheduleChatter();
 
       scheduleAct(true);
+
+      /* non-stop: while the visitor rests, she invents her own errands —
+         strolls to a fresh spot every few seconds between 5s and 20s
+         of input-idle, but never while text is selected, a form has focus,
+         an overlay is up, or the graph perch holds; naps and suggestions
+         win over this too */
+      let lastWander = 0;
+      const wanderTick = window.setInterval(() => {
+        const now = Date.now();
+        const idle = now - lastInput.current;
+        if (
+          !greeted ||
+          cancelled ||
+          suggestRef.current ||
+          sleepingRef.current ||
+          petNap.current ||
+          document.hidden ||
+          standoffReasons.current.size > 0 ||
+          window.location.pathname === "/graph" ||
+          idle < 5_000 ||
+          idle > 20_000 ||
+          now - lastWander < 1600 ||
+          Math.random() > 0.8
+        )
+          return;
+        const n = nekoRef.current;
+        if (!n) return;
+        lastWander = now;
+        /* aim for a spot at least 240px away so the stroll is a real walk */
+        let sx = window.innerWidth / 2;
+        let sy = window.innerHeight / 2;
+        for (let i = 0; i < 8; i++) {
+          sx = 90 + Math.random() * (window.innerWidth - 180);
+          sy = 150 + Math.random() * (window.innerHeight - 260);
+          if (Math.hypot(sx - n.position.x, sy - n.position.y) > 240) break;
+        }
+        /* gears match the trip: long hauls run, medium walks, short strolls */
+        const dist = Math.hypot(sx - n.position.x, sy - n.position.y);
+        pace(dist > 640 ? "run" : dist > 320 ? "walk" : "stroll");
+        window.setTimeout(
+          restorePace,
+          Math.min(Math.max((dist / 14) * 1000, 700), 4200),
+        );
+        seedPointer(sx, sy);
+        /* on the way: sometimes a leap, sometimes a bob, often just stride */
+        const roll = Math.random();
+        if (roll < 0.28)
+          timers.push(
+            window.setTimeout(() => jump(16 + Math.round(Math.random() * 8)), 450),
+          );
+        else if (roll < 0.5) timers.push(window.setTimeout(hop, 450));
+      }, 2000);
+      intervals.push(wanderTick);
+
+      /* non-stop idle fidgets: while she's waiting on you she stretches,
+         bounces, and show-jumps in place — no words, just body language */
+      const fidgetTick = window.setInterval(() => {
+        const now = Date.now();
+        const idle = now - lastInput.current;
+        if (
+          !greeted ||
+          cancelled ||
+          suggestRef.current ||
+          sleepingRef.current ||
+          petNap.current ||
+          document.hidden ||
+          standoffReasons.current.size > 0 ||
+          window.location.pathname === "/graph" ||
+          idle < 8_500 ||
+          now - lastPhraseAt.current < 2200 ||
+          Math.random() > 0.62
+        )
+          return;
+        if (Math.random() < 0.5) jump(14 + Math.round(Math.random() * 9));
+        else hop(9);
+      }, 3300);
+      intervals.push(fidgetTick);
     };
 
     /* petting / feeding — cat is pointer-events:none, so listen globally */
@@ -1901,7 +2458,7 @@ const CatCompanion = () => {
         showPhrase(tapBrain.tapLine("melt"), 3600, true);
         spawnHearts(x, y, 8);
         spawnSparkles(x, y);
-        neko.setSpeed(30);
+        pace("sprint");
         seedPointer(
           x < window.innerWidth / 2 ? 48 : window.innerWidth - 48,
           window.innerHeight * 0.78,
@@ -1910,7 +2467,7 @@ const CatCompanion = () => {
           window.setTimeout(
             () => {
               if (cancelled) return;
-              nekoRef.current?.setSpeed(12);
+              restorePace();
               seedPointer(lastPointer.current.x, lastPointer.current.y);
             },
             1700,
@@ -1957,6 +2514,37 @@ const CatCompanion = () => {
       );
     };
 
+    /* double-click the cat: a high five — same geometric petting radius,
+       because her sprite never gets pointer events of its own */
+    const onDblClick = (e: Event) => {
+      const pt = e as MouseEvent;
+      const neko = nekoRef.current;
+      if (!e.isTrusted || document.hidden || suggestRef.current || !neko) return;
+      const t = e.target;
+      if (
+        t instanceof Element &&
+        t.closest(
+          "a,button,input,textarea,select,label,[contenteditable='true'],.cat-suggest",
+        )
+      )
+        return;
+      if (
+        Math.hypot(pt.clientX - neko.position.x, pt.clientY - neko.position.y) > 56
+      )
+        return;
+      const now = Date.now();
+      if (now - lastHighFive.current < cd(25_000)) return;
+      const brain = brainRef.current;
+      if (!brain) return;
+      lastHighFive.current = now;
+      markActivity();
+      jump(20);
+      spawnHearts(pt.clientX, pt.clientY - 10, 5);
+      spawnSparkles(pt.clientX, pt.clientY - 6);
+      showPhrase(brain.highFiveLine(), 2800, true);
+    };
+    document.addEventListener("dblclick", onDblClick);
+
     /* scroll fast and the cat breaks into a run; depth feeds the brain
        and once-per-route milestones get a line */
     const onScroll = () => {
@@ -1993,23 +2581,22 @@ const CatCompanion = () => {
       if (!fast || !nekoRef.current) return;
       if (!running.current) {
         running.current = true;
-        nekoRef.current.setSpeed(20);
+        pace("sprint");
       }
       window.clearTimeout(runCalm);
-      runCalm = window.setTimeout(
-        () => {
-          running.current = false;
-          nekoRef.current?.setSpeed(12);
-        },
-        1300,
-      );
+      runCalm = window.setTimeout(() => {
+        running.current = false;
+        restorePace();
+      }, 1300);
       if (now - lastWheee > 25_000 && now - lastPhraseAt.current >= 2500) {
         lastWheee = now;
         showPhrase(WHEEE_LINES[rand(WHEEE_LINES.length)], 2200, true);
       }
     };
 
-    /* nap when the visitor goes quiet; a cat mid-walk stays busy */
+    /* nap when the visitor goes quiet; a cat mid-walk stays busy, and her
+       stroll window (10–42s idle) plays out before any auto-nap arms —
+       naps need 45s of quiet, then 6s of a still cat */
     let prevPos = { x: 0, y: 0 };
     sleepTick = window.setInterval(() => {
       const neko = nekoRef.current;
@@ -2024,6 +2611,7 @@ const CatCompanion = () => {
         !sleepingRef.current &&
         !petNap.current &&
         !document.hidden &&
+        now - lastInput.current > 45_000 &&
         now - lastActivity.current > 6000
       ) {
         sleepingRef.current = true;
@@ -2069,7 +2657,7 @@ const CatCompanion = () => {
       const brain = brainRef.current;
       if (!brain) return;
       const now = Date.now();
-      if (now - lastClickLine.current < 7000) return;
+      if (now - lastClickLine.current < cd(7000)) return;
       lastClickLine.current = now;
       const { x, y } = neko.position;
       showPhrase(brain.tapLine("purr"), 3200, true);
@@ -2085,7 +2673,7 @@ const CatCompanion = () => {
       const brain = brainRef.current;
       if (!brain) return;
       const now = Date.now();
-      if (now - lastClickLine.current < 7000) return;
+      if (now - lastClickLine.current < cd(7000)) return;
       lastClickLine.current = now;
       spawnSparkles(e.clientX, e.clientY);
       showPhrase(brain.tapLine("ctx"), 3200, true);
@@ -2126,13 +2714,14 @@ const CatCompanion = () => {
       running.current = false;
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("pointerup", onPointerUp);
+      document.removeEventListener("dblclick", onDblClick);
       document.removeEventListener("contextmenu", onCtxMenu);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("scroll", onScroll);
       nekoRef.current?.destroy();
       nekoRef.current = null;
     };
-  }, [reduced, enabled, showPhrase, markActivity, getCtx, checkProphecy, applyStandoff]);
+  }, [reduced, enabled, showPhrase, markActivity, getCtx, checkProphecy, applyStandoff, pace, restorePace]);
 
   /* keep the bubble + zZz parked next to the cat */
   useEffect(() => {

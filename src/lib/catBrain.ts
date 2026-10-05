@@ -80,6 +80,8 @@ const TOPICS = [
   "case studies", "bounce rate", "tree shaking", "dynamic imports", "code splitting",
   "typescript generics", "zod schemas", "webgl fog", "spring physics", "view transitions",
   "the scroll bar", "your tabs", "that one bug", "the deploy button",
+  "his dotfiles", "the vault graph", "the send button", "his side projects",
+  "night builds", "the games tab", "his commit history", "the graph view",
 ].map((s) => s);
 
 const VERBS = [
@@ -119,6 +121,9 @@ const TAILS = [
   "with my tail.", "confidently.", "entirely alone.", "in one leap.",
   "like watching fireworks for cats.", "and stretched afterwards.", "as a warmup.",
   "with zero merge conflicts (i invented them).", "and took the long way home.",
+  "big fan, no notes.", "and i'd do it again, slower, with more naps.",
+  "pet-approved.", "sachin would be proud. i'm cautiously emotional.",
+  "then told the yarn about it.", "with my whole heart and one paw.",
 ].map((s) => s);
 
 const ADJ = [
@@ -195,6 +200,36 @@ const FACTS = [
   "cats resist being carried. your users resist onboarding flows too.",
   "cat ears rotate 180°. mine at the word 'deadline'.",
   "the cat sleeps on the keyboard. the build still passes. this is skill.",
+  "sachin built basecase — a Q&A platform for devs. i supervise the rep engine.",
+  "his repos include a 'Meow Terminal AI Agent'. finally, a namesake.",
+  "the bank app runs on spring boot. i knock things off springboards.",
+  "this site's graph holds 300+ notes he actually wrote. i napped on some.",
+  "he ships react and three.js by day. i ship hairballs.",
+  "he named a project 'meow'. the marketing department is me.",
+  "luna was his best architectural decision. peer-reviewed by whiskers.",
+  "his answer to 'tell me about yourself' is a knowledge graph. bold.",
+  "dhun grew from a folder browser into a whole player. i watched. i napped, but i watched.",
+  "basecase has dark mode because the cat requested it. diplomatic.",
+  "the netflix clone's logos were pixel-perfect. i measured with my eyes.",
+  "alienblaster is a 2d platformer he wrote in c#. i'd chase every sprite.",
+  "his hyprland dotfiles rice so hard even my fur lies flat. (lua, btw.)",
+  "quantyx calculates everything except how many naps i've taken.",
+  "he built a full stackoverflow clone for fun. answers everywhere, snacks nowhere.",
+  "the graph vault holds 330 notes. mine: 331 (this bubble counts).",
+  "he watches mit asymptotics lectures at 1am. big-O, big mood.",
+  "openclaw lives in his terminal. it claws, it meows, it summarizes.",
+  "his lld notes hide a zomato clone. appetite for patterns, literally.",
+  "chai is his fuel, biryani his reward. the food pyramid is round and warm.",
+  "the bank app has 'meow' in its name. the stakeholders: me.",
+  "he built the games he'd want to play, then shipped them to itch. dangerously recursive.",
+  "this site ships with a tour guide (me), a graph, and zero dog code.",
+  "sachin's interview answer is this whole site. my favorite part: me.",
+  "the contact form emails him directly. i read over your shoulder. confidentiality: meow.",
+  "he tests on real devices. i test on real furniture. both valid.",
+  "he ships at 2am. i supervise at 2am. different roles, same zoomies.",
+  "his lld notes get read more than some startups' blogs. patterns pay rent.",
+  "the tour, the graph, the cat — three ways to say 'look what he built'.",
+  "every good portfolio needs a mascot. he just didn't expect hers to have opinions.",
 ].map((s) => s);
 
 const OBSERVATIONS = [
@@ -264,6 +299,13 @@ const OBSERVATIONS = [
   "i'll be honest: i napped through your entire hero animation. it was good though.",
   "you don't rush. a discerning visitor.",
   "the details here reward a second look. i've had twelve.",
+  "you move with intent. i move with hunger. same energy.",
+  "we've been together a whole session and you haven't shooed me. friendship.",
+  "your clicks are gentle. noted, reciprocated in purrs.",
+  "someone raised you right: you read the label before clicking.",
+  "staying this long counts as fostering. adoption papers are in the mail.",
+  "you glance at the cat mid-read. we share the brain cell, clearly.",
+  "your hover patterns say 'curious'. my tail says 'obviously'.",
 ].map((s) => s);
 
 const GUIDE_LINES = [
@@ -330,6 +372,13 @@ const GUIDE_LINES = [
   "there's a graph view for visual thinkers. i see triangles too.",
   "take a screenshot — the cat will remember your face.",
   "one scroll deeper and i start counting your clicks. (already did.)",
+  "the experience section reads like a good commit log: clean story.",
+  "the skills pills link to proof. receipts attached, whisker-verified.",
+  "he's learning in public — the vault shows his homework. brave.",
+  "if you like what you see, the send button's right there. i guard it personally.",
+  "step by step, scroll by scroll. the cat paces you.",
+  "haan haan, thoda aur neeche — the good part is coming.",
+  "every project down there survived a real deadline. some of them mine.",
 ].map((s) => s);
 
 const WISDOM = [
@@ -1751,7 +1800,8 @@ export const routeOrTimeLine = (ctx: CatContext): string => {
 export type ActId =
   | "zoomies" | "yarn" | "stare" | "groom" | "knock" | "loaf"
   | "chirp" | "dance" | "hide" | "stats" | "prophecy" | "stretch"
-  | "deep" | "audit";
+  | "deep" | "audit" | "seat" | "prey"
+  | "scratch" | "spin" | "sneeze" | "butterfly" | "flop" | "paw";
 
 interface ActDef {
   id: ActId;
@@ -1775,7 +1825,7 @@ const statsLine = (ctx: CatContext): string => {
 
 /* stats lines are generated live from context (see statsLine / ACT_DEFS) */
 const ACT_LINES: Omit<Record<ActId, readonly string[]>, "stats"> = {
-  zoomies: ["ZOOM.", "zoomies. mathematically necessary.", "gotta go— nowhere in particular.", "fast mode: ON.", "the floor is lava. i am speed.", "sprint testing my own legs.", "zoom interval scheduled. please stand clear."],
+  zoomies: ["ZOOM.", "zoomies. mathematically necessary.", "gotta go— nowhere in particular.", "fast mode: ON.", "the floor is lava. i am speed.", "sprint testing my own legs.", "zoom interval scheduled. please stand clear.", "lap number one. there will be more.", "testing the floor's sprint rating. scientific."],
   yarn: ["yarn detected. initiating pursuit.", "the yarn moves. i must follow physics.", "round and round. this is cardio.", "behind you! (there's nothing. pretend).", "pounce protocol: engaged.", "i could NOT chase this. (i will)."],
   stare: ["staring at the wall. it owes me answers.", "the wall just said something interesting. you had to be there.", "i see movement. (i don't). professional habit.", "contemplating the void. the void is beige.", "deep thoughts. don't interrupt.", "the wall confessed everything."],
   groom: ["*aggressively grooms one paw*", "grooming: essential maintenance.", "must look impeccable for the DOM.", "one paw down, seven to go. (i have four, focus).", "professional grooming break.", "hair out of place? impossible. but checking."],
@@ -1788,7 +1838,50 @@ const ACT_LINES: Omit<Record<ActId, readonly string[]>, "stats"> = {
   stretch: ["*big stretch* full length achieved.", "stretching the spoooone.", "yawn to the back of my skull. behold.", "limber. ready. mostly.", "paws forward, bum up. the classic.", "engineering my own pretzel."],
   deep: ["fun fact: the purr heals bones. i'm basically healthcare.", "thought: every tab is a door, every door a sunbeam.", "the answer is simpler: nap on it.", "what if the code compiled us?", "small thought: kindness ships faster than urgency.", "somewhere, a build is green. i can feel it.", "meaning of life: warm spot, good friends, few tabs.", "if it matters, do it slowly. like napping."],
   audit: ["audited the DOM. 1 cat, 0 bugs (fixed mentally).", "code review: passed with purrs.", "scanning... scanning... approved.", "checked every corner. quality: acceptable.", "the sitemap smells fine.", "inspected the source. bold choices. i allow them.", "lint complete: you, but cute. passes."],
+  seat: ["claiming this spot. it's mine now.", "sitting on important paperwork. (the button).", "quality assurance: i sit directly on it.", "if i fits, i sits. it fits.", "this spot needed supervision. i am supervision.", "hovering is for birds. i commit fully.", "the send button is now a cat bed. emails still work.", "i sit where the clicks happen. power position.", "professional seat tester: this button passes.", "form? checked. button? sat on. you may proceed."],
+  prey: ["mouse detected. initiating pursuit.", "something moved. chasing first, thinking later.", "hunt mode: whiskers forward, brain off.", "prey spotted. its chances: low.", "the chase: ancient, sacred, zoomy.", "i saw it. i want it. i'm going.", "the mouse thinks it's fast. adorable.", "whiskers: locked. dignity: gone. going in."],
+  scratch: ["sharpening claws on your cards. tasteful.", "this card had excellent grain for scratching.", "manicure station: located.", "claws: filed. card: sorry-er.", "sisal? never met her. fabric works.", "scratch test: material passes. my claws: harder.", "the DOM can take it. mostly.", "filing these claws for the algorithm."],
+  spin: ["spin cycle: complete.", "twirl engaged — tail as axis.", "900 degrees of flourish. nailed it.", "spinning: the zoomies, but vertical.", "dizzy? never heard of her.", "one pirouette. hold the applause.", "round and round — confirming the tail is still attached.", "rotational velocity: showoff."],
+  sneeze: ["a-choo. pollen in the pixels.", "sneeze: deployed. dignity: recovering.", "achoo! something in the build smells new.", "blessed me. you're welcome.", "sneeze velocity: release-candidate.", "the dust bunnies know I'm here now.", "tiny sneeze. enormous drama.", "achoo — that one had a stack trace."],
+  butterfly: ["butterfly! priorities reassigned.", "winged intruder detected. chasing politely.", "it floats. i shall float after it.", "butterfly diplomacy: follow it everywhere.", "shiny wing. brain: off.", "the butterfly knows something. tail first, questions later.", "flutter, chase, repeat.", "winged consultant inbound. attending now."],
+  flop: ["flop. (play dead. Oscar pending.)", "dead. until dinner.", "dramatic collapse #3 — reviews are in.", "i have perished. tell no one.", "floor suddenly delicious. lying here now.", "simulate failure: succeeded.", "nose up, paws out, vibes: expired (temporarily).", "system halt: cat.exe crashed (on purpose)."],
+  paw: ["boop incoming.", "paw: deployed at your cursor.", "your pointer owes me a high five.", "swat! (affectionate).", "cursor patrol: swatting round two.", "giving your mouse a high five. it's shy.", "paws on deck — cursor spotted.", "tat-tat-tat. (that's paw for hello)."],
 };
+
+/** prey outcomes — spoken when the chase ends (or doesn't) */
+export const PREY_RESULT = {
+  catch: ["got it.", "caught. trophy: none, released humanely.", "mine. briefly.", "the hunt concludes. purr."],
+  escape: ["it escaped. (dramatic pause).", "freed it. i'm merciful like that.", "spared. it looked busy."],
+} as const;
+
+export const preyResult = (kind: keyof typeof PREY_RESULT): string =>
+  freshPick(PREY_RESULT[kind]);
+
+/* a frantic cursor gets one friendly word — sustained speed, not flicks */
+const SPEED_LINES = [
+  "woah — slow down, this is a portfolio, not a racetrack.",
+  "zoomies are MY department. pace yourself.",
+  "your cursor just did a 100m dash. hydrate.",
+  "whiplash detected. the content isn't going anywhere.",
+  "speeding? the good stuff rewards scrolling, not sprinting.",
+  "i can barely keep up, and i have four legs and a whole engine.",
+  "pixel treadmill: off. enjoy the walk.",
+];
+
+export const speedLine = (): string => freshPick(SPEED_LINES);
+
+/* double-click on her: a high five (or a batslap, depending on the day) */
+const HIGH_FIVE_LINES = [
+  "high five! (paw delivered.)",
+  "double-click: the cat chose contact.",
+  "boop right back at you.",
+  "you petted with style. noted.",
+  "that's two clicks — legally a high five now.",
+  "paw handshake complete. friendship extended.",
+  "again! (affection has no rate limit.)",
+];
+
+export const highFiveLine = (): string => freshPick(HIGH_FIVE_LINES);
 
 const ACT_DEFS: ActDef[] = [
   { id: "yarn", weight: 11, line: (c) => pick(ACT_LINES.yarn) + (c.dark ? "" : "") },
@@ -1805,6 +1898,14 @@ const ACT_DEFS: ActDef[] = [
   { id: "prophecy", weight: 8, line: () => pick(PREDICTIONS).say },
   { id: "deep", weight: 8, line: () => pick(ACT_LINES.deep) },
   { id: "audit", weight: 5, line: () => pick(ACT_LINES.audit) },
+  { id: "seat", weight: 6, line: () => pick(ACT_LINES.seat) },
+  { id: "prey", weight: 9, line: () => pick(ACT_LINES.prey) },
+  { id: "scratch", weight: 7, line: () => pick(ACT_LINES.scratch) },
+  { id: "spin", weight: 6, line: () => pick(ACT_LINES.spin) },
+  { id: "sneeze", weight: 5, line: () => pick(ACT_LINES.sneeze) },
+  { id: "butterfly", weight: 9, line: () => pick(ACT_LINES.butterfly) },
+  { id: "flop", weight: 6, line: () => pick(ACT_LINES.flop) },
+  { id: "paw", weight: 8, line: () => pick(ACT_LINES.paw) },
 ];
 
 export const actLine = (id: ActId, ctx: CatContext): string => {
