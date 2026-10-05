@@ -1811,7 +1811,8 @@ export type ActId =
   | "chirp" | "dance" | "hide" | "stats" | "prophecy" | "stretch"
   | "deep" | "audit" | "seat" | "prey"
   | "scratch" | "spin" | "sneeze" | "butterfly" | "flop" | "paw"
-  | "sunbeam" | "laser" | "pounce" | "dig" | "box" | "tailchase";
+  | "sunbeam" | "laser" | "pounce" | "dig" | "box" | "tailchase"
+  | "social" | "roll" | "playbow" | "dust" | "gift";
 
 interface ActDef {
   id: ActId;
@@ -1862,6 +1863,11 @@ const ACT_LINES: Omit<Record<ActId, readonly string[]>, "stats"> = {
   dig: ["digging. treasure maybe. vibes definitely.", "archaeology mode: unearthing treats.", "this spot hides something. my instincts say snacks.", "paws: digging. plans: none.", "cat excavation site. hard hat optional.", "found nothing. dug again. science.", "burying my secrets. (there are none. yet.)"],
   box: ["a BOX. plans canceled.", "cardboard acquired. i live here now.", "if i fits (i do), i sits.", "the box chose me. mostly. okay, i chose it.", "shipping label: return to sender (me, inside).", "box: occupied. knock later.", "new apartment. rent: one purr.", "assembles box. refuses to elaborate."],
   tailchase: ["tail detected. engaging.", "round and round — it's always one step ahead.", "my tail has opinions. negotiating via orbit.", "chase protocol: self.", "almost bit it. the tail is swift.", "orbiting my own tail. very professional.", "the tail starts it. i finish it. (i don't.)"],
+  social: ["the links deserve attention. assigning myself.", "ambassador duty: escorting you to the socials.", "this button hasn't been clicked in 4 seconds. scandalous.", "i sat on the good links. follow me to them.", "internet doors: right here. after you.", "psst — github's shiny today.", "click something unexpected. i'll comment."],
+  roll: ["rolling. floor: excellent.", "full barrel roll, zero g's.", "back down here: maximum stretch achieved.", "rolling: the cute protocol demands it.", "one roll, please. and another.", "gravity check #2: still friendly.", "fur: tousled. dignity: intact."],
+  playbow: ["play bow! your move.", "front down, bum up — the invitation stands.", "wanna go? i wanna go.", "pose: maximum 'chase me'.", "this stance means fun. translation: follow me.", "tail up, elbows down. game on."],
+  dust: ["dust bunny spotted. engaging.", "it moved. it's mine. (it's dust.)", "batting at the invisible. professional.", "the speck chose chaos. so did i.", "invisible prey: the hardest prey.", "paw: three o'clock. target: lint."],
+  gift: ["bringing you something. hold on.", "a star, for you. don't drop it.", "gift delivery service: one sparkle.", "i fetched it from the sky. you're welcome.", "present! (it's shiny. it's yours. briefly.)", "accept this star as tribute.", "delivery complete. tip in pets."],
 };
 
 /** prey outcomes — spoken when the chase ends (or doesn't) */
@@ -1899,6 +1905,55 @@ const HIGH_FIVE_LINES = [
 
 export const highFiveLine = (): string => freshPick(HIGH_FIVE_LINES);
 
+/* ------------------- link encouragement (hover) ------------------- */
+
+/* hovering a link worth exploring earns a nudge — distinct from the
+   click lines (those fire when the click actually lands) */
+export type EncourageKind =
+  | "github" | "social" | "email" | "blog" | "graph" | "contact";
+
+const ENCOURAGE_LINES: Record<EncourageKind, readonly string[]> = {
+  github: [
+    "hovering github? the door's open — go on.",
+    "his commits are friendly. say hi to them.",
+    "that's the repo button. it approves of curiosity.",
+    "stars are free. he pretends not to count. (he counts.)",
+  ],
+  social: [
+    "the socials are down there. he actually posts.",
+    "a good scroll includes clicking things.",
+    "curiosity: click it. that's the whole tutorial.",
+    "that link knows where he is. follow it.",
+  ],
+  email: [
+    "the mailto hovers nearby. he replies fast.",
+    "your pointer's over the inbox. fate?",
+    "compose a note — the cat guarantees a reply. (legally not binding.)",
+    "inbox's looking hopeful. teach it something.",
+  ],
+  blog: [
+    "the blog holds 300+ notes. pick one.",
+    "reading list: loaded. curiosity: required.",
+    "his notes, raw and unfiltered. dive in.",
+    "somewhere in there is a note about me. probably.",
+  ],
+  graph: [
+    "the graph is prettier in motion. visit it.",
+    "330 nodes are waiting for a wander.",
+    "the knowledge graph: his favorite flex.",
+    "drag it, spin it, get lost. i'll wait.",
+  ],
+  contact: [
+    "the form's right there. words work too.",
+    "he reads every message. cats verify.",
+    "type something nice. or anything. he's not picky.",
+    "three fields stand between you and his inbox.",
+  ],
+};
+
+export const encourageLine = (kind: EncourageKind): string =>
+  freshPick(ENCOURAGE_LINES[kind]);
+
 const ACT_DEFS: ActDef[] = [
   { id: "yarn", weight: 11, line: (c) => pick(ACT_LINES.yarn) + (c.dark ? "" : "") },
   { id: "zoomies", weight: 8, line: () => pick(ACT_LINES.zoomies) },
@@ -1928,6 +1983,11 @@ const ACT_DEFS: ActDef[] = [
   { id: "dig", weight: 6, line: () => pick(ACT_LINES.dig) },
   { id: "box", weight: 7, line: () => pick(ACT_LINES.box) },
   { id: "tailchase", weight: 6, line: () => pick(ACT_LINES.tailchase) },
+  { id: "social", weight: 8, line: () => pick(ACT_LINES.social) },
+  { id: "roll", weight: 7, line: () => pick(ACT_LINES.roll) },
+  { id: "playbow", weight: 6, line: () => pick(ACT_LINES.playbow) },
+  { id: "dust", weight: 6, line: () => pick(ACT_LINES.dust) },
+  { id: "gift", weight: 7, line: () => pick(ACT_LINES.gift) },
 ];
 
 export const actLine = (id: ActId, ctx: CatContext): string => {

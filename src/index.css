@@ -1858,7 +1858,7 @@ h4 {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 60;
+  z-index: 132;
   pointer-events: none;
   will-change: transform;
 }
@@ -1894,7 +1894,7 @@ h4 {
 }
 .cat-heart {
   position: fixed;
-  z-index: 61;
+  z-index: 131;
   pointer-events: none;
   font-size: 15px;
   line-height: 1;
@@ -1920,7 +1920,7 @@ h4 {
 /* faint paw prints left behind while the cat walks */
 .cat-paw {
   position: fixed;
-  z-index: 61;
+  z-index: 131;
   width: 11px;
   height: 11px;
   pointer-events: none;
@@ -1972,7 +1972,7 @@ h4 {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 61;
+  z-index: 131;
   pointer-events: none;
   will-change: transform;
 }
@@ -2014,7 +2014,7 @@ h4 {
 /* entrance / summon sparkle burst */
 .cat-sparkle {
   position: fixed;
-  z-index: 61;
+  z-index: 131;
   pointer-events: none;
   font-size: 14px;
   line-height: 1;
@@ -2043,7 +2043,7 @@ h4 {
 /* pixel fish treat slides into the cat's mouth */
 .cat-treat {
   position: fixed;
-  z-index: 61;
+  z-index: 131;
   pointer-events: none;
   will-change: transform;
   animation: cat-treat-slide 0.55s cubic-bezier(0.4, 0, 0.6, 1) forwards;
@@ -2064,7 +2064,7 @@ h4 {
 /* yarn ball: arcs out, loops back — the cat chases the live rect */
 .cat-yarn {
   position: fixed;
-  z-index: 61;
+  z-index: 131;
   width: 16px;
   height: 16px;
   border-radius: 999px;
@@ -2097,7 +2097,7 @@ h4 {
 /* knocked object: tips off the edge, tumbles, fades */
 .cat-drop {
   position: fixed;
-  z-index: 61;
+  z-index: 131;
   width: 10px;
   height: 12px;
   pointer-events: none;
@@ -2124,7 +2124,7 @@ h4 {
 /* prey mouse: bolts across the floor while the cat gives chase */
 .cat-mouse {
   position: fixed;
-  z-index: 61;
+  z-index: 131;
   width: 16px;
   height: 12px;
   pointer-events: none;
@@ -2142,7 +2142,7 @@ h4 {
    component re-aims her every tick) */
 .cat-butterfly {
   position: fixed;
-  z-index: 61;
+  z-index: 131;
   width: 20px;
   height: 16px;
   pointer-events: none;
@@ -2168,7 +2168,7 @@ h4 {
 /* laser: the red dot she can never catch — snappy eased hops */
 .cat-laser {
   position: fixed;
-  z-index: 61;
+  z-index: 131;
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -2190,7 +2190,7 @@ h4 {
 /* sunbeam: warm floor light she naps in — sits under the cat (z58) */
 .cat-sunbeam {
   position: fixed;
-  z-index: 58;
+  z-index: 128;
   width: 230px;
   height: 96px;
   border-radius: 50%;
@@ -2217,7 +2217,7 @@ h4 {
 /* cardboard box: drops over her lower half so she reads as sitting in it */
 .cat-box {
   position: fixed;
-  z-index: 61;
+  z-index: 131;
   width: 72px;
   height: 44px;
   pointer-events: none;
@@ -2241,12 +2241,49 @@ h4 {
   }
 }
 
+/* spotlight: the sky-blue ring she throws around UI she's recommending
+   (seat/social/encourage targets) — ring pulses while she talks it up */
+.cat-spotlight {
+  box-shadow:
+    0 0 0 2px rgb(56 189 248 / 0.7) !important,
+    0 0 24px 5px rgb(2 132 199 / 0.4) !important;
+  animation: cat-spotlight-pulse 0.9s ease-in-out infinite alternate;
+}
+@keyframes cat-spotlight-pulse {
+  from {
+    filter: brightness(1);
+  }
+  to {
+    filter: brightness(1.16);
+  }
+}
+
+/* gift: the little star she carries to your cursor */
+.cat-gift {
+  position: fixed;
+  z-index: 131;
+  pointer-events: none;
+  color: #fde047;
+  font-size: 18px;
+  line-height: 1;
+  text-shadow: 0 0 8px rgb(253 224 71 / 0.75);
+  animation: cat-gift-bob 0.4s ease-in-out infinite alternate;
+}
+@keyframes cat-gift-bob {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-4px) scale(1.12);
+  }
+}
+
 /* hide act: sinks into the whitespace, pops back when the class lifts */
 [data-neko="0"] {
   transition: opacity 0.45s ease;
 }
 [data-neko="0"].cat-peek {
-  opacity: 0.3;
+  opacity: 0.5;
 }
 
 /* clickable blog suggestion: the anchor stays inert, the pill opts back in */

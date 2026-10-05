@@ -31,6 +31,7 @@ import {
   spawnButterfly,
   spawnDrop,
   spawnFish,
+  spawnGift,
   spawnHearts,
   spawnLaser,
   spawnMouse,
@@ -40,7 +41,7 @@ import {
   spawnYarn,
 } from "../lib/cat";
 import type { CatContext } from "../lib/catTypes";
-import type { ActId } from "../lib/catBrain";
+import type { ActId, EncourageKind } from "../lib/catBrain";
 import type { BlogSuggestion } from "../lib/blogSuggestions";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { gsap } from "../lib/gsapSetup";
@@ -87,6 +88,7 @@ const ROAMING_ACTS: readonly ActId[] = [
   "zoomies", "yarn", "stare", "knock", "seat", "prey",
   "scratch", "butterfly", "paw",
   "sunbeam", "laser", "pounce", "box", "tailchase",
+  "social", "roll", "gift",
 ];
 
 /*
@@ -131,7 +133,12 @@ const PHRASE_GAP_MS = cd(5000);
 
 type Brain = typeof import("../lib/catBrain");
 
-const seedPointer = (x: number, y: number) => {
+/* every synthetic seed is clamped to the viewport — the cat can never be
+   aimed at dead space, and (with the raised z-index) can never vanish
+   behind the navbar or tab bar either */
+const seedPointer = (rawX: number, rawY: number) => {
+  const x = Math.min(Math.max(rawX, 26), window.innerWidth - 26);
+  const y = Math.min(Math.max(rawY, 34), window.innerHeight - 46);
   document.body.dispatchEvent(
     new MouseEvent("mousemove", { clientX: x, clientY: y, bubbles: true }),
   );
@@ -281,6 +288,64 @@ const CatCompanion = () => {
     },
     [],
   );
+
+  /* spotlight: sky-blue ring + sparkle burst on the UI she's recommending
+     (seat/social/encourage/click targets); class removal is timed, never
+     state — losing the timeout on unmount only leaves a stale class */
+  const spotlight = useCallback((target: Element | null, ms = 2600) => {
+    if (!target) return;
+    const el = target as HTMLElement;
+    if (!el.isConnected) return;
+    el.classList.add("cat-spotlight");
+    const r = el.getBoundingClientRect();
+    spawnSparkles(
+      Math.min(Math.max(r.left + r.width / 2, 20), window.innerWidth - 20),
+      Math.min(Math.max(r.top + Math.min(r.height / 2, 60), 20), window.innerHeight - 20),
+    );
+    window.setTimeout(() => el.classList.remove("cat-spotlight"), ms);
+  }, []);
+
+  /* hovering a link worth exploring earns a nudge (per-kind + global
+     cooldowns, never while she's already talking or suggesting) */
+  const encourageAt = useRef<Record<string, number>>({});
+  const lastEncourageAny = useRef(0);
+  useEffect(() => {
+    const onOver = (e: Event) => {
+      const t = e.target;
+      if (!(t instanceof Element) || document.hidden || suggestRef.current)
+        return;
+      const link = t.closest("a");
+      if (!link) return;
+      const href = link.getAttribute("href") || "";
+      const ext = link.getAttribute("target") === "_blank";
+      const kind: EncourageKind | null = href.startsWith("mailto:")
+        ? "email"
+        : ext && href.includes("github")
+          ? "github"
+          : ext
+            ? "social"
+            : href.startsWith("/blog")
+              ? "blog"
+              : href.startsWith("/graph")
+                ? "graph"
+                : href.includes("contact")
+                  ? "contact"
+                  : null;
+      if (!kind) return;
+      const now = Date.now();
+      if (now - lastEncourageAny.current < cd(14_000)) return;
+      if (now - (encourageAt.current[kind] || 0) < cd(45_000)) return;
+      if (now - lastPhraseAt.current < 4000) return; /* fresh line keeps the floor */
+      const brain = brainRef.current;
+      if (!brain) return;
+      if (!showPhrase(brain.encourageLine(kind), 3600, true)) return;
+      encourageAt.current[kind] = now;
+      lastEncourageAny.current = now;
+      spotlight(link, 2400);
+    };
+    document.addEventListener("mouseover", onOver, { passive: true });
+    return () => document.removeEventListener("mouseover", onOver);
+  }, [showPhrase, spotlight]);
 
   /* suggestion accept (a / open button) · skip (d / skip button) */
   const acceptSuggestion = useCallback(() => {
@@ -753,6 +818,14 @@ const CatCompanion = () => {
       if (!line) return;
       lastClickLine.current = now;
       showPhrase(line, 3600, true);
+      /* clicking a social/external/mail link also lights the target up —
+         her endorsement lands with the click */
+      if (
+        a &&
+        (a.target === "_blank" || (a.getAttribute("href") || "").startsWith("mailto:"))
+      ) {
+        spotlight(a, 3000);
+      }
     };
 
     /* touching the contact form earns a nudge (once, politely) */
@@ -1368,7 +1441,7 @@ const CatCompanion = () => {
       document.removeEventListener("focusin", onContactFocus);
       window.removeEventListener("wheel", onAny);
     };
-  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion, setStandoffReason, pace, restorePace]);
+  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion, setStandoffReason, pace, restorePace, spotlight]);
 
   /* Alt+C shooes / summons the cat for good (the opt-out persists) */
   useEffect(() => {
@@ -1852,10 +1925,27 @@ const CatCompanion = () => {
               formIdx >= 0 && Math.random() < 0.5
                 ? formIdx
                 : Math.floor(Math.random() * spots.length);
-            const r = spots[roll].r;
+            const target = spots[roll];
+            const r = target.r;
+            /* text boxes and cards: sit ON TOP of the edge (feet at the
+               border, body above the text); buttons/fields keep the
+               inside-bottom seat (the send-button pose) */
+            const onTop = target.el.matches(
+              "h2, h3, article, .card, .feature-card, .exp-card-wrapper, .app-showcase",
+            );
             const tx = r.left + r.width / 2;
-            const ty = r.bottom - 8;
+            const ty = onTop ? r.top - 10 : r.bottom - 8;
             seedPointer(tx, ty);
+            /* once settled she rings the target: spotlight + paw taps so
+               the seat reads as a recommendation, not just a nap spot */
+            timers.push(
+              window.setTimeout(() => {
+                if (cancelled) return;
+                spotlight(target.el, 2800);
+                spawnPaw(tx, ty - 4);
+                spawnPaw(tx + 14, ty - 10);
+              }, 350),
+            );
             const arrive = Math.min(
               Math.max((Math.hypot(tx - x, ty - y) / 120) * 1000, 500),
               4500,
@@ -1970,7 +2060,7 @@ const CatCompanion = () => {
           if (el) {
             el.classList.add("cat-peek");
             timers.push(
-              window.setTimeout(() => el.classList.remove("cat-peek"), 1700),
+              window.setTimeout(() => el.classList.remove("cat-peek"), 1400),
             );
           }
           break;
@@ -2415,6 +2505,224 @@ const CatCompanion = () => {
           );
           break;
         }
+        case "social": {
+          /* ambassador duty: walk to an external link, sit on it, ring it —
+             footer socials, nav links, and the mailto are the suspects */
+          const links = Array.from(
+            document.querySelectorAll<HTMLElement>(
+              'a[target="_blank"], .socials a, a[href^="mailto:"]',
+            ),
+          )
+            .map((c) => ({ el: c, r: c.getBoundingClientRect() }))
+            .filter(
+              ({ r }) =>
+                r.width > 12 &&
+                r.top > 40 &&
+                r.bottom < window.innerHeight - 40 &&
+                r.left > 4 &&
+                r.right < window.innerWidth - 4,
+            );
+          if (links.length) {
+            let best = 0;
+            let bestD = Infinity;
+            links.forEach(({ r }, i) => {
+              const d = Math.hypot(
+                r.left + r.width / 2 - x,
+                r.top + r.height / 2 - y,
+              );
+              if (d < bestD) {
+                bestD = d;
+                best = i;
+              }
+            });
+            const spot = links[best];
+            const tx = spot.r.left + spot.r.width / 2;
+            const ty = Math.max(spot.r.bottom - 4, 44);
+            seedPointer(tx, ty);
+            const arrive = Math.min(
+              Math.max((Math.hypot(tx - x, ty - y) / 120) * 1000, 500),
+              4500,
+            );
+            timers.push(
+              window.setTimeout(() => {
+                if (cancelled) return;
+                spotlight(spot.el, 3200);
+                hop(12);
+                spawnPaw(tx, ty - 6);
+                /* then nod at a second link — one tour, two doors */
+                timers.push(
+                  window.setTimeout(() => {
+                    if (cancelled) return;
+                    const others = links.filter((_, i) => i !== best);
+                    if (!others.length) return;
+                    const nx =
+                      others[Math.floor(Math.random() * others.length)];
+                    seedPointer(
+                      nx.r.left + nx.r.width / 2,
+                      Math.max(nx.r.bottom - 4, 44),
+                    );
+                    timers.push(
+                      window.setTimeout(() => {
+                        if (!cancelled) spotlight(nx.el, 2600);
+                      }, 1500),
+                    );
+                  }, 2800),
+                );
+              }, arrive),
+            );
+            timers.push(
+              window.setTimeout(() => {
+                if (!cancelled)
+                  seedPointer(lastPointer.current.x, lastPointer.current.y);
+              }, arrive + 7600),
+            );
+          } else {
+            /* nothing external on screen — cheer the nearest CTA instead */
+            const cta = Array.from(
+              document.querySelectorAll<HTMLElement>(".chip, kbd, .cta-button"),
+            )
+              .map((c) => ({ el: c, r: c.getBoundingClientRect() }))
+              .filter(
+                ({ r }) =>
+                  r.width > 24 &&
+                  r.top > 96 &&
+                  r.bottom < window.innerHeight - 40,
+              );
+            if (cta.length) {
+              const pick = cta[Math.floor(Math.random() * cta.length)];
+              spotlight(pick.el, 2400);
+              seedPointer(
+                pick.r.left + pick.r.width / 2,
+                pick.r.bottom - 8,
+              );
+              timers.push(
+                window.setTimeout(() => {
+                  if (!cancelled)
+                    seedPointer(lastPointer.current.x, lastPointer.current.y);
+                }, 4200),
+              );
+            }
+          }
+          break;
+        }
+        case "roll": {
+          /* barrel roll across the floor: drift sideways while spinning two
+             full turns, land with a sparkle burst and a hop */
+          const dir = Math.random() < 0.5 ? -1 : 1;
+          seedPointer(x + dir * 110, y + rand(30) - 10);
+          pace("walk");
+          if (el) {
+            gsap
+              .timeline({ overwrite: "auto" })
+              .to(el, { rotation: 180, duration: 0.55, ease: "power1.inOut" })
+              .to(el, { rotation: 360, duration: 0.55, ease: "power1.inOut" })
+              .set(el, { rotation: 0 });
+          }
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled) return;
+              spawnSparkles(x + dir * 84, y);
+              jump(12);
+              restorePace();
+              seedPointer(lastPointer.current.x, lastPointer.current.y);
+            }, 1400),
+          );
+          break;
+        }
+        case "playbow": {
+          /* front down, bum up: squash + shoulder wiggle, then bounce up
+             into a sparkle — the universal "chase me" invitation */
+          if (el) {
+            gsap
+              .timeline({ overwrite: "auto" })
+              .to(el, {
+                scaleY: 0.86,
+                scaleX: 1.05,
+                rotation: -6,
+                duration: 0.28,
+                ease: "power2.out",
+              })
+              .to(el, { rotation: 6, duration: 0.2, yoyo: true, repeat: 3 })
+              .to(el, {
+                scaleY: 1,
+                scaleX: 1,
+                rotation: 0,
+                duration: 0.3,
+                ease: "power2.in",
+              });
+          }
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled) return;
+              spawnSparkles(x, y - 8);
+              jump(16);
+            }, 1500),
+          );
+          break;
+        }
+        case "dust": {
+          /* bat at an invisible speck: four darting taps, paw prints at
+             each strike, the prey never stood a chance */
+          let n = 0;
+          const tap = window.setInterval(() => {
+            if (cancelled || n >= 4) {
+              window.clearInterval(tap);
+              return;
+            }
+            const tx = x + rand(120) - 60;
+            const ty = y - rand(46) + 6;
+            seedPointer(tx, ty);
+            spawnPaw(tx, ty);
+            if (n % 2 === 0) hop(8);
+            n += 1;
+          }, 460);
+          intervals.push(tap);
+          timers.push(
+            window.setTimeout(() => {
+              window.clearInterval(tap);
+              if (!cancelled)
+                seedPointer(lastPointer.current.x, lastPointer.current.y);
+            }, 2500),
+          );
+          break;
+        }
+        case "gift": {
+          /* fetch a star and carry it to your cursor — she drops it with
+             a heart-burst when she reaches the pointer (5s timeout) */
+          const star = spawnGift(x + 20, y - 24);
+          const gx = lastPointer.current.x;
+          const gy = lastPointer.current.y;
+          seedPointer(gx, gy);
+          pace("walk");
+          let delivered = false;
+          const carry = window.setInterval(() => {
+            const c = nekoRef.current;
+            if (!c || !star.isConnected) {
+              window.clearInterval(carry);
+              return;
+            }
+            star.style.left = `${Math.round(c.position.x + 22)}px`;
+            star.style.top = `${Math.round(c.position.y - 20)}px`;
+            if (!delivered && Math.hypot(c.position.x - gx, c.position.y - gy) < 56) {
+              delivered = true;
+              window.clearInterval(carry);
+              star.remove();
+              spawnHearts(gx, gy, 5);
+              spawnSparkles(gx, gy);
+              restorePace();
+              if (!cancelled) jump(14);
+            }
+          }, 110);
+          intervals.push(carry);
+          timers.push(
+            window.setTimeout(() => {
+              window.clearInterval(carry);
+              star.remove();
+              if (!delivered) restorePace();
+            }, 4400),
+          );
+          break;
+        }
         default:
           break; /* stats / deep / audit — the line is the act */
       }
@@ -2478,7 +2786,9 @@ const CatCompanion = () => {
       applyStandoff();
 
       const el = document.querySelector<HTMLElement>('[data-neko="0"]');
-      if (el) el.style.zIndex = "60"; /* under navbar (100) + tab bar (80) */
+      /* above navbar (100) + tab bar (80): she can never vanish behind
+         the chrome, and perches on the bars are fair game */
+      if (el) el.style.zIndex = "130";
 
       /* seed its target just inside the edge so it walks in right away */
       const seed =
@@ -2599,6 +2909,28 @@ const CatCompanion = () => {
         else if (roll < 0.5) timers.push(window.setTimeout(hop, 450));
       }, 2000);
       intervals.push(wanderTick);
+
+      /* rescue watchdog: if she somehow ends up fully off-screen (a
+         resize, a far seed), recall her to the pointer — the cat stays
+         continuous, always */
+      const rescueTick = window.setInterval(() => {
+        const c = nekoRef.current;
+        const el2 = document.querySelector<HTMLElement>('[data-neko="0"]');
+        if (cancelled || document.hidden || !c || !el2) return;
+        const r = el2.getBoundingClientRect();
+        if (r.width === 0) return;
+        if (
+          r.right < 4 ||
+          r.left > window.innerWidth - 4 ||
+          r.bottom < 4 ||
+          r.top > window.innerHeight - 4
+        ) {
+          seedPointer(lastPointer.current.x, lastPointer.current.y);
+          pace("run");
+          window.setTimeout(() => restorePace(), 1800);
+        }
+      }, 2500);
+      intervals.push(rescueTick);
 
       /* non-stop idle fidgets: while she's waiting on you she stretches,
          bounces, and show-jumps in place — no words, just body language */
@@ -2963,7 +3295,7 @@ const CatCompanion = () => {
       nekoRef.current?.destroy();
       nekoRef.current = null;
     };
-  }, [reduced, enabled, showPhrase, markActivity, getCtx, checkProphecy, applyStandoff, pace, restorePace]);
+  }, [reduced, enabled, showPhrase, markActivity, getCtx, checkProphecy, applyStandoff, pace, restorePace, spotlight]);
 
   /* keep the bubble + zZz parked next to the cat */
   useEffect(() => {

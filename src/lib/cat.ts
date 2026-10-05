@@ -366,3 +366,17 @@ export const spawnBox = (x: number, y: number): HTMLElement => {
   window.setTimeout(() => box.remove(), 6600);
   return box;
 };
+
+/** star for the gift act — the component rides it along her back to your
+    cursor, then she drops it (5s backstop) */
+export const spawnGift = (x: number, y: number): HTMLElement => {
+  const star = document.createElement("div");
+  star.className = "cat-gift";
+  star.setAttribute("aria-hidden", "true");
+  star.textContent = "✦";
+  star.style.left = `${Math.round(x)}px`;
+  star.style.top = `${Math.round(y)}px`;
+  document.body.appendChild(star);
+  window.setTimeout(() => star.remove(), 5000);
+  return star;
+};
