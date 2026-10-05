@@ -315,3 +315,54 @@ export const spawnButterfly = (x: number, y: number): HTMLElement => {
   window.setTimeout(() => bf.remove(), 5400);
   return bf;
 };
+
+/** red laser dot for the chase act — the component re-aims it every few
+    strides, CSS eases each hop (4.6s life) */
+export const spawnLaser = (x: number, y: number): HTMLElement => {
+  const dot = document.createElement("div");
+  dot.className = "cat-laser";
+  dot.setAttribute("aria-hidden", "true");
+  dot.style.left = `${Math.round(x)}px`;
+  dot.style.top = `${Math.round(y)}px`;
+  document.body.appendChild(dot);
+  window.setTimeout(() => dot.remove(), 4600);
+  return dot;
+};
+
+/** warm light patch for the sunbeam act — she walks in and naps on it
+    (7.6s life, below the cat in the stack) */
+export const spawnSunbeam = (x: number, y: number): HTMLElement => {
+  const beam = document.createElement("div");
+  beam.className = "cat-sunbeam";
+  beam.setAttribute("aria-hidden", "true");
+  beam.style.left = `${Math.round(x)}px`;
+  beam.style.top = `${Math.round(y)}px`;
+  document.body.appendChild(beam);
+  window.setTimeout(() => beam.remove(), 7600);
+  return beam;
+};
+
+const BOX_SVG = `<svg width="72" height="44" viewBox="0 0 36 22" shape-rendering="crispEdges" aria-hidden="true">
+  <rect x="1" y="3" width="9" height="2" fill="#b97a41"/><rect x="26" y="3" width="9" height="2" fill="#b97a41"/>
+  <rect x="3" y="5" width="30" height="17" fill="#c98a4b"/>
+  <rect x="3" y="5" width="30" height="1" fill="#d99d5e"/>
+  <rect x="3" y="11" width="30" height="1" fill="#b97a41"/>
+  <rect x="17" y="5" width="2" height="17" fill="#a86a35"/>
+  <rect x="17" y="6" width="2" height="4" fill="#8a5628"/>
+  <rect x="3" y="21" width="30" height="1" fill="#8a5628"/>
+  <rect x="6" y="14" width="4" height="3" fill="#a86a35"/><rect x="26" y="8" width="4" height="2" fill="#d99d5e"/>
+</svg>`;
+
+/** cardboard box for the box act — drops over her lower half so she reads
+    as sitting inside it (component owns removal; 6.6s backstop) */
+export const spawnBox = (x: number, y: number): HTMLElement => {
+  const box = document.createElement("div");
+  box.className = "cat-box";
+  box.setAttribute("aria-hidden", "true");
+  box.style.left = `${Math.round(x)}px`;
+  box.style.top = `${Math.round(y)}px`;
+  box.innerHTML = BOX_SVG;
+  document.body.appendChild(box);
+  window.setTimeout(() => box.remove(), 6600);
+  return box;
+};

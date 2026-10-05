@@ -230,6 +230,15 @@ const FACTS = [
   "his lld notes get read more than some startups' blogs. patterns pay rent.",
   "the tour, the graph, the cat — three ways to say 'look what he built'.",
   "every good portfolio needs a mascot. he just didn't expect hers to have opinions.",
+  "his graph view renders 330+ notes live — cytoscape sweats, i nap.",
+  "the 3d scenes lazy-load. even the three.js knows pacing.",
+  "he gave the cat a tour duty. i call it owning the floor.",
+  "the contact form sends real mail. i intercept the drama first (errors, cheers).",
+  "his best pitch is this site. mine is the bubble you're reading.",
+  "three careers in one tab: dev, writer, cat manager.",
+  "he answers 'where in 5 years' with a graph of his notes. bold move.",
+  "the sitemap stamps today's date. my patrol route: every pixel, hourly.",
+  "portfolio checksum: one dev, one cat, zero regrets.",
 ].map((s) => s);
 
 const OBSERVATIONS = [
@@ -1801,7 +1810,8 @@ export type ActId =
   | "zoomies" | "yarn" | "stare" | "groom" | "knock" | "loaf"
   | "chirp" | "dance" | "hide" | "stats" | "prophecy" | "stretch"
   | "deep" | "audit" | "seat" | "prey"
-  | "scratch" | "spin" | "sneeze" | "butterfly" | "flop" | "paw";
+  | "scratch" | "spin" | "sneeze" | "butterfly" | "flop" | "paw"
+  | "sunbeam" | "laser" | "pounce" | "dig" | "box" | "tailchase";
 
 interface ActDef {
   id: ActId;
@@ -1846,6 +1856,12 @@ const ACT_LINES: Omit<Record<ActId, readonly string[]>, "stats"> = {
   butterfly: ["butterfly! priorities reassigned.", "winged intruder detected. chasing politely.", "it floats. i shall float after it.", "butterfly diplomacy: follow it everywhere.", "shiny wing. brain: off.", "the butterfly knows something. tail first, questions later.", "flutter, chase, repeat.", "winged consultant inbound. attending now."],
   flop: ["flop. (play dead. Oscar pending.)", "dead. until dinner.", "dramatic collapse #3 — reviews are in.", "i have perished. tell no one.", "floor suddenly delicious. lying here now.", "simulate failure: succeeded.", "nose up, paws out, vibes: expired (temporarily).", "system halt: cat.exe crashed (on purpose)."],
   paw: ["boop incoming.", "paw: deployed at your cursor.", "your pointer owes me a high five.", "swat! (affectionate).", "cursor patrol: swatting round two.", "giving your mouse a high five. it's shy.", "paws on deck — cursor spotted.", "tat-tat-tat. (that's paw for hello)."],
+  sunbeam: ["found a sunbeam. claiming it.", "solar charging: 40%.", "warm rectangle detected. relocating.", "photosynthesis, but make it cat.", "this patch of light is my office now.", "sunbeam secured. do not disturb (do disturb, i dare you).", "vitamin d: absorbed. dignity: also."],
+  laser: ["red dot. RED DOT.", "the dot knows everything. chasing it anyway.", "laser acquired. laws of physics: suspended.", "almost had it. it is intangible. irrelevant.", "that dot is guilty of something.", "cornered it. it teleported. classic.", "i will catch the light. someday.", "the dot mocks me. i will mock gravity back."],
+  pounce: ["butt wiggle charging... launch.", "stalk mode: knees bent, brain off.", "pounce incoming. stand clear (or don't).", "the wiggle is load-bearing.", "target locked. leaping with my whole heart.", "gravity is optional for the next second.", "pounce: deployed with maximum commitment."],
+  dig: ["digging. treasure maybe. vibes definitely.", "archaeology mode: unearthing treats.", "this spot hides something. my instincts say snacks.", "paws: digging. plans: none.", "cat excavation site. hard hat optional.", "found nothing. dug again. science.", "burying my secrets. (there are none. yet.)"],
+  box: ["a BOX. plans canceled.", "cardboard acquired. i live here now.", "if i fits (i do), i sits.", "the box chose me. mostly. okay, i chose it.", "shipping label: return to sender (me, inside).", "box: occupied. knock later.", "new apartment. rent: one purr.", "assembles box. refuses to elaborate."],
+  tailchase: ["tail detected. engaging.", "round and round — it's always one step ahead.", "my tail has opinions. negotiating via orbit.", "chase protocol: self.", "almost bit it. the tail is swift.", "orbiting my own tail. very professional.", "the tail starts it. i finish it. (i don't.)"],
 };
 
 /** prey outcomes — spoken when the chase ends (or doesn't) */
@@ -1906,6 +1922,12 @@ const ACT_DEFS: ActDef[] = [
   { id: "butterfly", weight: 9, line: () => pick(ACT_LINES.butterfly) },
   { id: "flop", weight: 6, line: () => pick(ACT_LINES.flop) },
   { id: "paw", weight: 8, line: () => pick(ACT_LINES.paw) },
+  { id: "sunbeam", weight: 7, line: () => pick(ACT_LINES.sunbeam) },
+  { id: "laser", weight: 8, line: () => pick(ACT_LINES.laser) },
+  { id: "pounce", weight: 7, line: () => pick(ACT_LINES.pounce) },
+  { id: "dig", weight: 6, line: () => pick(ACT_LINES.dig) },
+  { id: "box", weight: 7, line: () => pick(ACT_LINES.box) },
+  { id: "tailchase", weight: 6, line: () => pick(ACT_LINES.tailchase) },
 ];
 
 export const actLine = (id: ActId, ctx: CatContext): string => {

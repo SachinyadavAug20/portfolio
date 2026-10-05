@@ -27,13 +27,16 @@ import {
   routeLine,
   safeGet,
   safeSet,
+  spawnBox,
   spawnButterfly,
   spawnDrop,
   spawnFish,
   spawnHearts,
+  spawnLaser,
   spawnMouse,
   spawnPaw,
   spawnSparkles,
+  spawnSunbeam,
   spawnYarn,
 } from "../lib/cat";
 import type { CatContext } from "../lib/catTypes";
@@ -83,6 +86,7 @@ type PaceTier = keyof typeof PACE;
 const ROAMING_ACTS: readonly ActId[] = [
   "zoomies", "yarn", "stare", "knock", "seat", "prey",
   "scratch", "butterfly", "paw",
+  "sunbeam", "laser", "pounce", "box", "tailchase",
 ];
 
 /*
@@ -99,12 +103,14 @@ const ROAMING_ACTS: readonly ActId[] = [
  *   hit-tests against neko.position — real UI clicks are never hijacked.
  * - Reduced motion never spawns the cat; Alt+C shooes it for the session.
  * - While the visitor rests she keeps herself busy: strolling the page
- *   (5–20s idle), fidgeting in place every few seconds, then settling
- *   toward a nap — walk/run/sprint gears on the way, leaps sprinkled in.
- * - Random acts include game-y bits: chasing a pixel mouse or a sky-blue
- *   butterfly, claiming a seat on real UI (buttons/cards), clawing cards,
- *   multi-leg zoomies, spin/sneeze/flop showpieces, yarn pursuits, and
- *   sprinting over to high-five your cursor.
+ *   (4–16s idle), fidgeting in place every few seconds, and leaving paw
+ *   prints whenever she breaks into a trot or faster — walk/run/sprint
+ *   gears on the way, leaps sprinkled in.
+ * - Random acts include game-y bits: chasing a pixel mouse, a sky-blue
+ *   butterfly, or a red laser dot; claiming a seat on real UI; clawing
+ *   cards; napping in sunbeams; boxes; pounces; digs; tail orbits;
+ *   spin/sneeze/flop showpieces; zoomies — with combo chains so one bit
+ *   sometimes spills into the next.
  * - After long idle the cat wakes with a clickable blog suggestion
  *   (dynamic import keeps the reading list out of the entry bundle).
  * - Persona: Luna, Sachin's tour-guide cat — shows you around, nudges you
@@ -221,6 +227,7 @@ const CatCompanion = () => {
   const lastJiggle = useRef(0);
   const lastScurry = useRef(0);
   const lastHighFive = useRef(0);
+  const lastActRun = useRef(0);
   const lastEscapeLine = useRef(0);
   /* standoff intelligence: route-shaped base mode + temporary reasons to
      step back (selection, palette/help, form focus) */
@@ -349,21 +356,37 @@ const CatCompanion = () => {
   }, []);
 
   /* shift gears: speed + foot cadence together; restorePace returns to
-     whatever the room's standoff asks for */
+     whatever the room's standoff asks for — trot and faster leave a
+     trail of little paw prints behind her */
+  const printTimer = useRef(0);
   const pace = useCallback((tier: PaceTier) => {
     const n = nekoRef.current;
     if (!n) return;
     n.setSpeed(PACE[tier].speed);
     n.setAnimationSpeed(PACE[tier].anim);
+    window.clearInterval(printTimer.current);
+    if (tier === "trot" || tier === "run" || tier === "sprint") {
+      printTimer.current = window.setInterval(() => {
+        const c = nekoRef.current;
+        if (!c || document.hidden) return;
+        spawnPaw(c.position.x + rand(16) - 8, c.position.y + 20);
+      }, 430);
+    }
   }, []);
 
   const restorePace = useCallback(() => {
     const n = nekoRef.current;
+    window.clearInterval(printTimer.current);
     if (!n) return;
     const mode = standoffModeRef.current;
     n.setSpeed(STANDOFF_SPEED[mode]);
     n.setAnimationSpeed(STANDOFF_ANIM[mode]);
   }, []);
+
+  useEffect(
+    () => () => window.clearInterval(printTimer.current),
+    [],
+  );
 
   const setStandoffReason = useCallback(
     (reason: "select" | "overlay" | "form", on: boolean) => {
@@ -1666,14 +1689,18 @@ const CatCompanion = () => {
       }
     };
 
-    /* random acts: a line from the brain plus a cheap neko/DOM behavior */
-    const scheduleAct = (first = false) => {
+    /* random acts: a line from the brain plus a cheap neko/DOM behavior —
+       a chained call fires the next act in ~8s (combo), normal ones wait
+       26–46s so the page never feels empty but never nags either */
+    const scheduleAct = (first = false, chain = false) => {
       window.clearTimeout(actTimer);
       actTimer = window.setTimeout(
         runAct,
-        first
-          ? 12_000 + Math.random() * 10_000
-          : 30_000 + Math.random() * 24_000,
+        chain
+          ? 7_500 + Math.random() * 4_500
+          : first
+            ? 12_000 + Math.random() * 10_000
+            : 26_000 + Math.random() * 20_000,
       );
     };
 
@@ -1707,7 +1734,7 @@ const CatCompanion = () => {
 
       const id = brain.pickAct(recentActs);
       recentActs.add(id);
-      if (recentActs.size > 5)
+      if (recentActs.size > 7)
         recentActs.delete(recentActs.values().next().value as ActId);
       /* the graph perch is sacred: roaming acts reschedule instead of
          yanking her off the corner post */
@@ -1715,6 +1742,12 @@ const CatCompanion = () => {
         scheduleAct();
         return;
       }
+
+      /* combo bookkeeping: an act that followed a chain can't chain again,
+         so bursts top out at two back-to-back */
+      const runNow = Date.now();
+      const prevRun = lastActRun.current;
+      lastActRun.current = runNow;
 
       const { x, y } = neko.position;
       const el = document.querySelector<HTMLElement>('[data-neko="0"]');
@@ -2179,10 +2212,217 @@ const CatCompanion = () => {
           );
           break;
         }
+        case "sunbeam": {
+          /* warm light lands a little away; she walks in and naps in it */
+          const sx = Math.min(
+            Math.max(x + (Math.random() < 0.5 ? -1 : 1) * (110 + Math.random() * 90), 140),
+            window.innerWidth - 140,
+          );
+          const sy = Math.min(
+            Math.max(y + (Math.random() * 120 - 40), 180),
+            window.innerHeight - 110,
+          );
+          spawnSunbeam(sx, sy);
+          seedPointer(sx, sy);
+          pace("walk");
+          const beamArrive = Math.min(
+            Math.max((Math.hypot(sx - x, sy - y) / 130) * 1000, 600),
+            4000,
+          );
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled) return;
+              restorePace();
+              sleepingRef.current = true;
+              lastSleptAt.current = Date.now();
+              nekoRef.current?.sleep();
+              setSleeping(true);
+              spawnSparkles(sx, sy - 12);
+              timers.push(
+                window.setTimeout(() => {
+                  if (cancelled || !sleepingRef.current) return;
+                  sleepingRef.current = false;
+                  nekoRef.current?.wake();
+                  setSleeping(false);
+                  if (!cancelled)
+                    seedPointer(lastPointer.current.x, lastPointer.current.y);
+                }, 2600),
+              );
+            }, beamArrive),
+          );
+          break;
+        }
+        case "laser": {
+          /* the red dot zigzags just ahead of her — uncatchable by design */
+          const dot = spawnLaser(x, y);
+          pace("run");
+          let steps = 0;
+          const aim = () => {
+            if (cancelled || !dot.isConnected) return;
+            dot.style.left = `${Math.round(40 + Math.random() * (window.innerWidth - 80))}px`;
+            dot.style.top = `${Math.round(150 + Math.random() * (window.innerHeight - 240))}px`;
+          };
+          aim();
+          const laserChase = window.setInterval(() => {
+            if (cancelled || !dot.isConnected) {
+              window.clearInterval(laserChase);
+              return;
+            }
+            const dr = dot.getBoundingClientRect();
+            seedPointer(dr.left + 5, dr.top + 5);
+            steps += 1;
+            if (steps % 3 === 0) aim();
+            if (steps % 5 === 0) jump(15 + Math.round(Math.random() * 6));
+          }, 130);
+          intervals.push(laserChase);
+          timers.push(
+            window.setTimeout(() => {
+              window.clearInterval(laserChase);
+              restorePace();
+              if (!cancelled)
+                seedPointer(lastPointer.current.x, lastPointer.current.y);
+            }, 4600),
+          );
+          break;
+        }
+        case "pounce": {
+          /* stalk: butt wiggle in place, then launch at the pointer */
+          const { x: ptx, y: pty } = lastPointer.current;
+          if (el) {
+            gsap
+              .timeline({ overwrite: "auto" })
+              .to(el, {
+                rotation: -5,
+                duration: 0.14,
+                repeat: 5,
+                yoyo: true,
+                ease: "sine.inOut",
+              })
+              .set(el, { rotation: 0 });
+          }
+          pace("trot");
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled) return;
+              seedPointer(ptx, pty);
+              pace("run");
+              jump(26);
+              spawnSparkles(x, y - 12);
+            }, 950),
+          );
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled) return;
+              restorePace();
+              spawnHearts(ptx, pty - 8, 3);
+              seedPointer(lastPointer.current.x, lastPointer.current.y);
+            }, 2600),
+          );
+          break;
+        }
+        case "dig": {
+          /* rapid alternating paws + dust puffs kicked up behind her */
+          if (el) {
+            gsap
+              .timeline({ overwrite: "auto" })
+              .to(el, {
+                scaleY: 0.9,
+                x: -3,
+                duration: 0.1,
+                repeat: 9,
+                yoyo: true,
+                ease: "sine.inOut",
+              })
+              .to(el, { scaleY: 1, x: 0, duration: 0.2, ease: "power2.out" });
+          }
+          timers.push(window.setTimeout(() => spawnDrop(x - 14, y + 12), 120));
+          timers.push(window.setTimeout(() => spawnDrop(x + 12, y + 14), 380));
+          timers.push(window.setTimeout(() => spawnDrop(x - 6, y + 16), 660));
+          break;
+        }
+        case "box": {
+          /* find open floor, summon cardboard, become one with the box */
+          let bx = window.innerWidth / 2;
+          let by = window.innerHeight / 2;
+          for (let i = 0; i < 8; i++) {
+            bx = 130 + Math.random() * (window.innerWidth - 260);
+            by = 180 + Math.random() * (window.innerHeight - 320);
+            if (Math.hypot(bx - x, by - y) > 150) break;
+          }
+          seedPointer(bx, by);
+          pace("walk");
+          const boxArrive = Math.min(
+            Math.max((Math.hypot(bx - x, by - y) / 130) * 1000, 600),
+            3800,
+          );
+          timers.push(
+            window.setTimeout(() => {
+              if (cancelled) return;
+              restorePace();
+              const p = nekoRef.current?.position;
+              const held = spawnBox(p ? p.x : bx, p ? p.y : by);
+              sleepingRef.current = true;
+              lastSleptAt.current = Date.now();
+              nekoRef.current?.sleep();
+              setSleeping(true);
+              timers.push(
+                window.setTimeout(() => {
+                  if (cancelled || !sleepingRef.current) return;
+                  sleepingRef.current = false;
+                  nekoRef.current?.wake();
+                  setSleeping(false);
+                  held.remove();
+                  if (!cancelled)
+                    seedPointer(lastPointer.current.x, lastPointer.current.y);
+                }, 2600),
+              );
+            }, boxArrive),
+          );
+          break;
+        }
+        case "tailchase": {
+          /* orbit a fixed spot at trot speed while spinning — the tail
+             is always exactly one step ahead */
+          const ox = x;
+          const oy = y;
+          let deg = Math.random() * 360;
+          pace("trot");
+          if (el) {
+            gsap
+              .timeline({ overwrite: "auto" })
+              .to(el, { rotation: 360, duration: 1.9, ease: "none" })
+              .set(el, { rotation: 0 });
+          }
+          const orbit = window.setInterval(() => {
+            if (cancelled) return;
+            deg += 75;
+            const rad = (deg * Math.PI) / 180;
+            seedPointer(
+              Math.min(Math.max(ox + Math.cos(rad) * 64, 40), window.innerWidth - 40),
+              Math.min(Math.max(oy + Math.sin(rad) * 42, 130), window.innerHeight - 52),
+            );
+          }, 240);
+          intervals.push(orbit);
+          timers.push(
+            window.setTimeout(() => {
+              window.clearInterval(orbit);
+              restorePace();
+              if (!cancelled) {
+                jump(14);
+                seedPointer(lastPointer.current.x, lastPointer.current.y);
+              }
+            }, 2700),
+          );
+          break;
+        }
         default:
           break; /* stats / deep / audit — the line is the act */
       }
-      scheduleAct();
+      /* sometimes chain a quick follow-up so her bits flow into each
+         other — but never a third in a row (prevRun stays recent) */
+      const chain =
+        runNow - prevRun >= 16_000 && Math.random() < 0.32;
+      scheduleAct(false, chain);
     };
 
     const spawn = async () => {
@@ -2227,9 +2467,11 @@ const CatCompanion = () => {
         defaultState: "awake",
         breed: breeds[rand(breeds.length)],
       });
-      /* a good chunk bigger than LARGE on desktop — same pixelated sprite,
-         setSize rescales the sheet; the constructor offset stays valid */
-      if (w >= 768) neko.setSize(60 as unknown as NekoSizeVariations);
+      /* a good chunk bigger than LARGE on desktop (and a step up on
+         mobile) — same pixelated sprite; setSize rescales the sheet */
+      neko.setSize(
+        (w >= 768 ? 66 : 48) as unknown as NekoSizeVariations,
+      );
       nekoRef.current = neko;
       /* settle the room's standoff now that she exists (graph = rim,
          blog = calm, selection/form/overlay = a respectful step back) */
@@ -2282,7 +2524,7 @@ const CatCompanion = () => {
         );
       }, 250);
 
-      /* idle chatter every 44–72s — brain lines when loaded, else the bank */
+      /* idle chatter every 40–64s — brain lines when loaded, else the bank */
       const scheduleChatter = () => {
         chatterTimer = window.setTimeout(
           () => {
@@ -2298,7 +2540,7 @@ const CatCompanion = () => {
             }
             scheduleChatter();
           },
-          44_000 + Math.random() * 28_000,
+          40_000 + Math.random() * 24_000,
         );
       };
       scheduleChatter();
@@ -2306,7 +2548,7 @@ const CatCompanion = () => {
       scheduleAct(true);
 
       /* non-stop: while the visitor rests, she invents her own errands —
-         strolls to a fresh spot every few seconds between 5s and 20s
+         strolls to a fresh spot every few seconds between 4s and 16s
          of input-idle, but never while text is selected, a form has focus,
          an overlay is up, or the graph perch holds; naps and suggestions
          win over this too */
@@ -2323,9 +2565,9 @@ const CatCompanion = () => {
           document.hidden ||
           standoffReasons.current.size > 0 ||
           window.location.pathname === "/graph" ||
-          idle < 5_000 ||
-          idle > 20_000 ||
-          now - lastWander < 1600 ||
+          idle < 4_000 ||
+          idle > 16_000 ||
+          now - lastWander < 1500 ||
           Math.random() > 0.8
         )
           return;
@@ -2372,7 +2614,7 @@ const CatCompanion = () => {
           document.hidden ||
           standoffReasons.current.size > 0 ||
           window.location.pathname === "/graph" ||
-          idle < 8_500 ||
+          idle < 7_500 ||
           now - lastPhraseAt.current < 2200 ||
           Math.random() > 0.62
         )

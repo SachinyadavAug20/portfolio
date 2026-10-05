@@ -135,7 +135,7 @@ section {
   --glow-color: rgba(2, 132, 199, 0.18);
   --glow-color-faint: rgba(2, 132, 199, 0.07);
   --glow-border: rgba(56, 189, 248, 0.22);
-  --glow-size: 320px;
+  --glow-size: 360px;
 }
 :root:not(.dark) {
   --glow-color: rgba(2, 132, 199, 0.12);
@@ -2162,6 +2162,82 @@ h4 {
   }
   to {
     transform: translateY(-3px) scaleY(0.7);
+  }
+}
+
+/* laser: the red dot she can never catch — snappy eased hops */
+.cat-laser {
+  position: fixed;
+  z-index: 61;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px 3px rgb(239 68 68 / 0.55);
+  pointer-events: none;
+  transition: left 0.38s ease-out, top 0.38s ease-out;
+  animation: cat-laser-pulse 0.5s ease-in-out infinite alternate;
+}
+@keyframes cat-laser-pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.35);
+  }
+}
+
+/* sunbeam: warm floor light she naps in — sits under the cat (z58) */
+.cat-sunbeam {
+  position: fixed;
+  z-index: 58;
+  width: 230px;
+  height: 96px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(253 224 71 / 0.34) 0%,
+    rgb(253 224 71 / 0.16) 45%,
+    transparent 72%
+  );
+  filter: blur(6px);
+  transform: translate(-50%, -50%);
+  animation: cat-sunbeam-glow 1.4s ease-in-out infinite alternate;
+}
+@keyframes cat-sunbeam-glow {
+  from {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* cardboard box: drops over her lower half so she reads as sitting in it */
+.cat-box {
+  position: fixed;
+  z-index: 61;
+  width: 72px;
+  height: 44px;
+  pointer-events: none;
+  image-rendering: pixelated;
+  transform: translate(-50%, -44%);
+  animation: cat-box-plop 0.3s var(--ease-out, ease-out) both;
+}
+.cat-box svg {
+  display: block;
+  width: 72px;
+  height: 44px;
+}
+@keyframes cat-box-plop {
+  from {
+    transform: translate(-50%, -70%) scale(1.18);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -44%) scale(1);
+    opacity: 1;
   }
 }
 
