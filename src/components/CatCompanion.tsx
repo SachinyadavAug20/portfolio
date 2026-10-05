@@ -547,8 +547,11 @@ const CatCompanion = () => {
 
     /* the note's end: this speaks instead of the generic scroll-end line
        (endSpokenRef is claimed here first) and spotlights the rendered
-       next-part link when the folder has one */
-    const onEnd = () => {
+       next-part link when the folder has one. Checked both live and on
+       a settle-timer: layout shifts (images failing/sizing) can clamp
+       the scroll mid-flight without ever producing a >=93% event. */
+    let endDebounce = 0;
+    const tryEnd = () => {
       if (cancelled || endSpokenRef.current) return;
       const pct = Math.round(
         ((window.scrollY + window.innerHeight) /
@@ -581,13 +584,22 @@ const CatCompanion = () => {
         speakEnd();
       }
     };
-    window.addEventListener("scroll", onEnd, { passive: true });
+    const onEnd = () => {
+      tryEnd();
+      window.clearTimeout(endDebounce);
+      endDebounce = window.setTimeout(tryEnd, 400);
+    };
+    /* capture phase: the coach claims endSpokenRef before the generic
+       bubble-phase scroll handler can speak its "end of page" line —
+       the note's end always names the next part instead */
+    window.addEventListener("scroll", onEnd, { passive: true, capture: true });
 
     return () => {
       cancelled = true;
       window.clearInterval(pollId);
+      window.clearTimeout(endDebounce);
       observers.forEach((o) => o.disconnect());
-      window.removeEventListener("scroll", onEnd);
+      window.removeEventListener("scroll", onEnd, { capture: true });
     };
   }, [location.pathname, showPhrase, spotlight]);
 
