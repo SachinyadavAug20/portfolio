@@ -192,6 +192,40 @@ const BlogList = () => {
     return { notes: posts.length, folders, tags: tagCounts.length };
   }, [posts, tagCounts]);
 
+  /* latest notes: real last-update dates from graph.json (build artifact);
+     without dates the plain tree order stands in */
+  const [latestDates, setLatestDates] = useState<Record<string, string>>({});
+  useEffect(() => {
+    let dead = false;
+    fetch("/graph.json")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { nodes?: Array<{ id?: string; updated?: string }> } | null) => {
+        if (dead || !data?.nodes) return;
+        const map: Record<string, string> = {};
+        for (const n of data.nodes) {
+          if (n.id && n.updated) map[n.id] = n.updated;
+        }
+        setLatestDates(map);
+      })
+      .catch(() => {
+        /* no dates — tree order fallback */
+      });
+    return () => {
+      dead = true;
+    };
+  }, []);
+
+  const latest = useMemo(() => {
+    if (!posts.length) return [];
+    const dated = posts
+      .filter((p) => latestDates[p.fullSlug])
+      .sort((a, b) =>
+        latestDates[b.fullSlug].localeCompare(latestDates[a.fullSlug]),
+      );
+    if (dated.length >= 3) return dated.slice(0, 5);
+    return posts.slice(0, 5);
+  }, [posts, latestDates]);
+
   const filteredPosts = useMemo(() => {
     let result = posts;
     if (currentTag) {
@@ -391,6 +425,53 @@ const BlogList = () => {
                       {currentQuery ? "Clear search" : "Back to root"}
                     </motion.button>
                   </div>
+                </div>
+              )}
+              {latest.length > 0 && (
+                <div className="latest-notes mt-14 pt-6 border-t border-black-50">
+                  <div className="flex items-baseline justify-between mb-3">
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-white-50/40">
+                      Latest notes
+                    </h2>
+                    {latestDates[latest[0].fullSlug] && (
+                      <span className="text-[11px] text-white-50/35">
+                        by last update
+                      </span>
+                    )}
+                  </div>
+                  <ul className="space-y-0.5">
+                    {latest.map((p) => {
+                      const d = latestDates[p.fullSlug];
+                      return (
+                        <li key={p.fullSlug}>
+                          <MotionLink
+                            to={`/blog/post/${p.fullSlug}${p.dir ? `?from=${encodeURIComponent(p.dir)}` : ""}`}
+                            {...PRESS}
+                            className="flex items-center justify-between gap-3 px-3 py-2 -mx-3 rounded-lg hover:bg-black-100/60 transition-colors group"
+                          >
+                            <span className="truncate text-sm text-white-50 group-hover:text-foreground transition-colors">
+                              {p.title}
+                            </span>
+                            <span className="flex items-center gap-3 shrink-0 text-xs text-white-50/40">
+                              {p.dir && (
+                                <span className="truncate max-w-36">
+                                  {p.dir.split("/").pop()}
+                                </span>
+                              )}
+                              {d && (
+                                <span>
+                                  {new Date(d).toLocaleDateString(undefined, {
+                                    month: "short",
+                                    day: "numeric",
+                                  })}
+                                </span>
+                              )}
+                            </span>
+                          </MotionLink>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
               )}
             </>
