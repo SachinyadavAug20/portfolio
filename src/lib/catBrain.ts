@@ -1954,6 +1954,119 @@ const ENCOURAGE_LINES: Record<EncourageKind, readonly string[]> = {
 export const encourageLine = (kind: EncourageKind): string =>
   freshPick(ENCOURAGE_LINES[kind]);
 
+/* ------------------- note awareness (the vault) ------------------- */
+
+/* she has "read" every note in the vault: when one opens she gives the
+   overview, narrates section headings as they arrive, flags screenshots
+   and boxed facts, and pushes toward the next part at the end */
+export interface NoteStats {
+  sections: number;
+  shots: number;
+  callouts: number;
+  minutes: number;
+  firstHeading: string;
+}
+
+const clip = (s: string, n: number): string =>
+  s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s;
+
+export const noteOverviewLine = (s: NoteStats): string =>
+  pick([
+    `briefing: ${s.sections} sections, ${s.shots} screenshots, ~${s.minutes} min. verdict: worth it.`,
+    `overview: "${clip(s.firstHeading, 38)}" leads, ${s.shots} hand-drawn arrows follow. read on, i'll narrate.`,
+    `${s.minutes} min, ${s.sections} headings, ${s.callouts} boxed facts. this one's well-kept.`,
+    `i've read this one. the screenshots have arrows for a reason — follow them.`,
+    `${s.shots} screenshots doing the teaching. he trusts you to look. so do i.`,
+    `map of the note: ${s.sections} sections, first stop "${clip(s.firstHeading, 34)}". ${s.minutes} minutes, no filler.`,
+  ]);
+
+const QUESTION_RE =
+  /\?$/i;
+
+export const noteHeadingLine = (heading: string, next?: string): string => {
+  const h = clip(heading, 42);
+  const question =
+    QUESTION_RE.test(heading) ||
+    /^(why|how|what|when|where|who|can|could|should|is|are|do|does)\b/i.test(
+      heading,
+    );
+  if (question) {
+    return pick([
+      `"${h}" — good question. the answer is below.`,
+      `he asked "${h}" so future-you wouldn't have to.`,
+      `"${h}"? scroll on. he answers it properly.`,
+    ]);
+  }
+  if (/^\d+[.)]/.test(heading)) {
+    return pick([
+      `"${h}" — part of a series. keep the streak alive.`,
+      `numbered section: "${h}". he sequences things. i approve.`,
+    ]);
+  }
+  if (next) {
+    const n = clip(next, 36);
+    return pick([
+      `after "${h}": "${n}". no spoilers beyond that.`,
+      `"${h}" now — then "${n}". keep going.`,
+      `this section is "${h}". next up: "${n}".`,
+    ]);
+  }
+  return pick([
+    `"${h}" — the important bit. don't skim it.`,
+    `entering "${h}". stay curious.`,
+    `"${h}": where the note earns its keep.`,
+  ]);
+};
+
+export const noteEndLine = (next?: string): string => {
+  if (next) {
+    const n = clip(next, 40);
+    return pick([
+      `you made it. next part: "${n}" — one click, zero excuses.`,
+      `end of this note. the series continues with "${n}". i'll wait.`,
+      `finished! "${n}" is waiting right below. the streak deserves it.`,
+      `the cat approves this read. next up: "${n}".`,
+    ]);
+  }
+  return pick([
+    "you read to the bottom. he sees the analytics. (i am the analytics.)",
+    "the end. 10/10 finish. related notes live below — pick one.",
+    "done. stamp: approved by cat. the folder links below lead further.",
+    "bottom of the page reached. the vault has 300+ more. no pressure.",
+  ]);
+};
+
+export const noteShotLine = (): string =>
+  pick([
+    "screenshot — follow his arrows, they're the lesson.",
+    "he draws arrows on these for a reason. look where they point.",
+    "another screenshot. this vault teaches with pictures first.",
+    "past this one? good. the diagrams do half the talking here.",
+  ]);
+
+export const noteCalloutLine = (): string =>
+  pick([
+    "boxed fact. he only boxes what matters — cats respect boxes.",
+    "that callout is a keeper. highlight reel material.",
+    "a box! facts inside. approved.",
+    "callout = the note's version of bolding a treat.",
+  ]);
+
+/* /blog index: grounded vault facts — counts computed from the real
+   posts list, so she always quotes true numbers */
+export const vaultStatLine = (
+  total: number,
+  topFolder: string,
+  topCount: number,
+): string =>
+  pick([
+    `${total} notes in the vault. ${topFolder} alone holds ${topCount}. i've napped on most.`,
+    `${total} notes — ask me anything. (answer will contain ${topFolder}: ${topCount} of them.)`,
+    `the vault: ${total} notes, ${topCount} under ${topFolder}. ambitious.`,
+    `i've read all ${total}. ${topFolder} is where he lives. opinion: correct folder.`,
+    `${topFolder}: ${topCount} notes deep. the rest of the vault: also good. read around.`,
+  ]);
+
 const ACT_DEFS: ActDef[] = [
   { id: "yarn", weight: 11, line: (c) => pick(ACT_LINES.yarn) + (c.dark ? "" : "") },
   { id: "zoomies", weight: 8, line: () => pick(ACT_LINES.zoomies) },

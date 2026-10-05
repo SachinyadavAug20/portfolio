@@ -41,7 +41,7 @@ import {
   spawnYarn,
 } from "../lib/cat";
 import type { CatContext } from "../lib/catTypes";
-import type { ActId, EncourageKind } from "../lib/catBrain";
+import type { ActId, EncourageKind, NoteStats } from "../lib/catBrain";
 import type { BlogSuggestion } from "../lib/blogSuggestions";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { gsap } from "../lib/gsapSetup";
@@ -261,6 +261,11 @@ const CatCompanion = () => {
   );
   const midSpokenRef = useRef(false);
   const endSpokenRef = useRef(false);
+  /* note coach: posts that already got their overview, the last vault
+     insight beat, and the next part in the current folder's series */
+  const noteOverviewSeen = useRef<Set<string>>(new Set());
+  const lastNoteInsight = useRef(0);
+  const noteNextTitle = useRef<string | null>(null);
   const pendingProphecy = useRef<{
     verify: "scroll" | "click";
     hit: string;
@@ -346,6 +351,245 @@ const CatCompanion = () => {
     document.addEventListener("mouseover", onOver, { passive: true });
     return () => document.removeEventListener("mouseover", onOver);
   }, [showPhrase, spotlight]);
+
+  /* ---- note coach: she acts like she has read the vault ----
+     on a post: overview when it opens, narration as sections cross the
+     reading zone, a word for screenshots/boxes, and a next-part push at
+     the end; on /blog: grounded folder counts from the real post list */
+  useEffect(() => {
+    const path = location.pathname;
+    const onPost = path.startsWith("/blog/post/");
+    const onIndex = path === "/blog";
+    if (!onPost && !onIndex) return;
+
+    let cancelled = false;
+    let pollId = 0;
+    const observers: IntersectionObserver[] = [];
+
+    const brain = () => brainRef.current;
+    const canSpeak = () =>
+      !cancelled && !suggestRef.current && !document.hidden && brain() !== null;
+    const loadPosts = async (): Promise<
+      Awaited<ReturnType<typeof import("../blog/posts").getPosts>>
+    > => {
+      try {
+        const m = await import("../blog/posts");
+        return await m.getPosts();
+      } catch {
+        return [];
+      }
+    };
+
+    if (onIndex) {
+      /* real vault facts — wait for the route line's moment, then quote
+         the actual folder tallies */
+      void (async () => {
+        const posts = await loadPosts();
+        if (cancelled || !posts.length) return;
+        await new Promise((r) => window.setTimeout(r, 5200));
+        if (!canSpeak() || !nekoRef.current) return;
+        if (Date.now() - lastPhraseAt.current < 5000) return;
+        const counts = new Map<string, number>();
+        for (const p of posts) {
+          const top = p.dir.split("/").filter(Boolean)[0];
+          if (top) counts.set(top, (counts.get(top) || 0) + 1);
+        }
+        let topFolder = "";
+        let topCount = 0;
+        counts.forEach((c, f) => {
+          if (c > topCount) {
+            topCount = c;
+            topFolder = f;
+          }
+        });
+        const b = brain();
+        if (!topFolder || !b) return;
+        lastNoteInsight.current = Date.now();
+        showPhrase(
+          b.vaultStatLine(posts.length, topFolder, topCount),
+          5400,
+          true,
+        );
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    /* ---- a post: learn which part comes next in the folder series ---- */
+    let slug = path.slice("/blog/post/".length);
+    try {
+      slug = decodeURIComponent(slug); /* location keeps the URL encoding */
+    } catch {
+      /* malformed escapes — use the raw segment */
+    }
+    noteNextTitle.current = null;
+    void (async () => {
+      const posts = await loadPosts();
+      if (cancelled || !posts.length) return;
+      const me = posts.find((p) => p.fullSlug === slug);
+      if (!me) return;
+      const { naturalCompare } = await import("../blog/tree");
+      const after = posts
+        .filter((p) => p.dir === me.dir && p.fullSlug !== slug)
+        .sort((a, b2) => naturalCompare(a.fullSlug, b2.fullSlug))
+        .find((p) => naturalCompare(p.fullSlug, slug) > 0);
+      noteNextTitle.current = after?.title ?? null;
+    })();
+
+    /* ---- coach once the markdown has rendered into .blog-content ---- */
+    let coached = false;
+    const startCoach = (): boolean => {
+      if (coached) return true;
+      const art = document.querySelector(".blog-content");
+      if (!art || art.childElementCount === 0) return false;
+      coached = true;
+
+      const stats: NoteStats = {
+        sections: art.querySelectorAll("h2").length,
+        shots: art.querySelectorAll("img").length,
+        callouts: art.querySelectorAll(".callout").length,
+        minutes: Math.max(
+          1,
+          Math.ceil((art.textContent || "").trim().split(/\s+/).length / 200),
+        ),
+        firstHeading:
+          art.querySelector("h2, h3")?.textContent?.trim() ||
+          document.title.split("|")[0].trim() ||
+          "this note",
+      };
+
+      /* overview — once per slug, after the route line has had its turn */
+      if (!noteOverviewSeen.current.has(slug)) {
+        noteOverviewSeen.current.add(slug);
+        window.setTimeout(() => {
+          if (!canSpeak()) return;
+          const b = brain();
+          if (!b) return;
+          lastNoteInsight.current = Date.now();
+          showPhrase(b.noteOverviewLine(stats), 6200, true);
+        }, 5200);
+      }
+
+      /* section headings narrate as each crosses the reading zone —
+         the line previews the next heading, pulling the reader on */
+      const heads = Array.from(
+        art.querySelectorAll<HTMLHeadingElement>("h2, h3"),
+      );
+      const headSeen = new Set<Element>();
+      const hObs = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const h = entry.target;
+            if (headSeen.has(h)) continue;
+            headSeen.add(h);
+            if (!canSpeak()) continue;
+            const now = Date.now();
+            if (now - lastNoteInsight.current < 12_000) continue;
+            if (now - lastPhraseAt.current < 6500) continue;
+            const idx = heads.indexOf(h as HTMLHeadingElement);
+            const nextH = heads[idx + 1]?.textContent?.trim() || undefined;
+            const b = brain();
+            if (!b) continue;
+            lastNoteInsight.current = now;
+            showPhrase(
+              b.noteHeadingLine(h.textContent?.trim() || "", nextH),
+              4600,
+              true,
+            );
+          }
+        },
+        { rootMargin: "-28% 0px -50% 0px" },
+      );
+      heads.forEach((h) => hObs.observe(h));
+      observers.push(hObs);
+
+      /* screenshots and boxed facts get a word — the first couple only */
+      const artSeen = new Set<Element>();
+      let artifactWords = 0;
+      const aObs = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const t = entry.target;
+            if (artSeen.has(t)) continue;
+            artSeen.add(t);
+            if (!canSpeak() || artifactWords >= 2) continue;
+            const now = Date.now();
+            if (now - lastNoteInsight.current < 12_000) continue;
+            if (now - lastPhraseAt.current < 6500) continue;
+            const b = brain();
+            if (!b) continue;
+            artifactWords += 1;
+            lastNoteInsight.current = now;
+            showPhrase(
+              t.classList.contains("callout")
+                ? b.noteCalloutLine()
+                : b.noteShotLine(),
+              4200,
+              true,
+            );
+          }
+        },
+        { rootMargin: "-22% 0px -40% 0px" },
+      );
+      art.querySelectorAll("img, .callout").forEach((el) => aObs.observe(el));
+      observers.push(aObs);
+
+      return true;
+    };
+
+    pollId = window.setInterval(() => {
+      if (startCoach()) window.clearInterval(pollId);
+    }, 700);
+    window.setTimeout(() => window.clearInterval(pollId), 25_000);
+
+    /* the note's end: this speaks instead of the generic scroll-end line
+       (endSpokenRef is claimed here first) and spotlights the rendered
+       next-part link when the folder has one */
+    const onEnd = () => {
+      if (cancelled || endSpokenRef.current) return;
+      const pct = Math.round(
+        ((window.scrollY + window.innerHeight) /
+          Math.max(document.documentElement.scrollHeight, 1)) *
+          100,
+      );
+      if (pct < 93) return;
+      endSpokenRef.current = true;
+      midSpokenRef.current = true; /* the end moots "halfway" */
+      const speakEnd = () => {
+        if (!canSpeak()) return;
+        const b = brain();
+        if (!b) return;
+        const next = noteNextTitle.current || undefined;
+        lastNoteInsight.current = Date.now();
+        showPhrase(b.noteEndLine(next), 6400, true);
+        if (next) {
+          const needle = next.slice(0, 22).toLowerCase();
+          const link = Array.from(
+            document.querySelectorAll<HTMLAnchorElement>(
+              'a[href^="/blog/post/"]',
+            ),
+          ).find((a) => (a.textContent || "").toLowerCase().includes(needle));
+          if (link) spotlight(link, 5200);
+        }
+      };
+      if (Date.now() - lastPhraseAt.current < 4500) {
+        window.setTimeout(speakEnd, 4700);
+      } else {
+        speakEnd();
+      }
+    };
+    window.addEventListener("scroll", onEnd, { passive: true });
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(pollId);
+      observers.forEach((o) => o.disconnect());
+      window.removeEventListener("scroll", onEnd);
+    };
+  }, [location.pathname, showPhrase, spotlight]);
 
   /* suggestion accept (a / open button) · skip (d / skip button) */
   const acceptSuggestion = useCallback(() => {
