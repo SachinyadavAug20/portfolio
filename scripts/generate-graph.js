@@ -11,6 +11,8 @@ const OUT_PATH = resolve(import.meta.dirname, "../public/graph.json");
 const FETCH_CONCURRENCY = 8;
 const MAX_ATTEMPTS = 3;
 const MAX_FAILED_FETCHES = 40; // bail (keep existing file) if the vault is mostly unreachable
+const RECENT_COMMITS = 30; // how far back "last updated" reaches
+const FRESH_DAYS = 21; // notes touched this recently get the fresh ring
 
 function githubHeaders() {
   const headers = {
@@ -81,6 +83,68 @@ async function fetchNote(slug) {
   const url = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${encodeURI(`${BLOG_ROOT}/${slug}.md`)}`;
   const res = await fetchWithRetry(url, githubHeaders());
   return res.text();
+}
+
+/**
+ * Map each note slug → the date of the newest commit that touched it.
+ * 1 list request + RECENT_COMMITS detail requests (within the unauth
+ * rate limit); any failure degrades to a partial/empty map — the graph
+ * still builds, previous dates are kept via mergeUpdates().
+ */
+async function fetchRecentUpdates() {
+  const headers = githubHeaders();
+  const updates = new Map();
+  let list;
+  try {
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/commits?path=${BLOG_ROOT}&per_page=${RECENT_COMMITS}`;
+    const res = await fetchWithRetry(url, headers);
+    list = await res.json();
+  } catch (err) {
+    console.warn(`generate-graph: commit list failed (${err.message}); reusing previous dates`);
+    return updates;
+  }
+  if (!Array.isArray(list) || list.length === 0) return updates;
+
+  const details = await mapPool(list, FETCH_CONCURRENCY, async (c) => {
+    try {
+      const res = await fetchWithRetry(
+        `https://api.github.com/repos/${OWNER}/${REPO}/commits/${c.sha}`,
+        headers,
+      );
+      return await res.json();
+    } catch {
+      return null; // rate-limited or flaky — partial dates are fine
+    }
+  });
+
+  for (const detail of details) {
+    if (!detail || !Array.isArray(detail.files)) continue;
+    const date = detail.commit?.author?.date || detail.commit?.committer?.date;
+    if (!date) continue;
+    for (const f of detail.files) {
+      if (!f.filename || !f.filename.startsWith(`${BLOG_ROOT}/`)) continue;
+      const slug = f.filename.slice(BLOG_ROOT.length + 1).replace(/\.md$/, "");
+      const prev = updates.get(slug);
+      if (!prev || date > prev) updates.set(slug, date);
+    }
+  }
+  return updates;
+}
+
+/** dates already shipped in graph.json — so a rate-limited run never
+ *  forgets what the previous build knew */
+function loadPreviousUpdates() {
+  const map = new Map();
+  try {
+    if (!existsSync(OUT_PATH)) return map;
+    const prev = JSON.parse(readFileSync(OUT_PATH, "utf8"));
+    for (const n of prev.nodes || []) {
+      if (n.id && n.updated) map.set(n.id, n.updated);
+    }
+  } catch {
+    /* unreadable previous graph — start fresh */
+  }
+  return map;
 }
 
 /** Strip image embeds, then pull every [[...]] target (alias + heading + Notes/ prefix stripped). */
@@ -192,6 +256,17 @@ async function main() {
   }
   if (!slugs || slugs.length === 0) keepExisting("empty git tree");
 
+  /* last-update dates in parallel with the note fetches */
+  const updatesPromise = (async () => {
+    const fresh = await fetchRecentUpdates();
+    const prev = loadPreviousUpdates();
+    for (const [slug, date] of prev) {
+      const cur = fresh.get(slug);
+      if (!cur || date > cur) fresh.set(slug, date);
+    }
+    return fresh;
+  })();
+
   const contents = await mapPool(slugs, FETCH_CONCURRENCY, async (slug) => {
     try {
       return await fetchNote(slug);
@@ -229,6 +304,22 @@ async function main() {
   });
 
   const resolveLink = buildResolver([...notesById.keys()], notesById);
+
+  // --- last-update dates (fresh = touched within FRESH_DAYS of this build) ---
+  const updates = await updatesPromise;
+  const freshCutoff = Date.now() - FRESH_DAYS * 86400000;
+  let updatedCount = 0;
+  let freshCount = 0;
+  for (const note of notes) {
+    const updated = updates.get(note.id);
+    if (!updated) continue;
+    note.updated = updated;
+    updatedCount += 1;
+    if (Date.parse(updated) >= freshCutoff) {
+      note.fresh = true;
+      freshCount += 1;
+    }
+  }
 
   // --- edges ---
   const edgeKeys = new Set();
@@ -284,6 +375,7 @@ async function main() {
       folders: folderNodes.length,
       links: links.length,
       wikiLinks: links.filter((l) => l.kind === "wiki").length,
+      fresh: freshCount,
     },
     nodes: [...notes, ...folderNodes],
     links,
@@ -294,7 +386,8 @@ async function main() {
   console.log(
     `generate-graph: ${graph.counts.notes} notes, ${graph.counts.folders} folders, ` +
       `${graph.counts.wikiLinks} wiki links (${resolvedWiki} resolved, ${unresolvedWiki} dangling dropped), ` +
-      `${graph.counts.links} total edges, ${kb}KB, ${Date.now() - started}ms → ${OUT_PATH}`,
+      `${graph.counts.links} total edges, ${updatedCount} dated, ${freshCount} fresh, ` +
+      `${kb}KB, ${Date.now() - started}ms → ${OUT_PATH}`,
   );
 }
 

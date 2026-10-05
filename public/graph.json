@@ -1,10 +1,11 @@
 {
- "generatedAt": "2026-10-05T13:50:49.899Z",
+ "generatedAt": "2026-10-05T14:23:00.226Z",
  "counts": {
-  "notes": 334,
+  "notes": 335,
   "folders": 60,
-  "links": 590,
-  "wikiLinks": 204
+  "links": 591,
+  "wikiLinks": 204,
+  "fresh": 19
  },
  "nodes": [
   {
@@ -23,7 +24,9 @@
    "id": "MIT lectures/Mathematics for computer/lecture 5)Asymptotics",
    "title": "Asymptotic",
    "kind": "note",
-   "dir": "MIT lectures/Mathematics for computer"
+   "dir": "MIT lectures/Mathematics for computer",
+   "updated": "2026-09-21T17:10:22Z",
+   "fresh": true
   },
   {
    "id": "Programing/AI/openclaw/Openclaw",
@@ -35,37 +38,49 @@
    "id": "Programing/Concepts/FDE and GenAI/0.Intro",
    "title": "What is FDE ?",
    "kind": "note",
-   "dir": "Programing/Concepts/FDE and GenAI"
+   "dir": "Programing/Concepts/FDE and GenAI",
+   "updated": "2026-09-25T11:25:00Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/FDE and GenAI/1.LLM",
    "title": "Next word prediction game",
    "kind": "note",
-   "dir": "Programing/Concepts/FDE and GenAI"
+   "dir": "Programing/Concepts/FDE and GenAI",
+   "updated": "2026-09-27T07:24:38Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/FDE and GenAI/2.Integrating LLM with Your Application",
    "title": "Tooling",
    "kind": "note",
-   "dir": "Programing/Concepts/FDE and GenAI"
+   "dir": "Programing/Concepts/FDE and GenAI",
+   "updated": "2026-09-29T14:36:06Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/FDE and GenAI/3.AI chatbot",
    "title": "Example",
    "kind": "note",
-   "dir": "Programing/Concepts/FDE and GenAI"
+   "dir": "Programing/Concepts/FDE and GenAI",
+   "updated": "2026-10-02T07:15:00Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/FDE and GenAI/4.AI Agents",
    "title": "Raw LLM",
    "kind": "note",
-   "dir": "Programing/Concepts/FDE and GenAI"
+   "dir": "Programing/Concepts/FDE and GenAI",
+   "updated": "2026-10-04T10:04:27Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/FDE and GenAI/5.Streaming output",
    "title": "time to first token",
    "kind": "note",
-   "dir": "Programing/Concepts/FDE and GenAI"
+   "dir": "Programing/Concepts/FDE and GenAI",
+   "updated": "2026-10-05T11:52:42Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/LLD/0.Intro",
@@ -89,31 +104,49 @@
    "id": "Programing/Concepts/LLD/10.Zomato Clone",
    "title": "Design a food delivery app -> Tomato",
    "kind": "note",
-   "dir": "Programing/Concepts/LLD"
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-09-28T13:04:43Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/LLD/11.Observer design pattern",
    "title": "observer design pattern",
    "kind": "note",
-   "dir": "Programing/Concepts/LLD"
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-09-29T14:36:06Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/LLD/12.Decorator design pattern",
    "title": "Example",
    "kind": "note",
-   "dir": "Programing/Concepts/LLD"
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-10-02T07:59:52Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/LLD/13.Notification engine",
    "title": "PS",
    "kind": "note",
-   "dir": "Programing/Concepts/LLD"
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-10-03T10:35:03Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/LLD/14.Command design pattern",
    "title": "Command pattern",
    "kind": "note",
-   "dir": "Programing/Concepts/LLD"
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-10-04T13:45:13Z",
+   "fresh": true
+  },
+  {
+   "id": "Programing/Concepts/LLD/15.Adapter design pattern",
+   "title": "Adapter design",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-10-05T14:06:41Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/LLD/2.Inheritance & Polymorphism",
@@ -149,19 +182,25 @@
    "id": "Programing/Concepts/LLD/7.Strategy Design Pattern",
    "title": "Strategy design pattern",
    "kind": "note",
-   "dir": "Programing/Concepts/LLD"
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-09-19T09:12:41Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/LLD/8.Factory Design Pattern",
    "title": "Factory",
    "kind": "note",
-   "dir": "Programing/Concepts/LLD"
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-09-25T11:25:00Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/LLD/9.Singleton design pattern",
    "title": "Singleton class",
    "kind": "note",
-   "dir": "Programing/Concepts/LLD"
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-09-25T13:59:14Z",
+   "fresh": true
   },
   {
    "id": "Programing/Concepts/UTF-8(Unicode transformation Format)",
@@ -959,7 +998,9 @@
    "id": "Programing/languages/kotlin/0.intro",
    "title": "Kotlin",
    "kind": "note",
-   "dir": "Programing/languages/kotlin"
+   "dir": "Programing/languages/kotlin",
+   "updated": "2026-09-21T17:10:22Z",
+   "fresh": true
   },
   {
    "id": "Programing/languages/typescript/0.intro",
@@ -1511,13 +1552,17 @@
    "id": "Thoughts/Ideas",
    "title": "Ideas",
    "kind": "note",
-   "dir": "Thoughts"
+   "dir": "Thoughts",
+   "updated": "2026-10-05T11:52:42Z",
+   "fresh": true
   },
   {
    "id": "Thoughts/Quotes",
    "title": "Quotes",
    "kind": "note",
-   "dir": "Thoughts"
+   "dir": "Thoughts",
+   "updated": "2026-10-03T06:33:40Z",
+   "fresh": true
   },
   {
    "id": "Thoughts/Thoughts",
@@ -3480,6 +3525,11 @@
   },
   {
    "source": "Programing/Concepts/LLD/14.Command design pattern",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/15.Adapter design pattern",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
   },

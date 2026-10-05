@@ -51,6 +51,10 @@ interface GraphNodeData {
   kind: NoteKind;
   dir?: string;
   path?: string;
+  /* last commit that touched this note (build-time, see generate-graph) */
+  updated?: string;
+  /* true when updated within FRESH_DAYS of the build — amber ring */
+  fresh?: boolean;
   /* set by the deterministic radial layout before the engine sees the
      graph; ox/oy preserve the original spot for "Reset layout" */
   x?: number;
@@ -69,7 +73,13 @@ interface GraphLinkData {
 
 interface GraphData {
   generatedAt: string;
-  counts: { notes: number; folders: number; links: number; wikiLinks: number };
+  counts: {
+    notes: number;
+    folders: number;
+    links: number;
+    wikiLinks: number;
+    fresh: number;
+  };
   nodes: GraphNodeData[];
   links: LinkObject<GraphNodeData, GraphLinkData>[];
 }
@@ -869,6 +879,15 @@ const GraphPage = () => {
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fillStyle = tc.node;
         ctx.fill();
+        /* recently-updated notes wear an amber ring (outside the dot,
+           inside the blue selection ring) */
+        if (n.fresh) {
+          ctx.beginPath();
+          ctx.arc(x, y, r + 2, 0, Math.PI * 2);
+          ctx.strokeStyle = "#f59e0b";
+          ctx.lineWidth = 1.5 / globalScale;
+          ctx.stroke();
+        }
       }
 
       if (isSel || isHot) {
@@ -973,6 +992,15 @@ const GraphPage = () => {
               <p className="text-xs text-white-50/60" aria-live="polite">
                 {data.counts.notes} notes · {data.counts.folders} folders ·{" "}
                 {data.counts.wikiLinks} links
+                {data.counts.fresh > 0 && (
+                  <span className="ml-3 inline-flex items-center gap-1.5 text-white-50/70">
+                    <span
+                      className="inline-block size-2.5 rounded-full border-[1.5px] border-amber-500"
+                      aria-hidden="true"
+                    />
+                    {data.counts.fresh} updated recently
+                  </span>
+                )}
               </p>
             )}
           </div>
@@ -1185,6 +1213,23 @@ const GraphPage = () => {
                       {degreeMap.get(hoverNode.id) ?? 0} connection
                       {(degreeMap.get(hoverNode.id) ?? 0) === 1 ? "" : "s"}
                     </p>
+                    {hoverNode.updated && (
+                      <p className="mt-1 flex items-center gap-1.5 text-[11px] text-white-50/55">
+                        <span
+                          className={`inline-block size-2 rounded-full border-[1.5px] shrink-0 ${
+                            hoverNode.fresh
+                              ? "border-amber-500"
+                              : "border-white-50/30"
+                          }`}
+                          aria-hidden="true"
+                        />
+                        updated{" "}
+                        {new Date(hoverNode.updated).toLocaleDateString(
+                          undefined,
+                          { month: "short", day: "numeric" },
+                        )}
+                      </p>
+                    )}
                   </>
                 )}
               </div>
@@ -1269,6 +1314,23 @@ const GraphPage = () => {
                       {degreeMap.get(selectedNode.id) ?? 0} connection
                       {(degreeMap.get(selectedNode.id) ?? 0) === 1 ? "" : "s"}
                     </p>
+                    {selectedNode.updated && (
+                      <p className="text-[11px] text-white-50/55 mt-1 inline-flex items-center gap-1.5">
+                        <span
+                          className={`inline-block size-2 rounded-full border-[1.5px] shrink-0 ${
+                            selectedNode.fresh
+                              ? "border-amber-500"
+                              : "border-white-50/30"
+                          }`}
+                          aria-hidden="true"
+                        />
+                        updated{" "}
+                        {new Date(selectedNode.updated).toLocaleDateString(
+                          undefined,
+                          { month: "short", day: "numeric", year: "numeric" },
+                        )}
+                      </p>
+                    )}
                   </div>
                   <button
                     aria-label="Clear selection"
