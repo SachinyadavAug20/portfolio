@@ -13,6 +13,7 @@ import {
   PET_KEY,
   PET_LINES,
   RETURNING,
+  ROOMS_KEY,
   SHOO_KEY,
   SUGGEST_DENY,
   SUGGEST_GAP_MS,
@@ -149,6 +150,14 @@ const seedPointer = (rawX: number, rawY: number) => {
 const typeSpeed = (len: number) =>
   FAST ? 2 : len > 70 ? 10 : len > 40 ? 14 : 18;
 
+/* the current room's own headline — the hero h1 or a TitleHeader —
+   empty while a lazy page is still streaming in */
+const pageTitle = (): string => {
+  const el = document.querySelector<HTMLElement>("h1, .th-title");
+  const t = (el?.textContent || "").replace(/\s+/g, " ").trim();
+  return t.length >= 3 && t.length <= 72 ? t : "";
+};
+
 const useTypewriter = (text: string | null): string => {
   const reduced = useReducedMotion();
   const [cur, setCur] = useState<{ src: string | null; out: string }>({
@@ -227,6 +236,7 @@ const CatCompanion = () => {
   const navTimesRef = useRef<number[]>([]);
   const lastRapidLine = useRef(0);
   const lastTabLine = useRef(0);
+  const lastFooterLine = useRef(0);
   const lastRushUp = useRef(0);
   const lastSelectAll = useRef(0);
   const lastRepeatLine = useRef(0);
@@ -310,11 +320,49 @@ const CatCompanion = () => {
     window.setTimeout(() => el.classList.remove("cat-spotlight"), ms);
   }, []);
 
+  /* speak a UI line when the floor is free: honors the phrase gap and
+     retries once it clears; cooldown is per-line via its ref */
+  const sayUiLine = useCallback(
+    (
+      make: () => string,
+      cooldown: { current: number },
+      minGap: number,
+      ms: number,
+    ) => {
+      const attempt = () => {
+        const now = Date.now();
+        if (suggestRef.current || document.hidden) return;
+        if (now - cooldown.current < minGap) return;
+        if (showPhrase(make(), ms, false)) {
+          cooldown.current = now;
+          return;
+        }
+        window.setTimeout(attempt, PHRASE_GAP_MS + 500);
+      };
+      attempt();
+    },
+    [showPhrase],
+  );
+
   /* hovering a link worth exploring earns a nudge (per-kind + global
-     cooldowns, never while she's already talking or suggesting) */
+     cooldowns, never while she's already talking or suggesting) — and
+     she names the real thing under the pointer: the project's title
+     from its card, a note's filename, a pill's label, a repo slug */
   const encourageAt = useRef<Record<string, number>>({});
   const lastEncourageAny = useRef(0);
   useEffect(() => {
+    const nameFor = (link: Element): string => {
+      const h = link.querySelector("h1, h2, h3, h4");
+      if (h && h.textContent && h.textContent.trim()) return h.textContent;
+      const pill = link.querySelector(".tech-pill-name");
+      if (pill && pill.textContent && pill.textContent.trim())
+        return pill.textContent;
+      const txt = (link.textContent || "").replace(/\s+/g, " ").trim();
+      if (txt) return txt;
+      const href = link.getAttribute("href") || "";
+      const m = href.match(/github\.com\/[^/]+\/([^/?#]+)/);
+      return m ? m[1] : "";
+    };
     const onOver = (e: Event) => {
       const t = e.target;
       if (!(t instanceof Element) || document.hidden || suggestRef.current)
@@ -322,20 +370,23 @@ const CatCompanion = () => {
       const link = t.closest("a");
       if (!link) return;
       const href = link.getAttribute("href") || "";
-      const ext = link.getAttribute("target") === "_blank";
+      const ext =
+        link.getAttribute("target") === "_blank" || /^https?:\/\//.test(href);
       const kind: EncourageKind | null = href.startsWith("mailto:")
         ? "email"
         : ext && href.includes("github")
           ? "github"
-          : ext
-            ? "social"
-            : href.startsWith("/blog")
-              ? "blog"
-              : href.startsWith("/graph")
-                ? "graph"
-                : href.includes("contact")
-                  ? "contact"
-                  : null;
+          : ext && /vercel\.app|netlify|pages\.dev|onrender|herokuapp|localhost/.test(href)
+            ? "demo"
+            : ext
+              ? "social"
+              : href.startsWith("/blog")
+                ? "blog"
+                : href.startsWith("/graph")
+                  ? "graph"
+                  : href.includes("contact")
+                    ? "contact"
+                    : null;
       if (!kind) return;
       const now = Date.now();
       if (now - lastEncourageAny.current < cd(14_000)) return;
@@ -343,7 +394,18 @@ const CatCompanion = () => {
       if (now - lastPhraseAt.current < 4000) return; /* fresh line keeps the floor */
       const brain = brainRef.current;
       if (!brain) return;
-      if (!showPhrase(brain.encourageLine(kind), 3600, true)) return;
+      /* chrome labels (nav, tab bar) and bare "Contact" buttons read
+         better with the generic pool; real titles get the named lines */
+      const inChrome = !!link.closest("nav, header, .bottom-tabbar");
+      const name = nameFor(link);
+      const useAbout =
+        !inChrome &&
+        name.length >= 3 &&
+        !(kind === "contact" && /^contact/i.test(name));
+      const line = useAbout
+        ? brain.encourageAbout(kind, name)
+        : brain.encourageLine(kind);
+      if (!showPhrase(line, 3600, true)) return;
       encourageAt.current[kind] = now;
       lastEncourageAny.current = now;
       spotlight(link, 2400);
@@ -1247,26 +1309,8 @@ const CatCompanion = () => {
 
     /* writing a real message earns one quiet word of encouragement */
     let messageNudged = false;
-    const sayUiLine = (
-    make: () => string,
-    cooldown: { current: number },
-    minGap: number,
-    ms: number,
-  ) => {
-    const attempt = () => {
-      const now = Date.now();
-      if (suggestRef.current || document.hidden) return;
-      if (now - cooldown.current < minGap) return;
-      if (showPhrase(make(), ms, false)) {
-        cooldown.current = now;
-        return;
-      }
-      window.setTimeout(attempt, PHRASE_GAP_MS + 500);
-    };
-    attempt();
-  };
 
-  const onFormInput = (e: Event) => {
+    const onFormInput = (e: Event) => {
       const t = e.target;
       if (!(t instanceof HTMLTextAreaElement) || t.id !== "message") return;
       if (messageNudged || t.value.length < 24) return;
@@ -1697,7 +1741,7 @@ const CatCompanion = () => {
       document.removeEventListener("focusin", onContactFocus);
       window.removeEventListener("wheel", onAny);
     };
-  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion, setStandoffReason, pace, restorePace, spotlight]);
+  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion, setStandoffReason, pace, restorePace, spotlight, sayUiLine]);
 
   /* Alt+C shooes / summons the cat for good (the opt-out persists) */
   useEffect(() => {
@@ -1812,6 +1856,18 @@ const CatCompanion = () => {
     }
     if (prevPath.current === location.pathname) return;
     prevPath.current = location.pathname;
+    /* room memory: tally the visit even if she stays quiet about it */
+    const routePath = location.pathname;
+    let roomVisits = 1;
+    try {
+      const raw = safeGet(localStorage, ROOMS_KEY);
+      const map: Record<string, number> = raw ? JSON.parse(raw) : {};
+      roomVisits = (map[routePath] || 0) + 1;
+      map[routePath] = roomVisits;
+      safeSet(localStorage, ROOMS_KEY, JSON.stringify(map));
+    } catch {
+      /* private mode or quota: memory simply stays sessionless */
+    }
     navTimes.push(Date.now());
     if (navTimes.length > 3) navTimes.shift();
     visitsRef.current += 1;
@@ -1831,24 +1887,35 @@ const CatCompanion = () => {
     if (now - lastRoutePhrase.current < cd(9000)) return;
     lastRoutePhrase.current = now;
     const brain = brainRef.current;
-    let line = routeLine(location.pathname);
+    const isPost = routePath.startsWith("/blog/post");
+    const isNew = !seenPosts.current.has(routePath);
+    if (isPost) seenPosts.current.add(routePath);
+    const rapid =
+      navTimes.length >= 3 &&
+      now - navTimes[0] <= 18_000 &&
+      now - lastRapidLine.current >= cd(45_000);
+    if (rapid) lastRapidLine.current = now;
+    const familiar = roomVisits >= 2 && Math.random() < 0.4;
+    let line = routeLine(routePath);
     if (brain) {
-      const isPost = location.pathname.startsWith("/blog/post");
-      const isNew = !seenPosts.current.has(location.pathname);
-      if (isPost) seenPosts.current.add(location.pathname);
-      const rapid =
-        navTimes.length >= 3 &&
-        now - navTimes[0] <= 18_000 &&
-        now - lastRapidLine.current >= cd(45_000);
-      if (rapid) lastRapidLine.current = now;
       line =
         isPost && isNew && seenPosts.current.size > 1
           ? brain.streakPostLine()
           : rapid
             ? brain.rapidLine()
-            : brain.routeLine(location.pathname, getCtx());
+            : familiar
+              ? brain.familiarLine(routePath, roomVisits)
+              : brain.routeLine(routePath, getCtx());
     }
-    showPhrase(line, 2600, true);
+    /* the new room renders within this window (lazy pages settle too),
+       then she greets it by its real headline — the site's own words */
+    window.setTimeout(() => {
+      if (prevPath.current !== routePath) return; /* superseded */
+      if (suggestRef.current || document.hidden) return;
+      const title = pageTitle();
+      const land = !!brain && !!title && !isPost && Math.random() < 0.5;
+      showPhrase(land ? brain.landedLine(title) : line, land ? 3400 : 2600, true);
+    }, 900);
   }, [location.pathname, showPhrase, getCtx, applyStandoff]);
 
   /* section awareness: when a home section takes the stage, Luna has a
@@ -1891,6 +1958,26 @@ const CatCompanion = () => {
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, [location.pathname, showPhrase, enabled, reduced]);
+
+  /* footer awareness: reaching the small print earns one quiet word */
+  useEffect(() => {
+    if (reduced || !enabled) return;
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const en of entries) {
+          if (!en.isIntersecting) continue;
+          const brain = brainRef.current;
+          if (!brain || !nekoRef.current) continue;
+          sayUiLine(() => brain.footerLine(), lastFooterLine, cd(60_000), 3200);
+        }
+      },
+      { threshold: 0.25 },
+    );
+    io.observe(footer);
+    return () => io.disconnect();
+  }, [location.pathname, enabled, reduced, sayUiLine]);
 
   /* spawn / lifetime */
   useEffect(() => {
@@ -2095,8 +2182,10 @@ const CatCompanion = () => {
           showPhrase(p.miss, 3000, true);
         }, 10_000);
         showPhrase(p.say, 4200, true);
-      } else {
+      } else if (id !== "seat") {
         showPhrase(brain.actLine(id, getCtx()), 3200, true);
+        /* seat says its line at the spotlight instead — she names the
+           thing she's claiming (falls back to the generic act line) */
       }
 
       switch (id) {
@@ -2155,7 +2244,7 @@ const CatCompanion = () => {
              favorite, so its button gets an extra vote when it's on screen */
           const cand = Array.from(
             document.querySelectorAll<HTMLElement>(
-              "button, [role=button], a[class*=btn], textarea, input, .chip, kbd, .card, article, h2, h3, .feature-card, .exp-card-wrapper, .app-showcase, .tech-pill, canvas",
+              "button, [role=button], a[class*=btn], textarea, input, .chip, kbd, .card, article, h1, h2, h3, .th-title, .latest-notes a, .feature-card, .exp-card-wrapper, .app-showcase, .tech-pill, canvas",
             ),
           );
           const spots = cand
@@ -2187,19 +2276,35 @@ const CatCompanion = () => {
                border, body above the text); buttons/fields keep the
                inside-bottom seat (the send-button pose) */
             const onTop = target.el.matches(
-              "h2, h3, article, .card, .feature-card, .exp-card-wrapper, .app-showcase",
+              "h1, h2, h3, .th-title, article, .card, .feature-card, .exp-card-wrapper, .app-showcase, .latest-notes a",
             );
             const tx = r.left + r.width / 2;
             const ty = onTop ? r.top - 10 : r.bottom - 8;
             seedPointer(tx, ty);
             /* once settled she rings the target: spotlight + paw taps so
-               the seat reads as a recommendation, not just a nap spot */
+               the seat reads as a recommendation, not just a nap spot —
+               and she names what she's sitting on when it has a name */
             timers.push(
               window.setTimeout(() => {
                 if (cancelled) return;
                 spotlight(target.el, 2800);
                 spawnPaw(tx, ty - 4);
                 spawnPaw(tx + 14, ty - 10);
+                const b = brainRef.current;
+                if (!b) return;
+                const raw = (
+                  target.el.querySelector("h1, h2, h3, h4")?.textContent ||
+                  target.el.textContent ||
+                  ""
+                )
+                  .replace(/\s+/g, " ")
+                  .trim();
+                const label = raw.length >= 3 ? raw : "";
+                showPhrase(
+                  label ? b.seatAbout(label) : b.actLine("seat", getCtx()),
+                  3200,
+                  true,
+                );
               }, 350),
             );
             const arrive = Math.min(
@@ -2239,6 +2344,9 @@ const CatCompanion = () => {
                 arrive + 7000,
               ),
             );
+          } else {
+            /* nothing claimable in view: the act still says its line */
+            showPhrase(brain.actLine("seat", getCtx()), 3200, true);
           }
           break;
         }

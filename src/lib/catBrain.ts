@@ -501,6 +501,48 @@ export const routeLine = (path: string, ctx: CatContext): string => {
   return freshPick(GENERIC_ROOMS);
 };
 
+/* landing: she greets the room by its real headline (hero h1, page
+   title) instead of a generic pool line — the site's own words */
+const LANDED = [
+  "welcome to «{title}». it suits you.",
+  "you're in «{title}» now — i know the layout.",
+  "landing in «{title}». mind the cat.",
+  "«{title}». a fine room. i've napped here.",
+  "so — «{title}». good taste, that.",
+  "this corner is «{title}». stay a while.",
+];
+export const landedLine = (title: string): string =>
+  freshPick(LANDED).replace("{title}", clip(title, 48));
+
+/* room memory: she keeps a tally of where you return to, so the third
+   lap around experience reads like a shared habit, not a first hello */
+const FAMILIAR = [
+  "back to {room} — visit #{count}. the nap spot remembers you.",
+  "{room} again? that's {count} times. i'm keeping count. fondly.",
+  "you gravitate to {room}. noted, cataloged, approved. ({ord})",
+  "{room} still smells the same. {count} visits and counting.",
+  "the {room} routine — {count} laps. we could do this forever.",
+  "{room}, {count} times now. i'd call that a habit. i'd call it good.",
+];
+const roomName = (path: string): string => {
+  if (path === "/") return "home";
+  if (path.startsWith("/blog/post")) return "that note";
+  const seg = decodeURIComponent(path.replace(/^\/+/, ""))
+    .split("/")
+    .filter(Boolean);
+  return seg.length ? seg.join(" / ") : "home";
+};
+const ordinal = (n: number) => {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+export const familiarLine = (path: string, count: number): string =>
+  freshPick(FAMILIAR)
+    .replace("{room}", roomName(path))
+    .replace("{count}", String(count))
+    .replace("{ord}", ordinal(count));
+
 /* ------------------------ click awareness ------------------------ */
 
 export type ClickKind =
@@ -1296,6 +1338,30 @@ const TOUR_DONE = [
 ];
 export const tourLine = () => freshPick(TOUR_DONE);
 
+/* the footer: arriving at the small print earns one quiet word */
+const FOOTER_LINES = [
+  "the footer — where credits, links, and one cat live.",
+  "down here the urls are short and the vibes are final.",
+  "the footer. every journey ends in links.",
+  "bottom of the page. the cat was here first.",
+  "footer found. the important buttons live below.",
+  "you scrolled to the small print. i respect that.",
+];
+export const footerLine = (): string => freshPick(FOOTER_LINES);
+
+/* sitting on real UI, she names what she's sitting on — the card, the
+   heading, the note row — so the perch reads as a recommendation */
+const SEAT_ABOUT = [
+  "{name} — nap-approved.",
+  "sitting on «{name}». it holds.",
+  "verdict: «{name}» is cat-compatible.",
+  "«{name}» passes the paw test.",
+  "this spot on «{name}» is prime real estate.",
+  "«{name}» can bear one small cat. tested.",
+];
+export const seatAbout = (name: string): string =>
+  freshPick(SEAT_ABOUT).replace("{name}", clip(name, 40));
+
 /* hovering the cat earns a glance — awake or asleep */
 const HOVER_AWAKE = [
   "pet me. i dare you.",
@@ -1772,7 +1838,8 @@ export const ESTIMATED_LINE_SPACE =
   REPEAT_LINES.length + BUBBLE_COPY.length + FOUR_OH_FOUR.length +
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   OBSERVE_LINES.length + BACK_LINES.length + CLOSE_IN_LINES.length +
-  POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length;
+  POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length +
+  LANDED.length + FAMILIAR.length + FOOTER_LINES.length + SEAT_ABOUT.length;
 
 export const templateLine = (): string => build(pick(TEMPLATES));
 
@@ -1910,7 +1977,7 @@ export const highFiveLine = (): string => freshPick(HIGH_FIVE_LINES);
 /* hovering a link worth exploring earns a nudge — distinct from the
    click lines (those fire when the click actually lands) */
 export type EncourageKind =
-  | "github" | "social" | "email" | "blog" | "graph" | "contact";
+  | "github" | "social" | "email" | "blog" | "graph" | "contact" | "demo";
 
 const ENCOURAGE_LINES: Record<EncourageKind, readonly string[]> = {
   github: [
@@ -1949,10 +2016,71 @@ const ENCOURAGE_LINES: Record<EncourageKind, readonly string[]> = {
     "type something nice. or anything. he's not picky.",
     "three fields stand between you and his inbox.",
   ],
+  demo: [
+    "the live demo. it loads. i checked. twice.",
+    "go on — press the shiny deployed thing.",
+    "that one runs in production. brave, that link.",
+    "the demo's up. it never sleeps. neither do i, officially.",
+  ],
 };
 
 export const encourageLine = (kind: EncourageKind): string =>
   freshPick(ENCOURAGE_LINES[kind]);
+
+/* she names the actual thing under the pointer — the project's title
+   from its card, the note's filename, a tech pill's label — so the
+   nudge reads as knowledge of the site, not a generic toast */
+const ENCOURAGE_ABOUT: Record<EncourageKind, readonly string[]> = {
+  github: [
+    "{name} — the door's open. go on.",
+    "{name}'s commits are friendly. say hi to them.",
+    "that's {name}. he'd want you to see it.",
+    "stars are free — {name} pretends not to count. (it counts.)",
+    "{name} is where the code lives. i've napped in the diffs.",
+  ],
+  social: [
+    "the {name} link knows where he is. follow it.",
+    "{name}? he actually posts there.",
+    "curiosity approved: {name}. click it.",
+    "a discerning pointer — {name} it is.",
+  ],
+  email: [
+    "over {name}? he replies fast. seriously.",
+    "{name} is one click from his inbox. fate?",
+    "compose something — {name} guarantees a reply. (legally not binding.)",
+    "the {name} link hums with inbox energy.",
+  ],
+  blog: [
+    "«{name}» — good one, that. starts strong.",
+    "«{name}». i've read it. twice. scroll on.",
+    "that's «{name}». it earns the click.",
+    "«{name}» — the vault purrs its approval.",
+  ],
+  graph: [
+    "{name} — every node knows my name.",
+    "{name} is where the constellation starts.",
+    "the graph calls. {name} is lit.",
+    "drag it, spin it, get lost in {name}. i'll wait.",
+  ],
+  contact: [
+    "the form's right there — {name} says hello first.",
+    "{name}: where conversations with sachin begin.",
+    "he reads every message. {name} can prove it.",
+    "three fields stand between you and writing to him.",
+  ],
+  demo: [
+    "{name} — live and loading. click it.",
+    "{name} runs in production. brave.",
+    "the demo's up: {name}. it never sleeps.",
+    "{name} deploys cleanly. i watched the build.",
+  ],
+};
+
+export const encourageAbout = (kind: EncourageKind, name: string): string => {
+  const clean = name.replace(/\s+/g, " ").trim();
+  if (clean.length < 2) return encourageLine(kind);
+  return freshPick(ENCOURAGE_ABOUT[kind]).replace("{name}", clip(clean, 46));
+};
 
 /* ------------------- note awareness (the vault) ------------------- */
 
