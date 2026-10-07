@@ -12,6 +12,7 @@ import {
   GUIDE_HEADERS,
   PET_KEY,
   PET_LINES,
+  READS_KEY,
   RETURNING,
   ROOMS_KEY,
   SHOO_KEY,
@@ -156,6 +157,20 @@ const pageTitle = (): string => {
   const el = document.querySelector<HTMLElement>("h1, .th-title");
   const t = (el?.textContent || "").replace(/\s+/g, " ").trim();
   return t.length >= 3 && t.length <= 72 ? t : "";
+};
+/* heading first; on a cold load the markdown may still be streaming in,
+   so fall back to the note's own URL tail */
+const noteTitle = (): string => {
+  const t = pageTitle();
+  if (t) return t;
+  try {
+    const tail = decodeURIComponent(
+      window.location.pathname.split("/").filter(Boolean).pop() || "",
+    );
+    return tail.length >= 3 && tail.length <= 72 ? tail : "";
+  } catch {
+    return "";
+  }
 };
 
 const useTypewriter = (text: string | null): string => {
@@ -680,12 +695,49 @@ const CatCompanion = () => {
        the note's end always names the next part instead */
     window.addEventListener("scroll", onEnd, { passive: true, capture: true });
 
+    /* remember how deep this note was read — she welcomes you back at
+       that exact % on the next visit */
+    const isNote = path.startsWith("/blog/post/");
+    let lastReadSave = 0;
+    const saveRead = (force: boolean) => {
+      const now = Date.now();
+      if (!force && now - lastReadSave < 2000) return;
+      const pct = Math.round(
+        ((window.scrollY + window.innerHeight) /
+          Math.max(1, document.documentElement.scrollHeight)) *
+          100,
+      );
+      if (pct < 5) return;
+      lastReadSave = now;
+      try {
+        const raw = safeGet(localStorage, READS_KEY);
+        const map: Record<string, number> = raw ? JSON.parse(raw) : {};
+        /* deepest reach ever — later visits may only go further */
+        map[slug] = Math.max(Number(map[slug]) || 0, pct);
+        const keys = Object.keys(map);
+        if (keys.length > 40) {
+          for (const k of keys.slice(0, keys.length - 40)) delete map[k];
+        }
+        safeSet(localStorage, READS_KEY, JSON.stringify(map));
+      } catch {
+        /* private mode or quota — resume awareness stays off */
+      }
+    };
+    const onRead = () => saveRead(false);
+    if (isNote) {
+      window.addEventListener("scroll", onRead, { passive: true });
+    }
+
     return () => {
       cancelled = true;
       window.clearInterval(pollId);
       window.clearTimeout(endDebounce);
       observers.forEach((o) => o.disconnect());
       window.removeEventListener("scroll", onEnd, { capture: true });
+      if (isNote) {
+        window.removeEventListener("scroll", onRead);
+        saveRead(true); /* final depth — where she last saw you */
+      }
     };
   }, [location.pathname, showPhrase, spotlight]);
 
@@ -1937,8 +1989,42 @@ const CatCompanion = () => {
       if (prevPath.current !== routePath) return; /* superseded */
       if (suggestRef.current || document.hidden) return;
       const title = pageTitle();
-      const land = !!brain && !!title && !isPost && Math.random() < 0.5;
-      showPhrase(land ? brain.landedLine(title) : line, land ? 3400 : 2600, true);
+      /* a note left mid-read is welcomed back at its exact depth — the
+         brain chunk may still be arriving on a cold load, so re-read
+         the live ref (with one short retry) instead of the captured one */
+      if (isPost) {
+        let resumePct: number;
+        try {
+          const raw = safeGet(localStorage, READS_KEY);
+          const map = raw ? JSON.parse(raw) : {};
+          const key = decodeURIComponent(routePath.slice("/blog/post/".length));
+          resumePct = Math.round(Number(map[key]) || 0);
+        } catch {
+          resumePct = -1;
+        }
+        if (resumePct >= 30 && resumePct <= 95) {
+          const speakResume = () => {
+            if (prevPath.current !== routePath) return;
+            if (suggestRef.current || document.hidden) return;
+            const b2 = brainRef.current;
+            if (!b2) return; /* chunk never landed — the coach will talk */
+            showPhrase(
+              b2.resumeLine(resumePct, noteTitle() || "that note"),
+              3600,
+              true,
+            );
+          };
+          if (brainRef.current) {
+            speakResume();
+          } else {
+            window.setTimeout(speakResume, 500);
+          }
+          return;
+        }
+      }
+      const b = brainRef.current;
+      const land = !!b && !!title && !isPost && Math.random() < 0.5;
+      showPhrase(land ? b.landedLine(title) : line, land ? 3400 : 2600, true);
     }, 900);
   }, [location.pathname, showPhrase, getCtx, applyStandoff]);
 
@@ -3221,14 +3307,33 @@ const CatCompanion = () => {
               favoritePath = p;
             }
           }
-          spoken = brain
-            ? brain.returnLine({
-                pets,
-                rooms: Object.keys(rooms).length,
-                favoritePath,
-                favoriteCount,
-              })
-            : RETURNING(CAT_NAME)[rand(3)];
+          /* a note left mid-read gets welcomed back to its exact depth —
+             more personal than the counters line */
+          let resume: string | null = null;
+          const here = window.location.pathname;
+          if (brain && here.startsWith("/blog/post/")) {
+            try {
+              const raw = safeGet(localStorage, READS_KEY);
+              const map = raw ? JSON.parse(raw) : {};
+              const key = decodeURIComponent(here.slice("/blog/post/".length));
+              const pct = Math.round(Number(map[key]) || 0);
+              if (pct >= 30 && pct <= 95) {
+                resume = brain.resumeLine(pct, noteTitle() || "that note");
+              }
+            } catch {
+              /* no reads log — fall through to the counters line */
+            }
+          }
+          spoken =
+            resume ??
+            (brain
+              ? brain.returnLine({
+                  pets,
+                  rooms: Object.keys(rooms).length,
+                  favoritePath,
+                  favoriteCount,
+                })
+              : RETURNING(CAT_NAME)[rand(3)]);
         } else {
           spoken = weekend
             ? WEEKEND_GREETING(CAT_NAME)[rand(WEEKEND_GREETING(CAT_NAME).length)]

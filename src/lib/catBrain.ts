@@ -2247,6 +2247,18 @@ const NOTE_MID = [
 export const noteMidLine = (pct: number): string =>
   freshPick(NOTE_MID).replace("{pct}", String(pct));
 
+/* returning to a note you left mid-read — welcomes back at exact depth */
+const RESUME_LINES = [
+  "picking back up — you left \"{title}\" at {pct}%.",
+  "{pct}% into \"{title}\" last time. the note waited. continue.",
+  "returning reader: \"{title}\" — {pct}% done. finish the lap.",
+  "back where you left off: \"{title}\" — {pct}% in. i kept your spot.",
+];
+export const resumeLine = (pct: number, title: string): string =>
+  freshPick(RESUME_LINES)
+    .replace("{pct}", String(pct))
+    .replace("{title}", clip(title, 34));
+
 export const noteOverviewLine = (s: NoteStats): string =>
   pick([
     `briefing: ${s.sections} sections, ${s.shots} screenshots, ~${s.minutes} min. verdict: worth it.`,

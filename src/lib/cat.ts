@@ -5,6 +5,8 @@ export const GREETED_KEY = "cat-companion:greeted";
 export const SHOO_KEY = "cat-companion:shooed";
 /** per-room visit tallies: JSON map of pathname -> times returned */
 export const ROOMS_KEY = "cat-companion:rooms";
+/* per-note scroll depth — she remembers where a note was left */
+export const READS_KEY = "cat-companion:reads";
 
 /* hidden fast-test mode: the Playwright suite sets localStorage.catFast
    = "1" so behavioral cooldowns run 8× quicker — default (no flag) is
