@@ -2119,10 +2119,133 @@ export interface NoteStats {
   callouts: number;
   minutes: number;
   firstHeading: string;
+  /* the note's texture — how he actually writes: deep ### nesting,
+     heavy code, grids of tables */
+  subs?: number;
+  codes?: number;
+  tables?: number;
 }
 
 const clip = (s: string, n: number): string =>
   s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s;
+
+/* boxed facts announce their kind — a quote box is not a danger box */
+export const noteCalloutLine = (kind = ""): string => {
+  const k = kind.toLowerCase();
+  if (k === "quote" || k === "cite")
+    return pick([
+      "quote box — he bookmarked the exact words.",
+      "boxed quote. word-for-word matters here.",
+      "someone said it better. the box remembers.",
+    ]);
+  if (k === "abstract" || k === "summary" || k === "tldr" || k === "info")
+    return pick([
+      "definition box — the term, distilled.",
+      "abstract callout: the tl;dr, gift-wrapped.",
+      "boxed definition. he defines before he builds.",
+    ]);
+  if (
+    k === "danger" ||
+    k === "error" ||
+    k === "warning" ||
+    k === "caution" ||
+    k === "attention" ||
+    k === "fail" ||
+    k === "failure"
+  )
+    return pick([
+      "danger box. he boxes the pitfalls too — good.",
+      "warning callout. past this line, careful.",
+      "that red box has teeth. read it twice.",
+    ]);
+  if (k === "tip" || k === "important" || k === "hint" || k === "takeaway")
+    return pick([
+      "tip box — he boxes the handy tricks.",
+      "important enough to box. that's the note's love language.",
+      "boxed tip. future-him will thank present-him.",
+    ]);
+  return pick([
+    "boxed fact. he only boxes what matters — cats respect boxes.",
+    "that callout is a keeper. highlight reel material.",
+    "a box! facts inside. approved.",
+    "callout = the note's version of bolding a treat.",
+  ]);
+};
+
+/* one insight per note about HOW it's written — he teaches in pictures,
+   code, nested ### sections, or boxed facts; react to the texture */
+const STYLE_SHOTS = [
+  "style check: {shots} screenshots. this note teaches in pictures — arrows included.",
+  "half the lesson is {shots} frames deep. follow his arrows.",
+  "{shots} screenshots and counting — the diagrams ARE the notes here.",
+  "{shots} pasted frames. he'd rather draw it than say it. same.",
+];
+const STYLE_CODES = [
+  "code-dense: {codes} blocks. he types to explain.",
+  "{codes} code blocks. fingers ready? this one's keyboard-first.",
+  "this note runs on code — {blocks} blocks of it.",
+  "{codes} fenced blocks and proud of it. run them mentally.",
+];
+const STYLE_SUBS = [
+  "{subs} sub-sections deep. he nests like furniture.",
+  "{subs} ### sections — chapters within chapters.",
+  "this one's a tree: {subs} sub-headings hanging off the big ones.",
+];
+const STYLE_BOXES = [
+  "{callouts} boxes on the page — facts inside boxes inside the note.",
+  "he boxed {callouts} facts. cats approve of boxes.",
+  "{callouts} callouts — the highlights live in tiny homes now.",
+];
+const STYLE_TABLES = [
+  "{tables} tables. neat grids, neat mind.",
+  "grid-pilled: {tables} tables on this page.",
+];
+const STYLE_PLAIN = [
+  "well-kept: {sections} sections, {minutes} minutes. settle in.",
+  "clean structure — headings, lists, arrows. his handwriting, digitally.",
+  "the shape of this note: {sections} sections and no filler.",
+];
+export const styleLine = (s: NoteStats): string => {
+  const subs = s.subs ?? 0;
+  const codes = s.codes ?? 0;
+  const tables = s.tables ?? 0;
+  if (s.shots >= 5)
+    return freshPick(STYLE_SHOTS).replace("{shots}", String(s.shots));
+  if (codes >= 3)
+    return freshPick(STYLE_CODES)
+      .replace("{codes}", String(codes))
+      .replace("{blocks}", String(codes));
+  if (subs >= 5)
+    return freshPick(STYLE_SUBS).replace("{subs}", String(subs));
+  if (s.callouts >= 3)
+    return freshPick(STYLE_BOXES).replace("{callouts}", String(s.callouts));
+  if (tables >= 2)
+    return freshPick(STYLE_TABLES).replace("{tables}", String(tables));
+  return freshPick(STYLE_PLAIN)
+    .replace("{sections}", String(s.sections))
+    .replace("{minutes}", String(s.minutes));
+};
+
+/* series awareness: opening a numbered note shows the trail ahead */
+const SERIES_LINES = [
+  "series note — after this comes \"{next}\". i'll wait.",
+  "you're mid-series. next up: \"{next}\".",
+  "this is part of a longer trail — \"{next}\" is waiting.",
+  "the folder knows: \"{next}\" follows this one.",
+];
+export const seriesLine = (next: string): string =>
+  freshPick(SERIES_LINES).replace("{next}", clip(next, 40));
+
+/* halfway encouragement while reading — names the actual depth */
+const NOTE_MID = [
+  "{pct}% in — finishers are rare. be rare.",
+  "past halfway. the back half has the payoff.",
+  "{pct}% scrolled — the ending's worth the wrist.",
+  "halfway-ish. he saves the good diagram for last.",
+  "momentum looks good from here. keep scrolling.",
+];
+export const noteMidLine = (pct: number): string =>
+  freshPick(NOTE_MID).replace("{pct}", String(pct));
 
 export const noteOverviewLine = (s: NoteStats): string =>
   pick([
@@ -2196,14 +2319,6 @@ export const noteShotLine = (): string =>
     "he draws arrows on these for a reason. look where they point.",
     "another screenshot. this vault teaches with pictures first.",
     "past this one? good. the diagrams do half the talking here.",
-  ]);
-
-export const noteCalloutLine = (): string =>
-  pick([
-    "boxed fact. he only boxes what matters — cats respect boxes.",
-    "that callout is a keeper. highlight reel material.",
-    "a box! facts inside. approved.",
-    "callout = the note's version of bolding a treat.",
   ]);
 
 /* /blog index: grounded vault facts — counts computed from the real

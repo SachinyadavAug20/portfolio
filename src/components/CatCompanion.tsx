@@ -519,6 +519,10 @@ const CatCompanion = () => {
           art.querySelector("h2, h3")?.textContent?.trim() ||
           document.title.split("|")[0].trim() ||
           "this note",
+        /* his texture: deep ### nesting, fenced code, grids */
+        subs: art.querySelectorAll("h3").length,
+        codes: art.querySelectorAll("pre").length,
+        tables: art.querySelectorAll("table").length,
       };
 
       /* overview — once per slug, after the route line has had its turn */
@@ -531,12 +535,29 @@ const CatCompanion = () => {
           lastNoteInsight.current = Date.now();
           showPhrase(b.noteOverviewLine(stats), 6200, true);
         }, 5200);
+
+        /* then one insight about HOW he wrote it, and the series trail
+           ahead — fixed slots so an interleaved act line can't eat them */
+        const scheduleInsight = (delay: number, make: () => string | null) => {
+          window.setTimeout(() => {
+            if (cancelled || !canSpeak()) return;
+            const line = make();
+            if (!line) return;
+            lastNoteInsight.current = Date.now();
+            showPhrase(line, 5600, true);
+          }, delay);
+        };
+        scheduleInsight(10_500, () => brain()?.styleLine(stats) ?? null);
+        scheduleInsight(17_000, () => {
+          const next = noteNextTitle.current;
+          return next ? brain()?.seriesLine(next) ?? null : null;
+        });
       }
 
       /* section headings narrate as each crosses the reading zone —
          the line previews the next heading, pulling the reader on */
       const heads = Array.from(
-        art.querySelectorAll<HTMLHeadingElement>("h2, h3"),
+        art.querySelectorAll<HTMLHeadingElement>("h2, h3, h4"),
       );
       const headSeen = new Set<Element>();
       const hObs = new IntersectionObserver(
@@ -585,13 +606,16 @@ const CatCompanion = () => {
             if (!b) continue;
             artifactWords += 1;
             lastNoteInsight.current = now;
-            showPhrase(
-              t.classList.contains("callout")
-                ? b.noteCalloutLine()
-                : b.noteShotLine(),
-              4200,
-              true,
-            );
+            if (t.classList.contains("callout")) {
+              /* the renderer stamps the kind on the title row */
+              const kind =
+                Array.from(
+                  t.querySelector(".callout-title")?.classList ?? [],
+                ).find((c) => c !== "callout-title") ?? "";
+              showPhrase(b.noteCalloutLine(kind), 4200, true);
+            } else {
+              showPhrase(b.noteShotLine(), 4200, true);
+            }
           }
         },
         { rootMargin: "-22% 0px -40% 0px" },
@@ -3535,7 +3559,15 @@ const CatCompanion = () => {
           showPhrase(brain.scrollLine("end"), 2800, true);
         } else if (!midSpokenRef.current && scrollPctRef.current >= 50) {
           midSpokenRef.current = true;
-          showPhrase(brain.scrollLine("mid"), 2800, true);
+          /* on a note the halfway line names the depth instead */
+          const onNote = !!document.querySelector(".blog-content");
+          showPhrase(
+            onNote
+              ? brain.noteMidLine(Math.round(scrollPctRef.current))
+              : brain.scrollLine("mid"),
+            2800,
+            true,
+          );
         }
       }
       const fast = dy >= 150 || (dt > 0 && (dy / dt) * 1000 > 700);
