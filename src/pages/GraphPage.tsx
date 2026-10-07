@@ -879,13 +879,22 @@ const GraphPage = () => {
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fillStyle = tc.node;
         ctx.fill();
-        /* recently-updated notes wear an amber ring (outside the dot,
-           inside the blue selection ring) */
+        /* recently-updated notes glow amber — filled dot, ring, halo
+           (inside the blue selection ring) */
         if (n.fresh) {
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fillStyle = "#f59e0b";
+          ctx.fill();
           ctx.beginPath();
           ctx.arc(x, y, r + 2, 0, Math.PI * 2);
           ctx.strokeStyle = "#f59e0b";
           ctx.lineWidth = 1.5 / globalScale;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(x, y, r + 5, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(245,158,11,0.35)";
+          ctx.lineWidth = 2.5 / globalScale;
           ctx.stroke();
         }
       }
