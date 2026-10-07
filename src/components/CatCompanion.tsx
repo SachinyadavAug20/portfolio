@@ -3179,15 +3179,38 @@ const CatCompanion = () => {
         spawnSparkles(x, y);
         const brain = brainRef.current;
         const weekend = [0, 6].includes(new Date().getDay());
-        showPhrase(
-          returning
-            ? (brain ? brain.returnLine() : RETURNING(CAT_NAME)[rand(3)])
-            : weekend
-              ? WEEKEND_GREETING(CAT_NAME)[rand(WEEKEND_GREETING(CAT_NAME).length)]
-              : GREETING(CAT_NAME),
-          returning ? 3200 : 5400,
-          true,
-        );
+        let spoken: string;
+        if (returning) {
+          /* quote the real log when there is one: pets, rooms, favorite corner */
+          const pets = Number(safeGet(localStorage, PET_KEY)) || 0;
+          let rooms: Record<string, number>;
+          try {
+            rooms = JSON.parse(safeGet(localStorage, ROOMS_KEY) || "{}") || {};
+          } catch {
+            rooms = {};
+          }
+          let favoritePath = "/";
+          let favoriteCount = 0;
+          for (const [p, c] of Object.entries(rooms)) {
+            if (typeof c === "number" && c > favoriteCount) {
+              favoriteCount = c;
+              favoritePath = p;
+            }
+          }
+          spoken = brain
+            ? brain.returnLine({
+                pets,
+                rooms: Object.keys(rooms).length,
+                favoritePath,
+                favoriteCount,
+              })
+            : RETURNING(CAT_NAME)[rand(3)];
+        } else {
+          spoken = weekend
+            ? WEEKEND_GREETING(CAT_NAME)[rand(WEEKEND_GREETING(CAT_NAME).length)]
+            : GREETING(CAT_NAME);
+        }
+        showPhrase(spoken, returning ? 3200 : 5400, true);
         /* then wander toward the visitor's pointer (or screen centre) —
            never off a graph perch, where the corner post holds */
         timers.push(

@@ -1733,7 +1733,32 @@ const RETURN_LINES = [
   `i told the other tabs you'd return. — ${CAT_NAME}`, `session resumed, purr restored. ${CAT_NAME}.`,
   `i kept one eye open. just one. ${CAT_NAME}.`, `home again, says ${CAT_NAME}.`,
 ];
-export const returnLine = () => freshPick(RETURN_LINES);
+
+/* a returning visitor earns the real numbers when we have them —
+   pets, rooms, the favorite corner — the log is the warmest welcome */
+const RETURN_FACTS = [
+  "back. the log says {pets} pets across {rooms} rooms. i don't forget.",
+  "{rooms} rooms mapped, {pets} pets received — all you.",
+  "welcome back. {favorite} leads the tally ({favoriteCount} visits).",
+  "the counters missed you: {pets} pets, {rooms} rooms, zero regrets.",
+  "you're {pets} pets into this relationship. statistically: lovely.",
+];
+export interface ReturnFacts {
+  pets: number;
+  rooms: number;
+  favoritePath: string;
+  favoriteCount: number;
+}
+export const returnLine = (facts?: ReturnFacts): string => {
+  if (facts && (facts.pets > 0 || facts.rooms > 0)) {
+    return freshPick(RETURN_FACTS)
+      .replace("{pets}", String(facts.pets))
+      .replace("{rooms}", String(facts.rooms))
+      .replace("{favorite}", roomName(facts.favoritePath))
+      .replace("{favoriteCount}", String(Math.max(1, facts.favoriteCount)));
+  }
+  return freshPick(RETURN_LINES);
+};
 
 const WAKE_POOL = [...WAKE_LINES,
   "i was not sleeping. i was processing.", "hm? oh— hi.", "awake. technically always.",
@@ -1821,6 +1846,7 @@ export const ESTIMATED_LINE_SPACE =
   TOPICS.length * 12 +
   OBSERVATIONS.length + GUIDE_LINES.length + WISDOM.length + FACTS.length +
   PET_POOL.length + TREAT_POOL.length + WAKE_POOL.length + RETURN_LINES.length +
+  RETURN_FACTS.length +
   PREDICTIONS.length * 3 + COPY_LINES.length + SCROLL_MID.length + SCROLL_END.length +
   MORNING.length + AFTERNOON.length + EVENING.length + NIGHT.length +
   Object.values(ROUTE_POOLS).reduce((n, p) => n + p.length, 0) +
