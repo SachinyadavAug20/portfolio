@@ -22,15 +22,21 @@ interface TagPanelProps {
 const TagPanel = ({ tags, activeTag, onSelect }: TagPanelProps) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  /* default stays "count" — the vault's shape reads at a glance, and the
+     sorted-desc contract is what the compact trigger promises */
+  const [sortBy, setSortBy] = useState<"count" | "az">("count");
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return tags;
-    return tags.filter((t) => t.tag.toLowerCase().includes(q));
-  }, [tags, query]);
+    const hit = q ? tags.filter((t) => t.tag.toLowerCase().includes(q)) : tags;
+    if (sortBy === "az") {
+      return [...hit].sort((a, b) => a.tag.localeCompare(b.tag));
+    }
+    return hit;
+  }, [tags, query, sortBy]);
 
   const close = () => {
     setOpen(false);
@@ -162,17 +168,49 @@ const TagPanel = ({ tags, activeTag, onSelect }: TagPanelProps) => {
                     {tags.length} ways into the vault
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    close();
-                    triggerRef.current?.focus();
-                  }}
-                  aria-label="Close tag filter"
-                  className="p-2 -mr-1 rounded-full text-white-50/50 hover:text-foreground hover:bg-black-200 transition-colors"
-                >
-                  <X className="size-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <div
+                    className="flex items-center rounded-lg border border-black-50 bg-black-200 p-0.5"
+                    role="group"
+                    aria-label="Sort tags"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSortBy("count")}
+                      aria-pressed={sortBy === "count"}
+                      className={`px-2 py-1 rounded-md text-[11px] transition-colors ${
+                        sortBy === "count"
+                          ? "bg-black-100 text-foreground"
+                          : "text-white-50/50 hover:text-white-50"
+                      }`}
+                    >
+                      Top
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSortBy("az")}
+                      aria-pressed={sortBy === "az"}
+                      className={`px-2 py-1 rounded-md text-[11px] transition-colors ${
+                        sortBy === "az"
+                          ? "bg-black-100 text-foreground"
+                          : "text-white-50/50 hover:text-white-50"
+                      }`}
+                    >
+                      A–Z
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      close();
+                      triggerRef.current?.focus();
+                    }}
+                    aria-label="Close tag filter"
+                    className="p-2 -mr-1 rounded-full text-white-50/50 hover:text-foreground hover:bg-black-200 transition-colors"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
               </div>
 
               <div className="px-4 pb-2">

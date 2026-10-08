@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Link } from "react-router-dom";
 import { Folder, FileText, ChevronRight } from "lucide-react";
@@ -41,6 +41,7 @@ const countFiles = (node: TreeNode): number => {
 
 const FileExplorer = ({ folder, currentPath, onNavigate, dates }: FileExplorerProps) => {
   const [visibleFiles, setVisibleFiles] = useState(BATCH_SIZE);
+  const [sort, setSort] = useState<"vault" | "recent" | "az">("vault");
   const listRef = useRef<HTMLDivElement>(null);
   const flipRef = useRef<GsapExtras["Flip"] | null>(null);
   const reduced = useReducedMotion();
@@ -105,38 +106,95 @@ const FileExplorer = ({ folder, currentPath, onNavigate, dates }: FileExplorerPr
     });
   };
 
-  const children = folder.children?.filter(
-    (c) => !(c.type === "folder" && EXCLUDED.has(c.name)),
-  ) ?? [];
+  const children = useMemo(
+    () =>
+      folder.children?.filter(
+        (c) => !(c.type === "folder" && EXCLUDED.has(c.name)),
+      ) ?? [],
+    [folder],
+  );
 
   const folders = children.filter((c) => c.type === "folder");
-  const files = children.filter((c) => c.type === "file");
+  const files = useMemo(() => {
+    const arr = children.filter((c) => c.type === "file");
+    if (sort === "az") {
+      arr.sort((a, b) =>
+        (a.title ?? a.name).localeCompare(b.title ?? b.name, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        }),
+      );
+    } else if (sort === "recent") {
+      arr.sort((a, b) => {
+        const da = a.slug ? dates?.[a.slug] ?? "" : "";
+        const db = b.slug ? dates?.[b.slug] ?? "" : "";
+        if (da === db) return 0;
+        if (!da) return 1;
+        if (!db) return -1;
+        return db.localeCompare(da);
+      });
+    }
+    return arr;
+  }, [children, sort, dates]);
 
   const shownFiles = files.slice(0, visibleFiles);
   const remaining = files.length - visibleFiles;
+  const hasDates = files.some((f) => f.slug && dates?.[f.slug]);
+
+  const sortBtn = (key: "vault" | "recent" | "az", label: string) => (
+    <button
+      type="button"
+      onClick={() => setSort(key)}
+      aria-pressed={sort === key}
+      className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+        sort === key
+          ? "bg-black-100 text-foreground"
+          : "text-white-50/50 hover:text-white-50"
+      }`}
+    >
+      {label}
+    </button>
+  );
 
   const breadcrumbs = currentPath
-    ? [{ label: "Home", path: "" }, ...currentPath.split("/").map((seg, i, arr) => ({
+    ? [{ label: "All notes", path: "" }, ...currentPath.split("/").map((seg, i, arr) => ({
         label: seg,
         path: arr.slice(0, i + 1).join("/"),
       }))]
-    : [{ label: "Home", path: "" }];
+    : [];
 
   return (
     <div className="mt-8">
-      <nav className="flex items-center gap-1 text-sm text-blue-50 mb-6 flex-wrap">
-        {breadcrumbs.map((crumb, i) => (
-          <span key={crumb.path} className="flex items-center gap-1">
-            {i > 0 && <ChevronRight className="size-3.5" />}
-            <button
-              onClick={() => replaceList(() => onNavigate(crumb.path))}
-              className="hover:text-foreground transition-colors py-2 px-1.5 -mx-1 active:text-foreground"
-            >
-              {crumb.label}
-            </button>
-          </span>
-        ))}
-      </nav>
+      {(breadcrumbs.length > 0 || files.length > 1) && (
+      <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
+        {breadcrumbs.length > 0 && (
+          <nav className="flex items-center gap-1 text-sm text-blue-50 flex-wrap min-w-0">
+            {breadcrumbs.map((crumb, i) => (
+              <span key={crumb.path} className="flex items-center gap-1">
+                {i > 0 && <ChevronRight className="size-3.5" />}
+                <button
+                  onClick={() => replaceList(() => onNavigate(crumb.path))}
+                  className="hover:text-foreground transition-colors py-2 px-1.5 -mx-1 active:text-foreground truncate max-w-40"
+                >
+                  {crumb.label}
+                </button>
+              </span>
+            ))}
+          </nav>
+        )}
+        {files.length > 1 && (
+          <div
+            className="flex items-center rounded-lg border border-black-50 bg-black-200 p-0.5 ml-auto"
+            role="group"
+            aria-label="Sort notes"
+          >
+            {sortBtn("vault", "Vault")}
+            {hasDates && sortBtn("recent", "Recent")}
+            {sortBtn("az", "A–Z")}
+          </div>
+        )}
+      </div>
+      )}
 
       {children.length === 0 ? (
         <p className="text-blue-50 text-center py-12">This folder is empty.</p>

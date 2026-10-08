@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { X, Search, Network } from "lucide-react";
+import { X, Search, Network, FileText, Tags } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import SEOHead from "../seo/SEOHead";
@@ -23,6 +23,7 @@ import { scrollToY } from "../lib/smoothScroll";
 
 const BlogList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const currentPath = searchParams.get("path") ?? "";
   const currentTag = searchParams.get("tag") ?? "";
   const currentQuery = searchParams.get("q") ?? "";
@@ -146,7 +147,7 @@ const BlogList = () => {
       const dur = mobile ? 0.24 : 0.3;
       const cap = mobile ? 0.16 : 0.2;
       const intros = gsap.utils.toArray<HTMLElement>(".blog-intro", scope);
-      const tiles = gsap.utils.toArray<HTMLElement>(".blog-tile", scope);
+      const tiles = gsap.utils.toArray<HTMLElement>(".blog-tile, .tag-rail-item", scope);
 
       const tl = gsap.timeline();
       if (intros.length) {
@@ -225,6 +226,17 @@ const BlogList = () => {
     return posts.slice(0, 5);
   }, [posts, latestDates]);
 
+  /* quick rail: the vault's heaviest tags stay one tap away, the searchable
+     panel keeps the long tail — never another wall of 59 chips */
+  const railTags = useMemo(() => {
+    const rail = tagCounts.slice(0, 12);
+    if (currentTag && !rail.some((t) => t.tag === currentTag)) {
+      const active = tagCounts.find((t) => t.tag === currentTag);
+      if (active) rail.unshift(active);
+    }
+    return rail;
+  }, [tagCounts, currentTag]);
+
   const filteredPosts = useMemo(() => {
     let result = posts;
     if (currentTag) {
@@ -241,6 +253,53 @@ const BlogList = () => {
     }
     return result;
   }, [posts, currentTag, currentQuery]);
+
+  /* live suggestions under the search box: up to six note titles, then a
+     couple of tag hits — the debounced URL still drives the list below */
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [sugIdx, setSugIdx] = useState(-1);
+  const suggestions = useMemo(() => {
+    const q = qInput.trim().toLowerCase();
+    if (!q) return [];
+    const noteHits = posts
+      .filter((p) => p.title.toLowerCase().includes(q))
+      .slice(0, 6)
+      .map((p) => ({ kind: "note" as const, label: p.title, slug: p.fullSlug, hint: p.dir }));
+    const tagHits = tagCounts
+      .filter((t) => t.tag.toLowerCase().includes(q))
+      .slice(0, 3)
+      .map((t) => ({ kind: "tag" as const, label: t.tag, count: t.count }));
+    return [...noteHits, ...tagHits];
+  }, [qInput, posts, tagCounts]);
+  const activeSug = sugIdx >= 0 && sugIdx < suggestions.length ? sugIdx : -1;
+
+  const activateSuggestion = (i: number) => {
+    const s = suggestions[i];
+    if (!s) return;
+    setQInput("");
+    if (s.kind === "note") {
+      lastPushedQ.current = "";
+      navigate(`/blog/post/${s.slug}`);
+    } else {
+      lastPushedQ.current = "";
+      updateParams({ tag: s.label, path: null, q: null });
+    }
+    searchRef.current?.blur();
+  };
+
+  const markMatch = (label: string, q: string) => {
+    const i = q ? label.toLowerCase().indexOf(q.toLowerCase()) : -1;
+    if (i === -1) return label;
+    return (
+      <>
+        {label.slice(0, i)}
+        <mark className="bg-blue-500/25 text-inherit rounded px-0.5">
+          {label.slice(i, i + q.length)}
+        </mark>
+        {label.slice(i + q.length)}
+      </>
+    );
+  };
 
   const tree = buildTree(filteredPosts);
   const folder = getFolderAtPath(tree, currentPath);
@@ -323,12 +382,33 @@ const BlogList = () => {
                   ref={searchRef}
                   type="text"
                   value={qInput}
-                  onChange={(e) => setQInput(e.target.value)}
+                  onChange={(e) => {
+                    setQInput(e.target.value);
+                    setSugIdx(-1);
+                  }}
+                  onFocus={() => setSearchFocused(true)}
+                  onBlur={() => setSearchFocused(false)}
                   onKeyDown={(e) => {
                     if (e.key === "Escape") {
                       setQInput("");
                       setSearch("");
+                      setSugIdx(-1);
                       e.currentTarget.blur();
+                    } else if (e.key === "ArrowDown" && suggestions.length) {
+                      e.preventDefault();
+                      setSugIdx((i) => (i + 1) % suggestions.length);
+                    } else if (e.key === "ArrowUp" && suggestions.length) {
+                      e.preventDefault();
+                      setSugIdx((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
+                    } else if (e.key === "Enter") {
+                      if (activeSug >= 0) {
+                        e.preventDefault();
+                        activateSuggestion(activeSug);
+                      } else {
+                        /* Enter skips the debounce — search now */
+                        lastPushedQ.current = qInput;
+                        updateParams({ q: qInput || null, path: null, tag: null });
+                      }
                     }
                   }}
                   placeholder="Search notes... (press /)"
@@ -339,6 +419,7 @@ const BlogList = () => {
                     onClick={() => {
                       setQInput("");
                       setSearch("");
+                      setSugIdx(-1);
                     }}
                     aria-label="Clear search"
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full text-white-50/40 hover:text-white-50 active:bg-black-100 transition-colors"
@@ -350,8 +431,48 @@ const BlogList = () => {
                     /
                   </kbd>
                 )}
+                {searchFocused && suggestions.length > 0 && (
+                  <ul className="absolute left-0 right-0 top-full mt-2 z-[60] max-h-80 overflow-y-auto overscroll-contain rounded-xl border border-black-50 bg-black-100 shadow-2xl py-1.5">
+                    {suggestions.map((s, i) => (
+                      <li key={`${s.kind}:${s.label}`}>
+                        <button
+                          type="button"
+                          /* keep the input focused so blur never races the click */
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => activateSuggestion(i)}
+                          onPointerEnter={() => setSugIdx(i)}
+                          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left transition-colors ${
+                            i === activeSug
+                              ? "bg-black-200 text-foreground"
+                              : "text-white-50 hover:bg-black-200/60"
+                          }`}
+                        >
+                          {s.kind === "note" ? (
+                            <FileText className="size-3.5 shrink-0 text-blue-400/70" />
+                          ) : (
+                            <Tags className="size-3.5 shrink-0 text-blue-400/70" />
+                          )}
+                          <span className="truncate text-sm flex-1 min-w-0">
+                            {markMatch(s.label, qInput.trim())}
+                          </span>
+                          {s.kind === "note" ? (
+                            s.hint && (
+                              <span className="shrink-0 text-[11px] text-white-50/35 truncate max-w-28">
+                                {s.hint.split("/").pop()}
+                              </span>
+                            )
+                          ) : (
+                            <span className="shrink-0 text-[11px] tabular-nums text-white-50/35">
+                              {s.count}
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              <div className="blog-intro flex items-center justify-between gap-3 flex-wrap mb-6">
+              <div className="blog-intro flex items-center justify-between gap-3 flex-wrap mb-4">
                 {tagCounts.length > 0 && (
                   <TagPanel
                     tags={tagCounts}
@@ -367,6 +488,27 @@ const BlogList = () => {
                   {currentQuery ? ` · “${currentQuery}”` : ""}
                 </p>
               </div>
+              {railTags.length > 0 && (
+                <div className="mb-6 -mx-1 px-1 flex gap-2 overflow-x-auto no-scrollbar lg:flex-wrap lg:overflow-x-visible">
+                  {railTags.map(({ tag, count }) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setTag(tag)}
+                      aria-pressed={currentTag === tag}
+                      title={`${count} note${count === 1 ? "" : "s"} in #${tag}`}
+                      className={`tag-rail-item shrink-0 chip inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                        currentTag === tag
+                          ? "chip-filter"
+                          : "border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground"
+                      }`}
+                    >
+                      <span className="truncate max-w-32">{tag}</span>
+                      <span className="tabular-nums opacity-50">{count}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
               {folder && (folder.children?.length ?? 0) > 0 ? (
                 <FileExplorer
                   folder={folder}
