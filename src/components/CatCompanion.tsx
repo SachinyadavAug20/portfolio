@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Neko, NekoSizeVariations } from "neko-ts";
+import type { BreedConfig, Neko, NekoSizeVariations } from "neko-ts";
 import { useReducedMotion, isReducedMotion } from "../hooks/useReducedMotion";
 import { tap } from "../lib/haptics";
 import {
@@ -134,6 +134,21 @@ const ROAMING_ACTS: readonly ActId[] = [
 const PHRASE_GAP_MS = cd(5000);
 
 type Brain = typeof import("../lib/catBrain");
+
+/* one random breed per spawn, so only that breed's chunk ever ships — the
+   eager Promise.all of all eight bought a random pick nobody asked for.
+   Loaders keep each import statically analyzable (tree-shakes to one chunk
+   per breed) while letting spawn choose after the dice roll. */
+const BREED_LOADERS: Record<string, () => Promise<BreedConfig>> = {
+  tabby: async () => (await import("neko-ts/breeds/tabby")).tabby,
+  orange: async () => (await import("neko-ts/breeds/orange")).orange,
+  marmalade: async () => (await import("neko-ts/breeds/marmalade")).marmalade,
+  calico: async () => (await import("neko-ts/breeds/calico")).calico,
+  socks: async () => (await import("neko-ts/breeds/socks")).socks,
+  lucky: async () => (await import("neko-ts/breeds/lucky")).lucky,
+  jess: async () => (await import("neko-ts/breeds/jess")).jess,
+  lucy: async () => (await import("neko-ts/breeds/lucy")).lucy,
+};
 
 /* every synthetic seed is clamped to the viewport — the cat can never be
    aimed at dead space, and (with the raised z-index) can never vanish
@@ -3208,30 +3223,13 @@ const CatCompanion = () => {
     };
 
     const spawn = async () => {
-      const [core, tabby, orange, marmalade, calico, socks, lucky, jess, lucy] =
-        await Promise.all([
-          import("neko-ts"),
-          import("neko-ts/breeds/tabby"),
-          import("neko-ts/breeds/orange"),
-          import("neko-ts/breeds/marmalade"),
-          import("neko-ts/breeds/calico"),
-          import("neko-ts/breeds/socks"),
-          import("neko-ts/breeds/lucky"),
-          import("neko-ts/breeds/jess"),
-          import("neko-ts/breeds/lucy"),
-        ]);
+      const breedNames = Object.keys(BREED_LOADERS);
+      const chosen = breedNames[rand(breedNames.length)];
+      const [core, breed] = await Promise.all([
+        import("neko-ts"),
+        BREED_LOADERS[chosen](),
+      ]);
       if (cancelled) return;
-
-      const breeds = [
-        tabby.tabby,
-        orange.orange,
-        marmalade.marmalade,
-        calico.calico,
-        socks.socks,
-        lucky.lucky,
-        jess.jess,
-        lucy.lucy,
-      ];
       const w = window.innerWidth;
       const h = window.innerHeight;
       const edges = [
@@ -3247,7 +3245,7 @@ const CatCompanion = () => {
         speed: 12,
         origin,
         defaultState: "awake",
-        breed: breeds[rand(breeds.length)],
+        breed,
       });
       /* a good chunk bigger than LARGE on desktop (and a step up on
          mobile) — same pixelated sprite; setSize rescales the sheet */
