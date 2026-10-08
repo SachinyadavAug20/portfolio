@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown, Share2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown, Share2, AArrowDown, AArrowUp, X } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ReactMarkdown from "react-markdown";
@@ -27,8 +27,10 @@ import refractorProperties from "refractor/properties";
 import refractorVim from "refractor/vim";
 import ReadingProgress from "../components/ReadingProgress";
 import ReadAloud from "../components/ReadAloud";
+import BackToTop from "../components/BackToTop";
 import { toast } from "sonner";
 import { tap } from "../lib/haptics";
+import { createPortal } from "react-dom";
 import "prismjs/themes/prism-tomorrow.css";
 
 /* the common refractor set covers ~50 languages for a fraction of the
@@ -44,6 +46,17 @@ const PRESS = {
   whileTap: { scale: 0.94 },
   transition: { type: "spring", stiffness: 650, damping: 30 },
 } as const;
+
+/* reader font sizes — the CSS defaults are steps 1 (base/md). The chosen
+   step is written to localStorage and rehydrated before first paint of the
+   article (content loads async anyway, so no flash). */
+const READER_STEPS = [
+  { base: "0.95rem", md: "1.05rem" },
+  { base: "1.0625rem", md: "1.15rem" },
+  { base: "1.15rem", md: "1.25rem" },
+  { base: "1.28rem", md: "1.4rem" },
+] as const;
+const READER_KEY = "portfolio:reader-size";
 
 interface TocItem {
   level: number;
@@ -70,6 +83,22 @@ function extractHeadings(markdown: string): TocItem[] {
   }
   return headings;
 }
+
+/* `#` affordance beside headings — empty element so ReadAloud's innerText
+   never says "hash"; the glyph comes from CSS ::after */
+const HeadingHash = ({ id, text }: { id: string; text: string }) => (
+  <a
+    href={`#${id}`}
+    aria-label={`Link to ${text}`}
+    className="heading-hash"
+    onClick={(e) => {
+      e.preventDefault();
+      const el = document.getElementById(id);
+      if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY - 96);
+      window.history.replaceState(null, "", `#${id}`);
+    }}
+  />
+);
 
 const TableOfContents = ({ headings }: { headings: TocItem[] }) => {
   const [activeId, setActiveId] = useState("");
@@ -185,25 +214,72 @@ const ImageWithFallback = (props: Record<string, unknown>) => {
 
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  /* lightbox: escape closes, scroll stays put behind the overlay */
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpanded(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [expanded]);
 
   if (idx >= urls.length || !urls[idx]) return null;
+  const alt = typeof props.alt === "string" ? props.alt : "";
 
   return (
-    <div className={`relative overflow-hidden rounded ${!loaded ? "bg-black-200 min-h-[100px]" : ""}`}>
-      <img
-        {...(props as React.ImgHTMLAttributes<HTMLImageElement>)}
-        key={idx}
-        src={urls[idx]}
-        loading="lazy"
-        decoding="async"
-        className={`transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
-        onLoad={() => setLoaded(true)}
-        onError={() => {
-          setIdx((i) => i + 1);
-          setLoaded(false);
-        }}
-      />
-    </div>
+    <>
+      <div className={`relative overflow-hidden rounded ${!loaded ? "bg-black-200 min-h-[100px]" : ""}`}>
+        <img
+          {...(props as React.ImgHTMLAttributes<HTMLImageElement>)}
+          key={idx}
+          src={urls[idx]}
+          loading="lazy"
+          decoding="async"
+          title="Click to enlarge"
+          onClick={() => setExpanded(true)}
+          className={`cursor-zoom-in transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+          onLoad={() => setLoaded(true)}
+          onError={() => {
+            setIdx((i) => i + 1);
+            setLoaded(false);
+          }}
+        />
+      </div>
+      {expanded &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={alt || "Image preview"}
+            onClick={() => setExpanded(false)}
+            className="fixed inset-0 z-[180] flex items-center justify-center bg-black-900/90 backdrop-blur-sm p-4"
+          >
+            <img
+              src={urls[idx]}
+              alt={alt}
+              className="max-h-[86vh] max-w-[96vw] rounded-xl object-contain shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              aria-label="Close image"
+              className="absolute top-4 right-4 p-2.5 rounded-full bg-black-200/80 border border-black-50 text-white-50 hover:text-foreground hover:bg-black-100 transition-colors"
+            >
+              <X className="size-5" />
+            </button>
+          </div>,
+          document.body,
+        )}
+    </>
   );
 };
 
@@ -332,6 +408,39 @@ const BlogPost = () => {
   const { views } = useViews(post?.fullSlug);
   const pageRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
+
+  /* reader text size — remembered across notes and visits. The read is
+     deferred a tick (repo convention) so the effect stays free of sync
+     setState, which the compiler flags. */
+  const [readerStep, setReaderStep] = useState(1);
+  useEffect(() => {
+    let dead = false;
+    Promise.resolve().then(() => {
+      if (dead) return;
+      try {
+        const raw = localStorage.getItem(READER_KEY);
+        if (raw === null) return;
+        const n = Number(raw);
+        if (Number.isInteger(n) && n >= 0 && n < READER_STEPS.length) setReaderStep(n);
+      } catch {
+        /* private mode — default size */
+      }
+    });
+    return () => {
+      dead = true;
+    };
+  }, []);
+  const bumpReader = (delta: number) => {
+    const n = Math.min(READER_STEPS.length - 1, Math.max(0, readerStep + delta));
+    if (n === readerStep) return;
+    tap(6);
+    setReaderStep(n);
+    try {
+      localStorage.setItem(READER_KEY, String(n));
+    } catch {
+      /* private mode — size lives for this note only */
+    }
+  };
 
   // Entrance choreography (timings from UX motion research):
   // content-surface band 250–400ms, ease-out, ~200ms total stagger spread,
@@ -486,17 +595,17 @@ const BlogPost = () => {
       h2: ({ children, ...props }) => {
         const text = extractText(children);
         const id = slugify(text);
-        return <h2 id={id} className="scroll-mt-6" {...props}>{children}</h2>;
+        return <h2 id={id} className="scroll-mt-6" {...props}>{children}<HeadingHash id={id} text={text} /></h2>;
       },
       h3: ({ children, ...props }) => {
         const text = extractText(children);
         const id = slugify(text);
-        return <h3 id={id} className="scroll-mt-6" {...props}>{children}</h3>;
+        return <h3 id={id} className="scroll-mt-6" {...props}>{children}<HeadingHash id={id} text={text} /></h3>;
       },
       h4: ({ children, ...props }) => {
         const text = extractText(children);
         const id = slugify(text);
-        return <h4 id={id} className="scroll-mt-6" {...props}>{children}</h4>;
+        return <h4 id={id} className="scroll-mt-6" {...props}>{children}<HeadingHash id={id} text={text} /></h4>;
       },
       code({ className, children, ...props }) {
         return (
@@ -536,6 +645,24 @@ const BlogPost = () => {
           );
         }
         if (href.startsWith("/")) {
+          /* markdown-style links between notes get the same chip treatment
+             as [[wikilinks]] — an index note full of them reads as a menu,
+             not a wall of underlines */
+          if (href.startsWith("/blog/post/")) {
+            const raw =
+              typeof children === "string" ? children : extractText(children);
+            const pipe = raw.lastIndexOf("|");
+            const label = pipe !== -1 ? raw.slice(pipe + 1) : raw;
+            return (
+              <Link
+                to={href}
+                className={`${className ?? ""} wiki-link internal`.trim()}
+                {...props}
+              >
+                {label || children}
+              </Link>
+            );
+          }
           return (
             <Link to={href} className={className} {...props}>
               {children}
@@ -589,7 +716,7 @@ const BlogPost = () => {
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               to={backTo}
-              className="chip px-4 py-2 text-sm rounded-full bg-blue-500/20 text-blue-200 hover:bg-blue-500/30 transition-colors"
+              className="chip chip-filter px-4 py-2 text-sm rounded-full transition-colors"
             >
               &larr; Back to blog
             </Link>
@@ -618,6 +745,7 @@ const BlogPost = () => {
         dateModified={lastUpdated ?? undefined}
       />
       <ReadingProgress />
+      <BackToTop />
       <section className="section-padding pt-5 min-h-screen">
       <div ref={pageRef} className="w-full h-full md:px-10 max-w-6xl mx-auto">
         <Link
@@ -657,6 +785,32 @@ const BlogPost = () => {
                 >
                   <Share2 className="size-4" />
                   <span className="hidden sm:inline">Share</span>
+                </button>
+              </div>
+              <div
+                className="flex items-center gap-0.5 bg-black-200 border border-black-50 rounded-lg px-1 py-1"
+                role="group"
+                aria-label="Text size"
+              >
+                <button
+                  type="button"
+                  onClick={() => bumpReader(-1)}
+                  disabled={readerStep === 0}
+                  aria-label="Smaller text"
+                  title="Smaller text"
+                  className="p-2 rounded-md text-white-50/60 hover:text-foreground hover:bg-black-100 disabled:opacity-30 transition-colors"
+                >
+                  <AArrowDown className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => bumpReader(1)}
+                  disabled={readerStep === READER_STEPS.length - 1}
+                  aria-label="Larger text"
+                  title="Larger text"
+                  className="p-2 rounded-md text-white-50/60 hover:text-foreground hover:bg-black-100 disabled:opacity-30 transition-colors"
+                >
+                  <AArrowUp className="size-4" />
                 </button>
               </div>
             </div>
@@ -705,7 +859,15 @@ const BlogPost = () => {
                 </ul>
               </details>
             )}
-            <article className="post-anim prose prose-invert max-w-none blog-content mt-2">
+            <article
+              className="post-anim prose prose-invert max-w-none blog-content mt-2"
+              style={
+                {
+                  "--reader-fs": READER_STEPS[readerStep].base,
+                  "--reader-fs-md": READER_STEPS[readerStep].md,
+                } as React.CSSProperties
+              }
+            >
               {post.content && (
                 <ReactMarkdown
                   remarkPlugins={remarkPlugins}

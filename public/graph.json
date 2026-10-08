@@ -1,11 +1,11 @@
 {
- "generatedAt": "2026-10-08T12:57:16.088Z",
+ "generatedAt": "2026-10-08T13:48:18.819Z",
  "counts": {
-  "notes": 336,
+  "notes": 337,
   "folders": 60,
-  "links": 592,
+  "links": 593,
   "wikiLinks": 204,
-  "fresh": 20
+  "fresh": 21
  },
  "nodes": [
   {
@@ -154,6 +154,14 @@
    "kind": "note",
    "dir": "Programing/Concepts/LLD",
    "updated": "2026-10-07T14:00:30Z",
+   "fresh": true
+  },
+  {
+   "id": "Programing/Concepts/LLD/17.Vector and embeddings",
+   "title": "First attempt",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-10-08T13:32:32Z",
    "fresh": true
   },
   {
@@ -3543,6 +3551,11 @@
   },
   {
    "source": "Programing/Concepts/LLD/16.Facade design pattern",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/17.Vector and embeddings",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
   },

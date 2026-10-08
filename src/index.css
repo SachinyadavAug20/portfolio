@@ -1273,8 +1273,11 @@ section {
 }
 
 .blog-content {
-  @apply text-base leading-relaxed text-blue-50;
-  font-size: 1.0625rem;
+  @apply text-base leading-relaxed;
+  /* body text sits at the site's normal ink (white-50), not the dimmer
+     blue — long notes read easier; links/headings keep their own colors */
+  color: color-mix(in srgb, var(--flip-white-50) 94%, transparent);
+  font-size: var(--reader-fs, 1.0625rem);
   line-height: 1.75;
   letter-spacing: 0.01em;
   word-spacing: 0.02em;
@@ -1283,7 +1286,7 @@ section {
 
 @media (min-width: 768px) {
   .blog-content {
-    font-size: 1.15rem;
+    font-size: var(--reader-fs-md, 1.15rem);
     line-height: 1.85;
   }
 }
@@ -1332,6 +1335,36 @@ section {
   letter-spacing: -0.02em;
 }
 
+/* heading deep-link affordance — hidden until the heading is hovered,
+   always visible on touch; the glyph is generated so ReadAloud never
+   speaks it (innerText skips ::after content) */
+.blog-content .heading-hash {
+  text-decoration: none;
+  font-weight: 400;
+  margin-left: 0.4em;
+  font-size: 0.55em;
+  line-height: 1;
+  vertical-align: 0.45em;
+  color: var(--flip-blue-50);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.blog-content :is(h2, h3, h4):hover .heading-hash,
+.blog-content .heading-hash:focus-visible {
+  opacity: 0.85;
+}
+
+@media (hover: none) {
+  .blog-content .heading-hash {
+    opacity: 0.4;
+  }
+}
+
+.blog-content .heading-hash::after {
+  content: "#";
+}
+
 .blog-content h2 {
   @apply text-2xl font-semibold mt-10 mb-4 text-foreground;
   letter-spacing: -0.01em;
@@ -1371,19 +1404,85 @@ section {
   @apply text-blue-50 underline underline-offset-2 decoration-blue-50/30 hover:decoration-blue-50 transition-colors;
 }
 
-/* obsidian-style wiki links — chips, not raw paths */
+/* obsidian-style wiki links — chips, not raw paths. Sky ink on paper, sky
+   glow on the dark theme: the old fixed blue-200 text washed out on light */
 .blog-content a.wiki-link {
-  @apply no-underline bg-blue-500/15 text-blue-200 px-1.5 py-0.5 rounded-md border border-blue-500/25 font-medium text-[0.95em] inline-block transition-colors hover:bg-blue-500/30 hover:text-blue-100;
+  @apply no-underline px-1.5 py-0.5 rounded-md border font-medium text-[0.95em] inline-block transition-colors;
+  background: rgb(14 165 233 / 0.1);
+  border-color: rgb(14 165 233 / 0.35);
+  color: #075985;
+}
+
+.blog-content a.wiki-link:hover {
+  background: rgb(14 165 233 / 0.18);
+  border-color: rgb(14 165 233 / 0.5);
+  color: #0c4a6e;
+}
+
+.dark .blog-content a.wiki-link {
+  background: rgb(14 165 233 / 0.15);
+  border-color: rgb(56 189 248 / 0.3);
+  color: #bae6fd;
+}
+
+.dark .blog-content a.wiki-link:hover {
+  background: rgb(14 165 233 / 0.3);
+  border-color: rgb(56 189 248 / 0.5);
+  color: #e0f2fe;
 }
 
 /* dangling [[wikilink]] — dimmed, dashed, with a marker */
 .blog-content a.wiki-link.new {
-  @apply bg-amber-500/10 text-amber-300/75 border-dashed border-amber-500/40 hover:bg-amber-500/20 hover:text-amber-200;
+  background: rgb(217 119 6 / 0.12);
+  border-style: dashed;
+  border-color: rgb(217 119 6 / 0.5);
+  color: #b45309;
+}
+
+.blog-content a.wiki-link.new:hover {
+  background: rgb(217 119 6 / 0.2);
+  color: #92400e;
+}
+
+.dark .blog-content a.wiki-link.new {
+  background: rgb(245 158 11 / 0.1);
+  border-color: rgb(245 158 11 / 0.4);
+  color: rgb(253 230 138 / 0.8);
+}
+
+.dark .blog-content a.wiki-link.new:hover {
+  background: rgb(245 158 11 / 0.2);
+  color: rgb(254 243 199 / 0.95);
 }
 
 .blog-content a.wiki-link.new::after {
   content: "?";
-  @apply ml-1 text-amber-500/70 font-semibold;
+  @apply ml-1 font-semibold;
+  opacity: 0.75;
+}
+
+/* active filter chip (tag panel) — readable on both themes */
+.chip-filter {
+  background: rgb(14 165 233 / 0.12);
+  border: 1px solid rgb(14 165 233 / 0.4);
+  color: #075985;
+}
+
+.chip-filter:hover {
+  background: rgb(14 165 233 / 0.2);
+  border-color: rgb(14 165 233 / 0.55);
+}
+
+.dark .chip-filter {
+  background: rgb(14 165 233 / 0.18);
+  border-color: rgb(56 189 248 / 0.45);
+  color: #bae6fd;
+}
+
+.dark .chip-filter:hover {
+  background: rgb(14 165 233 / 0.3);
+  border-color: rgb(56 189 248 / 0.6);
+  color: #e0f2fe;
 }
 
 .blog-content hr {
@@ -1460,6 +1559,66 @@ h4 {
 .blog-content {
   content-visibility: auto;
   contain-intrinsic-size: auto 1500px;
+}
+
+/* Print a note like a document: paper, ink, no chrome */
+@media print {
+  .navbar,
+  .bottom-tabbar,
+  .footer,
+  .cat-bubble-anchor,
+  .reading-progress,
+  aside,
+  button,
+  canvas {
+    display: none !important;
+  }
+
+  body,
+  section {
+    background: #fff !important;
+    padding: 0 !important;
+  }
+
+  .blog-content {
+    color: #171717 !important;
+    font-size: 11pt !important;
+    line-height: 1.6 !important;
+    content-visibility: visible !important;
+  }
+
+  .blog-content a {
+    color: #171717 !important;
+    text-decoration: underline;
+  }
+
+  .blog-content a.wiki-link {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .blog-content pre {
+    background: #f4f4f5 !important;
+    color: #171717 !important;
+    white-space: pre-wrap;
+    break-inside: avoid;
+  }
+
+  .blog-content pre *,
+  .blog-content code {
+    color: #171717 !important;
+    background: transparent !important;
+  }
+
+  .blog-content :not(pre) > code {
+    background: #f4f4f5 !important;
+  }
+
+  .blog-content th,
+  .blog-content td {
+    border-color: #bbb !important;
+  }
 }
 
 /* Chrome (navbar/tabbar/chips) shouldn't enter text-selection mode on long-press */

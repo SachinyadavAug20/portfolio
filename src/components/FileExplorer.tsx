@@ -9,10 +9,23 @@ interface FileExplorerProps {
   folder: TreeNode;
   currentPath: string;
   onNavigate: (path: string) => void;
+  /** slug → last commit date (dates.json) so file rows can show freshness */
+  dates?: Record<string, string>;
 }
 
 const EXCLUDED = new Set(["attachement", "attachements"]);
 const BATCH_SIZE = 20;
+
+/* vault-freshness cue: "today / 3d ago / 2w ago / Oct 7" */
+const relDate = (iso: string): string => {
+  const then = new Date(iso);
+  if (Number.isNaN(then.getTime())) return "";
+  const days = Math.floor((Date.now() - then.getTime()) / 86_400_000);
+  if (days <= 0) return "today";
+  if (days < 7) return `${days}d ago`;
+  if (days < 35) return `${Math.floor(days / 7)}w ago`;
+  return then.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+};
 
 /* whole subtree, not just direct children — nested folders said "0 files" */
 const countFiles = (node: TreeNode): number => {
@@ -25,7 +38,7 @@ const countFiles = (node: TreeNode): number => {
   return sum;
 };
 
-const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) => {
+const FileExplorer = ({ folder, currentPath, onNavigate, dates }: FileExplorerProps) => {
   const [visibleFiles, setVisibleFiles] = useState(BATCH_SIZE);
   const listRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -145,22 +158,30 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
           {folders.length > 0 && files.length > 0 && (
             <div className="border-t border-black-50 my-3" />
           )}
-          {shownFiles.map((node) => (
-            <Link
-              key={node.slug}
-              to={`/blog/post/${node.slug}${currentPath ? `?from=${currentPath}` : ""}`}
-              className="blog-tile flex items-center gap-3 px-4 py-3.5 rounded-xl border border-black-50
-                bg-black-100/70 hover:bg-black-200 active:scale-[0.99] transition-[background-color,border-color] duration-150 group"
-            >
-              <FileText className="size-5 text-blue-400 shrink-0" />
-              <div className="min-w-0 flex-1">
-                <span className="text-white-50 group-hover:text-foreground transition-colors block truncate text-[15px]">
-                  {node.title ?? node.name}
-                </span>
-              </div>
-              <ChevronRight className="size-4 text-white-50/30 shrink-0" />
-            </Link>
-          ))}
+          {shownFiles.map((node) => {
+            const updated = node.slug ? dates?.[node.slug] : undefined;
+            return (
+              <Link
+                key={node.slug}
+                to={`/blog/post/${node.slug}${currentPath ? `?from=${currentPath}` : ""}`}
+                className="blog-tile flex items-center gap-3 px-4 py-3.5 rounded-xl border border-black-50
+                  bg-black-100/70 hover:bg-black-200 active:scale-[0.99] transition-[background-color,border-color] duration-150 group"
+              >
+                <FileText className="size-5 text-blue-400 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <span className="text-white-50 group-hover:text-foreground transition-colors block truncate text-[15px]">
+                    {node.title ?? node.name}
+                  </span>
+                </div>
+                {updated && (
+                  <span className="hidden sm:block shrink-0 text-[11px] tabular-nums text-white-50/35 group-hover:text-white-50/55 transition-colors">
+                    {relDate(updated)}
+                  </span>
+                )}
+                <ChevronRight className="size-4 text-white-50/30 shrink-0" />
+              </Link>
+            );
+          })}
           {remaining > 0 && (
             <button
               onClick={() => growList(() => setVisibleFiles((v) => v + BATCH_SIZE))}

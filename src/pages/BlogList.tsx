@@ -13,11 +13,11 @@ const PRESS = {
   whileTap: { scale: 0.94 },
   transition: { type: "spring", stiffness: 650, damping: 30 },
 } as const;
-/* the tag wall hides behind a toggle after the first screenful */
-const TAG_PREVIEW = 14;
 import type { BlogPost } from "../blog/types";
 import TitleHeader from "../components/TitleHeader";
 import FileExplorer from "../components/FileExplorer";
+import TagPanel from "../components/TagPanel";
+import BackToTop from "../components/BackToTop";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { scrollToY } from "../lib/smoothScroll";
 
@@ -56,7 +56,6 @@ const BlogList = () => {
    * what we pushed so browser back/forward never fights the input.
    */
   const [qInput, setQInput] = useState(currentQuery);
-  const [showAllTags, setShowAllTags] = useState(false);
   const lastPushedQ = useRef(currentQuery);
   useEffect(() => {
     if (qInput === currentQuery) {
@@ -352,57 +351,28 @@ const BlogList = () => {
                   </kbd>
                 )}
               </div>
-              {(currentQuery || currentTag) && (
-                <p className="blog-intro mb-3 text-xs text-white-50/55">
-                  {filteredPosts.length} of {posts.length} notes
-                  {currentTag ? ` in #${currentTag}` : ""}
-                  {currentQuery ? ` match "${currentQuery}"` : ""}
+              <div className="blog-intro flex items-center justify-between gap-3 flex-wrap mb-6">
+                {tagCounts.length > 0 && (
+                  <TagPanel
+                    tags={tagCounts}
+                    activeTag={currentTag || null}
+                    onSelect={(t) => (t ? setTag(t) : clearTag())}
+                  />
+                )}
+                <p className="text-xs text-white-50/45 tabular-nums ml-auto">
+                  {currentTag || currentQuery
+                    ? `${filteredPosts.length} of ${posts.length} notes`
+                    : `${posts.length} notes`}
+                  {currentTag ? ` · #${currentTag}` : ""}
+                  {currentQuery ? ` · “${currentQuery}”` : ""}
                 </p>
-              )}
-              {tagCounts.length > 0 && (
-                <div className="blog-intro flex flex-wrap gap-2 mb-6">
-                  {currentTag && (
-                    <motion.button
-                      onClick={clearTag}
-                      className="chip shrink-0 inline-flex items-center gap-1 px-3.5 py-1.5 text-xs rounded-full bg-blue-500/20 text-blue-300 hover:bg-blue-500/30"
-                      {...PRESS}
-                    >
-                      {currentTag}
-                      <X className="size-3" />
-                    </motion.button>
-                  )}
-                  {tagCounts
-                    .filter((t) => t.tag !== currentTag)
-                    .slice(0, showAllTags ? undefined : TAG_PREVIEW)
-                    .map(({ tag, count }) => (
-                      <motion.button
-                        key={tag}
-                        onClick={() => setTag(tag)}
-                        className="chip shrink-0 px-3.5 py-1.5 text-xs rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground"
-                        {...PRESS}
-                      >
-                        {tag}{" "}
-                        <span className="opacity-45">{count}</span>
-                      </motion.button>
-                    ))}
-                  {tagCounts.length > TAG_PREVIEW && (
-                    <motion.button
-                      onClick={() => setShowAllTags((v) => !v)}
-                      className="chip shrink-0 px-3.5 py-1.5 text-xs rounded-full border border-black-50 bg-black-100 text-white-50 hover:bg-black-200 hover:text-foreground transition-colors"
-                      {...PRESS}
-                    >
-                      {showAllTags
-                        ? "Show less"
-                        : `Show all ${tagCounts.length}`}
-                    </motion.button>
-                  )}
-                </div>
-              )}
+              </div>
               {folder && (folder.children?.length ?? 0) > 0 ? (
                 <FileExplorer
                   folder={folder}
                   currentPath={currentPath}
                   onNavigate={handleNavigate}
+                  dates={latestDates}
                 />
               ) : (
                 <div className="py-14 text-center">
@@ -489,6 +459,7 @@ const BlogList = () => {
             </>
           )}
         </div>
+        <BackToTop />
       </div>
     </section>
     </>
