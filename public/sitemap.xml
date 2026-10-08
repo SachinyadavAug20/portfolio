@@ -49,6 +49,11 @@
     <lastmod>2026-10-08</lastmod>
   </url>
   <url>
+    <loc>https://portfolio.samtagon777.workers.dev/blog/post/Programing/Concepts/FDE%20and%20GenAI/17.Vector%20and%20embeddings</loc>
+    <priority>0.6</priority>
+    <lastmod>2026-10-08</lastmod>
+  </url>
+  <url>
     <loc>https://portfolio.samtagon777.workers.dev/blog/post/Programing/Concepts/FDE%20and%20GenAI/2.Integrating%20LLM%20with%20Your%20Application</loc>
     <priority>0.6</priority>
     <lastmod>2026-10-08</lastmod>
@@ -119,7 +124,7 @@
     <lastmod>2026-10-08</lastmod>
   </url>
   <url>
-    <loc>https://portfolio.samtagon777.workers.dev/blog/post/Programing/Concepts/LLD/17.Vector%20and%20embeddings</loc>
+    <loc>https://portfolio.samtagon777.workers.dev/blog/post/Programing/Concepts/LLD/17.Spotify%2C%20Music%20player</loc>
     <priority>0.6</priority>
     <lastmod>2026-10-08</lastmod>
   </url>
@@ -1429,11 +1434,6 @@
     <lastmod>2026-10-08</lastmod>
   </url>
   <url>
-    <loc>https://portfolio.samtagon777.workers.dev/blog/post/Tools/Git/4.1%20Non%E2%80%93Fast-Forward%20Merge</loc>
-    <priority>0.6</priority>
-    <lastmod>2026-10-08</lastmod>
-  </url>
-  <url>
     <loc>https://portfolio.samtagon777.workers.dev/blog/post/Tools/Git/5.%20Advanced%20Git%20Features</loc>
     <priority>0.6</priority>
     <lastmod>2026-10-08</lastmod>
@@ -1455,11 +1455,6 @@
   </url>
   <url>
     <loc>https://portfolio.samtagon777.workers.dev/blog/post/Tools/Git/9.%20Intellij</loc>
-    <priority>0.6</priority>
-    <lastmod>2026-10-08</lastmod>
-  </url>
-  <url>
-    <loc>https://portfolio.samtagon777.workers.dev/blog/post/Tools/Git/Summary/Git%20%C3%97%20Obsidian%20push%20incident</loc>
     <priority>0.6</priority>
     <lastmod>2026-10-08</lastmod>
   </url>
@@ -1530,31 +1525,6 @@
   </url>
   <url>
     <loc>https://portfolio.samtagon777.workers.dev/blog/post/Tools/Neovim/Neovim%20for%20beginners</loc>
-    <priority>0.6</priority>
-    <lastmod>2026-10-08</lastmod>
-  </url>
-  <url>
-    <loc>https://portfolio.samtagon777.workers.dev/blog/post/_templates/%F0%9F%8C%B3%20Data%20Structure%20%26%20Algorithm</loc>
-    <priority>0.6</priority>
-    <lastmod>2026-10-08</lastmod>
-  </url>
-  <url>
-    <loc>https://portfolio.samtagon777.workers.dev/blog/post/_templates/%F0%9F%92%BB%20Programming%20Tool</loc>
-    <priority>0.6</priority>
-    <lastmod>2026-10-08</lastmod>
-  </url>
-  <url>
-    <loc>https://portfolio.samtagon777.workers.dev/blog/post/_templates/%F0%9F%93%85%20Daily%20Study%20Log</loc>
-    <priority>0.6</priority>
-    <lastmod>2026-10-08</lastmod>
-  </url>
-  <url>
-    <loc>https://portfolio.samtagon777.workers.dev/blog/post/_templates/%F0%9F%93%9A%20Lecture%20Note</loc>
-    <priority>0.6</priority>
-    <lastmod>2026-10-08</lastmod>
-  </url>
-  <url>
-    <loc>https://portfolio.samtagon777.workers.dev/blog/post/_templates/%F0%9F%9A%80%20Project%20Roadmap</loc>
     <priority>0.6</priority>
     <lastmod>2026-10-08</lastmod>
   </url>
