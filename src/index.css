@@ -1503,6 +1503,10 @@ section {
   @apply border border-black-50 p-3 text-sm;
 }
 
+.blog-content tbody tr:nth-child(even) td {
+  @apply bg-black-100/40;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { useParams, useSearchParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown, Share2, AArrowDown, AArrowUp, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown, Share2, AArrowDown, AArrowUp, X, Link2, FolderOpen } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ReactMarkdown from "react-markdown";
@@ -12,6 +12,7 @@ import remarkWikiLink from "remark-wiki-link";
 import remarkCallouts from "remark-callouts";
 import SEOHead from "../seo/SEOHead";
 import { getPostByFullSlug, getPosts, getPostsInDir } from "../blog/posts";
+import { getBacklinks } from "../blog/backlinks";
 import type { BlogPost as BlogPostType } from "../blog/types";
 import { useViews } from "../hooks/useViews";
 import { useReducedMotion } from "../hooks/useReducedMotion";
@@ -285,6 +286,8 @@ const ImageWithFallback = (props: Record<string, unknown>) => {
 const CodeBlock = ({ children, className, ...props }: any) => {
   const preRef = useRef<HTMLPreElement>(null);
   const [copied, setCopied] = useState(false);
+  const lang =
+    typeof className === "string" ? className.match(/language-(\S+)/)?.[1] : "";
 
   const handleCopy = () => {
     if (copied) return;
@@ -299,13 +302,24 @@ const CodeBlock = ({ children, className, ...props }: any) => {
       <pre ref={preRef} className={className} {...props}>
         {children}
       </pre>
-      <button
-        onClick={handleCopy}
-        aria-live="polite"
-        className="absolute top-2 right-2 px-2.5 py-1.5 text-xs rounded-md opacity-90 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity bg-black-50 hover:bg-black text-white-50"
-      >
-        {copied ? "Copied!" : "Copy"}
-      </button>
+      <div className="absolute top-2 right-2 flex items-center gap-1.5">
+        {lang && (
+          <span
+            data-tts="off"
+            className="hidden sm:block max-w-24 truncate px-1.5 py-1 text-[10px] font-mono uppercase tracking-wider rounded border border-black-50 bg-black-50/60 text-white-50/45"
+          >
+            {lang}
+          </span>
+        )}
+        <button
+          data-tts="off"
+          onClick={handleCopy}
+          aria-live="polite"
+          className="px-2.5 py-1.5 text-xs rounded-md opacity-90 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity bg-black-50 hover:bg-black text-white-50"
+        >
+          {copied ? "Copied!" : "Copy"}
+        </button>
+      </div>
     </div>
   );
 };
@@ -529,12 +543,19 @@ const BlogPost = () => {
 
   const backTo = from ? `/blog?path=${from}` : "/blog";
 
+  /* nav key falls back to the note's own folder so direct visits get prev/next */
+  const dirKey = from || post?.dir || "";
   const [dirPosts, setDirPosts] = useState<BlogPostType[]>([]);
   useEffect(() => {
-    if (from) {
-      getPostsInDir(from).then(setDirPosts);
-    }
-  }, [from]);
+    let dead = false;
+    if (!dirKey) return;
+    getPostsInDir(dirKey).then((ps) => {
+      if (!dead) setDirPosts(ps);
+    });
+    return () => {
+      dead = true;
+    };
+  }, [dirKey]);
 
   const currentIdx = dirPosts.findIndex((p) => p.fullSlug === fullSlug);
   const prev = currentIdx > 0 ? dirPosts[currentIdx - 1] : null;
@@ -542,6 +563,67 @@ const BlogPost = () => {
     currentIdx >= 0 && currentIdx < dirPosts.length - 1
       ? dirPosts[currentIdx + 1]
       : null;
+
+  /* "more in this folder" — the siblings nearest this note */
+  const [siblings, setSiblings] = useState<BlogPostType[]>([]);
+  useEffect(() => {
+    let dead = false;
+    if (!post?.dir) return;
+    getPostsInDir(post.dir).then((ps) => {
+      if (!dead) setSiblings(ps);
+    });
+    return () => {
+      dead = true;
+    };
+  }, [post?.dir]);
+
+  const related = useMemo(() => {
+    const i = siblings.findIndex((p) => p.fullSlug === fullSlug);
+    if (i === -1) return siblings.filter((p) => p.fullSlug !== fullSlug).slice(0, 4);
+    return [
+      ...siblings.slice(Math.max(0, i - 2), i),
+      ...siblings.slice(i + 1, i + 3),
+    ];
+  }, [siblings, fullSlug]);
+
+  /* wiki links that point at this note */
+  const [backlinks, setBacklinks] = useState<{ from: string[]; titles: Record<string, string> }>({
+    from: [],
+    titles: {},
+  });
+  useEffect(() => {
+    let dead = false;
+    if (!post?.fullSlug) return;
+    getBacklinks(post.fullSlug).then((r) => {
+      if (!dead) setBacklinks(r);
+    });
+    return () => {
+      dead = true;
+    };
+  }, [post?.fullSlug]);
+
+  /* ← / → walk the folder like a gallery; overlays and inputs keep the keys */
+  const navigate = useNavigate();
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = document.activeElement;
+      if (
+        el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          (el as HTMLElement).isContentEditable)
+      )
+        return;
+      if (document.body.style.overflow === "hidden") return;
+      const target = e.key === "ArrowLeft" ? prev : e.key === "ArrowRight" ? next : null;
+      if (!target) return;
+      e.preventDefault();
+      navigate(`/blog/post/${target.fullSlug}${from ? `?from=${from}` : ""}`);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [prev, next, from, navigate]);
 
   const remarkPlugin = useMemo(
     () => (post?.dir ? remarkObsidianImages("Notes/" + post.dir) : remarkObsidianImages("")),
@@ -901,7 +983,76 @@ const BlogPost = () => {
                 </ReactMarkdown>
               )}
             </article>
-            <div className="post-anim mt-16 pt-8 border-t border-black-50 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            {(backlinks.from.length > 0 || related.length > 0) && (
+              <div className="post-anim mt-12 grid gap-4 md:grid-cols-2">
+                {backlinks.from.length > 0 && (
+                  <section className="rounded-2xl border border-black-50 bg-black-100/40 p-5">
+                    <h3 className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-white-50/45 mb-4">
+                      <Link2 className="size-3.5" />
+                      Linked from
+                    </h3>
+                    <ul className="space-y-2.5">
+                      {backlinks.from.slice(0, 6).map((src) => {
+                        const srcDir = src.split("/").slice(0, -1).join("/");
+                        return (
+                          <li key={src}>
+                            <Link
+                              to={`/blog/post/${src}${srcDir ? `?from=${srcDir}` : ""}`}
+                              className="group flex items-baseline gap-2"
+                            >
+                              <span className="min-w-0 truncate text-sm text-white-50/70 group-hover:text-foreground transition-colors">
+                                {backlinks.titles[src] || src.split("/").pop()}
+                              </span>
+                              {srcDir && (
+                                <span className="hidden sm:block min-w-0 truncate shrink-0 text-[11px] text-white-50/30">
+                                  {srcDir.split("/").pop()}
+                                </span>
+                              )}
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
+                )}
+                {related.length > 0 && (
+                  <section className="rounded-2xl border border-black-50 bg-black-100/40 p-5">
+                    <h3 className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-white-50/45 mb-4">
+                      <FolderOpen className="size-3.5" />
+                      More in {post.dir.split("/").pop() || "this folder"}
+                    </h3>
+                    <ul className="space-y-2.5">
+                      {related.map((p) => (
+                        <li key={p.fullSlug}>
+                          <Link
+                            to={`/blog/post/${p.fullSlug}${post.dir ? `?from=${post.dir}` : ""}`}
+                            className="group flex items-baseline gap-2"
+                          >
+                            <span className="min-w-0 truncate text-sm text-white-50/70 group-hover:text-foreground transition-colors">
+                              {p.title}
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+              </div>
+            )}
+            <div className="post-anim mt-16 hidden sm:flex items-center gap-4 text-[11px] text-white-50/35 select-none">
+              <div className="h-px flex-1 bg-black-50" />
+              <span className="flex items-center gap-1.5">
+                <kbd className="inline-flex items-center justify-center min-w-5 h-5 px-1 font-mono rounded border border-black-50 bg-black-100 text-white-50/50">
+                  ←
+                </kbd>
+                <kbd className="inline-flex items-center justify-center min-w-5 h-5 px-1 font-mono rounded border border-black-50 bg-black-100 text-white-50/50">
+                  →
+                </kbd>
+                to browse this folder
+              </span>
+              <div className="h-px flex-1 bg-black-50" />
+            </div>
+            <div className="post-anim mt-4 pt-8 border-t border-black-50 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
               {prev ? (
                 <Link
                   to={`/blog/post/${prev.fullSlug}${from ? `?from=${from}` : ""}`}

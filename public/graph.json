@@ -1,11 +1,11 @@
 {
- "generatedAt": "2026-10-08T15:00:01.722Z",
+ "generatedAt": "2026-10-08T15:58:57.114Z",
  "counts": {
-  "notes": 337,
+  "notes": 338,
   "folders": 60,
-  "links": 593,
+  "links": 594,
   "wikiLinks": 204,
-  "fresh": 21
+  "fresh": 22
  },
  "nodes": [
   {
@@ -48,6 +48,14 @@
    "kind": "note",
    "dir": "Programing/Concepts/FDE and GenAI",
    "updated": "2026-09-27T07:24:38Z",
+   "fresh": true
+  },
+  {
+   "id": "Programing/Concepts/FDE and GenAI/17.Vector and embeddings",
+   "title": "First attempt",
+   "kind": "note",
+   "dir": "Programing/Concepts/FDE and GenAI",
+   "updated": "2026-10-08T15:26:17Z",
    "fresh": true
   },
   {
@@ -157,11 +165,11 @@
    "fresh": true
   },
   {
-   "id": "Programing/Concepts/LLD/17.Vector and embeddings",
-   "title": "First attempt",
+   "id": "Programing/Concepts/LLD/17.Spotify, Music player",
+   "title": "Requirements",
    "kind": "note",
    "dir": "Programing/Concepts/LLD",
-   "updated": "2026-10-08T13:32:32Z",
+   "updated": "2026-10-08T15:26:17Z",
    "fresh": true
   },
   {
@@ -3485,6 +3493,11 @@
    "kind": "member"
   },
   {
+   "source": "Programing/Concepts/FDE and GenAI/17.Vector and embeddings",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "member"
+  },
+  {
    "source": "Programing/Concepts/FDE and GenAI/2.Integrating LLM with Your Application",
    "target": "dir:Programing/Concepts/FDE and GenAI",
    "kind": "member"
@@ -3555,7 +3568,7 @@
    "kind": "member"
   },
   {
-   "source": "Programing/Concepts/LLD/17.Vector and embeddings",
+   "source": "Programing/Concepts/LLD/17.Spotify, Music player",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
   },

@@ -8,6 +8,7 @@ const BLOG_ROOT = "Notes";
 
 const OUT_PATH = resolve(import.meta.dirname, "../public/graph.json");
 const DATES_PATH = resolve(import.meta.dirname, "../public/dates.json");
+const BACKLINKS_PATH = resolve(import.meta.dirname, "../public/backlinks.json");
 
 const FETCH_CONCURRENCY = 8;
 const MAX_ATTEMPTS = 3;
@@ -240,10 +241,36 @@ function ensureFolders(dirs) {
 function keepExisting(reason) {
   if (existsSync(OUT_PATH)) {
     console.warn(`generate-graph: ${reason}; keeping existing graph.json.`);
+    try {
+      writeBacklinks(JSON.parse(readFileSync(OUT_PATH, "utf-8")));
+    } catch {}
     process.exit(0);
   }
   console.error(`generate-graph: ${reason}; no existing graph.json to keep.`);
   process.exit(1);
+}
+
+/* backlinks.json = wiki links inverted for the article page; titles limited
+   to notes that actually take part so the artifact stays small */
+function writeBacklinks(graph) {
+  const wiki = (graph.links || []).filter((l) => l.kind === "wiki");
+  const linked = new Set(wiki.flatMap((l) => [l.source, l.target]));
+  const titles = {};
+  for (const n of graph.nodes || []) {
+    if (n.kind === "note" && linked.has(n.id)) titles[n.id] = n.title;
+  }
+  writeFileSync(
+    BACKLINKS_PATH,
+    JSON.stringify({
+      generatedAt: graph.generatedAt,
+      titles,
+      links: wiki.map((l) => [l.source, l.target]),
+    }) + "\n",
+  );
+  const kb = Math.round(readFileSync(BACKLINKS_PATH).byteLength / 1024);
+  console.log(
+    `generate-backlinks: ${Object.keys(titles).length} titles, ${wiki.length} wiki links, ${kb}KB → ${BACKLINKS_PATH}`,
+  );
 }
 
 async function main() {
@@ -383,6 +410,7 @@ async function main() {
   };
 
   writeFileSync(OUT_PATH, JSON.stringify(graph, null, 1) + "\n");
+  writeBacklinks(graph);
   /* BlogList only wants slug → updated; a slim artifact beats 154KB of graph */
   const dates = {};
   for (const n of notes) if (n.updated) dates[n.id] = n.updated;

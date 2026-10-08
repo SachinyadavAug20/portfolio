@@ -19,7 +19,10 @@ const ReadAloud = ({ contentSelector = ".blog-content" }: { contentSelector?: st
     const el = document.querySelector(contentSelector);
     if (!el) return;
 
-    const text = (el as HTMLElement).innerText || el.textContent || "";
+    /* chrome we don't want spoken: copy buttons, language badges */
+    const clone = el.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll('[data-tts="off"]').forEach((n) => n.remove());
+    const text = clone.innerText || clone.textContent || "";
     if (!text.trim()) return;
 
     stop();
