@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { MotionConfig } from "motion/react";
 import Navbar from "../components/Navbar";
@@ -10,13 +10,14 @@ import Footer from "../sections/Footer";
 import { isTouchDevice } from "../hooks/useNearViewport";
 import { useIdleReady } from "../hooks/useIdleReady";
 import { tap } from "../lib/haptics";
+import { isToasterWanted, onToasterWanted } from "../lib/toast";
 import { canViewTransition, useRenderedLocation } from "../lib/routeTransition";
 
 /* the cat is pure delight — her chunk waits for the first idle slot so
    entry paint never queues behind her */
 const CatCompanion = lazy(() => import("../components/CatCompanion"));
 
-/* sonner rides in async: entry keeps its 30KB, notify() waits for mount */
+/* sonner mounts on the first notify(): pages that never toast never pay */
 const Toaster = lazy(() =>
   import("../components/ui/sonner").then((m) => ({ default: m.Toaster })),
 );
@@ -26,6 +27,16 @@ const RootLayout = () => {
   const navigate = useNavigate();
   const rendered = useRenderedLocation() ?? location;
   const catReady = useIdleReady(1200);
+  const [toasterWanted, setToasterWanted] = useState(isToasterWanted);
+
+  useEffect(
+    () =>
+      onToasterWanted(() => {
+        /* deferred: a sync setState inside the effect trips the purity lint */
+        void Promise.resolve().then(() => setToasterWanted(true));
+      }),
+    [],
+  );
 
   useEffect(() => {
     const splash = document.getElementById("splash");
@@ -89,9 +100,11 @@ const RootLayout = () => {
       >
         <Outlet />
       </div>
-      <Suspense fallback={null}>
-        <Toaster />
-      </Suspense>
+      {toasterWanted && (
+        <Suspense fallback={null}>
+          <Toaster />
+        </Suspense>
+      )}
       <Footer />
       <BottomTabBar />
     </MotionConfig>
