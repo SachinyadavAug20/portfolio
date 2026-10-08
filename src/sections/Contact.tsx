@@ -1,13 +1,12 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import TitleHeader from "../components/TitleHeader";
-import emailjs from "@emailjs/browser";
-import { toast } from "sonner";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useNearViewport } from "../hooks/useNearViewport";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { useMagnetic } from "../hooks/useMagnetic";
 import { tap } from "../lib/haptics";
+import { notify } from "../lib/toast";
 
 const ContactExperience = lazy(
   () => import("../components/ContactModels/ContactExperience"),
@@ -101,6 +100,7 @@ const Contact = () => {
     setErrors({});
     setLoading(true);
     try {
+      const { default: emailjs } = await import("@emailjs/browser");
       await emailjs.sendForm(
         import.meta.env.VITE_APP_EMAILJS_SERVICE_ID,
         import.meta.env.VITE_APP_EMAILJS_TEMPLATE_ID,
@@ -112,11 +112,11 @@ const Contact = () => {
       window.dispatchEvent(new CustomEvent("contact-sent"));
       setTimeout(() => setSubmitted(false), 4000);
       tap([15, 40, 15]);
-      toast.success("Message sent successfully!", {
+      void notify("success", "Message sent successfully!", {
         description: "I will reply you as soon as possible.",
       });
     } catch {
-      toast.error("Failed to send message!", {
+      void notify("error", "Failed to send message!", {
         description:
           "There might be some issue, please try later or use my email(samtagon777@gmail.com) directly.",
       });

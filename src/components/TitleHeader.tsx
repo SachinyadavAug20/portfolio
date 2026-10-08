@@ -1,26 +1,31 @@
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import { gsap, SplitText } from "../lib/gsapSetup";
+import { useEffect, useRef } from "react";
+import { gsap } from "../lib/gsapSetup";
+import { loadGsapExtras, type GsapExtras } from "../lib/gsapExtras";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 
 const TitleHeader = ({ title, sub }: { title: string; sub: string }) => {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
-  useGSAP(
-    () => {
-      if (reduced) return;
-      const scope = ref.current;
-      if (!scope) return;
+  useEffect(() => {
+    if (reduced) return;
+    const scope = ref.current;
+    if (!scope) return;
+    let cancelled = false;
+    let split: InstanceType<GsapExtras["SplitText"]> | undefined;
+    let tl: ReturnType<typeof gsap.timeline> | undefined;
+
+    loadGsapExtras().then(({ SplitText }) => {
+      if (cancelled) return;
       const titleEl = scope.querySelector(".th-title");
       if (!titleEl) return;
 
-      const split = new SplitText(titleEl, { type: "chars" });
+      split = new SplitText(titleEl, { type: "chars" });
       const badgeText = scope.querySelector(".hero-badge p");
       if (badgeText) badgeText.textContent = "";
 
       const st = { trigger: scope, start: "top 90%", once: true };
-      const tl = gsap.timeline({ scrollTrigger: st });
+      tl = gsap.timeline({ scrollTrigger: st });
       tl.from(split.chars, {
         yPercent: 70,
         opacity: 0,
@@ -44,13 +49,17 @@ const TitleHeader = ({ title, sub }: { title: string; sub: string }) => {
           0.1,
         );
       }
+    });
 
-      return () => {
-        split.revert();
-      };
-    },
-    { scope: ref, dependencies: [reduced], revertOnUpdate: true },
-  );
+    return () => {
+      cancelled = true;
+      if (tl) {
+        tl.scrollTrigger?.kill();
+        tl.kill();
+      }
+      split?.revert();
+    };
+  }, [reduced, sub]);
 
   return (
     <div ref={ref} className="flex flex-col items-center gap-5">

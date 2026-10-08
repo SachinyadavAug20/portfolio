@@ -1,25 +1,30 @@
 import SEOHead from "../seo/SEOHead";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { useGSAP } from "@gsap/react";
-import { gsap, SplitText } from "../lib/gsapSetup";
+import { gsap } from "../lib/gsapSetup";
+import { loadGsapExtras, type GsapExtras } from "../lib/gsapExtras";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 
 const NotFound = () => {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
-  useGSAP(
-    () => {
-      if (reduced) return;
-      const scope = ref.current;
-      if (!scope) return;
+  useEffect(() => {
+    if (reduced) return;
+    const scope = ref.current;
+    if (!scope) return;
+    let cancelled = false;
+    let split: InstanceType<GsapExtras["SplitText"]> | undefined;
+    let tl: ReturnType<typeof gsap.timeline> | undefined;
+
+    loadGsapExtras().then(({ SplitText }) => {
+      if (cancelled) return;
       const numEl = scope.querySelector(".nf-num");
       if (!numEl) return;
 
-      const split = new SplitText(numEl, { type: "chars" });
-      const tl = gsap.timeline();
+      split = new SplitText(numEl, { type: "chars" });
+      tl = gsap.timeline();
       tl.from(split.chars, {
         yPercent: 110,
         opacity: 0,
@@ -28,22 +33,23 @@ const NotFound = () => {
         ease: "back.out(1.7)",
       })
         .from(
-          [".nf-title", ".nf-sub"],
+          scope.querySelectorAll(".nf-title, .nf-sub"),
           { y: 14, opacity: 0, duration: 0.4, stagger: 0.08, ease: "power2.out" },
           "-=.25",
         )
         .from(
-          ".nf-btn",
+          scope.querySelectorAll(".nf-btn"),
           { y: 10, opacity: 0, scale: 0.96, duration: 0.35, ease: "back.out(2)" },
           "-=.15",
         );
+    });
 
-      return () => {
-        split.revert();
-      };
-    },
-    { scope: ref, dependencies: [reduced], revertOnUpdate: true },
-  );
+    return () => {
+      cancelled = true;
+      tl?.kill();
+      split?.revert();
+    };
+  }, [reduced]);
 
   return (
     <>

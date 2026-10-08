@@ -8,7 +8,6 @@ import CursorGlow from "../components/CursorGlow";
 import CommandPalette from "../components/CommandPalette";
 import DevShortcuts from "../components/DevShortcuts";
 import Footer from "../sections/Footer";
-import { Toaster } from "../components/ui/sonner";
 import { SITE_NAME, SOCIAL_HANDLE, SITE_DESCRIPTION } from "../seo/config";
 import { isTouchDevice } from "../hooks/useNearViewport";
 import { useIdleReady } from "../hooks/useIdleReady";
@@ -18,6 +17,11 @@ import { canViewTransition, useRenderedLocation } from "../lib/routeTransition";
 /* the cat is pure delight — her chunk waits for the first idle slot so
    entry paint never queues behind her */
 const CatCompanion = lazy(() => import("../components/CatCompanion"));
+
+/* sonner rides in async: entry keeps its 30KB, notify() waits for mount */
+const Toaster = lazy(() =>
+  import("../components/ui/sonner").then((m) => ({ default: m.Toaster })),
+);
 
 const RootLayout = () => {
   const location = useLocation();
@@ -97,7 +101,9 @@ const RootLayout = () => {
         >
           <Outlet />
         </div>
-        <Toaster />
+        <Suspense fallback={null}>
+          <Toaster />
+        </Suspense>
         <Footer />
         <BottomTabBar />
       </MotionConfig>

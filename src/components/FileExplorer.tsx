@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Link } from "react-router-dom";
 import { Folder, FileText, ChevronRight } from "lucide-react";
 import type { TreeNode } from "../blog/tree";
-import { gsap, Flip } from "../lib/gsapSetup";
+import { gsap } from "../lib/gsapSetup";
+import { loadGsapExtras, type GsapExtras } from "../lib/gsapExtras";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 interface FileExplorerProps {
   folder: TreeNode;
@@ -41,7 +42,18 @@ const countFiles = (node: TreeNode): number => {
 const FileExplorer = ({ folder, currentPath, onNavigate, dates }: FileExplorerProps) => {
   const [visibleFiles, setVisibleFiles] = useState(BATCH_SIZE);
   const listRef = useRef<HTMLDivElement>(null);
+  const flipRef = useRef<GsapExtras["Flip"] | null>(null);
   const reduced = useReducedMotion();
+
+  useEffect(() => {
+    let cancelled = false;
+    loadGsapExtras().then(({ Flip }) => {
+      if (!cancelled) flipRef.current = Flip;
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Full list swap (folder/breadcrumb nav): stagger the new rows in.
   const replaceList = (mutate: () => void) => {
@@ -67,7 +79,8 @@ const FileExplorer = ({ folder, currentPath, onNavigate, dates }: FileExplorerPr
 
   // Incremental append ("show more"): FLIP the existing rows, fade in new.
   const growList = (mutate: () => void) => {
-    if (reduced || !listRef.current) {
+    const Flip = flipRef.current;
+    if (reduced || !listRef.current || !Flip) {
       mutate();
       return;
     }

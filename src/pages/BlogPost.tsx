@@ -28,7 +28,7 @@ import refractorVim from "refractor/vim";
 import ReadingProgress from "../components/ReadingProgress";
 import ReadAloud from "../components/ReadAloud";
 import BackToTop from "../components/BackToTop";
-import { toast } from "sonner";
+import { notify } from "../lib/toast";
 import { tap } from "../lib/haptics";
 import { createPortal } from "react-dom";
 import "prismjs/themes/prism-tomorrow.css";
@@ -691,7 +691,7 @@ const BlogPost = () => {
       } else {
         await navigator.clipboard.writeText(url);
         tap(8);
-        toast.success("Link copied to clipboard");
+        void notify("success", "Link copied to clipboard");
       }
     } catch {
       // Share sheet dismissed or clipboard unavailable — nothing to report.

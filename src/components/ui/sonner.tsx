@@ -1,10 +1,16 @@
 "use client";
 
+import { useEffect } from "react";
 import { Toaster as Sonner } from "sonner";
 import { useTheme } from "@/lib/theme";
+import { markToasterReady } from "@/lib/toast";
 
 const Toaster = ({ ...props }: React.ComponentProps<typeof Sonner>) => {
   const { resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    markToasterReady();
+  }, []);
 
   return (
     <Sonner
