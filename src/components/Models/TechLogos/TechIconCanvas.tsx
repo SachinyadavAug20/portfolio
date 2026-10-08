@@ -1,5 +1,5 @@
 import type { techStackIconsProps } from "../../../../constants";
-import { useGLTF, Environment, Float, OrbitControls } from "@react-three/drei";
+import { useGLTF, Environment, Float, OrbitControls, Lightformer } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
@@ -40,7 +40,13 @@ const TechIconCanvas = ({
     >
       <ambientLight intensity={0.3} />
       <directionalLight position={[5, 5, 5]} intensity={1} />
-      <Environment preset="city" />
+      {/* procedural studio light — no preset HDR download per icon canvas */}
+      <Environment resolution={128} frames={1}>
+        <color attach="background" args={["#10141c"]} />
+        <Lightformer intensity={2} position={[0, 4, -6]} scale={[8, 6, 1]} color="#eef3ff" />
+        <Lightformer intensity={1} position={[5, 1, 2]} rotation-y={-Math.PI / 3} scale={[5, 5, 1]} color="#ffd9b8" />
+        <Lightformer intensity={1} position={[-5, 1, 2]} rotation-y={Math.PI / 3} scale={[5, 5, 1]} color="#bcd3ff" />
+      </Environment>
       {!isTouch && <OrbitControls enableZoom={false} />}
       {reduced ? (
         <group scale={model.scale} rotation={model.rotation}>

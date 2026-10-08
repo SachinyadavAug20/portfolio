@@ -1,4 +1,4 @@
-import { OrbitControls, Environment } from "@react-three/drei";
+import { OrbitControls, Environment, Lightformer } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useMemo } from "react";
 import { Computer } from "./Computer";
@@ -45,7 +45,13 @@ const ContactExperience = ({
         color="#ffd9b3"
       />
       <ContactLights />
-      <Environment preset="night"/>
+      {/* procedural night — the night preset was another multi-MB HDR download */}
+      <Environment resolution={128} frames={1}>
+        <color attach="background" args={["#05060a"]} />
+        <Lightformer intensity={0.5} position={[0, 6, -6]} scale={[10, 5, 1]} color="#415b8f" />
+        <Lightformer intensity={0.8} position={[-4, 2, 3]} rotation-y={Math.PI / 3} scale={[4, 2, 1]} color="#ffca8f" />
+        <Lightformer intensity={0.4} position={[4, 3, -2]} rotation-y={-Math.PI / 3} scale={[5, 3, 1]} color="#6f86c9" />
+      </Environment>
       {!isTouch && (
         <OrbitControls
           enableZoom={false}

@@ -102,6 +102,9 @@ export function Partical({
       {particles.map((p, i) => (
         <Text
           key={i}
+          /* self-hosted — troika's default font costs 3 CDN roundtrips
+             (and it parses ttf only, not woff2) */
+          font="/fonts/inter.ttf"
           fontSize={p.size}
           color={p.color}
           position={[p.startX, p.startY, p.startZ]}

@@ -1,4 +1,4 @@
-import { OrbitControls, Environment, Grid } from "@react-three/drei";
+import { OrbitControls, Environment, Grid, Lightformer } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useMediaQuery } from "react-responsive";
 import { useMemo, useRef } from "react";
@@ -89,7 +89,14 @@ const HeroExperience = ({ active = true }: { active?: boolean }) => {
         color={tod.color}
       />
       <HeroLights />
-      <Environment preset="city" />
+      {/* procedural sky — drei's city preset pulled a 1.5MB HDR off GitHub raw */}
+      <Environment resolution={128} frames={1}>
+        <color attach="background" args={["#0b1020"]} />
+        <Lightformer intensity={2.2} position={[0, 5, -8]} scale={[12, 6, 1]} color="#bcd3ff" />
+        <Lightformer intensity={1.4} position={[-6, 2, 2]} rotation-y={Math.PI / 2} scale={[8, 3, 1]} color="#ffb37a" />
+        <Lightformer intensity={1.1} position={[6, 3, 1]} rotation-y={-Math.PI / 2} scale={[8, 4, 1]} color="#7aa2ff" />
+        <Lightformer intensity={0.6} position={[0, -4, 0]} rotation-x={Math.PI / 2} scale={[10, 10, 1]} color="#2a3350" />
+      </Environment>
       {!isMobile && <Partical count={40} spread={3} />}
 
       <Grid
