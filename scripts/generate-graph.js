@@ -7,6 +7,7 @@ const BRANCH = "main";
 const BLOG_ROOT = "Notes";
 
 const OUT_PATH = resolve(import.meta.dirname, "../public/graph.json");
+const DATES_PATH = resolve(import.meta.dirname, "../public/dates.json");
 
 const FETCH_CONCURRENCY = 8;
 const MAX_ATTEMPTS = 3;
@@ -382,12 +383,20 @@ async function main() {
   };
 
   writeFileSync(OUT_PATH, JSON.stringify(graph, null, 1) + "\n");
+  /* BlogList only wants slug → updated; a slim artifact beats 154KB of graph */
+  const dates = {};
+  for (const n of notes) if (n.updated) dates[n.id] = n.updated;
+  writeFileSync(
+    DATES_PATH,
+    JSON.stringify({ generatedAt: graph.generatedAt, dates }, null, 1) + "\n",
+  );
   const kb = Math.round(readFileSync(OUT_PATH).byteLength / 1024);
+  const datesKb = Math.round(readFileSync(DATES_PATH).byteLength / 1024);
   console.log(
     `generate-graph: ${graph.counts.notes} notes, ${graph.counts.folders} folders, ` +
       `${graph.counts.wikiLinks} wiki links (${resolvedWiki} resolved, ${unresolvedWiki} dangling dropped), ` +
       `${graph.counts.links} total edges, ${updatedCount} dated, ${freshCount} fresh, ` +
-      `${kb}KB, ${Date.now() - started}ms → ${OUT_PATH}`,
+      `${kb}KB, ${Date.now() - started}ms → ${OUT_PATH} (+${datesKb}KB dates.json)`,
   );
 }
 

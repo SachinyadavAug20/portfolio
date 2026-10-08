@@ -192,20 +192,17 @@ const BlogList = () => {
     return { notes: posts.length, folders, tags: tagCounts.length };
   }, [posts, tagCounts]);
 
-  /* latest notes: real last-update dates from graph.json (build artifact);
-     without dates the plain tree order stands in */
+  /* latest notes: real last-update dates from dates.json (build artifact —
+     a slim slug → updated map, not the whole graph); without dates the
+     plain tree order stands in */
   const [latestDates, setLatestDates] = useState<Record<string, string>>({});
   useEffect(() => {
     let dead = false;
-    fetch("/graph.json")
+    fetch("/dates.json")
       .then((r) => (r.ok ? r.json() : null))
-      .then((data: { nodes?: Array<{ id?: string; updated?: string }> } | null) => {
-        if (dead || !data?.nodes) return;
-        const map: Record<string, string> = {};
-        for (const n of data.nodes) {
-          if (n.id && n.updated) map[n.id] = n.updated;
-        }
-        setLatestDates(map);
+      .then((data: { dates?: Record<string, string> } | null) => {
+        if (dead || !data?.dates) return;
+        setLatestDates(data.dates);
       })
       .catch(() => {
         /* no dates — tree order fallback */
