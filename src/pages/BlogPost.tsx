@@ -18,7 +18,6 @@ import { useReducedMotion } from "../hooks/useReducedMotion";
 import { scrollToY } from "../lib/smoothScroll";
 import remarkObsidianImages from "../blog/remark-obsidian-images";
 import { rehypeMermaid } from "../blog/rehype-mermaid";
-import rehypeRaw from "rehype-raw";
 import rehypePrism from "rehype-prism-plus/common";
 import { refractor } from "refractor";
 import refractorJsx from "refractor/jsx";
@@ -566,6 +565,25 @@ const BlogPost = () => {
   /* stable plugin/component arrays — inline literals made ReactMarkdown
      rebuild its whole processor on every parent re-render */
   type MdProps = Parameters<typeof ReactMarkdown>[0];
+
+  /* rehype-raw's parse5 pass is ~120KB of BlogPost's chunk — only notes that
+     really carry raw tags need it, so the plugin is pulled in on demand.
+     The render gate below keeps such notes on the skeleton for the (cached,
+     ms-scale) import instead of flashing an unprocessed body. False positives
+     from the tag regex are harmless: they just keep today's full pipeline. */
+  const needsRaw = !!post?.content && /<\/?[a-zA-Z][\s\S]*?>/.test(post.content);
+  const [rawPlugin, setRawPlugin] = useState<NonNullable<MdProps["rehypePlugins"]>[number] | null>(null);
+  useEffect(() => {
+    if (!needsRaw || rawPlugin) return;
+    let dead = false;
+    import("rehype-raw").then(({ default: rehypeRaw }) => {
+      if (!dead) setRawPlugin(() => rehypeRaw);
+    });
+    return () => {
+      dead = true;
+    };
+  }, [needsRaw, rawPlugin]);
+
   const remarkPlugins = useMemo<NonNullable<MdProps["remarkPlugins"]>>(
     () => [
       remarkGfm,
@@ -585,8 +603,13 @@ const BlogPost = () => {
     [remarkPlugin, slugIndex],
   );
   const rehypePlugins = useMemo<NonNullable<MdProps["rehypePlugins"]>>(
-    () => [rehypeMermaid, rehypeRaw, [rehypePrism, { ignoreMissing: true }]],
-    [],
+    () => {
+      const plugins: NonNullable<MdProps["rehypePlugins"]> = [rehypeMermaid];
+      if (needsRaw && rawPlugin) plugins.push(rawPlugin);
+      plugins.push([rehypePrism, { ignoreMissing: true }]);
+      return plugins;
+    },
+    [needsRaw, rawPlugin],
   );
   const mdComponents = useMemo(
     (): Components => ({
@@ -698,7 +721,7 @@ const BlogPost = () => {
     }
   };
 
-  if (loading) return <Skeleton />;
+  if (loading || (needsRaw && !rawPlugin)) return <Skeleton />;
 
   if (error || !post) {
     return (

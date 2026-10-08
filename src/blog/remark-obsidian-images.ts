@@ -1,4 +1,4 @@
-import type { Root } from "mdast";
+import type { Root, Text, Image } from "mdast";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { OWNER, REPO, BRANCH } from "./config";
@@ -28,48 +28,47 @@ function buildImageUrls(noteDir: string, filename: string): string[] {
 const remarkObsidianImages: (noteDir: string) => Plugin<[], Root> = (noteDir) => {
   return () => {
     return (tree) => {
-      visit(tree, "text", (node: { value: string }, index: number | undefined, parent: any) => {
-        if (!IMG_RE.test(node.value)) return;
+      visit(tree, "text", (node, index, parent) => {
+        const value = (node as Text).value;
+        if (!IMG_RE.test(value)) return;
         IMG_RE.lastIndex = 0;
 
-        const parts: Array<{ type: string; value?: string }> = [];
+        const parts: Array<Text | Image> = [];
         let lastIndex = 0;
         let match: RegExpExecArray | null;
 
-        while ((match = IMG_RE.exec(node.value)) !== null) {
+        while ((match = IMG_RE.exec(value)) !== null) {
           if (match.index > lastIndex) {
             parts.push({
               type: "text",
-              value: node.value.slice(lastIndex, match.index),
+              value: value.slice(lastIndex, match.index),
             });
           }
           const filename = match[1];
           const width = match[2];
           const urls = buildImageUrls(noteDir, filename);
 
-          const attrs = [
-            `src="${urls[0]}"`,
-            'alt="loading image..."',
-            'loading="lazy"',
-          ];
-          if (width) attrs.push(`width="${width}"`);
-          if (urls.length > 1) {
-            attrs.push(`data-urls='${JSON.stringify(urls)}'`);
-          }
+          const hProperties: Record<string, string> = { loading: "lazy" };
+          if (width) hProperties.width = width;
+          if (urls.length > 1) hProperties["data-urls"] = JSON.stringify(urls);
 
           parts.push({
-            type: "html",
-            value: `<img ${attrs.join(" ")} />`,
+            type: "image",
+            url: urls[0],
+            alt: "loading image...",
+            // native mdast image + hProperties renders the same <img> as the
+            // old raw-html node did — without forcing rehype-raw's parse5 pass
+            data: { hProperties },
           });
           lastIndex = match.index + match[0].length;
         }
 
-        if (lastIndex < node.value.length) {
-          parts.push({ type: "text", value: node.value.slice(lastIndex) });
+        if (lastIndex < value.length) {
+          parts.push({ type: "text", value: value.slice(lastIndex) });
         }
 
-        if (parts.length > 0 && index !== undefined && parent) {
-          parent.children.splice(index, 1, ...parts);
+        if (parts.length > 0 && index !== undefined && parent && "children" in parent) {
+          (parent as { children: Array<Text | Image> }).children.splice(index, 1, ...parts);
         }
       });
     };
