@@ -1,5 +1,6 @@
-import { Helmet } from "react-helmet-async";
+import { useEffect } from "react";
 import { SITE_URL, SITE_NAME, OG_IMAGE, OG_IMAGE_ALT } from "./config";
+import { applyHead, composeTags, baseTags, type HeadTag } from "./head";
 
 interface SEOHeadProps {
   title: string;
@@ -9,6 +10,8 @@ interface SEOHeadProps {
   type?: "website" | "article";
   datePublished?: string;
   dateModified?: string;
+  robots?: string;
+  jsonLd?: unknown;
 }
 
 const SEOHead = ({
@@ -19,53 +22,70 @@ const SEOHead = ({
   type = "website",
   datePublished,
   dateModified,
+  robots,
+  jsonLd,
 }: SEOHeadProps) => {
   const fullTitle = `${title} | ${SITE_NAME}`;
   const url = `${SITE_URL}${path}`;
   const imageUrl = image.startsWith("http") ? image : `${SITE_URL}${image}`;
+  /* article pages still mint their own BlogPosting graph; callers may also
+     pass a home-grown payload. Stringified once per render — a stable
+     primitive for the effect below. */
+  const articleLd =
+    type === "article"
+      ? {
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: title,
+          description,
+          image: imageUrl,
+          url,
+          mainEntityOfPage: { "@type": "WebPage", "@id": url },
+          author: { "@type": "Person", "@id": `${SITE_URL}/#person`, name: SITE_NAME },
+          publisher: { "@type": "Person", "@id": `${SITE_URL}/#person`, name: SITE_NAME },
+          ...(datePublished && { datePublished }),
+          ...(dateModified && { dateModified }),
+        }
+      : null;
+  const jsonLdStr =
+    jsonLd !== undefined
+      ? JSON.stringify(jsonLd)
+      : articleLd
+        ? JSON.stringify(articleLd)
+        : undefined;
 
-  const jsonLd = type === "article"
-    ? {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        headline: title,
-        description,
-        image: imageUrl,
-        url,
-        mainEntityOfPage: { "@type": "WebPage", "@id": url },
-        author: { "@type": "Person", "@id": `${SITE_URL}/#person`, name: SITE_NAME },
-        publisher: { "@type": "Person", "@id": `${SITE_URL}/#person`, name: SITE_NAME },
-        ...(datePublished && { datePublished }),
-        ...(dateModified && { dateModified }),
-      }
-    : null;
+  useEffect(() => {
+    const tags: HeadTag[] = [
+      { kind: "title", content: fullTitle },
+      { kind: "meta", attr: "name", key: "description", content: description },
+      { kind: "link", rel: "canonical", href: url },
+      ...(robots
+        ? [{ kind: "meta", attr: "name", key: "robots", content: robots } as HeadTag]
+        : []),
 
-  return (
-    <Helmet>
-      <title>{fullTitle}</title>
-      <meta name="description" content={description} />
-      <link rel="canonical" href={url} />
+      { kind: "meta", attr: "property", key: "og:title", content: title },
+      { kind: "meta", attr: "property", key: "og:description", content: description },
+      { kind: "meta", attr: "property", key: "og:image", content: imageUrl },
+      { kind: "meta", attr: "property", key: "og:image:width", content: "1200" },
+      { kind: "meta", attr: "property", key: "og:image:height", content: "630" },
+      { kind: "meta", attr: "property", key: "og:image:alt", content: OG_IMAGE_ALT },
+      { kind: "meta", attr: "property", key: "og:url", content: url },
+      { kind: "meta", attr: "property", key: "og:type", content: type },
 
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={imageUrl} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content={OG_IMAGE_ALT} />
-      <meta property="og:url" content={url} />
-      <meta property="og:type" content={type} />
-      <meta property="og:site_name" content={SITE_NAME} />
+      { kind: "meta", attr: "name", key: "twitter:title", content: title },
+      { kind: "meta", attr: "name", key: "twitter:description", content: description },
+      { kind: "meta", attr: "name", key: "twitter:image", content: imageUrl },
+      { kind: "meta", attr: "name", key: "twitter:image:alt", content: OG_IMAGE_ALT },
 
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={imageUrl} />
-      <meta name="twitter:image:alt" content={OG_IMAGE_ALT} />
+      ...(jsonLdStr
+        ? [{ kind: "jsonLd", content: jsonLdStr } as HeadTag]
+        : []),
+    ];
+    applyHead(composeTags(tags));
+    return () => applyHead(baseTags);
+  }, [fullTitle, title, description, url, imageUrl, type, robots, jsonLdStr]);
 
-      {jsonLd && (
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      )}
-    </Helmet>
-  );
+  return null;
 };
 
 export default SEOHead;

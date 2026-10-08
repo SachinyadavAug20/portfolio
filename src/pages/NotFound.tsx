@@ -1,7 +1,6 @@
 import SEOHead from "../seo/SEOHead";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { gsap } from "../lib/gsapSetup";
 import { loadGsapExtras, type GsapExtras } from "../lib/gsapExtras";
 import { useReducedMotion } from "../hooks/useReducedMotion";
@@ -53,10 +52,12 @@ const NotFound = () => {
 
   return (
     <>
-      <Helmet>
-        <meta name="robots" content="noindex" />
-      </Helmet>
-      <SEOHead title="Page Not Found" description="The page you are looking for does not exist." path={"/404"} />
+      <SEOHead
+        title="Page Not Found"
+        description="The page you are looking for does not exist."
+        path={"/404"}
+        robots="noindex"
+      />
       <section className="section-padding pt-10 min-h-screen flex-center">
         <div className="text-center" ref={ref}>
           <div className="nf-num text-7xl sm:text-8xl font-black text-white-50/60 select-none">

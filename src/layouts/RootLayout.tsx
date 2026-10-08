@@ -1,5 +1,4 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { MotionConfig } from "motion/react";
 import Navbar from "../components/Navbar";
@@ -8,7 +7,6 @@ import CursorGlow from "../components/CursorGlow";
 import CommandPalette from "../components/CommandPalette";
 import DevShortcuts from "../components/DevShortcuts";
 import Footer from "../sections/Footer";
-import { SITE_NAME, SOCIAL_HANDLE, SITE_DESCRIPTION } from "../seo/config";
 import { isTouchDevice } from "../hooks/useNearViewport";
 import { useIdleReady } from "../hooks/useIdleReady";
 import { tap } from "../lib/haptics";
@@ -73,41 +71,30 @@ const RootLayout = () => {
   }, [location.pathname, navigate]);
 
   return (
-    <HelmetProvider>
-      {/* Honor prefers-reduced-motion for every motion/react interaction
-          (whileTap springs below) without affecting view transitions. */}
-      <MotionConfig reducedMotion="user">
-        <Helmet>
-          <meta name="description" content={SITE_DESCRIPTION} />
-          <meta name="author" content={SITE_NAME} />
-          <meta property="og:site_name" content={SITE_NAME} />
-          <meta property="og:locale" content="en_IN" />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:site" content={SOCIAL_HANDLE} />
-          <meta name="twitter:creator" content={SOCIAL_HANDLE} />
-        </Helmet>
-        <Navbar />
-        <CursorGlow />
-        {catReady && (
-          <Suspense fallback={null}>
-            <CatCompanion />
-          </Suspense>
-        )}
-        <CommandPalette />
-        <DevShortcuts />
-        <div
-          key={rendered.pathname}
-          className={canViewTransition ? undefined : "page-enter"}
-        >
-          <Outlet />
-        </div>
+    /* Honor prefers reduced-motion for every motion/react interaction
+        (whileTap springs below) without affecting view transitions. */
+    <MotionConfig reducedMotion="user">
+      <Navbar />
+      <CursorGlow />
+      {catReady && (
         <Suspense fallback={null}>
-          <Toaster />
+          <CatCompanion />
         </Suspense>
-        <Footer />
-        <BottomTabBar />
-      </MotionConfig>
-    </HelmetProvider>
+      )}
+      <CommandPalette />
+      <DevShortcuts />
+      <div
+        key={rendered.pathname}
+        className={canViewTransition ? undefined : "page-enter"}
+      >
+        <Outlet />
+      </div>
+      <Suspense fallback={null}>
+        <Toaster />
+      </Suspense>
+      <Footer />
+      <BottomTabBar />
+    </MotionConfig>
   );
 };
 
