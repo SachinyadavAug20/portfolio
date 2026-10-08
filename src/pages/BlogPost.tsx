@@ -11,7 +11,7 @@ import remarkBreaks from "remark-breaks";
 import remarkWikiLink from "remark-wiki-link";
 import remarkCallouts from "remark-callouts";
 import SEOHead from "../seo/SEOHead";
-import { getPostByFullSlug, getPostsInDir } from "../blog/posts";
+import { getPostByFullSlug, getPosts, getPostsInDir } from "../blog/posts";
 import type { BlogPost as BlogPostType } from "../blog/types";
 import { useViews } from "../hooks/useViews";
 import { useReducedMotion } from "../hooks/useReducedMotion";
@@ -278,6 +278,47 @@ function extractExcerpt(markdown: string): string {
   return cleaned.slice(0, 157).replace(/\s+\S*$/, "") + "...";
 }
 
+type SlugIndex = {
+  byPath: Map<string, string>; // lowercased full path → real slug
+  byBase: Map<string, string[]>; // lowercased basename → real slugs
+};
+
+function buildSlugIndex(posts: { fullSlug: string }[]): SlugIndex {
+  const byPath = new Map<string, string>();
+  const byBase = new Map<string, string[]>();
+  for (const p of posts) {
+    const low = p.fullSlug.toLowerCase();
+    byPath.set(low, p.fullSlug);
+    const base = low.slice(low.lastIndexOf("/") + 1);
+    const list = byBase.get(base);
+    if (list) list.push(p.fullSlug);
+    else byBase.set(base, [p.fullSlug]);
+  }
+  return { byPath, byBase };
+}
+
+/* [[Notes/…/0.Intro|0.Intro]] → case-preserved real slug; unique basenames
+   and unique path tails resolve too, ambiguous bare names stay honest dead
+   links (pageResolver gets no source-note context in this plugin) */
+function makeWikiResolver(index: SlugIndex | null) {
+  return (raw: string): string[] => {
+    const path = raw.split("|")[0].trim();
+    const clean = path.replace(/^notes\//i, "").replace(/\.md$/i, "");
+    if (!index) return [clean];
+    const exact = index.byPath.get(clean.toLowerCase());
+    if (exact) return [exact];
+    const low = clean.toLowerCase();
+    const base = low.slice(low.lastIndexOf("/") + 1);
+    const sameBase = index.byBase.get(base);
+    if (sameBase?.length === 1) return sameBase;
+    const suffix = [...index.byPath.entries()]
+      .filter(([k]) => k.endsWith("/" + low))
+      .map(([, v]) => v);
+    if (suffix.length === 1) return suffix;
+    return [clean];
+  };
+}
+
 const BlogPost = () => {
   const { "*": fullSlug } = useParams();
   const [searchParams] = useSearchParams();
@@ -399,6 +440,20 @@ const BlogPost = () => {
     [post?.dir],
   );
 
+  /* real slug index so [[Notes/…/0.Intro|0.Intro]] resolves case-preserved;
+     async setState in a callback keeps the compiler/lint happy */
+  const [slugIndex, setSlugIndex] = useState<SlugIndex | null>(null);
+  useEffect(() => {
+    let dead = false;
+    getPosts().then((ps) => {
+      if (dead) return;
+      setSlugIndex(buildSlugIndex(ps));
+    });
+    return () => {
+      dead = true;
+    };
+  }, []);
+
   /* stable plugin/component arrays — inline literals made ReactMarkdown
      rebuild its whole processor on every parent re-render */
   type MdProps = Parameters<typeof ReactMarkdown>[0];
@@ -406,11 +461,19 @@ const BlogPost = () => {
     () => [
       remarkGfm,
       remarkBreaks,
-      [remarkWikiLink, { hrefTemplate: (link: string) => `/blog/post/${link}` }],
+      [
+        remarkWikiLink,
+        {
+          pageResolver: makeWikiResolver(slugIndex),
+          hrefTemplate: (link: string) => `/blog/post/${link}`,
+          permalinks: slugIndex ? [...slugIndex.byPath.values()] : [],
+          wikiLinkClassName: "wiki-link internal",
+        },
+      ],
       remarkCallouts,
       remarkPlugin,
     ],
-    [remarkPlugin],
+    [remarkPlugin, slugIndex],
   );
   const rehypePlugins = useMemo<NonNullable<MdProps["rehypePlugins"]>>(
     () => [rehypeMermaid, rehypeRaw, [rehypePrism, { ignoreMissing: true }]],
@@ -442,6 +505,49 @@ const BlogPost = () => {
           </code>
         );
       },
+      a: ({ href = "", className, children, ...props }) => {
+        if (className?.includes("wiki-link")) {
+          /* plugin keeps the raw [[path|alias]] text — show the alias,
+             or the basename for bare links, and route internally */
+          const raw = typeof children === "string" ? children : extractText(children);
+          const pipe = raw.lastIndexOf("|");
+          const label =
+            pipe !== -1
+              ? raw.slice(pipe + 1)
+              : raw.includes("/")
+                ? raw.slice(raw.lastIndexOf("/") + 1)
+                : raw;
+          return (
+            <Link
+              to={href}
+              className={className}
+              title={className.includes("new") ? `${href} — no such note` : href}
+              {...props}
+            >
+              {label || raw}
+            </Link>
+          );
+        }
+        if (/^https?:\/\//.test(href)) {
+          return (
+            <a href={href} className={className} target="_blank" rel="noopener noreferrer" {...props}>
+              {children}
+            </a>
+          );
+        }
+        if (href.startsWith("/")) {
+          return (
+            <Link to={href} className={className} {...props}>
+              {children}
+            </Link>
+          );
+        }
+        return (
+          <a href={href} className={className} {...props}>
+            {children}
+          </a>
+        );
+      },
       /* custom rehype-raw tag: spread keeps it out of the intrinsic map */
       ...mermaidComponents,
     }),
@@ -470,14 +576,30 @@ const BlogPost = () => {
   if (error || !post) {
     return (
       <>
-      <SEOHead title="Blog" description={excerpt || "Blog post not found"} path={`/blog/post/${fullSlug || ""}`} />
+      <SEOHead title="Post not found" description={excerpt || "Blog post not found"} path={`/blog/post/${fullSlug || ""}`} />
       <section className="section-padding pt-10 min-h-screen">
-        <div className="w-full h-full md:px-10 text-center">
-          <h1 className="text-3xl font-bold mb-4">Post not found</h1>
-          <p className="text-red-400 mb-4">{error}</p>
-          <Link to={backTo} className="text-blue-50 hover:text-foreground underline">
-            Back to blog
-          </Link>
+        <div className="w-full h-full md:px-10 max-w-md mx-auto text-center">
+          <h1 className="text-3xl font-bold mb-3">This note isn't here</h1>
+          <p className="text-white-50/70 mb-2">
+            {error ?? `No note matches "${fullSlug ?? ""}".`}
+          </p>
+          <p className="text-white-50/45 text-sm mb-8">
+            It may have been renamed, moved, or never written.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link
+              to={backTo}
+              className="chip px-4 py-2 text-sm rounded-full bg-blue-500/20 text-blue-200 hover:bg-blue-500/30 transition-colors"
+            >
+              &larr; Back to blog
+            </Link>
+            <Link
+              to="/graph"
+              className="chip px-4 py-2 text-sm rounded-full bg-black-200 text-blue-50 hover:bg-black-50 hover:text-foreground transition-colors"
+            >
+              Browse the graph
+            </Link>
+          </div>
         </div>
       </section>
       </>

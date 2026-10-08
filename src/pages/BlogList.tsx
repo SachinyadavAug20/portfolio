@@ -13,6 +13,8 @@ const PRESS = {
   whileTap: { scale: 0.94 },
   transition: { type: "spring", stiffness: 650, damping: 30 },
 } as const;
+/* the tag wall hides behind a toggle after the first screenful */
+const TAG_PREVIEW = 14;
 import type { BlogPost } from "../blog/types";
 import TitleHeader from "../components/TitleHeader";
 import FileExplorer from "../components/FileExplorer";
@@ -54,6 +56,7 @@ const BlogList = () => {
    * what we pushed so browser back/forward never fights the input.
    */
   const [qInput, setQInput] = useState(currentQuery);
+  const [showAllTags, setShowAllTags] = useState(false);
   const lastPushedQ = useRef(currentQuery);
   useEffect(() => {
     if (qInput === currentQuery) {
@@ -181,8 +184,8 @@ const BlogList = () => {
         map.set(tag, (map.get(tag) ?? 0) + 1);
       }
     }
-    return Array.from(map, ([tag, count]) => ({ tag, count })).sort((a, b) =>
-      a.tag.localeCompare(b.tag),
+    return Array.from(map, ([tag, count]) => ({ tag, count })).sort(
+      (a, b) => b.count - a.count || a.tag.localeCompare(b.tag),
     );
   }, [posts]);
 
@@ -357,7 +360,7 @@ const BlogList = () => {
                 </p>
               )}
               {tagCounts.length > 0 && (
-                <div className="blog-intro flex flex-nowrap md:flex-wrap gap-2 mb-6 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar">
+                <div className="blog-intro flex flex-wrap gap-2 mb-6">
                   {currentTag && (
                     <motion.button
                       onClick={clearTag}
@@ -370,6 +373,7 @@ const BlogList = () => {
                   )}
                   {tagCounts
                     .filter((t) => t.tag !== currentTag)
+                    .slice(0, showAllTags ? undefined : TAG_PREVIEW)
                     .map(({ tag, count }) => (
                       <motion.button
                         key={tag}
@@ -381,6 +385,17 @@ const BlogList = () => {
                         <span className="opacity-45">{count}</span>
                       </motion.button>
                     ))}
+                  {tagCounts.length > TAG_PREVIEW && (
+                    <motion.button
+                      onClick={() => setShowAllTags((v) => !v)}
+                      className="chip shrink-0 px-3.5 py-1.5 text-xs rounded-full border border-black-50 bg-black-100 text-white-50 hover:bg-black-200 hover:text-foreground transition-colors"
+                      {...PRESS}
+                    >
+                      {showAllTags
+                        ? "Show less"
+                        : `Show all ${tagCounts.length}`}
+                    </motion.button>
+                  )}
                 </div>
               )}
               {folder && (folder.children?.length ?? 0) > 0 ? (

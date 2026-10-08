@@ -14,6 +14,17 @@ interface FileExplorerProps {
 const EXCLUDED = new Set(["attachement", "attachements"]);
 const BATCH_SIZE = 20;
 
+/* whole subtree, not just direct children — nested folders said "0 files" */
+const countFiles = (node: TreeNode): number => {
+  if (node.type === "file") return 1;
+  let sum = 0;
+  for (const c of node.children ?? []) {
+    if (c.type === "folder" && EXCLUDED.has(c.name)) continue;
+    sum += countFiles(c);
+  }
+  return sum;
+};
+
 const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) => {
   const [visibleFiles, setVisibleFiles] = useState(BATCH_SIZE);
   const listRef = useRef<HTMLDivElement>(null);
@@ -125,8 +136,8 @@ const FileExplorer = ({ folder, currentPath, onNavigate }: FileExplorerProps) =>
                 {node.name}
               </span>
               <span className="shrink-0 text-[11px] font-medium px-2 py-0.5 rounded-full bg-black-200 text-blue-50">
-                {node.children?.filter((c) => c.type === "file").length}{" "}
-                file{(node.children?.filter((c) => c.type === "file").length ?? 0) !== 1 ? "s" : ""}
+                {countFiles(node)}{" "}
+                file{countFiles(node) !== 1 ? "s" : ""}
               </span>
               <ChevronRight className="size-4 text-white-50/30 shrink-0" />
             </button>
