@@ -1,11 +1,11 @@
 {
- "generatedAt": "2026-10-07T12:02:39.839Z",
+ "generatedAt": "2026-10-08T11:46:13.738Z",
  "counts": {
-  "notes": 335,
+  "notes": 336,
   "folders": 60,
-  "links": 591,
+  "links": 592,
   "wikiLinks": 204,
-  "fresh": 19
+  "fresh": 20
  },
  "nodes": [
   {
@@ -79,7 +79,7 @@
    "title": "time to first token",
    "kind": "note",
    "dir": "Programing/Concepts/FDE and GenAI",
-   "updated": "2026-10-06T16:07:41Z",
+   "updated": "2026-10-07T12:35:17Z",
    "fresh": true
   },
   {
@@ -146,6 +146,14 @@
    "kind": "note",
    "dir": "Programing/Concepts/LLD",
    "updated": "2026-10-06T16:07:41Z",
+   "fresh": true
+  },
+  {
+   "id": "Programing/Concepts/LLD/16.Facade design pattern",
+   "title": "Standard UML",
+   "kind": "note",
+   "dir": "Programing/Concepts/LLD",
+   "updated": "2026-10-07T14:00:30Z",
    "fresh": true
   },
   {
@@ -3530,6 +3538,11 @@
   },
   {
    "source": "Programing/Concepts/LLD/15.Adapter design pattern",
+   "target": "dir:Programing/Concepts/LLD",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/LLD/16.Facade design pattern",
    "target": "dir:Programing/Concepts/LLD",
    "kind": "member"
   },

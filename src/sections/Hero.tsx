@@ -7,6 +7,7 @@ import RevolvingWords from "../components/RevolvingWords";
 import FlickeringText from "../components/FlickeringText";
 import { useNearViewport } from "../hooks/useNearViewport";
 import { useReducedMotion } from "../hooks/useReducedMotion";
+import { useIdleReady } from "../hooks/useIdleReady";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -20,6 +21,9 @@ const HeroExperience = lazy(
 const Hero = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
+  /* the 3D scene waits for a post-paint idle slot — entry JS + the hero
+     text paint first, three.js (~340KB gz) loads right after */
+  const sceneReady = useIdleReady(1500);
   const { ref: figureRef, visible: figureVisible } =
     useNearViewport<HTMLDivElement>("100px");
 
@@ -113,13 +117,17 @@ const Hero = () => {
             ref={figureRef}
             className="hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 block"
           >
-            <Suspense
-              fallback={
-                <div className="skeleton absolute inset-0 rounded-4xl bg-black-200" />
-              }
-            >
-              <HeroExperience active={figureVisible} />
-            </Suspense>
+            {sceneReady ? (
+              <Suspense
+                fallback={
+                  <div className="skeleton absolute inset-0 rounded-4xl bg-black-200" />
+                }
+              >
+                <HeroExperience active={figureVisible} />
+              </Suspense>
+            ) : (
+              <div className="skeleton absolute inset-0 rounded-4xl bg-black-200" />
+            )}
           </div>
         </figure>
       </div>

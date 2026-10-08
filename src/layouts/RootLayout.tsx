@@ -1,24 +1,29 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { MotionConfig } from "motion/react";
 import Navbar from "../components/Navbar";
 import BottomTabBar from "../components/BottomTabBar";
 import CursorGlow from "../components/CursorGlow";
-import CatCompanion from "../components/CatCompanion";
 import CommandPalette from "../components/CommandPalette";
 import DevShortcuts from "../components/DevShortcuts";
 import Footer from "../sections/Footer";
 import { Toaster } from "../components/ui/sonner";
 import { SITE_NAME, SOCIAL_HANDLE, SITE_DESCRIPTION } from "../seo/config";
 import { isTouchDevice } from "../hooks/useNearViewport";
+import { useIdleReady } from "../hooks/useIdleReady";
 import { tap } from "../lib/haptics";
 import { canViewTransition, useRenderedLocation } from "../lib/routeTransition";
+
+/* the cat is pure delight — her chunk waits for the first idle slot so
+   entry paint never queues behind her */
+const CatCompanion = lazy(() => import("../components/CatCompanion"));
 
 const RootLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const rendered = useRenderedLocation() ?? location;
+  const catReady = useIdleReady(1200);
 
   useEffect(() => {
     const splash = document.getElementById("splash");
@@ -79,7 +84,11 @@ const RootLayout = () => {
         </Helmet>
         <Navbar />
         <CursorGlow />
-        <CatCompanion />
+        {catReady && (
+          <Suspense fallback={null}>
+            <CatCompanion />
+          </Suspense>
+        )}
         <CommandPalette />
         <DevShortcuts />
         <div

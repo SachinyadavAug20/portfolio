@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown, Share2 } from "lucide-r
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ReactMarkdown from "react-markdown";
+import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import remarkWikiLink from "remark-wiki-link";
@@ -18,12 +19,25 @@ import { scrollToY } from "../lib/smoothScroll";
 import remarkObsidianImages from "../blog/remark-obsidian-images";
 import { rehypeMermaid } from "../blog/rehype-mermaid";
 import rehypeRaw from "rehype-raw";
-import rehypePrism from "rehype-prism-plus";
+import rehypePrism from "rehype-prism-plus/common";
+import { refractor } from "refractor";
+import refractorJsx from "refractor/jsx";
+import refractorTsx from "refractor/tsx";
+import refractorProperties from "refractor/properties";
+import refractorVim from "refractor/vim";
 import ReadingProgress from "../components/ReadingProgress";
 import ReadAloud from "../components/ReadAloud";
 import { toast } from "sonner";
 import { tap } from "../lib/haptics";
 import "prismjs/themes/prism-tomorrow.css";
+
+/* the common refractor set covers ~50 languages for a fraction of the
+   full grammar bundle — the vault also fences tsx/jsx/properties/vim,
+   so register those four by hand instead of shipping every language */
+refractor.register(refractorJsx);
+refractor.register(refractorTsx);
+refractor.register(refractorProperties);
+refractor.register(refractorVim);
 
 const MotionLink = motion.create(Link);
 const PRESS = {
@@ -149,6 +163,14 @@ const MermaidChart = ({ chart }: { chart: string }) => {
   }
 
   return <div ref={ref} className="my-4 flex justify-center" />;
+};
+
+/* custom rehype-raw element handled in the markdown component map */
+const mermaidComponents = {
+  "mermaid-diagram": ({ children }: { children?: React.ReactNode }) => {
+    const chart = typeof children === "string" ? children : String(children);
+    return <MermaidChart chart={chart} />;
+  },
 };
 
 const ImageWithFallback = (props: Record<string, unknown>) => {
@@ -377,6 +399,55 @@ const BlogPost = () => {
     [post?.dir],
   );
 
+  /* stable plugin/component arrays — inline literals made ReactMarkdown
+     rebuild its whole processor on every parent re-render */
+  type MdProps = Parameters<typeof ReactMarkdown>[0];
+  const remarkPlugins = useMemo<NonNullable<MdProps["remarkPlugins"]>>(
+    () => [
+      remarkGfm,
+      remarkBreaks,
+      [remarkWikiLink, { hrefTemplate: (link: string) => `/blog/post/${link}` }],
+      remarkCallouts,
+      remarkPlugin,
+    ],
+    [remarkPlugin],
+  );
+  const rehypePlugins = useMemo<NonNullable<MdProps["rehypePlugins"]>>(
+    () => [rehypeMermaid, rehypeRaw, [rehypePrism, { ignoreMissing: true }]],
+    [],
+  );
+  const mdComponents = useMemo(
+    (): Components => ({
+      pre: (props) => <CodeBlock {...props} />,
+      img: (props) => <ImageWithFallback {...props} />,
+      h2: ({ children, ...props }) => {
+        const text = extractText(children);
+        const id = slugify(text);
+        return <h2 id={id} className="scroll-mt-6" {...props}>{children}</h2>;
+      },
+      h3: ({ children, ...props }) => {
+        const text = extractText(children);
+        const id = slugify(text);
+        return <h3 id={id} className="scroll-mt-6" {...props}>{children}</h3>;
+      },
+      h4: ({ children, ...props }) => {
+        const text = extractText(children);
+        const id = slugify(text);
+        return <h4 id={id} className="scroll-mt-6" {...props}>{children}</h4>;
+      },
+      code({ className, children, ...props }) {
+        return (
+          <code className={className} {...props}>
+            {children}
+          </code>
+        );
+      },
+      /* custom rehype-raw tag: spread keeps it out of the intrinsic map */
+      ...mermaidComponents,
+    }),
+    [],
+  );
+
   const handleShare = async () => {
     if (!post) return;
     const url = window.location.href;
@@ -515,46 +586,9 @@ const BlogPost = () => {
             <article className="post-anim prose prose-invert max-w-none blog-content mt-2">
               {post.content && (
                 <ReactMarkdown
-                  remarkPlugins={[
-                    remarkGfm,
-                    remarkBreaks,
-                    [remarkWikiLink, { hrefTemplate: (link: string) => `/blog/post/${link}` }],
-                    remarkCallouts,
-                    remarkPlugin,
-                  ]}
-                  rehypePlugins={[rehypeMermaid, rehypeRaw, rehypePrism]}
-                  components={{
-                    pre: (props) => <CodeBlock {...props} />,
-                    img: (props) => <ImageWithFallback {...props} />,
-                    h2: ({ children, ...props }) => {
-                      const text = extractText(children);
-                      const id = slugify(text);
-                      return <h2 id={id} className="scroll-mt-6" {...props}>{children}</h2>;
-                    },
-                    h3: ({ children, ...props }) => {
-                      const text = extractText(children);
-                      const id = slugify(text);
-                      return <h3 id={id} className="scroll-mt-6" {...props}>{children}</h3>;
-                    },
-                    h4: ({ children, ...props }) => {
-                      const text = extractText(children);
-                      const id = slugify(text);
-                      return <h4 id={id} className="scroll-mt-6" {...props}>{children}</h4>;
-                    },
-                    code({ className, children, ...props }) {
-                      return (
-                        <code className={className} {...props}>
-                          {children}
-                        </code>
-                      );
-                    },
-                    ...{
-                      "mermaid-diagram": ({ children }: any) => {
-                        const chart = typeof children === "string" ? children : String(children);
-                        return <MermaidChart chart={chart} />;
-                      },
-                    },
-                  }}
+                  remarkPlugins={remarkPlugins}
+                  rehypePlugins={rehypePlugins}
+                  components={mdComponents}
                 >
                   {post.content}
                 </ReactMarkdown>
