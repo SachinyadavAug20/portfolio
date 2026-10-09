@@ -13,6 +13,7 @@ import remarkCallouts from "remark-callouts";
 import SEOHead from "../seo/SEOHead";
 import { getPostByFullSlug, getPosts, getPostsInDir } from "../blog/posts";
 import { getBacklinks } from "../blog/backlinks";
+import { OWNER, REPO, BRANCH } from "../blog/config";
 import type { BlogPost as BlogPostType } from "../blog/types";
 import { useViews } from "../hooks/useViews";
 import { useReducedMotion } from "../hooks/useReducedMotion";
@@ -352,8 +353,11 @@ const Skeleton = () => (
   </section>
 );
 
+const IMG_EXT = /\.(png|jpe?g|gif|webp|bmp)$/i;
+
 function extractExcerpt(markdown: string): string {
   const cleaned = markdown
+    .replace(/^---\n[\s\S]*?\n---\n/, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/`[^`]*`/g, "")
     .replace(/!\[.*?\]\(.*?\)/g, "")
@@ -527,9 +531,18 @@ const BlogPost = () => {
 
   const ogImage = useMemo(() => {
     if (!post?.content) return undefined;
-    const match = post.content.match(/!\[.*?\]\((.+?)\)/);
-    return match ? match[1] : undefined;
-  }, [post?.content]);
+    /* vault embeds are wikilinks: ![[Pasted image ….png]] */
+    const wiki = post.content.match(/!\[\[([^|\]]+?)(?:\|\d+)?\]\]/);
+    const md = post.content.match(/!\[.*?\]\((.+?)\)/);
+    const raw = (wiki ? wiki[1] : md ? md[1] : "").trim();
+    if (!raw) return undefined;
+    if (/^https?:\/\//i.test(raw)) return raw;
+    if (!IMG_EXT.test(raw)) return undefined;
+    const file = raw.split("/").pop();
+    const path = `Notes/${post.dir ? `${post.dir}/` : ""}attachement/${file}`;
+    const encoded = path.split("/").map(encodeURIComponent).join("/");
+    return `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${encoded}`;
+  }, [post?.content, post?.dir]);
 
   const excerpt = useMemo(() => {
     if (!post?.content) return "";
@@ -808,7 +821,7 @@ const BlogPost = () => {
   if (error || !post) {
     return (
       <>
-      <SEOHead title="Post not found" description={excerpt || "Blog post not found"} path={`/blog/post/${fullSlug || ""}`} />
+      <SEOHead title="Post not found" description={excerpt || "Blog post not found"} path={`/blog/post/${fullSlug || ""}`} robots="noindex" />
       <section className="section-padding pt-10 min-h-screen">
         <div className="w-full h-full md:px-10 max-w-md mx-auto text-center">
           <h1 className="text-3xl font-bold mb-3">This note isn't here</h1>

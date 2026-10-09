@@ -66,8 +66,14 @@ const SEOHead = ({
       { kind: "meta", attr: "property", key: "og:title", content: title },
       { kind: "meta", attr: "property", key: "og:description", content: description },
       { kind: "meta", attr: "property", key: "og:image", content: imageUrl },
-      { kind: "meta", attr: "property", key: "og:image:width", content: "1200" },
-      { kind: "meta", attr: "property", key: "og:image:height", content: "630" },
+      /* real dimensions only for the branded card — note screenshots carry
+         their own size and a fake 1200×630 makes scrapers crop badly */
+      ...(image === OG_IMAGE
+        ? [
+            { kind: "meta", attr: "property", key: "og:image:width", content: "1200" } as HeadTag,
+            { kind: "meta", attr: "property", key: "og:image:height", content: "630" } as HeadTag,
+          ]
+        : []),
       { kind: "meta", attr: "property", key: "og:image:alt", content: OG_IMAGE_ALT },
       { kind: "meta", attr: "property", key: "og:url", content: url },
       { kind: "meta", attr: "property", key: "og:type", content: type },
@@ -83,7 +89,7 @@ const SEOHead = ({
     ];
     applyHead(composeTags(tags));
     return () => applyHead(baseTags);
-  }, [fullTitle, title, description, url, imageUrl, type, robots, jsonLdStr]);
+  }, [fullTitle, title, description, url, imageUrl, image, type, robots, jsonLdStr]);
 
   return null;
 };

@@ -9,6 +9,8 @@ const BLOG_ROOT = "Notes";
 const OUT_PATH = resolve(import.meta.dirname, "../public/graph.json");
 const DATES_PATH = resolve(import.meta.dirname, "../public/dates.json");
 const BACKLINKS_PATH = resolve(import.meta.dirname, "../public/backlinks.json");
+const SEO_PATH = resolve(import.meta.dirname, "../public/seo.json");
+const SITEMAP_PATH = resolve(import.meta.dirname, "../public/sitemap.xml");
 
 const FETCH_CONCURRENCY = 8;
 const MAX_ATTEMPTS = 3;
@@ -52,11 +54,21 @@ async function fetchWithRetry(url, headers, attempts = MAX_ATTEMPTS) {
   throw lastErr;
 }
 
+/* every blob in the tree — first-image lookup for seo.json resolves against
+   this instead of guessing attachment folder names (attachement/attachements/
+   attachment/attachments all exist in the vault) */
+let treeBlobSet = null;
+
 async function fetchSlugs() {
   const url = `https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`;
   const res = await fetchWithRetry(url, githubHeaders());
   const data = await res.json();
   const prefix = `${BLOG_ROOT}/`;
+  treeBlobSet = new Set(
+    (data.tree || [])
+      .filter((item) => item.type === "blob" && item.path.startsWith(prefix))
+      .map((item) => item.path),
+  );
   return (data.tree || [])
     .filter(
       (item) =>
@@ -273,6 +285,113 @@ function writeBacklinks(graph) {
   );
 }
 
+/* --- seo.json: what social scrapers read (the worker injects it into the
+   HTML head — crawlers don't run JS, so client-side tags never reach them) --- */
+
+/* same extraction BlogPost.tsx uses — server and client excerpts match */
+function extractExcerpt(markdown) {
+  const cleaned = markdown
+    .replace(/^---\n[\s\S]*?\n---\n/, "")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/`[^`]*`/g, "")
+    .replace(/!\[.*?\]\(.*?\)/g, "")
+    .replace(/!\[\[.*?\]\]/g, "")
+    .replace(/[#*_~>|\[\]`-]/g, "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/\n{2,}/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (cleaned.length <= 160) return cleaned;
+  return cleaned.slice(0, 157).replace(/\s+\S*$/, "") + "...";
+}
+
+const IMG_EXT = /\.(png|jpe?g|gif|webp|bmp)$/i;
+
+/* first embedded image, resolved against the real tree — the vault spreads
+   attachments across attachement/attachements/attachment/attachments/ */
+function firstImageUrl(content, dir) {
+  if (!treeBlobSet) return null;
+  const wiki = content.match(/!\[\[([^|\]]+?)(?:\|\d+)?\]\]/);
+  const md = content.match(/!\[[^\]]*\]\(([^)]+)\)/);
+  const raw = wiki ? wiki[1].trim() : md ? md[1].trim() : null;
+  if (!raw || /^https?:\/\//i.test(raw) || !IMG_EXT.test(raw)) return null;
+  const file = raw.split("/").pop();
+  const root = dir ? `${BLOG_ROOT}/${dir}` : BLOG_ROOT;
+  const folders = ["attachement", "attachements", "attachment", "attachments", ""];
+  for (const folder of folders) {
+    const path = folder ? `${root}/${folder}/${file}` : `${root}/${file}`;
+    if (treeBlobSet.has(path)) {
+      const encoded = path.split("/").map(encodeURIComponent).join("/");
+      return `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${encoded}`;
+    }
+  }
+  return null;
+}
+
+function siteUrlFromSitemap() {
+  try {
+    const match = readFileSync(SITEMAP_PATH, "utf-8").match(/<loc>(.+?)<\/loc>/);
+    if (match) return match[1].replace(/\/$/, "");
+  } catch {}
+  return "https://portfolio.samtagon777.workers.dev";
+}
+
+function writeSeo(notes) {
+  const site = siteUrlFromSitemap();
+  const posts = {};
+  let withImages = 0;
+  for (const n of notes) {
+    const entry = { t: n.title, d: extractExcerpt(n.content) };
+    const img = firstImageUrl(n.content, n.dir);
+    if (img) {
+      entry.img = img;
+      withImages++;
+    }
+    if (n.updated) {
+      entry.pub = n.updated;
+      entry.mod = n.updated;
+    }
+    if (n.dir) entry.dir = n.dir;
+    posts[n.id] = entry;
+  }
+  const seo = {
+    generatedAt: new Date().toISOString(),
+    site,
+    siteName: "Sachin Yadav",
+    handle: "@samtagon38824",
+    person: `${site}/#person`,
+    fallbackImage: "/images/og.png",
+    imageAlt: "Sachin Yadav Portfolio",
+    sameAs: [
+      "https://www.linkedin.com/in/sachin-yadav-05a105374/",
+      "https://github.com/SachinyadavAug20",
+      "https://leetcode.com/u/b2mIkNz0h5/",
+      "https://x.com/samtagon38824",
+      "https://sachinapr20.itch.io/",
+    ],
+    pages: {
+      "/": {
+        t: "Sachin Yadav — Full-Stack Developer",
+        d: "Hi, I'm Sachin, a developer based in India with a passion for code.",
+      },
+      "/blog": {
+        t: "Blog",
+        d: "Read about programming, full-stack development, and computer science from my Obsidian vault.",
+      },
+      "/graph": {
+        t: "Knowledge Graph",
+        d: "An interactive map of the ideas in my Obsidian vault — browse how my notes on programming, tools, and computer science connect, and jump straight into any note.",
+      },
+    },
+    posts,
+  };
+  writeFileSync(SEO_PATH, JSON.stringify(seo) + "\n");
+  const kb = Math.round(readFileSync(SEO_PATH).byteLength / 1024);
+  console.log(
+    `generate-seo: ${Object.keys(posts).length} posts, ${withImages} with images, 3 pages, ${kb}KB → ${SEO_PATH}`,
+  );
+}
+
 async function main() {
   const started = Date.now();
   let slugs;
@@ -365,6 +484,9 @@ async function main() {
 
   let resolvedWiki = 0;
   let unresolvedWiki = 0;
+  /* seo.json reads raw content — emit it before the markdown is stripped */
+  writeSeo(notes);
+
   for (const note of notes) {
     const targets = extractLinkTargets(note.content);
     for (const target of targets) {
