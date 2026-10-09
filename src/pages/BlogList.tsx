@@ -5,6 +5,7 @@ import { X, Search, Network, FileText, Tags } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import SEOHead from "../seo/SEOHead";
+import { buildBlogSchema } from "../lib/schema";
 import { getPosts } from "../blog/posts";
 import { buildTree, getFolderAtPath } from "../blog/tree";
 
@@ -326,6 +327,7 @@ const BlogList = () => {
         title={currentTag ? `${currentTag} — Blog` : "Blog"}
         description="Read about programming, full-stack development, and computer science from my Obsidian vault."
         path="/blog"
+        jsonLd={buildBlogSchema()}
       />
       <section className="section-padding pt-5 min-h-screen">
       <div ref={rootRef} className="w-full h-full md:px-10">

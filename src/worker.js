@@ -39,7 +39,7 @@ function resolveEntry(pathname, seo) {
 
   const page = seo?.pages?.[pathname];
   if (page) {
-    return { kind: "page", site, title: page.t, desc: page.d, image: absUrl(site, fallbackImage), url: `${site}${pathname}` };
+    return { kind: "page", path: pathname, site, title: page.t, desc: page.d, image: absUrl(site, fallbackImage), url: `${site}${pathname}` };
   }
 
   if (pathname.startsWith(POST_PREFIX)) {
@@ -135,6 +135,40 @@ function buildTags(entry, seo) {
           inLanguage: "en",
         },
       ],
+    };
+  } else if (entry.path === "/blog") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      name: entry.title,
+      description: entry.desc,
+      url: entry.url,
+      publisher: { "@id": person },
+    };
+  } else if (entry.path === "/graph") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: entry.title,
+      description: entry.desc,
+      url: entry.url,
+      isPartOf: { "@id": `${entry.site}/#website` },
+    };
+  } else if (entry.path === "/links") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      name: entry.title,
+      description: entry.desc,
+      url: entry.url,
+      mainEntity: {
+        "@type": "Person",
+        "@id": person,
+        name: siteName,
+        url: entry.site,
+        jobTitle: "Full-Stack Developer",
+        sameAs: seo?.sameAs || [],
+      },
     };
   }
 

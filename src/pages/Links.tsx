@@ -14,6 +14,7 @@ import {
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import SEOHead from "../seo/SEOHead";
+import { buildLinksSchema } from "../lib/schema";
 
 interface LinkRow {
   label: string;
@@ -116,6 +117,7 @@ const Links = () => (
       title="Links"
       description="Everywhere to find me — portfolio, blog, X, LinkedIn, GitHub, LeetCode, Codeforces, itch.io and more, all in one place."
       path="/links"
+      jsonLd={buildLinksSchema()}
     />
     <section className="min-h-[100svh] flex-center px-5 py-12">
       <div className="w-full max-w-md">

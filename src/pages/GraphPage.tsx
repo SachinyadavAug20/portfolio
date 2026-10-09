@@ -29,6 +29,7 @@ import type {
   NodeObject,
 } from "react-force-graph-2d";
 import SEOHead from "../seo/SEOHead";
+import { buildGraphSchema } from "../lib/schema";
 import TitleHeader from "../components/TitleHeader";
 import { useTheme } from "../lib/theme";
 import { useNearViewport, isTouchDevice } from "../hooks/useNearViewport";
@@ -982,6 +983,7 @@ const GraphPage = () => {
         title="Knowledge Graph"
         description="An interactive map of the ideas in my Obsidian vault — browse how my notes on programming, tools, and computer science connect, and jump straight into any note."
         path="/graph"
+        jsonLd={buildGraphSchema()}
       />
       <section className="section-padding pt-5 min-h-screen">
         <div className="w-full h-full md:px-10 max-w-7xl mx-auto">
