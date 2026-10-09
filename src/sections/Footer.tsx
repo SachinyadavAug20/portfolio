@@ -33,7 +33,7 @@ const Footer = () => {
   return (
     <footer className="footer" ref={ref}>
       <div className="footer-container">
-        <div className="flex flex-col justify-center items-center md:items-start">
+        <div className="flex flex-col justify-center items-center lg:items-start">
           <Link
             to="/blog"
             className="group inline-flex items-center gap-1.5 py-2 -my-1 px-1 -mx-1 active:opacity-70 transition-opacity"
@@ -66,10 +66,12 @@ const Footer = () => {
             one page, zero scrolling — the cat curated it
           </p>
         </div>
-        <div className="flex flex-col justify-center">
-          <p className="text-center md:text-end">
-            © {new Date().getFullYear()} Sachin Yadav | SachinYadavApr20. All
-            rights reserved
+        <div className="flex flex-col justify-center items-center lg:items-end">
+          <p className="text-center lg:text-end">
+            © {new Date().getFullYear()} Sachin Yadav
+          </p>
+          <p className="text-center lg:text-end">
+            SachinYadavApr20 · All rights reserved
           </p>
         </div>
       </div>

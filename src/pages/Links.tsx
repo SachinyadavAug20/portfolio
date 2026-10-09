@@ -21,9 +21,7 @@ interface LinkRow {
   href: string;
   internal?: boolean;
   icon?: LucideIcon;
-  /* one logo variant only: the terminal window is dark in both themes,
-     so the dark (light-glyph) asset is always the right one */
-  img?: string;
+  img?: { dark: string; light: string };
 }
 
 const PRIMARY: LinkRow[] = [
@@ -33,25 +31,25 @@ const PRIMARY: LinkRow[] = [
     label: "X",
     sub: "x.com/samtagon38824",
     href: "https://x.com/samtagon38824",
-    img: "/images/x.png",
+    img: { dark: "/images/x.png", light: "/images/x-light.png" },
   },
   {
     label: "LinkedIn",
     sub: "sachin-yadav-05a105374",
     href: "https://www.linkedin.com/in/sachin-yadav-05a105374/",
-    img: "/images/linkedin.png",
+    img: { dark: "/images/linkedin.png", light: "/images/linkedin-light.png" },
   },
   {
     label: "GitHub",
     sub: "SachinyadavAug20",
     href: "https://github.com/SachinyadavAug20",
-    img: "/images/github.png",
+    img: { dark: "/images/github.png", light: "/images/github-light.png" },
   },
   {
     label: "LeetCode",
     sub: "b2mIkNz0h5",
     href: "https://leetcode.com/u/b2mIkNz0h5/",
-    img: "/images/leetcode.png",
+    img: { dark: "/images/leetcode.png", light: "/images/leetcode-light.png" },
   },
   { label: "Codeforces", sub: "sachinapr20", href: "https://codeforces.com/profile/sachinapr20", icon: Swords },
   { label: "itch.io", sub: "sachinapr20.itch.io", href: "https://sachinapr20.itch.io/", icon: Gamepad2 },
@@ -70,48 +68,28 @@ const rise = (i: number) => ({
   transition: { duration: 0.4, delay: 0.08 + i * 0.05, ease: "easeOut" as const },
 });
 
-/* the shell command each row runs — `open leetcode`, `open itch.io` */
-const cmd = (label: string) => label.toLowerCase().replace(/\s+/g, "-");
-
-const Prompt = () => (
-  <span aria-hidden="true" className="shrink-0 select-none text-green-400">
-    $
-  </span>
-);
-
 const Row = ({ item, index }: { item: LinkRow; index: number }) => {
   const Icon = item.icon;
   const cls =
-    "group -mx-2 flex items-start gap-2.5 rounded-md px-2 py-2 transition-colors hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-green-400/60";
+    "group flex items-center gap-3 p-3.5 rounded-2xl card-border transition-all hover:bg-black-200 active:scale-[0.98]";
   const inner = (
     <>
-      <Prompt />
+      <span className="size-10 rounded-xl bg-black-200 flex-center shrink-0">
+        {item.img ? (
+          <>
+            <img src={item.img.dark} alt="" className="hidden dark:block size-5" loading="lazy" decoding="async" />
+            <img src={item.img.light} alt="" className="dark:hidden size-5" loading="lazy" decoding="async" />
+          </>
+        ) : (
+          Icon && <Icon className="size-5 text-blue-50" aria-hidden="true" />
+        )}
+      </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[13px] text-white/85 transition-colors group-hover:text-white">
-          <span className="text-white/45">open</span>{" "}
-          <span className="text-sky-400">{cmd(item.label)}</span>
-          {item.img ? (
-            <img
-              src={item.img}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="ml-1.5 inline-block size-4 translate-y-[3px] opacity-80"
-            />
-          ) : Icon ? (
-            <Icon
-              className="ml-1.5 inline-block size-4 translate-y-[3px] text-white/50"
-              aria-hidden="true"
-            />
-          ) : null}
-        </span>
-        <span className="mt-0.5 block truncate text-xs text-white/40">
-          <span aria-hidden="true" className="text-white/25"># </span>
-          {item.sub}
-        </span>
+        <span className="block font-medium text-foreground text-sm sm:text-base">{item.label}</span>
+        <span className="block text-xs text-white-50/60 truncate">{item.sub}</span>
       </span>
       <ArrowUpRight
-        className="mt-1 size-4 shrink-0 text-white/30 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-green-400"
+        className="size-4 shrink-0 text-white-50/40 transition-all group-hover:text-blue-50 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
         aria-hidden="true"
       />
     </>
@@ -152,129 +130,75 @@ const Links = () => (
       jsonLd={buildLinksSchema()}
     />
     <section className="relative min-h-[100svh] flex-center px-5 py-14">
-      {/* phosphor haze behind the terminal — visible in both themes */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[560px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-green-500/10 blur-3xl"
-      />
       {/* corner badge — the status card, promoted to the page edge and made
           tappable so the only call-to-action on the page still reaches the
-          contact form */}
+          contact form; wears terminal chrome while the cards stay cards */}
       <motion.a
         {...rise(0)}
         href="/#contact"
-        className="group absolute top-4 right-4 sm:top-6 sm:right-6 inline-flex items-center gap-2 whitespace-nowrap rounded-md border border-green-500/30 bg-black-100/85 backdrop-blur px-3 py-1.5 font-mono text-[11px] text-white-50/85 shadow-lg transition-colors hover:border-green-500/60 hover:text-foreground"
+        className="group absolute top-4 right-4 sm:top-6 sm:right-6 inline-flex items-center gap-2 whitespace-nowrap rounded-md border border-green-500/30 bg-black-100/85 backdrop-blur px-3 py-1.5 font-mono text-[11px] text-white-50/85 shadow-lg transition-all hover:border-green-500/60 hover:text-foreground hover:shadow-[0_0_20px_-6px_rgba(74,222,128,0.5)]"
       >
+        <span
+          aria-hidden="true"
+          className="term-scanlines pointer-events-none absolute inset-0 rounded-md"
+        />
         <span className="relative flex size-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
           <span className="relative inline-flex size-2 rounded-full bg-green-400" />
         </span>
-        Open to work · replies within ~24h
+        <span className="relative">
+          Open to work · replies within ~24h
+          <span
+            aria-hidden="true"
+            className="term-blink ml-1 inline-block h-3 w-[5px] translate-y-[1px] bg-green-400/80"
+          />
+        </span>
       </motion.a>
 
-      <div className="w-full max-w-md overflow-hidden rounded-xl border border-white/10 bg-[#0b0d12] font-mono shadow-[0_30px_80px_-40px_rgba(0,0,0,0.9)]">
-        {/* window chrome */}
-        <div className="relative flex items-center gap-1.5 border-b border-white/10 bg-white/[0.04] px-4 py-2.5">
-          <span aria-hidden="true" className="size-2.5 rounded-full bg-[#ff5f57]" />
-          <span aria-hidden="true" className="size-2.5 rounded-full bg-[#febc2e]" />
-          <span aria-hidden="true" className="size-2.5 rounded-full bg-[#28c840]" />
-          <span className="absolute left-1/2 -translate-x-1/2 text-[11px] whitespace-nowrap text-white/45">
-            luna@portfolio: ~/links
-          </span>
-          <span className="ml-auto text-[10px] text-white/25">zsh</span>
-        </div>
-
-        {/* terminal body */}
-        <div className="relative p-5 sm:p-6">
-          <div aria-hidden="true" className="term-scanlines pointer-events-none absolute inset-0" />
-
-          <div className="relative">
-            <motion.div {...rise(1)}>
-              <div className="flex gap-2.5 text-[13px]">
-                <Prompt />
-                <span className="text-white/75">
-                  whoami{" "}
-                  <span className="text-white/30"># the human behind the vault</span>
-                </span>
-              </div>
-              <div className="mt-3 flex items-center gap-3">
-                <span
-                  aria-hidden="true"
-                  className="grid size-12 shrink-0 place-items-center rounded-lg border border-green-500/35 bg-green-500/10 text-base font-bold text-green-400"
-                >
-                  SY
-                </span>
-                <div className="min-w-0">
-                  <h1 className="font-mono text-lg font-semibold text-white">Sachin Yadav</h1>
-                  <p className="text-xs text-white/55">
-                    @samtagon38824 · full-stack developer
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.p
-              {...rise(2)}
-              className="mt-6 flex gap-2.5 text-xs text-white/35"
-            >
-              <span aria-hidden="true" className="select-none text-white/25">
-                #
-              </span>
-              <span>eight ways in. pick your poison.</span>
-            </motion.p>
-
-            <ul aria-label="Primary links" className="mt-2 space-y-1">
-              {PRIMARY.map((item, i) => (
-                <Row key={item.href} item={item} index={i + 3} />
-              ))}
-            </ul>
-
-            <motion.div
-              {...rise(PRIMARY.length + 3)}
-              className="mt-7 flex gap-2.5 text-[13px]"
-            >
-              <Prompt />
-              <span className="text-white/75">
-                ls <span className="text-sky-400">.also</span>{" "}
-                <span className="text-white/30"># four more corners</span>
-              </span>
-            </motion.div>
-
-            <ul aria-label="Also around" className="mt-2 space-y-1">
-              {ALSO.map((item, i) => (
-                <Row key={item.href} item={item} index={i + PRIMARY.length + 4} />
-              ))}
-            </ul>
-
-            <motion.div
-              {...rise(PRIMARY.length + ALSO.length + 4)}
-              className="mt-7"
-            >
-              <div className="flex gap-2.5 text-[13px]">
-                <Prompt />
-                <span className="text-white/75">
-                  cat <span className="text-sky-400">daily-fact.txt</span>
-                </span>
-              </div>
-              <p className="mt-1.5 flex gap-2.5 text-xs text-white/55">
-                <span aria-hidden="true" className="select-none text-white/25">
-                  #
-                </span>
-                <span className="min-w-0">{DAILY_FACT}</span>
-              </p>
-              <div className="mt-5 flex items-center gap-2 text-[13px]">
-                <Prompt />
-                <span
-                  aria-hidden="true"
-                  className="term-blink inline-block h-3.5 w-2 bg-green-400/80"
-                />
-              </div>
-              <p className="mt-4 text-[11px] text-white/30">
-                © {new Date().getFullYear()} Sachin Yadav · built from my Obsidian vault
-              </p>
-            </motion.div>
+      <div className="w-full max-w-md">
+        <motion.header {...rise(1)} className="text-center">
+          <div className="mx-auto size-20 rounded-3xl bg-gradient-to-br from-blue-500 to-blue-700 flex-center text-white text-3xl font-bold shadow-lg shadow-blue-500/25 select-none">
+            SY
           </div>
-        </div>
+          <h1 className="mt-4 text-2xl font-semibold text-foreground">Sachin Yadav</h1>
+          <p className="mt-1 text-sm text-white-50/70">@samtagon38824 · Full-stack developer</p>
+        </motion.header>
+
+        <ul aria-label="Primary links" className="mt-8 space-y-3">
+          {PRIMARY.map((item, i) => (
+            <Row key={item.href} item={item} index={i + 2} />
+          ))}
+        </ul>
+
+        <motion.p
+          {...rise(PRIMARY.length + 2)}
+          className="mt-8 mb-3 flex items-center gap-3 text-[11px] uppercase tracking-widest text-white-50/50"
+        >
+          <span className="h-px flex-1 bg-black-50" />
+          Also around
+          <span className="h-px flex-1 bg-black-50" />
+        </motion.p>
+
+        <ul aria-label="Also around" className="space-y-2.5">
+          {ALSO.map((item, i) => (
+            <Row key={item.href} item={item} index={i + PRIMARY.length + 3} />
+          ))}
+        </ul>
+
+        <motion.footer
+          {...rise(PRIMARY.length + ALSO.length + 3)}
+          className="mt-10 text-center"
+        >
+          <p className="text-xs text-white-50/60">
+            <span aria-hidden="true" className="text-blue-50/70">
+              &#10022;{" "}
+            </span>
+            {DAILY_FACT}
+          </p>
+          <p className="mt-4 text-[11px] text-white-50/50">
+            © {new Date().getFullYear()} Sachin Yadav · Built from my Obsidian vault
+          </p>
+        </motion.footer>
       </div>
     </section>
   </>

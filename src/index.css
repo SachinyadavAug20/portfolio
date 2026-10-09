@@ -910,11 +910,11 @@ section {
     @apply my-10 md:mt-20 mt-10 text-white-50 px-5 md:px-20 xl:px-20 flex items-center justify-center;
 
     .footer-container {
-      @apply grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-0 w-full;
+      @apply grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-0 w-full items-center;
     }
 
     p {
-      @apply text-center md:text-start cursor-pointer;
+      @apply text-center lg:text-start cursor-pointer;
     }
 
     .socials {
