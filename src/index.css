@@ -101,6 +101,14 @@ section {
   --nav-link-hover: #000000;
   --nav-hover-bg: rgba(0, 0, 0, 0.06);
   --nav-hover-bg-active: rgba(0, 0, 0, 0.12);
+  /* fluid navbar glass — translucent bar, hairline, lift shadow */
+  --nav-glass-bg: rgba(255, 255, 255, 0.82);
+  --nav-glass-border: rgba(0, 0, 0, 0.07);
+  --nav-shadow: 0 18px 44px -28px rgba(0, 0, 0, 0.45);
+  --nav-hairline: linear-gradient(90deg, transparent, rgba(2, 132, 199, 0.35), transparent);
+  --nav-link-glow: none;
+  --nav-underline-glow: none;
+  --contact-glow: 0 10px 26px -12px rgba(2, 132, 199, 0.55);
   --contact-hover-text: #18181b;
   --drawer-link-hover-bg: rgba(0, 0, 0, 0.06);
   --drawer-link-active-bg: rgba(0, 0, 0, 0.1);
@@ -267,18 +275,43 @@ section {
       background-color 0.3s ease,
       border-color 0.3s ease,
       top 0.3s ease,
-      opacity 0.3s ease;
+      opacity 0.3s ease,
+      width 0.35s ease,
+      box-shadow 0.35s ease,
+      backdrop-filter 0.3s ease;
 
+    /* scrolled: the flat bar morphs into a floating glass pill —
+       translucent fill, blur, lift shadow, phosphor hairline on top.
+       blur via @apply: hand-written backdrop-filter is minified to the
+       webkit-only form (which Chromium ignores) */
     &.scrolled {
-      @apply top-0 bg-black border rounded-2xl;
-      background-color: var(--nav-bg);
-      border-color: var(--nav-border);
-      opacity: 0.95;
+      @apply top-0 border rounded-2xl backdrop-blur-[18px] backdrop-saturate-[170%];
+      width: calc(100% - 1.25rem);
+      background-color: var(--nav-glass-bg);
+      border-color: var(--nav-glass-border);
+      box-shadow: var(--nav-shadow);
+      opacity: 1;
+    }
+
+    &.scrolled::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 1px;
+      border-radius: inherit;
+      background: var(--nav-hairline);
+      pointer-events: none;
     }
 
     &.not-scrolled {
       @apply md:top-5 top-0 bg-transparent;
       opacity: 1;
+    }
+
+    @media (min-width: 768px) {
+      &.scrolled {
+        width: calc(100% - 3rem);
+      }
     }
 
     .inner {
@@ -300,15 +333,19 @@ section {
           @apply text-white-50 relative cursor-pointer;
 
           span {
-            @apply transition-colors duration-300 hover:text-white;
+            transition:
+              color 0.3s ease,
+              text-shadow 0.3s ease;
             &:hover {
               color: var(--nav-link-hover);
+              text-shadow: var(--nav-link-glow);
             }
           }
 
           .underline {
             @apply absolute -bottom-1 left-0 w-full h-0.5;
             background-color: var(--nav-underline);
+            box-shadow: var(--nav-underline-glow);
             transform: scaleX(0);
             transform-origin: left center;
             transition: transform var(--dur-base) var(--ease-standard);
@@ -324,6 +361,7 @@ section {
 
           &:has(a[aria-current="page"]) a span:not(.underline) {
             color: var(--nav-link-hover);
+            text-shadow: var(--nav-link-glow);
           }
         }
       }
@@ -336,9 +374,13 @@ section {
         @apply px-5 py-2 rounded-lg;
         background-color: var(--contact-bg);
         color: var(--contact-text);
+        box-shadow:
+          var(--contact-glow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.25);
         transition:
           background-color var(--dur-base) var(--ease-standard),
-          transform var(--dur-fast) var(--ease-standard);
+          transform var(--dur-fast) var(--ease-standard),
+          box-shadow 0.3s ease;
 
         span {
           @apply transition-colors duration-300;
@@ -347,6 +389,9 @@ section {
 
       .inner:hover {
         background-color: var(--contact-hover-bg);
+        box-shadow:
+          var(--contact-glow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
       }
 
       .inner:hover span {
@@ -533,8 +578,7 @@ section {
     @apply fixed bottom-0 left-0 right-0 z-[80] items-stretch justify-around;
     background-color: var(--tab-bar-bg);
     border-top: 1px solid var(--nav-border);
-    backdrop-filter: blur(16px) saturate(1.6);
-    -webkit-backdrop-filter: blur(16px) saturate(1.6);
+    @apply backdrop-blur-[16px] backdrop-saturate-[160%];
     padding-bottom: env(safe-area-inset-bottom, 0px);
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
@@ -1255,6 +1299,21 @@ section {
   --nav-link-hover: #ffffff;
   --nav-hover-bg: rgba(255, 255, 255, 0.1);
   --nav-hover-bg-active: rgba(255, 255, 255, 0.2);
+  /* dark-mode lighting: cyan phosphor hairline, link glow, lifted shadow */
+  --nav-glass-bg: rgba(5, 5, 7, 0.72);
+  --nav-glass-border: rgba(255, 255, 255, 0.09);
+  --nav-shadow: 0 20px 50px -22px rgba(0, 0, 0, 0.85),
+    0 0 44px -18px rgba(56, 189, 248, 0.28);
+  --nav-hairline: linear-gradient(
+    90deg,
+    transparent,
+    rgba(56, 189, 248, 0.6) 40%,
+    rgba(74, 222, 128, 0.4) 70%,
+    transparent
+  );
+  --nav-link-glow: 0 0 16px rgba(56, 189, 248, 0.5);
+  --nav-underline-glow: 0 0 10px rgba(255, 255, 255, 0.75);
+  --contact-glow: 0 12px 30px -10px rgba(56, 189, 248, 0.65);
   --contact-hover-text: #ffffff;
   --drawer-link-hover-bg: rgba(255, 255, 255, 0.08);
   --drawer-link-active-bg: rgba(255, 255, 255, 0.15);
