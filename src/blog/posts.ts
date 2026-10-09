@@ -27,6 +27,19 @@ function cleanTitle(raw: string, fallback: string): string {
   return cleaned.slice(0, 97).replace(/\s+\S*$/, "") + "…";
 }
 
+/* does the note open with its own title as a heading? the post page withholds
+   its <h1> then — the markdown's heading already plays the title, and two
+   identical headings stacked on screen read like a stutter */
+export function leadsWithTitle(content: string, title: string): boolean {
+  const body = content
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/~~~[\s\S]*?~~~/g, "");
+  const firstLine = body.trimStart().split("\n", 1)[0] || "";
+  const m = firstLine.match(/^(#{1,6})\s+(.+)$/);
+  if (!m) return false;
+  return cleanTitle(m[2], "") === title;
+}
+
 export async function getPosts(): Promise<BlogPost[]> {
   if (cachedFiles) return cachedFiles;
 

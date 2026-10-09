@@ -11,7 +11,7 @@ import remarkBreaks from "remark-breaks";
 import remarkWikiLink from "remark-wiki-link";
 import remarkCallouts from "remark-callouts";
 import SEOHead from "../seo/SEOHead";
-import { getPostByFullSlug, getPosts, getPostsInDir } from "../blog/posts";
+import { getPostByFullSlug, getPosts, getPostsInDir, leadsWithTitle } from "../blog/posts";
 import { getBacklinks } from "../blog/backlinks";
 import { OWNER, REPO, BRANCH } from "../blog/config";
 import type { BlogPost as BlogPostType } from "../blog/types";
@@ -554,6 +554,11 @@ const BlogPost = () => {
     return extractHeadings(post.content);
   }, [post?.content]);
 
+  /* the page <h1> stands down when the note opens with its own title —
+     the markdown heading already says it (see leadsWithTitle) */
+  const showTitle =
+    !!post?.content && !!post.title && !leadsWithTitle(post.content, post.title);
+
   const backTo = from ? `/blog?path=${from}` : "/blog";
 
   /* nav key falls back to the note's own folder so direct visits get prev/next */
@@ -615,11 +620,12 @@ const BlogPost = () => {
     };
   }, [post?.fullSlug]);
 
-  /* ← / → walk the folder like a gallery; overlays and inputs keep the keys */
+  /* ← / → and a horizontal swipe walk the folder like a gallery;
+     overlays and inputs keep the keys */
   const navigate = useNavigate();
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const go = (slug: string) => navigate(`/blog/post/${slug}${from ? `?from=${from}` : ""}`);
+    const blocked = () => {
       const el = document.activeElement;
       if (
         el &&
@@ -627,15 +633,48 @@ const BlogPost = () => {
           el.tagName === "TEXTAREA" ||
           (el as HTMLElement).isContentEditable)
       )
-        return;
-      if (document.body.style.overflow === "hidden") return;
+        return true;
+      if (document.body.style.overflow === "hidden") return true;
+      return false;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (blocked()) return;
       const target = e.key === "ArrowLeft" ? prev : e.key === "ArrowRight" ? next : null;
       if (!target) return;
       e.preventDefault();
-      navigate(`/blog/post/${target.fullSlug}${from ? `?from=${from}` : ""}`);
+      go(target.fullSlug);
+    };
+    /* touch: a deliberate horizontal drag flips to the neighbouring note —
+       vertical scrolling and taps must never trip it */
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1 || blocked()) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!tracking) return;
+      tracking = false;
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) < 64 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      if (window.getSelection()?.toString()) return;
+      const target = dx < 0 ? next : prev;
+      if (!target) return;
+      go(target.fullSlug);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
   }, [prev, next, from, navigate]);
 
   const remarkPlugin = useMemo(
@@ -874,6 +913,11 @@ const BlogPost = () => {
         </Link>
         <div className="flex gap-12">
           <div className="flex-1 min-w-0 max-w-3xl">
+            {showTitle && (
+              <h1 className="post-anim text-2xl md:text-3xl font-bold leading-tight text-foreground mb-4">
+                {post.title}
+              </h1>
+            )}
             <div className="post-anim flex items-center gap-4 text-white-50 text-sm mb-4 flex-wrap">
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="size-4" />
