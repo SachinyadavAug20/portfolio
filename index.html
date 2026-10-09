@@ -28,7 +28,40 @@
   <meta name="twitter:creator" content="@samtagon38824" />
   <meta name="theme-color" content="#0e0e10" />
   <link rel="preconnect" href="https://api.github.com" crossorigin />
-  <title>Sachin Yadav &mdash;&mdash; Portfolio</title>
+  <!-- `/` is served straight from assets (the edge worker never sees it), so
+       canonical + structured data for the homepage live here. The
+       data-seo="jsonld" marker lets the client head manager upsert in place. -->
+  <link rel="canonical" href="https://portfolio.samtagon777.workers.dev/" />
+  <script type="application/ld+json" data-seo="jsonld">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": "https://portfolio.samtagon777.workers.dev/#person",
+          "name": "Sachin Yadav",
+          "url": "https://portfolio.samtagon777.workers.dev",
+          "jobTitle": "Full-Stack Developer",
+          "sameAs": [
+            "https://www.linkedin.com/in/sachin-yadav-05a105374/",
+            "https://github.com/SachinyadavAug20",
+            "https://leetcode.com/u/b2mIkNz0h5/",
+            "https://x.com/samtagon38824",
+            "https://sachinapr20.itch.io/"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://portfolio.samtagon777.workers.dev/#website",
+          "url": "https://portfolio.samtagon777.workers.dev",
+          "name": "Sachin Yadav",
+          "publisher": { "@id": "https://portfolio.samtagon777.workers.dev/#person" },
+          "inLanguage": "en"
+        }
+      ]
+    }
+  </script>
+  <title>Sachin Yadav &mdash; Full-Stack Developer Portfolio</title>
   <script>
     (function () {
       try {

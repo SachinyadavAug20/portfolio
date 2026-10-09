@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-09T12:08:56.044Z",
+ "generatedAt": "2026-10-09T13:01:30.530Z",
  "counts": {
   "notes": 338,
   "folders": 60,
@@ -30,13 +30,13 @@
   },
   {
    "id": "Programing/AI/openclaw/Openclaw",
-   "title": "It is not AI model, ![[Pasted image 20260324184704.png|538]]",
+   "title": "It is not AI model",
    "kind": "note",
    "dir": "Programing/AI/openclaw"
   },
   {
    "id": "Programing/Concepts/FDE and GenAI/0.Intro",
-   "title": "What is FDE ?",
+   "title": "What is FDE",
    "kind": "note",
    "dir": "Programing/Concepts/FDE and GenAI",
    "updated": "2026-09-25T11:25:00Z",
@@ -110,7 +110,7 @@
   },
   {
    "id": "Programing/Concepts/LLD/10.Zomato Clone",
-   "title": "Design a food delivery app -> Tomato",
+   "title": "Design a food delivery app - Tomato",
    "kind": "note",
    "dir": "Programing/Concepts/LLD",
    "updated": "2026-09-28T13:04:43Z",
@@ -240,7 +240,7 @@
   },
   {
    "id": "Programing/DSA/Basic cpp/0.intro",
-   "title": "Basics of C++",
+   "title": "Basics of C",
    "kind": "note",
    "dir": "Programing/DSA/Basic cpp"
   },
@@ -282,7 +282,7 @@
   },
   {
    "id": "Programing/DSA/Basic cpp/7.Time complexity",
-   "title": "1. What is Time Complexity?",
+   "title": "1. What is Time Complexity",
    "kind": "note",
    "dir": "Programing/DSA/Basic cpp"
   },
@@ -306,7 +306,7 @@
   },
   {
    "id": "Programing/DSA/Methods/Recursion",
-   "title": "1. What is Recursion?",
+   "title": "1. What is Recursion",
    "kind": "note",
    "dir": "Programing/DSA/Methods"
   },
@@ -336,7 +336,7 @@
   },
   {
    "id": "Programing/Godot/3D",
-   "title": "![[Pasted image 20260425195810.png|117]]=>![[Pasted image 20260425195826.png|137]]",
+   "title": "3D",
    "kind": "note",
    "dir": "Programing/Godot"
   },
@@ -354,19 +354,19 @@
   },
   {
    "id": "Programing/Godot/Playlist/0.Introduction",
-   "title": "everything is a node -> collection of nodes is scene",
+   "title": "everything is a node - collection of nodes is scene",
    "kind": "note",
    "dir": "Programing/Godot/Playlist"
   },
   {
    "id": "Programing/Godot/Playlist/1.Space shooter",
-   "title": "to change size of window go to project settings ![[Pasted image 20260519225111.png]] ![[Pasted image 20260519225217.png|272]]",
+   "title": "to change size of window go to project settings",
    "kind": "note",
    "dir": "Programing/Godot/Playlist"
   },
   {
    "id": "Programing/Manim/Manim Introduction",
-   "title": "It is made by creator of 1brown3blue YouTube channel.",
+   "title": "It is made by creator of 1brown3blue YouTube channel",
    "kind": "note",
    "dir": "Programing/Manim"
   },
@@ -810,7 +810,7 @@
   },
   {
    "id": "Programing/languages/java/1.JVM, JDK and JRE",
-   "title": "JVM (Java virtual machine)",
+   "title": "JVM (Java virtual machine",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
@@ -822,7 +822,7 @@
   },
   {
    "id": "Programing/languages/java/11.AutoBoxing, Abstract classes & POJOs",
-   "title": "Why only 1 public class per-file and why name of the class should be same as file name ? `error: class main is public, should be declared in a file named main.java`",
+   "title": "Why only 1 public class per-file and why name of the class should be same as file name ? error:…",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
@@ -846,7 +846,7 @@
   },
   {
    "id": "Programing/languages/java/15.Object class",
-   "title": "`toString()`",
+   "title": "toString",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
@@ -876,7 +876,7 @@
   },
   {
    "id": "Programing/languages/java/2.Variables & Data types",
-   "title": "Variable : It is a named(identifier) container holding a value(literal)",
+   "title": "Variable : It is a named(identifier) container holding a value(literal",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
@@ -906,7 +906,7 @@
   },
   {
    "id": "Programing/languages/java/24.Comparable",
-   "title": "`Comparable` interface",
+   "title": "Comparable interface",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
@@ -942,7 +942,7 @@
   },
   {
    "id": "Programing/languages/java/3.Represent numbers in java",
-   "title": "In memory can store negative and positive numbers --->",
+   "title": "In memory can store negative and positive numbers",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
@@ -954,7 +954,7 @@
   },
   {
    "id": "Programing/languages/java/31.Mulithreading",
-   "title": "Why need multi-threading ?",
+   "title": "Why need multi-threading",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
@@ -996,25 +996,25 @@
   },
   {
    "id": "Programing/languages/java/6.Control statements",
-   "title": "flow of code :- how code is code is executed(top to bottom execution) -> some keywords in java can break this flow and bring custom control of code flow.",
+   "title": "flow of code :- how code is code is executed(top to bottom execution) - some keywords in java…",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
   {
    "id": "Programing/languages/java/7.Array and string",
-   "title": "Array(non-primitive) is a collection of similar data-type in continuous memory location --> need to define datatype of array",
+   "title": "Array(non-primitive) is a collection of similar data-type in continuous memory location -- need…",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
   {
    "id": "Programing/languages/java/8.Function",
-   "title": "for code re-usability  -> like",
+   "title": "for code re-usability - like",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
   {
    "id": "Programing/languages/java/9.OOPs",
-   "title": "Object oriented programming -> it is a paradise of programming",
+   "title": "Object oriented programming - it is a paradise of programming",
    "kind": "note",
    "dir": "Programing/languages/java"
   },
@@ -1064,7 +1064,7 @@
   },
   {
    "id": "Programing/webdev/Backend development/Roadmap",
-   "title": "What is back-end ?",
+   "title": "What is back-end",
    "kind": "note",
    "dir": "Programing/webdev/Backend development"
   },
@@ -1082,7 +1082,7 @@
   },
   {
    "id": "Programing/webdev/GSAP/basic/0.intro",
-   "title": "GSAP SDK(standard development kit)",
+   "title": "GSAP SDK(standard development kit",
    "kind": "note",
    "dir": "Programing/webdev/GSAP/basic"
   },
@@ -1112,7 +1112,7 @@
   },
   {
    "id": "Programing/webdev/GSAP/basic/5.Text animation",
-   "title": "Way 1:",
+   "title": "Way 1",
    "kind": "note",
    "dir": "Programing/webdev/GSAP/basic"
   },
@@ -1124,7 +1124,7 @@
   },
   {
    "id": "Programing/webdev/GSAP/basic/7.React",
-   "title": "`useGSAP` hook",
+   "title": "useGSAP hook",
    "kind": "note",
    "dir": "Programing/webdev/GSAP/basic"
   },
@@ -1154,37 +1154,37 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/10.route",
-   "title": "How does react-router handle routing ![[Pasted image 20260411143606.png]]",
+   "title": "How does react-router handle routing",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/11.Server and client components",
-   "title": "There is server side and client side parts in nextJS page ![[Pasted image 20260412150450.png|433]] client is user's device and server is a powerful computer hosting the website",
+   "title": "There is server side and client side parts in nextJS page client is user's device and server is…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/12.Rendering",
-   "title": "There are different ways to display thing(strategies),the specific time they run(runtime/build time), and the specific places where they work(environment).",
+   "title": "There are different ways to display thing(strategies),the specific time they run(runtime/build…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/13.Next themes",
-   "title": "We have global.css where, there are themes for dark and light theme => make a dark and light mode switch ![[Pasted image 20260414130830.png|201]]",
+   "title": "We have global.css where, there are themes for dark and light theme = make a dark and light mode…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/14.Navbar",
-   "title": "Our navbar will be of => upper(header) + left-side-bar + right-side-bar(for large screen devices)",
+   "title": "Our navbar will be of = upper(header) + left-side-bar + right-side-bar(for large screen devices",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/15.Authentication",
-   "title": "Auth is a process of verifying the identity of a user.to make sure person or entity accessing the system is who they are claim to be.",
+   "title": "Auth is a process of verifying the identity of a user.to make sure person or entity accessing…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1208,25 +1208,25 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/19.Search implementation",
-   "title": "Implement the logic first and don't think of UI(Just implement the UI so can see what is happening).",
+   "title": "Implement the logic first and don't think of UI(Just implement the UI so can see what is happening",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/2.History",
-   "title": "Nothing is old ,",
+   "title": "Nothing is old",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/20.React hook form and Zod validation using Shadcn",
-   "title": "Need to make a validation.ts file in root of system(making a ask question form)",
+   "title": "Need to make a validation.ts file in root of system(making a ask question form",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/21.Editor for md and code",
-   "title": "Add line to `import {basicDark} from \"cm6-theme-basic-dark\"",
+   "title": "Add line to import {basicDark} from \"cm6-theme-basic-dark",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1238,7 +1238,7 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/23.Backend",
-   "title": "NextJS : handles client,web server and app server through server action.",
+   "title": "NextJS : handles client,web server and app server through server action",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1268,13 +1268,13 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/27.Logging errors",
-   "title": "Why Pino?",
+   "title": "Why Pino",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/28.Route handling",
-   "title": "CURD => create update read delete",
+   "title": "CURD = create update read delete",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1286,13 +1286,13 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/3.Intro to NEXTJS",
-   "title": "It is flexible react framework => it serves as a tool equipped with predefined rules and conventions that offer a structured approach toward constructing an application",
+   "title": "It is flexible react framework = it serves as a tool equipped with predefined rules and…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/30.Fetch API",
-   "title": "We can do simple fetch like below![[Pasted image 20260430143327.png]] but this approach leads inconsistency and boiler plate => need a centralized logic for the entire app.(so all request follow the same rules and best practice)",
+   "title": "We can do simple fetch like below but this approach leads inconsistency and boiler plate = need…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1304,7 +1304,7 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/32.Server actions",
-   "title": "It is nextJS quick way to execute code on the server ==> it is alternative to using API end points sometime",
+   "title": "It is nextJS quick way to execute code on the server == it is alternative to using API end…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1316,7 +1316,7 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/34.DataRenderer",
-   "title": "There are many places we show data from some where and need to handle the error and the empty condition everywhere ==> make a centralized place and format for all data render",
+   "title": "There are many places we show data from some where and need to handle the error and the empty…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1328,7 +1328,7 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/36.AI integration",
-   "title": "answering question in baseCase==> there are many options.",
+   "title": "answering question in baseCase== there are many options",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1352,7 +1352,7 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/4.How web works",
-   "title": "Learn fundamental to understand the web and make good and clear design decisions.",
+   "title": "Learn fundamental to understand the web and make good and clear design decisions",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1382,7 +1382,7 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/44.Recommendation system",
-   "title": "show question which user already interacted with -> get it's tags and show question of that tag -interaction logic",
+   "title": "show question which user already interacted with - get it's tags and show question of that tag…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1394,19 +1394,19 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/46.SEO",
-   "title": "static metadata is simple ->",
+   "title": "static metadata is simple",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/47.Advance next.js",
-   "title": "React server component (RSC)",
+   "title": "React server component (RSC",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/5.Ways to make Next JS application",
-   "title": "There are many ways to make next js app fastest is automatic install => ![[Pasted image 20260407191415.png]]",
+   "title": "There are many ways to make next js app fastest is automatic install",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1418,7 +1418,7 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/7.tailwind setup",
-   "title": "It is utility first styling => we will focus on theme the website",
+   "title": "It is utility first styling = we will focus on theme the website",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
@@ -1430,79 +1430,79 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/9.Assets and metadata setup",
-   "title": "git the assets : logo etc place in `public` ![[Pasted image 20260411142003.png|253]]",
+   "title": "git the assets : logo etc place in public",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/1.Intro",
-   "title": "Can make web-pages easily using next, as boiler plate of configuration, linting, compilation and compilation",
+   "title": "Can make web-pages easily using next, as boiler plate of configuration, linting, compilation and…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/10.Static site generation (SSG)",
-   "title": "It is technique where html pages are generated on build time (made when build time not when request comes)",
+   "title": "It is technique where html pages are generated on build time (made when build time not when…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/11.Server side rendering (SSR)",
-   "title": "This generates a html page in response to a request.",
+   "title": "This generates a html page in response to a request",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/12.Partial pre-rendering",
-   "title": "It combines SSG and SSR => It allows to make a static shell of page and dynamically render the content",
+   "title": "It combines SSG and SSR = It allows to make a static shell of page and dynamically render the…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/13.API routes",
-   "title": "It is back-end part ![[Pasted image 20260331124925.png]]",
+   "title": "It is back-end part",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/14.SEO optimization",
-   "title": "It is the look and feel of our website when we share it on social media => manage metadata",
+   "title": "It is the look and feel of our website when we share it on social media = manage metadata",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/14.ShadCN setup",
-   "title": "We need navbar, footer, toggle(for dark/light mode), drop-down.=> use shadCN",
+   "title": "We need navbar, footer, toggle(for dark/light mode), drop-down.= use shadCN",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/2.Start",
-   "title": "for making in current folder Name : ./",
+   "title": "for making in current folder Name",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/20.Image optimization",
-   "title": "This error happens when we try to render an image from unknown source in our Image component from NextJS",
+   "title": "This error happens when we try to render an image from unknown source in our Image component…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/3.Server components",
-   "title": "It is rendered on server and send to the client => render the page and send the HTML output to the client to be presented directly",
+   "title": "It is rendered on server and send to the client = render the page and send the HTML output to…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/4.Client component",
-   "title": "But can't to everything on server side as it can't interact with browser (as it is executed on server) like can't interact with interface, button, alert etc",
+   "title": "But can't to everything on server side as it can't interact with browser (as it is executed on…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/4.Routing",
-   "title": "use rafec=>react arrow function export component",
+   "title": "use rafec= react arrow function export component",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
@@ -1514,19 +1514,19 @@
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/6.Route Group",
-   "title": "If we don't want root layout to appear on dashboard, Need root layout for non-dashboard routes only => separate navbar for dashboard and other",
+   "title": "If we don't want root layout to appear on dashboard, Need root layout for non-dashboard routes…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/7.Error Handling",
-   "title": "There is a special file called error.ts where are error can be stored and displayed => similar to different layouts for routes can have different error.ts for different routes",
+   "title": "There is a special file called error.ts where are error can be stored and displayed = similar to…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
   {
    "id": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)/8.loading UIs",
-   "title": "It works similar to the error handling => need to show loading while data is begin fetched from somewhere",
+   "title": "It works similar to the error handling = need to show loading while data is begin fetched from…",
    "kind": "note",
    "dir": "Programing/webdev/JSMastery/MasterJS course/NextJS(basic)"
   },
@@ -1596,25 +1596,25 @@
   },
   {
    "id": "Tools/Blender/1.User Interface/3D Cursor",
-   "title": "Move the 3D cursor snap menu for it (Shift s)  =>  Use `Shift + S` to open the **Snap** **Pie-menu** (a pie-menu is a floating UI element where you can choose a “slice” to quickly select certain operations) and select the bottom one, **“Cursor to Selected”**. This will snap the cursor to the selected vertex. You can do this with any selection. If you select an edge, it will use the center of that edge, for instance. Experiment and continue when you are ready, and [read](https://docs.blender.org/manual/en/4.5/editors/3dview/3d_cursor.html) for more information.",
+   "title": "Move the 3D cursor snap menu for it (Shift s) = Use Shift + S to open the Snap Pie-menu (a…",
    "kind": "note",
    "dir": "Tools/Blender/1.User Interface"
   },
   {
    "id": "Tools/Blender/1.User Interface/Add, Duplicate & Delete",
-   "title": "[Adding Objects](https://studio.blender.org/training/blender-fundamentals-45-lts/blender_4-5_lts_add-delete/#adding-objects)",
+   "title": "Adding Objects",
    "kind": "note",
    "dir": "Tools/Blender/1.User Interface"
   },
   {
    "id": "Tools/Blender/1.User Interface/Workspace",
-   "title": "[Creating Workspace](https://studio.blender.org/training/blender-fundamentals-45-lts/blender_4-5_lts_workspaces/#creating-workspace)",
+   "title": "Creating Workspace",
    "kind": "note",
    "dir": "Tools/Blender/1.User Interface"
   },
   {
    "id": "Tools/Blender/1.User Interface/blender",
-   "title": "If you forget how a specific element of the interface is called, you can hover your cursor above it, and it will show a **tooltip** with the name and description.",
+   "title": "If you forget how a specific element of the interface is called, you can hover your cursor above…",
    "kind": "note",
    "dir": "Tools/Blender/1.User Interface"
   },
@@ -1626,7 +1626,7 @@
   },
   {
    "id": "Tools/Blender/2.Modeling/0.File Recovery",
-   "title": "[Recover Last Session](https://studio.blender.org/training/blender-fundamentals-45-lts/blender_4-5_lts_file-recovery/#recover-last-session)",
+   "title": "Recover Last Session",
    "kind": "note",
    "dir": "Tools/Blender/2.Modeling"
   },
@@ -1662,7 +1662,7 @@
   },
   {
    "id": "Tools/Blender/2.Modeling/4.Extruding",
-   "title": "![[Pasted image 20260330201849.png]]",
+   "title": "4.Extruding",
    "kind": "note",
    "dir": "Tools/Blender/2.Modeling"
   },
@@ -1698,7 +1698,7 @@
   },
   {
    "id": "Tools/Blender/3.Sculpting/0.Intro",
-   "title": "But the sculpted objects can rarely be used directly for animation. The messy and dense topology is too demanding for rigging and rendering. For that purpose we create what is called a \"Retopology\". This is a clean, lower density, remodeled object, based on the shapes that were sculpted. It might seem like double the work but it's much more efficient to tackle the design and the final animation-friendly topology as separate tasks.",
+   "title": "But the sculpted objects can rarely be used directly for animation. The messy and dense topology…",
    "kind": "note",
    "dir": "Tools/Blender/3.Sculpting"
   },
@@ -1764,7 +1764,7 @@
   },
   {
    "id": "Tools/Git/5.1 git revert -m 1 <merge-commit>",
-   "title": "“One-Click Rollback” with Git Revert of a Merge Commit",
+   "title": "One-Click Rollback” with Git Revert of a Merge Commit",
    "kind": "note",
    "dir": "Tools/Git"
   },
@@ -1824,13 +1824,13 @@
   },
   {
    "id": "Tools/Neovim/Advent of vim/Day 2) g commands",
-   "title": "📘 Vim `g` (Global) Commands",
+   "title": "📘 Vim g (Global) Commands",
    "kind": "note",
    "dir": "Tools/Neovim/Advent of vim"
   },
   {
    "id": "Tools/Neovim/Advent of vim/Day 3) Advance g commands",
-   "title": "📘 Advanced `g` (Global) Commands",
+   "title": "📘 Advanced g (Global) Commands",
    "kind": "note",
    "dir": "Tools/Neovim/Advent of vim"
   },
@@ -1842,7 +1842,7 @@
   },
   {
    "id": "Tools/Neovim/Advent of vim/Day 6) Motions f,F,t,T",
-   "title": "📘 `f`, `F`, `t`, `T` Motions (Horizontal Navigation)",
+   "title": "📘 f , F , t , T Motions (Horizontal Navigation",
    "kind": "note",
    "dir": "Tools/Neovim/Advent of vim"
   },
@@ -1854,7 +1854,7 @@
   },
   {
    "id": "Tools/Neovim/Advent of vim/Day 8) global commands",
-   "title": "📘 `g` (Global) Command",
+   "title": "📘 g (Global) Command",
    "kind": "note",
    "dir": "Tools/Neovim/Advent of vim"
   },
@@ -1872,7 +1872,7 @@
   },
   {
    "id": "Tools/Neovim/Neovim for beginners",
-   "title": "Vim is built around the  concept of modes . Here’s a quick overview: ✅",
+   "title": "Vim is built around the concept of modes . Here’s a quick overview: ✅",
    "kind": "note",
    "dir": "Tools/Neovim"
   },
@@ -2010,13 +2010,13 @@
   },
   {
    "id": "lectures/CS50/L4-Algorithm",
-   "title": "We make step by step procedures to solve a problem then analyse the solution by using algorithm analysis",
+   "title": "We make step by step procedures to solve a problem then analyse the solution by using algorithm…",
    "kind": "note",
    "dir": "lectures/CS50"
   },
   {
    "id": "lectures/CS50/L5-Memory",
-   "title": "Images are the RGB value of all pixels on the screen so we can zoom and see this ![[Pasted image 20260219231052.png]] There is a finite limit to how clear a image can be( as there is finite memory available)",
+   "title": "Images are the RGB value of all pixels on the screen so we can zoom and see this There is a…",
    "kind": "note",
    "dir": "lectures/CS50"
   },
@@ -2034,7 +2034,7 @@
   },
   {
    "id": "lectures/CS50/L8 SQL",
-   "title": "It continue python.We have to deal with data of different forms and types.Lots of data.",
+   "title": "It continue python.We have to deal with data of different forms and types.Lots of data",
    "kind": "note",
    "dir": "lectures/CS50"
   },

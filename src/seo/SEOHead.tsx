@@ -25,7 +25,9 @@ const SEOHead = ({
   robots,
   jsonLd,
 }: SEOHeadProps) => {
-  const fullTitle = `${title} | ${SITE_NAME}`;
+  /* titles that already carry the site name (e.g. "Sachin Yadav — Full-Stack
+     Developer") don't get a redundant "| Sachin Yadav" suffix */
+  const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
   const url = `${SITE_URL}${path}`;
   const imageUrl = image.startsWith("http") ? image : `${SITE_URL}${image}`;
   /* article pages still mint their own BlogPosting graph; callers may also

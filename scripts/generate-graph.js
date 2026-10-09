@@ -182,7 +182,26 @@ function extractLinkTargets(content) {
 
 function extractTitle(content, fallback) {
   const match = content.match(/^#{1,6}\s+(.+)$/m);
-  return match ? match[1].trim() : fallback;
+  return cleanTitle(match ? match[1] : "", fallback);
+}
+
+/* headings in the vault routinely embed images (`![[Pasted image …]]`) or
+   markdown — scrapers show this string as the card title, so strip the syntax
+   and fall back to the filename when nothing readable survives */
+function cleanTitle(raw, fallback) {
+  const cleaned = raw
+    .replace(/!\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, " ")
+    .replace(/\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/[*_~`#>|]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^[\s"'“”‘’.,:;!?()[\]=+/\\-]+/, "")
+    .replace(/[\s"'“”‘’.,:;!?()[\]=+/\\|-]+$/, "");
+  if (!/[\p{L}\p{N}]/u.test(cleaned)) return fallback;
+  if (cleaned.length <= 100) return cleaned;
+  return cleaned.slice(0, 97).replace(/\s+\S*$/, "") + "…";
 }
 
 /**
@@ -326,7 +345,12 @@ function firstImageUrl(content, dir) {
   const wiki = content.match(/!\[\[([^|\]]+?)(?:\|\d+)?\]\]/);
   const md = content.match(/!\[[^\]]*\]\(([^)]+)\)/);
   const raw = wiki ? wiki[1].trim() : md ? md[1].trim() : null;
-  if (!raw || /^https?:\/\//i.test(raw) || !IMG_EXT.test(raw)) return null;
+  if (!raw) return null;
+  /* already-absolute images are used as-is — scrapers fetch them fine */
+  if (/^https?:\/\//i.test(raw)) {
+    return IMG_EXT.test(raw.split(/[?#]/)[0]) ? raw : null;
+  }
+  if (!IMG_EXT.test(raw)) return null;
   const file = raw.split("/").pop();
   const root = dir ? `${BLOG_ROOT}/${dir}` : BLOG_ROOT;
   const folders = ["attachement", "attachements", "attachment", "attachments", ""];
@@ -374,7 +398,12 @@ function writeSeo(notes) {
   const posts = {};
   let withImages = 0;
   for (const n of notes) {
-    const entry = { t: n.title, d: extractExcerpt(n.content) };
+    const entry = {
+      t: n.title,
+      /* an empty og:description renders as a blank snippet on WhatsApp/X —
+         every post ships something scrapers can show */
+      d: extractExcerpt(n.content) || "A note on programming and computer science from my Obsidian vault.",
+    };
     const img = firstImageUrl(n.content, n.dir);
     if (img) {
       entry.img = img;

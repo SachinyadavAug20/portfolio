@@ -33,9 +33,13 @@ function absUrl(site, image) {
   return /^https?:\/\//i.test(image) ? image : `${site}${image.startsWith("/") ? "" : "/"}${image}`;
 }
 
-function resolveEntry(pathname, seo) {
+function resolveEntry(rawPath, seo) {
   const site = seo?.site || SITE_FALLBACK;
   const fallbackImage = seo?.fallbackImage || "/images/og.png";
+  /* one canonical form per page: "/blog/" and "/blog" are the same page, and
+     a shared trailing-slash URL must not land on the noindex catch-all */
+  const pathname =
+    rawPath.length > 1 ? rawPath.replace(/\/+$/, "") || "/" : rawPath;
 
   const page = seo?.pages?.[pathname];
   if (page) {
@@ -95,7 +99,14 @@ function buildTags(entry, seo) {
   const person = seo?.person || `${entry.site}/#person`;
   const isPost = entry.kind === "post";
   const isHome = entry.kind === "page" && entry.url === `${entry.site}/`;
-  const fullTitle = `${entry.title} | ${siteName}`;
+  /* an empty og:description renders as a blank snippet on WhatsApp/X */
+  const desc =
+    entry.desc && entry.desc.trim()
+      ? entry.desc
+      : "Notes on programming, full-stack development and computer science from Sachin Yadav's Obsidian vault.";
+  const fullTitle = entry.title.includes(siteName)
+    ? entry.title
+    : `${entry.title} | ${siteName}`;
   const defaultImage = `${entry.site}/images/og.png`;
   const useCardDims = entry.image === defaultImage;
 
@@ -105,7 +116,7 @@ function buildTags(entry, seo) {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
       headline: entry.title,
-      description: entry.desc,
+      description: desc,
       image: entry.image,
       url: entry.url,
       mainEntityOfPage: { "@type": "WebPage", "@id": entry.url },
@@ -141,7 +152,7 @@ function buildTags(entry, seo) {
       "@context": "https://schema.org",
       "@type": "Blog",
       name: entry.title,
-      description: entry.desc,
+      description: desc,
       url: entry.url,
       publisher: { "@id": person },
     };
@@ -150,7 +161,7 @@ function buildTags(entry, seo) {
       "@context": "https://schema.org",
       "@type": "WebPage",
       name: entry.title,
-      description: entry.desc,
+      description: desc,
       url: entry.url,
       isPartOf: { "@id": `${entry.site}/#website` },
     };
@@ -159,7 +170,7 @@ function buildTags(entry, seo) {
       "@context": "https://schema.org",
       "@type": "ProfilePage",
       name: entry.title,
-      description: entry.desc,
+      description: desc,
       url: entry.url,
       mainEntity: {
         "@type": "Person",
@@ -176,11 +187,11 @@ function buildTags(entry, seo) {
 
   return [
     `<title>${esc(fullTitle)}</title>`,
-    `<meta name="description" content="${esc(entry.desc)}" />`,
+    `<meta name="description" content="${esc(desc)}" />`,
     `<link rel="canonical" href="${esc(entry.url)}" />`,
     entry.robots ? `<meta name="robots" content="${esc(entry.robots)}" />` : "",
     `<meta property="og:title" content="${esc(entry.title)}" />`,
-    `<meta property="og:description" content="${esc(entry.desc)}" />`,
+    `<meta property="og:description" content="${esc(desc)}" />`,
     `<meta property="og:url" content="${esc(entry.url)}" />`,
     `<meta property="og:type" content="${isPost ? "article" : "website"}" />`,
     `<meta property="og:site_name" content="${esc(siteName)}" />`,
@@ -191,7 +202,7 @@ function buildTags(entry, seo) {
     useCardDims ? `<meta property="og:image:height" content="630" />` : "",
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${esc(entry.title)}" />`,
-    `<meta name="twitter:description" content="${esc(entry.desc)}" />`,
+    `<meta name="twitter:description" content="${esc(desc)}" />`,
     `<meta name="twitter:image" content="${esc(entry.image)}" />`,
     `<meta name="twitter:image:alt" content="${esc(alt)}" />`,
     `<meta name="twitter:site" content="${esc(handle)}" />`,

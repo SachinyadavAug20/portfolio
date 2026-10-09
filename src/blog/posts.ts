@@ -6,7 +6,25 @@ let cachedFiles: BlogPost[] | null = null;
 
 function extractTitle(content: string, fallback: string): string {
   const match = content.match(/^#{1,6}\s+(.+)$/m);
-  return match ? match[1].trim() : fallback;
+  return cleanTitle(match ? match[1] : "", fallback);
+}
+
+/* mirror of scripts/generate-graph.js cleanTitle — headings embed images or
+   markdown, and the cleaned string ends up in <title>/<h1>/og:title */
+function cleanTitle(raw: string, fallback: string): string {
+  const cleaned = raw
+    .replace(/!\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, " ")
+    .replace(/\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/[*_~`#>|]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^[\s"'“”‘’.,:;!?()[\]=+/\\-]+/, "")
+    .replace(/[\s"'“”‘’.,:;!?()[\]=+/\\|-]+$/, "");
+  if (!/[\p{L}\p{N}]/u.test(cleaned)) return fallback;
+  if (cleaned.length <= 100) return cleaned;
+  return cleaned.slice(0, 97).replace(/\s+\S*$/, "") + "…";
 }
 
 export async function getPosts(): Promise<BlogPost[]> {

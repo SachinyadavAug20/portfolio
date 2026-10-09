@@ -10,6 +10,18 @@ const SITEMAP_PATH = resolve(import.meta.dirname, "../public/sitemap.xml");
 /* static post index the client uses when the GitHub API is blocked
    (see src/blog/github.ts listFiles ladder) */
 const TREE_PATH = resolve(import.meta.dirname, "../public/blog-tree.json");
+/* real per-note commit dates, written by the graph pipeline */
+const DATES_PATH = resolve(import.meta.dirname, "../public/dates.json");
+
+function loadDates() {
+  try {
+    return JSON.parse(readFileSync(DATES_PATH, "utf-8")).dates || {};
+  } catch {
+    return {};
+  }
+}
+
+let noteDates = {};
 
 function getBaseUrl() {
   try {
@@ -24,7 +36,11 @@ function escapeXml(text) {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+/* real lastmod when we know it — a sitemap that stamps every URL with
+   today's date teaches Google to ignore <lastmod> entirely */
 function getLastmod(slug) {
+  const iso = noteDates[slug];
+  if (iso) return String(iso).slice(0, 10);
   return new Date().toISOString().split("T")[0];
 }
 
@@ -70,6 +86,7 @@ async function fetchBlogSlugs() {
 
 async function main() {
   const baseUrl = getBaseUrl();
+  noteDates = loadDates();
 
   const slugs = await fetchBlogSlugs();
   if (slugs === null) {
