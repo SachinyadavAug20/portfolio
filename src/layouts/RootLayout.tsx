@@ -26,6 +26,9 @@ const RootLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const rendered = useRenderedLocation() ?? location;
+  /* /links is a standalone linktree — chrome (nav, footer, tab bar, cat)
+     would crowd the stack, so the page stands alone */
+  const quiet = rendered.pathname === "/links";
   const catReady = useIdleReady(1200);
   const [toasterWanted, setToasterWanted] = useState(isToasterWanted);
 
@@ -85,9 +88,9 @@ const RootLayout = () => {
     /* Honor prefers reduced-motion for every motion/react interaction
         (whileTap springs below) without affecting view transitions. */
     <MotionConfig reducedMotion="user">
-      <Navbar />
+      {!quiet && <Navbar />}
       <CursorGlow />
-      {catReady && (
+      {catReady && !quiet && (
         <Suspense fallback={null}>
           <CatCompanion />
         </Suspense>
@@ -105,8 +108,8 @@ const RootLayout = () => {
           <Toaster />
         </Suspense>
       )}
-      <Footer />
-      <BottomTabBar />
+      {!quiet && <Footer />}
+      {!quiet && <BottomTabBar />}
     </MotionConfig>
   );
 };

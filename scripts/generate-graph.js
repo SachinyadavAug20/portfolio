@@ -250,12 +250,24 @@ function ensureFolders(dirs) {
   return [...folders];
 }
 
+/* a rate-limited run still ships the current static routes — posts and
+   graph stay as-is, but new/renamed pages reach seo.json either way */
+function refreshStaticSeo() {
+  try {
+    const prev = JSON.parse(readFileSync(SEO_PATH, "utf-8"));
+    prev.generatedAt = new Date().toISOString();
+    prev.pages = STATIC_PAGES;
+    writeFileSync(SEO_PATH, JSON.stringify(prev) + "\n");
+  } catch {}
+}
+
 function keepExisting(reason) {
   if (existsSync(OUT_PATH)) {
     console.warn(`generate-graph: ${reason}; keeping existing graph.json.`);
     try {
       writeBacklinks(JSON.parse(readFileSync(OUT_PATH, "utf-8")));
     } catch {}
+    refreshStaticSeo();
     process.exit(0);
   }
   console.error(`generate-graph: ${reason}; no existing graph.json to keep.`);
@@ -336,6 +348,27 @@ function siteUrlFromSitemap() {
   return "https://portfolio.samtagon777.workers.dev";
 }
 
+/* static routes the router knows — kept in seo.json so the worker can
+   server-render their og tags (and never mark them noindex) */
+const STATIC_PAGES = {
+  "/": {
+    t: "Sachin Yadav — Full-Stack Developer",
+    d: "Hi, I'm Sachin, a developer based in India with a passion for code.",
+  },
+  "/blog": {
+    t: "Blog",
+    d: "Read about programming, full-stack development, and computer science from my Obsidian vault.",
+  },
+  "/graph": {
+    t: "Knowledge Graph",
+    d: "An interactive map of the ideas in my Obsidian vault — browse how my notes on programming, tools, and computer science connect, and jump straight into any note.",
+  },
+  "/links": {
+    t: "Links",
+    d: "Everywhere to find me — portfolio, blog, X, LinkedIn, GitHub, LeetCode, Codeforces, itch.io and more, all in one place.",
+  },
+};
+
 function writeSeo(notes) {
   const site = siteUrlFromSitemap();
   const posts = {};
@@ -369,26 +402,13 @@ function writeSeo(notes) {
       "https://x.com/samtagon38824",
       "https://sachinapr20.itch.io/",
     ],
-    pages: {
-      "/": {
-        t: "Sachin Yadav — Full-Stack Developer",
-        d: "Hi, I'm Sachin, a developer based in India with a passion for code.",
-      },
-      "/blog": {
-        t: "Blog",
-        d: "Read about programming, full-stack development, and computer science from my Obsidian vault.",
-      },
-      "/graph": {
-        t: "Knowledge Graph",
-        d: "An interactive map of the ideas in my Obsidian vault — browse how my notes on programming, tools, and computer science connect, and jump straight into any note.",
-      },
-    },
+    pages: STATIC_PAGES,
     posts,
   };
   writeFileSync(SEO_PATH, JSON.stringify(seo) + "\n");
   const kb = Math.round(readFileSync(SEO_PATH).byteLength / 1024);
   console.log(
-    `generate-seo: ${Object.keys(posts).length} posts, ${withImages} with images, 3 pages, ${kb}KB → ${SEO_PATH}`,
+    `generate-seo: ${Object.keys(posts).length} posts, ${withImages} with images, ${Object.keys(seo.pages).length} pages, ${kb}KB → ${SEO_PATH}`,
   );
 }
 

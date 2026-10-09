@@ -13,6 +13,7 @@ import { isReducedMotion } from "./hooks/useReducedMotion";
 const BlogList = lazy(() => import("./pages/BlogList"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const GraphPage = lazy(() => import("./pages/GraphPage"));
+const Links = lazy(() => import("./pages/Links"));
 
 const PageLoading = () => (
   <section className="section-padding pt-10 min-h-screen">
@@ -75,6 +76,11 @@ const App = () => {
           <Route path="graph" element={
             <Suspense fallback={<PageLoading />}>
               <GraphPage />
+            </Suspense>
+          } />
+          <Route path="links" element={
+            <Suspense fallback={<PageLoading />}>
+              <Links />
             </Suspense>
           } />
           <Route path="*" element={<NotFound />} />
