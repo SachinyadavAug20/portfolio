@@ -1398,6 +1398,51 @@ const CELEBRATION = [
 ];
 export const celebrationLine = (): string => freshPick(CELEBRATION);
 
+/* intent chips: she endorses the choice the moment it seeds the draft */
+const CHIP_LINES: Record<string, readonly string[]> = {
+  hire: [
+    "the hire chip. bold. correct.",
+    "role talk — bring questions, he has answers.",
+    "employment speedrun: started.",
+    "a job listing just felt nervous.",
+  ],
+  project: [
+    "a project! scope it, ship it, hire him again.",
+    "freelance energy. the cat approves this budget.",
+    "project chip tapped — he builds fast. faster with chai.",
+    "brief accepted (the draft brief, but still).",
+  ],
+  hello: [
+    "hi detected. 'hi' is a complete message, honestly.",
+    "just saying hi — the cat says hi back. meow.",
+    "a hello! the smallest brave thing you can send.",
+    "hi! he replies to those too. within a day.",
+  ],
+};
+const CHIP_GENERIC = [
+  "draft seeded. finish it in one breath.",
+  "template in — your words next.",
+  "a head start. the blank page fears you now.",
+];
+export const chipLine = (id: string): string =>
+  freshPick(CHIP_LINES[id] ?? CHIP_GENERIC);
+
+const COPY_EMAIL = [
+  "copied. the inbox fears you now.",
+  "email secured. paste, ramble, send.",
+  "clipboard: armed. he replies within a day — usually less.",
+  "the address is yours. it's watched. gently.",
+];
+export const copyEmailLine = (): string => freshPick(COPY_EMAIL);
+
+const SEND_HOVER = [
+  "the send button. it's load-bearing.",
+  "hovering send like it's a cliff edge. it's a friendly cliff.",
+  "one tap starts a conversation. he's good at those.",
+  "pressed? not yet. the suspense is mutual.",
+];
+export const sendHoverLine = (): string => freshPick(SEND_HOVER);
+
 /* a second (or third...) distinct post = actual reader */
 const POST_STREAK = [
   "another post~ reader detected. sachin writes for people like you.",
@@ -1865,7 +1910,9 @@ export const ESTIMATED_LINE_SPACE =
   ABSENT_SHORT.length + ABSENT_LONG.length + RUSH_LINES.length + RESIZE_LINES.length +
   OBSERVE_LINES.length + BACK_LINES.length + CLOSE_IN_LINES.length +
   POST_LINES.length + GENERIC_ROOMS.length + CHATTER.length +
-  LANDED.length + FAMILIAR.length + FOOTER_LINES.length + SEAT_ABOUT.length;
+  LANDED.length + FAMILIAR.length + FOOTER_LINES.length + SEAT_ABOUT.length +
+  Object.values(CHIP_LINES).reduce((n, p) => n + p.length, 0) +
+  CHIP_GENERIC.length + COPY_EMAIL.length + SEND_HOVER.length;
 
 export const templateLine = (): string => build(pick(TEMPLATES));
 

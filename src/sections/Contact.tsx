@@ -147,6 +147,8 @@ const Contact = () => {
     }
     setActiveIntent(id);
     tap(8);
+    /* the cat endorses the pick and lights up the draft it just seeded */
+    window.dispatchEvent(new CustomEvent("contact-chip", { detail: { id } }));
     if (!reduced) {
       gsap.fromTo(
         el,
@@ -162,6 +164,7 @@ const Contact = () => {
       await navigator.clipboard.writeText(CONTACT_EMAIL);
       tap(8);
       void notify("success", "Email copied", { description: CONTACT_EMAIL });
+      window.dispatchEvent(new CustomEvent("contact-copy"));
     } catch {
       window.location.href = `mailto:${CONTACT_EMAIL}`;
     }

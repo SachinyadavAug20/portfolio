@@ -85,7 +85,7 @@ const PACE = {
 type PaceTier = keyof typeof PACE;
 
 /* acts that drag the cat across the screen — skipped on the graph, where
-   the perch is the whole point */
+   the perch is the whole point, and on posts, where they'd cross the prose */
 const ROAMING_ACTS: readonly ActId[] = [
   "zoomies", "yarn", "stare", "knock", "seat", "prey",
   "scratch", "butterfly", "paw",
@@ -155,7 +155,13 @@ const BREED_LOADERS: Record<string, () => Promise<BreedConfig>> = {
    behind the navbar or tab bar either */
 const seedPointer = (rawX: number, rawY: number) => {
   const x = Math.min(Math.max(rawX, 26), window.innerWidth - 26);
-  const y = Math.min(Math.max(rawY, 34), window.innerHeight - 46);
+  /* the mobile tab bar (~68px + safe-area) is taller than the desktop
+     sliver — measure it so she never parks her target behind it */
+  const tab = document.querySelector<HTMLElement>(".bottom-tabbar");
+  const tabH =
+    tab && window.getComputedStyle(tab).display !== "none" ? tab.offsetHeight : 0;
+  const floor = Math.max(46, tabH + 10);
+  const y = Math.min(Math.max(rawY, 34), window.innerHeight - floor);
   document.body.dispatchEvent(
     new MouseEvent("mousemove", { clientX: x, clientY: y, bubbles: true }),
   );
@@ -286,6 +292,9 @@ const CatCompanion = () => {
   const lastRetreat = useRef(0);
   const lastCloseIn = useRef(0);
   const lastFormErr = useRef(0);
+  const lastChipLine = useRef(0);
+  const lastCopyLine = useRef(0);
+  const lastSendHover = useRef(0);
   const repeatTarget = useRef<Element | null>(null);
   const repeatStreak = useRef(0);
   const repeatReset = useRef(0);
@@ -1439,6 +1448,47 @@ const CatCompanion = () => {
     };
     window.addEventListener("contact-invalid", onInvalid);
 
+    /* an intent chip seeds the draft — she endorses the pick and rings the
+       textarea the template just landed in (force: it must beat the focus
+       word the chip's autofocus is about to fire) */
+    const onChip = (e: Event) => {
+      if (suggestRef.current || document.hidden) return;
+      const brain = brainRef.current;
+      if (!brain) return;
+      const now = Date.now();
+      if (now - lastChipLine.current < cd(15_000)) return;
+      lastChipLine.current = now;
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id ?? "";
+      showPhrase(brain.chipLine(id), 3600, true);
+      spotlight(document.querySelector("#message"), 2400);
+    };
+    window.addEventListener("contact-chip", onChip);
+
+    /* the copy-email chip earns one word — the clipboard is a big deal
+       to a cat who cannot use one */
+    const onCopyEmail = () => {
+      if (suggestRef.current || document.hidden) return;
+      const brain = brainRef.current;
+      if (!brain) return;
+      const now = Date.now();
+      if (now - lastCopyLine.current < cd(30_000)) return;
+      lastCopyLine.current = now;
+      showPhrase(brain.copyEmailLine(), 3200, true);
+    };
+    window.addEventListener("contact-copy", onCopyEmail);
+
+    /* hovering send mid-hesitation earns a nudge (non-force: a fresh
+       phrase keeps the floor, 45s so it never nags) */
+    const onSendOver = (e: Event) => {
+      const t = e.target;
+      if (!(t instanceof Element)) return;
+      if (!t.closest('#contact button[type="submit"]')) return;
+      const brain = brainRef.current;
+      if (!brain) return;
+      sayUiLine(() => brain.sendHoverLine(), lastSendHover, cd(45_000), 3200);
+    };
+    document.addEventListener("mouseover", onSendOver, { passive: true });
+
     /* the palette and the shortcuts sheet each earn one word, 30s apart,
        and never while a suggestion holds the floor */
     const onPalette = () => {
@@ -1811,6 +1861,9 @@ const CatCompanion = () => {
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("contact-sent", onSent);
       window.removeEventListener("contact-invalid", onInvalid);
+      window.removeEventListener("contact-chip", onChip);
+      window.removeEventListener("contact-copy", onCopyEmail);
+      document.removeEventListener("mouseover", onSendOver);
       window.removeEventListener("palette-opened", onPalette);
       window.removeEventListener("help-opened", onHelpSheet);
       document.removeEventListener("selectionchange", onSelectChange);
@@ -2277,9 +2330,12 @@ const CatCompanion = () => {
       recentActs.add(id);
       if (recentActs.size > 7)
         recentActs.delete(recentActs.values().next().value as ActId);
-      /* the graph perch is sacred: roaming acts reschedule instead of
-         yanking her off the corner post */
-      if (ROAMING_ACTS.includes(id) && window.location.pathname === "/graph") {
+      /* the graph perch and long reads are sacred: roaming acts reschedule
+         instead of yanking her off the corner post or across the prose */
+      const roamBlocked =
+        window.location.pathname === "/graph" ||
+        window.location.pathname.startsWith("/blog/post/");
+      if (ROAMING_ACTS.includes(id) && roamBlocked) {
         scheduleAct();
         return;
       }
