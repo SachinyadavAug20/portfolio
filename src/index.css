@@ -1876,6 +1876,55 @@ h4 {
   animation: term-blink 1.1s step-end infinite;
 }
 
+/* /links cards: a soft spotlight follows the pointer inside each row —
+   coordinates come from trackGlow() in Links.tsx */
+.link-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    170px circle at var(--mx, 50%) var(--my, 50%),
+    rgb(56 189 248 / 0.14),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.link-row:hover::before,
+.link-row:focus-visible::before {
+  opacity: 1;
+}
+
+/* /links avatar: a comet of sky-blue circling the monogram.
+   The ring is a masked 2px border; global reduced-motion parks it. */
+.links-avatar-ring {
+  background: conic-gradient(
+    from 180deg,
+    transparent 0 62%,
+    rgb(56 189 248 / 0.95) 80%,
+    transparent 100%
+  );
+  padding: 2px;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: links-ring-spin 5.5s linear infinite;
+}
+
+@keyframes links-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .skeleton {
     animation: none;
