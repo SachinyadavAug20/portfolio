@@ -6,6 +6,7 @@ import {
   FileText,
   Home,
   Keyboard,
+  Link2,
   Network,
   Palette,
   Search,
@@ -161,6 +162,13 @@ const CommandPalette = () => {
         hint: "/graph",
         icon: Network,
         run: () => navigate("/graph"),
+      },
+      {
+        id: "links",
+        label: "All My Links",
+        hint: "/links",
+        icon: Link2,
+        run: () => navigate("/links"),
       },
     ];
     const jumps: PaletteItem[] = ANCHOR_SECTIONS.map((t) => ({

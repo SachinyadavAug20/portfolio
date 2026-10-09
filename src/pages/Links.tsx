@@ -6,7 +6,6 @@ import {
   Gamepad2,
   GitBranch,
   Home,
-  Mail,
   PenLine,
   Swords,
   Terminal,
@@ -111,6 +110,17 @@ const Row = ({ item, index }: { item: LinkRow; index: number }) => {
   );
 };
 
+/* one line of the day — the footer stays link-free (the corner badge owns
+   the contact funnel) but never says nothing twice */
+const FACTS = [
+  "Built from an Obsidian vault — view source, it is markdown all the way down.",
+  "The graph page maps every note I have ever hoarded. Go get lost.",
+  "psst — press ? anywhere for the shortcut sheet.",
+  "Luna the cat naps between your clicks. Pet her.",
+  "Press t and the lights flip. I dare you.",
+];
+const DAILY_FACT = FACTS[new Date().getDate() % FACTS.length];
+
 const Links = () => (
   <>
     <SEOHead
@@ -119,31 +129,39 @@ const Links = () => (
       path="/links"
       jsonLd={buildLinksSchema()}
     />
-    <section className="min-h-[100svh] flex-center px-5 py-12">
+    <section className="relative min-h-[100svh] flex-center px-5 py-14">
+      {/* corner badge — the status card, promoted to the page edge and made
+          tappable so the only call-to-action on the page still reaches the
+          contact form */}
+      <motion.a
+        {...rise(0)}
+        href="/#contact"
+        className="group absolute top-4 right-4 sm:top-6 sm:right-6 inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-black-50 bg-black-100/85 backdrop-blur px-3 py-1.5 text-xs text-white-50/85 shadow-lg transition-colors hover:border-green-500/40 hover:text-foreground"
+      >
+        <span className="relative flex size-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
+          <span className="relative inline-flex size-2 rounded-full bg-green-400" />
+        </span>
+        Open to work · replies within ~24h
+      </motion.a>
+
       <div className="w-full max-w-md">
-        <motion.header {...rise(0)} className="text-center">
+        <motion.header {...rise(1)} className="text-center">
           <div className="mx-auto size-20 rounded-3xl bg-gradient-to-br from-blue-500 to-blue-700 flex-center text-white text-3xl font-bold shadow-lg shadow-blue-500/25 select-none">
             SY
           </div>
           <h1 className="mt-4 text-2xl font-semibold text-foreground">Sachin Yadav</h1>
           <p className="mt-1 text-sm text-white-50/70">@samtagon38824 · Full-stack developer</p>
-          <p className="mt-3 inline-flex items-center gap-2 rounded-full border border-black-50 bg-black-100 px-3 py-1 text-xs text-white-50/80">
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
-              <span className="relative inline-flex size-2 rounded-full bg-green-400" />
-            </span>
-            Open to work · replies within ~24h
-          </p>
         </motion.header>
 
         <ul aria-label="Primary links" className="mt-8 space-y-3">
           {PRIMARY.map((item, i) => (
-            <Row key={item.href} item={item} index={i + 1} />
+            <Row key={item.href} item={item} index={i + 2} />
           ))}
         </ul>
 
         <motion.p
-          {...rise(PRIMARY.length + 1)}
+          {...rise(PRIMARY.length + 2)}
           className="mt-8 mb-3 flex items-center gap-3 text-[11px] uppercase tracking-widest text-white-50/50"
         >
           <span className="h-px flex-1 bg-black-50" />
@@ -153,18 +171,20 @@ const Links = () => (
 
         <ul aria-label="Also around" className="space-y-2.5">
           {ALSO.map((item, i) => (
-            <Row key={item.href} item={item} index={i + PRIMARY.length + 2} />
+            <Row key={item.href} item={item} index={i + PRIMARY.length + 3} />
           ))}
         </ul>
 
-        <motion.footer {...rise(PRIMARY.length + ALSO.length + 2)} className="mt-10 text-center">
-          <a
-            href="/#contact"
-            className="inline-flex items-center gap-2 text-sm text-blue-50 hover:text-blue-400 transition-colors"
-          >
-            <Mail className="size-4" aria-hidden="true" />
-            Say hi — I reply within a day
-          </a>
+        <motion.footer
+          {...rise(PRIMARY.length + ALSO.length + 3)}
+          className="mt-10 text-center"
+        >
+          <p className="text-xs text-white-50/60">
+            <span aria-hidden="true" className="text-blue-50/70">
+              &#10022;{" "}
+            </span>
+            {DAILY_FACT}
+          </p>
           <p className="mt-4 text-[11px] text-white-50/50">
             © {new Date().getFullYear()} Sachin Yadav · Built from my Obsidian vault
           </p>
