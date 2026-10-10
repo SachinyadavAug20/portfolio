@@ -2005,12 +2005,15 @@ h4 {
   .feature-card {
     transition:
       transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 0.3s ease;
+      border-color 0.3s ease,
+      box-shadow 0.3s ease,
+      background-color 0.3s ease;
   }
 
   .feature-card:hover {
     transform: translateY(-4px);
-    border-color: rgb(98 224 255 / 0.35);
+    border-color: rgb(var(--liq, 98 224 255) / 0.35);
+    box-shadow: 0 22px 44px -28px rgb(var(--liq, 98 224 255) / 0.55);
   }
 
   .feature-card .fc-icon {
@@ -2058,6 +2061,82 @@ h4 {
 
   .footer .footer-container > div > a:hover {
     text-decoration-color: currentColor;
+  }
+}
+
+/* FeatureCards liquid glass: each card owns an accent hue (--liq) matching
+   its icon; a soft blob of that light chases the pointer, and a rim
+   highlight runs along the top edge like light catching poured glass */
+.liquid-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  --liq: 98 224 255;
+  --lx: 50%;
+  --ly: 30%;
+}
+
+.liquid-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    300px circle at var(--lx) var(--ly),
+    rgb(var(--liq) / 0.17),
+    rgb(var(--liq) / 0.05) 42%,
+    transparent 68%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.liquid-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(var(--liq) / 0.5), transparent);
+  opacity: 0.4;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.liquid-card:hover::before {
+  opacity: 1;
+}
+
+.liquid-card:hover::after {
+  opacity: 0.9;
+}
+
+/* the icon hues, in card order: yellow, teal, pink, violet */
+.liquid-card:nth-child(1) {
+  --liq: 250 204 21;
+}
+.liquid-card:nth-child(2) {
+  --liq: 45 212 191;
+}
+.liquid-card:nth-child(3) {
+  --liq: 244 114 182;
+}
+.liquid-card:nth-child(4) {
+  --liq: 167 139 250;
+}
+
+/* touch screens never hover — rest the blob under the icon so phones glow too */
+@media (hover: none) {
+  .liquid-card::before {
+    opacity: 1;
+    background: radial-gradient(
+      300px circle at 50% 12%,
+      rgb(var(--liq) / 0.14),
+      rgb(var(--liq) / 0.04) 45%,
+      transparent 70%
+    );
   }
 }
 
