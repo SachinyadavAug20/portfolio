@@ -145,13 +145,11 @@ section {
   /* ambient cursor glow (CursorGlow) — themeable tokens */
   --glow-color: rgba(2, 132, 199, 0.18);
   --glow-color-faint: rgba(2, 132, 199, 0.07);
-  --glow-border: rgba(56, 189, 248, 0.22);
-  --glow-size: 360px;
+  --glow-size: 480px;
 }
 :root:not(.dark) {
   --glow-color: rgba(2, 132, 199, 0.12);
   --glow-color-faint: rgba(2, 132, 199, 0.05);
-  --glow-border: rgba(2, 132, 199, 0.16);
 }
 
 .cursor-glow {
@@ -171,7 +169,6 @@ section {
     var(--glow-color-faint) 50%,
     transparent 70%
   );
-  border: 1px solid var(--glow-border);
 }
 
 /* Motion tokens (100-300ms window; ease-out enters, ease-in exits) */
@@ -1390,6 +1387,68 @@ section {
 
 .blog-content blockquote p {
   @apply my-2;
+}
+
+/* Obsidian callouts (remark-callouts) — label pill + connector + content
+   box, matching the vault theme. Per-type color arrives as --callout-color
+   from the plugin dataMap (see calloutOptions in BlogPost.tsx). */
+.blog-content .callout {
+  --callout-color: #f59e0b;
+  @apply my-6 flex items-center border-0 bg-transparent p-0;
+}
+
+.blog-content .callout-title {
+  @apply relative mr-8 inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono;
+  border: 1px solid color-mix(in srgb, var(--callout-color) 55%, transparent);
+  background: color-mix(in srgb, var(--callout-color) 10%, transparent);
+  color: var(--callout-color);
+}
+
+.blog-content .callout-title::after {
+  content: "";
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  width: 2rem;
+  height: 1px;
+  background: color-mix(in srgb, var(--callout-color) 50%, transparent);
+}
+
+.blog-content .callout-title strong {
+  @apply font-semibold;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.blog-content .callout-title .callout-icon {
+  @apply inline-flex;
+  color: var(--callout-color);
+}
+
+.blog-content .callout-content {
+  @apply min-w-0 flex-1 rounded-lg px-4 py-3;
+  border: 1px solid color-mix(in srgb, var(--callout-color) 40%, transparent);
+  background: color-mix(in srgb, var(--callout-color) 5%, transparent);
+}
+
+.blog-content .callout-content > :first-child {
+  @apply mt-0;
+}
+
+.blog-content .callout-content > :last-child {
+  @apply mb-0;
+}
+
+@media (max-width: 640px) {
+  .blog-content .callout {
+    @apply flex-col items-stretch;
+  }
+  .blog-content .callout-title {
+    @apply mr-0 mb-3 self-start;
+  }
+  .blog-content .callout-title::after {
+    content: none;
+  }
 }
 
 .blog-content h1 {

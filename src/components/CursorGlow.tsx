@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 
-const SIZE = 360;
+const SIZE = 480;
 
 const CursorGlow = () => {
   const blobRef = useRef<HTMLDivElement>(null);

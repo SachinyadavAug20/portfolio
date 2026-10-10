@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import remarkWikiLink from "remark-wiki-link";
 import remarkCallouts from "remark-callouts";
+import { defaultConfig as calloutDefaults } from "remark-callouts";
 import SEOHead from "../seo/SEOHead";
 import { getPostByFullSlug, getPosts, getPostsInDir, leadsWithTitle } from "../blog/posts";
 import { getBacklinks } from "../blog/backlinks";
@@ -41,6 +42,34 @@ refractor.register(refractorJsx);
 refractor.register(refractorTsx);
 refractor.register(refractorProperties);
 refractor.register(refractorVim);
+
+/* Obsidian callouts render as a label pill + connector line + content box
+   (see .blog-content .callout in index.css). dataMaps strip the plugin's
+   inline styles so CSS owns the layout; the per-type color survives as
+   --callout-color. "Laden" is a custom vault type, amber like the notes. */
+const calloutOptions = {
+  ...calloutDefaults,
+  types: {
+    ...calloutDefaults.types,
+    laden: { keyword: "Laden", color: "#f59e0b" },
+  },
+  dataMaps: {
+    block: (d: { hProperties?: { className?: string; style?: string } }) => {
+      const m = /border-left-color:\s*([^;]+)/.exec(d.hProperties?.style ?? "");
+      return {
+        ...d,
+        hProperties: {
+          className: d.hProperties?.className,
+          style: m ? `--callout-color:${m[1].trim()}` : "",
+        },
+      };
+    },
+    title: (d: { hProperties?: { className?: string } }) => ({
+      ...d,
+      hProperties: { className: d.hProperties?.className },
+    }),
+  },
+};
 
 const MotionLink = motion.create(Link);
 const PRESS = {
@@ -731,7 +760,7 @@ const BlogPost = () => {
           wikiLinkClassName: "wiki-link internal",
         },
       ],
-      remarkCallouts,
+      [remarkCallouts, calloutOptions],
       remarkPlugin,
     ],
     [remarkPlugin, slugIndex],
