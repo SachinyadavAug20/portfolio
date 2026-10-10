@@ -777,7 +777,10 @@ section {
 
   .timeline {
     @apply absolute z-30 h-[110%] -top-10 w-14 md:w-28;
-    background-color: var(--flip-black-100);
+    /* mask over the gradient line until GSAP scrubs it away — must match
+       the page background exactly or the strip shows as a faint band
+       (flip-black-100 is #0e0e10, the dark page bg is oklch(0.145 0 0)) */
+    background-color: var(--background);
   }
 
   .timeline-logo {
