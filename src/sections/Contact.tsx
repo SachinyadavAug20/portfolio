@@ -252,7 +252,7 @@ const Contact = () => {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
                   <span className="relative inline-flex size-2 rounded-full bg-green-400" />
                 </span>
-                Open to work &middot; replies within ~24h
+                Open to work
               </span>
             </div>
 

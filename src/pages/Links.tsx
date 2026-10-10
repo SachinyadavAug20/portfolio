@@ -65,7 +65,7 @@ const ALSO: LinkRow[] = [
   { label: "CodeChef", sub: "sachinaug_20", href: "https://www.codechef.com/users/sachinaug_20", icon: ChefHat },
   { label: "HackerRank", sub: "samtagon777", href: "https://www.hackerrank.com/profile/samtagon777", icon: Terminal },
   { label: "GitLab", sub: "SachinyadavAug20", href: "https://gitlab.com/SachinyadavAug20", icon: GitBranch },
-  { label: "Codeberg", sub: "codeberg.org", href: "https://codeberg.org/", icon: Boxes },
+  { label: "Codeberg", sub: "SachinyadavAug20", href: "https://codeberg.org/SachinyadavAug20", icon: Boxes },
 ];
 
 /* compact quick-access row under the avatar — the linktree-style social strip */
@@ -188,15 +188,18 @@ const Links = () => {
   const share = async () => {
     const url = window.location.href;
     try {
-      if (navigator.share) {
-        await navigator.share({ title: "Sachin Yadav — Links", url });
-        return;
-      }
       await navigator.clipboard.writeText(url);
       setShareNote("Link copied");
       window.setTimeout(() => setShareNote(""), 2000);
     } catch {
-      /* share sheet dismissed */
+      /* clipboard unavailable */
+    }
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Sachin Yadav — Links", url });
+      } catch {
+        /* share sheet dismissed */
+      }
     }
   };
 
@@ -234,7 +237,7 @@ const Links = () => {
           <span className="relative inline-flex size-2 rounded-full bg-green-400" />
         </span>
         <span className="relative">
-          Open to work · replies within ~24h
+          Open to work
           <span
             aria-hidden="true"
             className="term-blink ml-1 inline-block h-3 w-[5px] translate-y-[1px] bg-green-400/80"
@@ -311,11 +314,7 @@ const Links = () => {
               <Briefcase className="size-5 text-green-600 dark:text-green-400" aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-green-600 dark:text-green-400">
-                Featured · open to work
-              </span>
-              <span className="mt-0.5 block font-semibold text-foreground">Work with me</span>
-              <span className="block text-xs text-white-50/60">Roles &amp; freelance — replies within ~24h</span>
+              <span className="block font-semibold text-foreground">Work with me</span>
             </span>
             <ArrowUpRight
               className="size-4 shrink-0 text-green-600 dark:text-green-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"

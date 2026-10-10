@@ -7,7 +7,7 @@ import RootLayout from "./layouts/RootLayout";
 import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
 import { RenderedLocationContext, canViewTransition } from "./lib/routeTransition";
-import { initSmoothScroll, scrollToY } from "./lib/smoothScroll";
+import { initSmoothScroll, scrollToY, refreshSmoothScroll } from "./lib/smoothScroll";
 import { isReducedMotion } from "./hooks/useReducedMotion";
 
 const BlogList = lazy(() => import("./pages/BlogList"));
@@ -48,7 +48,20 @@ const App = () => {
 
     const apply = () => {
       flushSync(() => setRendered(location));
-      if (!location.hash) scrollToY(0, true);
+      // The new page can be much taller than the last one; Lenis caches its
+      // scroll limit, so re-measure before any scroll-to-hash below.
+      refreshSmoothScroll();
+      if (!location.hash) {
+        scrollToY(0, true);
+        return;
+      }
+      // Hash navigation (e.g. /links → /#contact): the route just mounted
+      // inside flushSync, so the target exists — scroll it into view.
+      const id = decodeURIComponent(location.hash.slice(1));
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
+      });
     };
 
     if (canViewTransition && !isReducedMotion()) {
