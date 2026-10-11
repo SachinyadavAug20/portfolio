@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { expCards } from "../../constants";
 import GlowCard from "../components/GlowCard";
 import TitleHeader from "../components/TitleHeader";
@@ -10,90 +12,96 @@ gsap.registerPlugin(ScrollTrigger);
 
 const ExperienceSection = () => {
   const reduced = useReducedMotion();
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef({ active: false, startX: 0, startScroll: 0 });
+  const [canScroll, setCanScroll] = useState({ prev: false, next: true });
+  const [progress, setProgress] = useState(0);
+
+  const updateScroller = useCallback(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    const left = el.scrollLeft;
+    setCanScroll({ prev: left > 4, next: left < max - 4 });
+    setProgress(max > 0 ? left / max : 0);
+  }, []);
+
+  const nudge = useCallback((dir: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const entry = el.querySelector<HTMLElement>(".exp-entry");
+    const step = (entry?.offsetWidth ?? el.clientWidth * 0.8) + 48;
+    el.scrollBy({ left: step * dir, behavior: "smooth" });
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    const el = scrollerRef.current;
+    if (!el) return;
+    dragRef.current = {
+      active: true,
+      startX: e.clientX,
+      startScroll: el.scrollLeft,
+    };
+    el.classList.add("is-dragging");
+    el.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollLeft = dragRef.current.startScroll - (e.clientX - dragRef.current.startX);
+  };
+
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    dragRef.current.active = false;
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.classList.remove("is-dragging");
+    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+  };
+
+  useEffect(() => {
+    updateScroller();
+    window.addEventListener("resize", updateScroller);
+    return () => window.removeEventListener("resize", updateScroller);
+  }, [updateScroller]);
+
   useGSAP(() => {
-    if (reduced) {
-      // Jump to end state: reveal the gradient line, no scroll choreography.
-      gsap.set(".timeline", { scaleY: 0, transformOrigin: "bottom bottom" });
-      return;
-    }
+    if (reduced) return;
 
     const mm = gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.from(".exp-line", {
+        scaleX: 0,
+        transformOrigin: "left center",
+        duration: 1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: "#experience",
+          start: "top 80%",
+          once: true,
+        },
+      });
 
-    mm.add(
-      {
-        isDesktop: "(min-width: 1280px)",
-        isSmall: "(max-width: 1279px)",
-      },
-      (ctx) => {
-        const desktop = (ctx.conditions as { isDesktop?: boolean }).isDesktop;
-        const dur = desktop ? 0.45 : 0.35;
-
-        gsap.utils.toArray<Element>(".timeline-card").forEach((card) => {
-          gsap.from(card, {
-            ...(desktop
-              ? { xPercent: -60 }
-              : { x: -32 }),
-            opacity: 0,
-            transformOrigin: "left left",
-            duration: dur,
-            ease: "power2.out",
-            clearProps: "transform,opacity",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 92%",
-            },
-          });
-        });
-
-        // Single scrubbed tween replaces the old per-onUpdate tween spawning.
-        gsap.fromTo(
-          ".timeline",
-          { scaleY: 1, transformOrigin: "bottom bottom" },
-          {
-            scaleY: 0,
-            ease: "none",
-            scrollTrigger: {
-              trigger: ".timeline",
-              start: "top 50%",
-              end: "80% center",
-              scrub: 0.4,
-            },
-          },
-        );
-
-        gsap.utils.toArray<Element>(".expText").forEach((text) => {
-          gsap.from(text, {
-            y: 20,
-            opacity: 0,
-            duration: dur,
-            ease: "power2.out",
-            clearProps: "transform,opacity",
-            scrollTrigger: {
-              trigger: text,
-              start: "top 85%",
-            },
-          });
-          const items = text.querySelectorAll("li");
-          if (items.length) {
-            gsap.from(items, {
-              x: -10,
-              opacity: 0,
-              duration: dur * 0.8,
-              ease: "power2.out",
-              stagger: 0.07,
-              clearProps: "transform,opacity",
-              scrollTrigger: {
-                trigger: text,
-                start: "top 85%",
-              },
-            });
-          }
-        });
-      },
-    );
-
+      gsap.from(".exp-entry", {
+        y: 40,
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.12,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: "#experience",
+          start: "top 75%",
+          once: true,
+        },
+      });
+    });
     return () => mm.revert();
   }, [reduced]);
+
   return (
     <section
       id="experience"
@@ -101,46 +109,87 @@ const ExperienceSection = () => {
     >
       <div className="w-full h-full md:px-20">
         <TitleHeader title="Experience" sub="My CS Experience" />
-        <div className="mt-20 md:mt-32 relative">
-          <div className="relative z-50 xl:space-y-32 space-y-10">
-            {expCards.map((exp, i) => (
-              <div key={exp.title} className="exp-card-wrapper">
-                <div className="xl:w-1/3">
-                  <GlowCard card={exp} index={i}>
-                    <div>
-                      <img src={exp.imgPath} alt={exp.title} loading="lazy" decoding="async" />
-                    </div>
-                  </GlowCard>
-                </div>
-                <div className="xl:w-2/3">
-                  <div className="flex items-start">
-                    <div className="timeline-wrapper">
-                      <div className="timeline" />
-                      <div className="gradient-line w-1 h-full" />
-                    </div>
-                    <div className="expText flex xl:gap-20 md:gap-10 gap-5 relative z-20">
-                      <div className="timeline-logo">
-                        <img src={exp.logoPath} alt="logo" loading="lazy" decoding="async" />
-                      </div>
-                      <div>
-                        <h2 className="font-semibold text-3xl">{exp.title}</h2>
-                        <p className="my-5 text-white-50">{exp.date}</p>
-                        <p className="text-blue-50 italic">Responsibities</p>
-                        <ul className="list-disc ms-5 mt-5 flex flex-col gap-5 text-white-50">
-                          {exp.responsibilities.map((responsibility) => (
-                            <li key={responsibility} className="text-lg">
-                              {responsibility}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+      </div>
+
+      <div
+        ref={scrollerRef}
+        className="exp-scroller"
+        onScroll={updateScroller}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onDragStart={(e) => e.preventDefault()}
+        role="region"
+        aria-label="Experience timeline"
+        tabIndex={0}
+      >
+        <div className="exp-track">
+          <div className="exp-line" aria-hidden="true" />
+          {expCards.map((exp, i) => (
+            <div key={exp.title} className="exp-entry exp-card-wrapper">
+              <div className="exp-node-zone">
+                <div className="timeline-logo">
+                  <img
+                    src={exp.logoPath}
+                    alt="logo"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
               </div>
-            ))}
-          </div>
+              <GlowCard card={exp} index={i}>
+                <div>
+                  <img
+                    src={exp.imgPath}
+                    alt={exp.title}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              </GlowCard>
+              <div className="exp-text-column">
+                <h2 className="font-semibold text-3xl">{exp.title}</h2>
+                <p className="my-5 text-white-50">{exp.date}</p>
+                <p className="text-blue-50 italic">Responsibities</p>
+                <ul className="list-disc ms-5 mt-5 flex flex-col gap-5 text-white-50">
+                  {exp.responsibilities.map((responsibility) => (
+                    <li key={responsibility} className="text-lg">
+                      {responsibility}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
         </div>
+      </div>
+
+      <div className="exp-controls">
+        <button
+          type="button"
+          onClick={() => nudge(-1)}
+          disabled={!canScroll.prev}
+          aria-label="Scroll experience timeline left"
+          className="exp-arrow"
+        >
+          <ChevronLeft className="size-5" aria-hidden="true" />
+        </button>
+        <div className="exp-progress" aria-hidden="true">
+          <div
+            className="exp-progress-fill"
+            style={{ transform: `scaleX(${progress})` }}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => nudge(1)}
+          disabled={!canScroll.next}
+          aria-label="Scroll experience timeline right"
+          className="exp-arrow"
+        >
+          <ChevronRight className="size-5" aria-hidden="true" />
+        </button>
       </div>
     </section>
   );
