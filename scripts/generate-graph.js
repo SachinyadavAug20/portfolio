@@ -422,7 +422,7 @@ function writeSeo(notes) {
     siteName: "Sachin Yadav",
     handle: "@samtagon38824",
     person: `${site}/#person`,
-    fallbackImage: "/images/og.png",
+    fallbackImage: "/images/og.png?v=2",
     imageAlt: "Sachin Yadav Portfolio",
     sameAs: [
       "https://www.linkedin.com/in/sachin-yadav-05a105374/",

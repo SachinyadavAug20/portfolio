@@ -72,6 +72,7 @@ const SEOHead = ({
          their own size and a fake 1200×630 makes scrapers crop badly */
       ...(image === OG_IMAGE
         ? [
+            { kind: "meta", attr: "property", key: "og:image:type", content: "image/png" } as HeadTag,
             { kind: "meta", attr: "property", key: "og:image:width", content: "1200" } as HeadTag,
             { kind: "meta", attr: "property", key: "og:image:height", content: "630" } as HeadTag,
           ]

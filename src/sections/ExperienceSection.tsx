@@ -10,10 +10,15 @@ import { useReducedMotion } from "../hooks/useReducedMotion";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const AUTO_MS = 4000;
+const RESUME_MS = 7000;
+
 const ExperienceSection = () => {
   const reduced = useReducedMotion();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef({ active: false, startX: 0, startScroll: 0 });
+  const hoverRef = useRef(false);
+  const pausedUntilRef = useRef(0);
   const [canScroll, setCanScroll] = useState({ prev: false, next: true });
   const [progress, setProgress] = useState(0);
 
@@ -26,18 +31,34 @@ const ExperienceSection = () => {
     setProgress(max > 0 ? left / max : 0);
   }, []);
 
-  const nudge = useCallback((dir: 1 | -1) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const entry = el.querySelector<HTMLElement>(".exp-entry");
-    const step = (entry?.offsetWidth ?? el.clientWidth * 0.8) + 48;
-    el.scrollBy({ left: step * dir, behavior: "smooth" });
+  const pauseAuto = useCallback(() => {
+    pausedUntilRef.current = Date.now() + RESUME_MS;
   }, []);
+
+  const stepSize = useCallback(() => {
+    const el = scrollerRef.current;
+    if (!el) return 400;
+    const entry = el.querySelector<HTMLElement>(".exp-entry");
+    const track = el.querySelector<HTMLElement>(".exp-track");
+    const gap = track ? parseFloat(getComputedStyle(track).gap) || 32 : 32;
+    return (entry?.offsetWidth ?? el.clientWidth * 0.8) + gap;
+  }, []);
+
+  const nudge = useCallback(
+    (dir: 1 | -1) => {
+      const el = scrollerRef.current;
+      if (!el) return;
+      pauseAuto();
+      el.scrollBy({ left: stepSize() * dir, behavior: reduced ? "auto" : "smooth" });
+    },
+    [pauseAuto, reduced, stepSize],
+  );
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType !== "mouse" || e.button !== 0) return;
     const el = scrollerRef.current;
     if (!el) return;
+    pauseAuto();
     dragRef.current = {
       active: true,
       startX: e.clientX,
@@ -68,6 +89,44 @@ const ExperienceSection = () => {
     window.addEventListener("resize", updateScroller);
     return () => window.removeEventListener("resize", updateScroller);
   }, [updateScroller]);
+
+  /* auto-advance carousel: advances one entry per tick while on screen,
+     wraps to the start at the end, pauses on hover / drag / wheel / keys */
+  useEffect(() => {
+    if (reduced) return;
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    let inView = false;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+      },
+      { threshold: 0.25 },
+    );
+    io.observe(el);
+
+    const id = window.setInterval(() => {
+      if (
+        !inView ||
+        hoverRef.current ||
+        dragRef.current.active ||
+        Date.now() < pausedUntilRef.current
+      ) {
+        return;
+      }
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 0) return;
+      const next = el.scrollLeft + stepSize();
+      if (next >= max - 8) el.scrollTo({ left: 0, behavior: "auto" });
+      else el.scrollTo({ left: next, behavior: "smooth" });
+    }, AUTO_MS);
+
+    return () => {
+      io.disconnect();
+      window.clearInterval(id);
+    };
+  }, [reduced, stepSize]);
 
   useGSAP(() => {
     if (reduced) return;
@@ -119,6 +178,14 @@ const ExperienceSection = () => {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
+        onPointerEnter={() => {
+          hoverRef.current = true;
+        }}
+        onPointerLeave={() => {
+          hoverRef.current = false;
+        }}
+        onWheel={pauseAuto}
+        onKeyDown={pauseAuto}
         onDragStart={(e) => e.preventDefault()}
         role="region"
         aria-label="Experience timeline"
@@ -139,27 +206,33 @@ const ExperienceSection = () => {
                 </div>
               </div>
               <GlowCard card={exp} index={i}>
-                <div>
-                  <img
-                    src={exp.imgPath}
-                    alt={exp.title}
-                    loading="lazy"
-                    decoding="async"
-                  />
+                <div className="exp-card-row">
+                  <div className="exp-card-illu">
+                    <img
+                      src={exp.imgPath}
+                      alt={exp.title}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="font-semibold text-lg xl:text-xl leading-snug">
+                      {exp.title}
+                    </h2>
+                    <p className="mt-1 text-xs text-white-50">{exp.date}</p>
+                    <p className="mt-3 text-xs italic text-blue-50">
+                      Responsibities
+                    </p>
+                    <ul className="list-disc ms-4 mt-1.5 flex flex-col gap-1.5 text-white-50">
+                      {exp.responsibilities.map((responsibility) => (
+                        <li key={responsibility} className="text-xs sm:text-sm leading-relaxed">
+                          {responsibility}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </GlowCard>
-              <div className="exp-text-column">
-                <h2 className="font-semibold text-3xl">{exp.title}</h2>
-                <p className="my-5 text-white-50">{exp.date}</p>
-                <p className="text-blue-50 italic">Responsibities</p>
-                <ul className="list-disc ms-5 mt-5 flex flex-col gap-5 text-white-50">
-                  {exp.responsibilities.map((responsibility) => (
-                    <li key={responsibility} className="text-lg">
-                      {responsibility}
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
           ))}
         </div>

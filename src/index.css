@@ -836,25 +836,25 @@ section {
 
   @media (min-width: 768px) {
     .exp-line {
-      top: calc(5rem / 2 - 1px);
+      top: calc(4rem / 2 - 1px);
     }
   }
 
   .exp-entry {
     @apply flex-none flex flex-col;
-    width: min(82vw, 22rem);
+    width: min(86vw, 22rem);
     scroll-snap-align: start;
   }
 
   @media (min-width: 640px) {
     .exp-entry {
-      width: 25rem;
+      width: 30rem;
     }
   }
 
   @media (min-width: 1024px) {
     .exp-entry {
-      width: 27.5rem;
+      width: 33rem;
     }
   }
 
@@ -865,12 +865,26 @@ section {
 
   @media (min-width: 768px) {
     .exp-node-zone {
-      height: 5rem;
+      height: 4rem;
     }
   }
 
   .timeline-logo {
-    @apply size-10 md:size-20 flex-none rounded-full flex justify-center items-center border border-black-50 bg-black-100 relative z-40;
+    @apply size-10 md:size-16 flex-none rounded-full flex justify-center items-center border border-black-50 bg-black-100 relative z-40;
+  }
+
+  /* compact card body: illustration beside the copy on wider entries,
+     stacked on narrow ones */
+  .exp-card-row {
+    @apply flex flex-col gap-4 sm:flex-row sm:gap-5;
+  }
+
+  .exp-card-illu {
+    @apply w-full h-24 sm:w-44 md:w-48 sm:h-auto sm:flex-none rounded-lg overflow-hidden;
+  }
+
+  .exp-card-illu img {
+    @apply w-full h-full object-cover;
   }
 
   .exp-controls {

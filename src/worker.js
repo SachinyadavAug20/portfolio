@@ -29,13 +29,13 @@ const esc = (s) =>
     .replace(/"/g, "&quot;");
 
 function absUrl(site, image) {
-  if (!image) return `${site}/images/og.png`;
+  if (!image) return `${site}/images/og.png?v=2`;
   return /^https?:\/\//i.test(image) ? image : `${site}${image.startsWith("/") ? "" : "/"}${image}`;
 }
 
 function resolveEntry(rawPath, seo) {
   const site = seo?.site || SITE_FALLBACK;
-  const fallbackImage = seo?.fallbackImage || "/images/og.png";
+  const fallbackImage = seo?.fallbackImage || "/images/og.png?v=2";
   /* one canonical form per page: "/blog/" and "/blog" are the same page, and
      a shared trailing-slash URL must not land on the noindex catch-all */
   const pathname =
@@ -107,7 +107,7 @@ function buildTags(entry, seo) {
   const fullTitle = entry.title.includes(siteName)
     ? entry.title
     : `${entry.title} | ${siteName}`;
-  const defaultImage = `${entry.site}/images/og.png`;
+  const defaultImage = `${entry.site}/images/og.png?v=2`;
   const useCardDims = entry.image === defaultImage;
 
   let jsonLd;
@@ -198,6 +198,7 @@ function buildTags(entry, seo) {
     `<meta property="og:locale" content="en_IN" />`,
     `<meta property="og:image" content="${esc(entry.image)}" />`,
     `<meta property="og:image:alt" content="${esc(alt)}" />`,
+    useCardDims ? `<meta property="og:image:type" content="image/png" />` : "",
     useCardDims ? `<meta property="og:image:width" content="1200" />` : "",
     useCardDims ? `<meta property="og:image:height" content="630" />` : "",
     `<meta name="twitter:card" content="summary_large_image" />`,
@@ -237,6 +238,8 @@ function injectHead(html, block) {
     "og:site_name",
     "og:locale",
     "og:image",
+    "og:image:type",
+    "og:image:secure_url",
     "og:image:width",
     "og:image:height",
     "og:image:alt",
