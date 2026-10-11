@@ -1,9 +1,9 @@
 {
- "generatedAt": "2026-10-10T05:49:23.843Z",
+ "generatedAt": "2026-10-11T06:54:30.158Z",
  "counts": {
-  "notes": 338,
+  "notes": 339,
   "folders": 60,
-  "links": 594,
+  "links": 595,
   "wikiLinks": 204,
   "fresh": 22
  },
@@ -51,14 +51,6 @@
    "fresh": true
   },
   {
-   "id": "Programing/Concepts/FDE and GenAI/17.Vector and embeddings",
-   "title": "First attempt",
-   "kind": "note",
-   "dir": "Programing/Concepts/FDE and GenAI",
-   "updated": "2026-10-09T13:41:57Z",
-   "fresh": true
-  },
-  {
    "id": "Programing/Concepts/FDE and GenAI/2.Integrating LLM with Your Application",
    "title": "Tooling",
    "kind": "note",
@@ -88,6 +80,22 @@
    "kind": "note",
    "dir": "Programing/Concepts/FDE and GenAI",
    "updated": "2026-10-07T12:35:17Z",
+   "fresh": true
+  },
+  {
+   "id": "Programing/Concepts/FDE and GenAI/6.Vector and embeddings",
+   "title": "First attempt",
+   "kind": "note",
+   "dir": "Programing/Concepts/FDE and GenAI",
+   "updated": "2026-10-11T06:27:41Z",
+   "fresh": true
+  },
+  {
+   "id": "Programing/Concepts/FDE and GenAI/7.Movie Recommendation system",
+   "title": "Vector and Embedding",
+   "kind": "note",
+   "dir": "Programing/Concepts/FDE and GenAI",
+   "updated": "2026-10-11T06:27:41Z",
    "fresh": true
   },
   {
@@ -169,7 +177,7 @@
    "title": "Requirements",
    "kind": "note",
    "dir": "Programing/Concepts/LLD",
-   "updated": "2026-10-08T15:26:17Z",
+   "updated": "2026-10-10T11:15:59Z",
    "fresh": true
   },
   {
@@ -207,8 +215,7 @@
    "title": "Strategy design pattern",
    "kind": "note",
    "dir": "Programing/Concepts/LLD",
-   "updated": "2026-09-19T09:12:41Z",
-   "fresh": true
+   "updated": "2026-09-19T09:12:41Z"
   },
   {
    "id": "Programing/Concepts/LLD/8.Factory Design Pattern",
@@ -3493,11 +3500,6 @@
    "kind": "member"
   },
   {
-   "source": "Programing/Concepts/FDE and GenAI/17.Vector and embeddings",
-   "target": "dir:Programing/Concepts/FDE and GenAI",
-   "kind": "member"
-  },
-  {
    "source": "Programing/Concepts/FDE and GenAI/2.Integrating LLM with Your Application",
    "target": "dir:Programing/Concepts/FDE and GenAI",
    "kind": "member"
@@ -3514,6 +3516,16 @@
   },
   {
    "source": "Programing/Concepts/FDE and GenAI/5.Streaming output",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/FDE and GenAI/6.Vector and embeddings",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/FDE and GenAI/7.Movie Recommendation system",
    "target": "dir:Programing/Concepts/FDE and GenAI",
    "kind": "member"
   },
