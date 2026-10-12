@@ -771,60 +771,30 @@ section {
     @apply border border-black-50 bg-black-100;
   }
 
-  /* Horizontal scroll timeline — a single gradient rail with logo nodes on
-     it; no mask element anywhere, so the old faint-band bug cannot recur. */
+  /* Timeline — desktop: horizontal auto-advancing rail; mobile (< md):
+     vertical left-rail list that page-scrolls (no carousel, no arrows). */
+
+  /* --- mobile: vertical timeline (default styles) --- */
   .exp-scroller {
-    @apply overflow-x-auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: 1.25rem;
-    scrollbar-width: none;
-  }
-
-  .exp-scroller::-webkit-scrollbar {
-    display: none;
-  }
-
-  @media (min-width: 768px) {
-    .exp-scroller {
-      scroll-padding-inline: 5rem;
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .exp-scroller {
-        cursor: grab;
-      }
-    }
-  }
-
-  .exp-scroller.is-dragging {
-    @apply cursor-grabbing select-none;
+    @apply overflow-visible;
     scroll-snap-type: none;
   }
 
-  /* native image-drag fires pointercancel and kills mouse drag-to-scroll */
-  .exp-scroller img {
-    -webkit-user-drag: none;
-    user-drag: none;
-  }
-
   .exp-track {
-    @apply relative flex w-max;
-    gap: 2rem;
-    padding-inline: 1.25rem;
-  }
-
-  @media (min-width: 768px) {
-    .exp-track {
-      gap: 3rem;
-      padding-inline: 5rem;
-    }
+    @apply relative flex flex-col w-full;
+    gap: 1.25rem;
+    padding-inline: 0;
   }
 
   .exp-line {
-    @apply absolute left-0 right-0 h-0.5;
-    top: calc(2.5rem / 2 - 1px);
+    @apply absolute w-0.5;
+    left: calc(2.5rem / 2 - 2px);
+    right: auto;
+    top: 1.25rem;
+    bottom: 1.25rem;
+    height: auto;
     background: linear-gradient(
-      90deg,
+      180deg,
       rgba(69, 222, 196, 0) 0%,
       #62e0ff 8%,
       #52aeff 28%,
@@ -834,53 +804,32 @@ section {
     );
   }
 
-  @media (min-width: 768px) {
-    .exp-line {
-      top: calc(4rem / 2 - 1px);
-    }
-  }
-
   .exp-entry {
-    @apply flex-none flex flex-col;
-    width: min(86vw, 22rem);
-    scroll-snap-align: start;
-  }
-
-  @media (min-width: 640px) {
-    .exp-entry {
-      width: 30rem;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .exp-entry {
-      width: 33rem;
-    }
+    @apply flex-none flex flex-row items-start;
+    width: 100%;
+    gap: 0.75rem;
   }
 
   .exp-node-zone {
-    @apply flex items-center;
-    height: 2.5rem;
-  }
-
-  @media (min-width: 768px) {
-    .exp-node-zone {
-      height: 4rem;
-    }
+    @apply flex-none;
+    width: 2.5rem;
+    padding-top: 0.75rem;
   }
 
   .timeline-logo {
-    @apply size-10 md:size-16 flex-none rounded-full flex justify-center items-center border border-black-50 bg-black-100 relative z-40;
+    @apply size-10 flex-none rounded-full flex justify-center items-center border border-black-50 bg-black-100 relative z-40;
   }
 
-  /* compact card body: illustration beside the copy on wider entries,
-     stacked on narrow ones */
+  .exp-entry > .timeline-card {
+    @apply flex-1 min-w-0;
+  }
+
   .exp-card-row {
-    @apply flex flex-col gap-4 sm:flex-row sm:gap-5;
+    @apply flex flex-col gap-3;
   }
 
   .exp-card-illu {
-    @apply w-full h-24 sm:w-44 md:w-48 sm:h-auto sm:flex-none rounded-lg overflow-hidden;
+    @apply w-full h-20 rounded-lg overflow-hidden;
   }
 
   .exp-card-illu img {
@@ -888,37 +837,125 @@ section {
   }
 
   .exp-controls {
-    @apply flex items-center gap-4 mt-8;
-    padding-inline: 1.25rem;
+    @apply hidden;
   }
 
+  /* --- desktop: horizontal carousel --- */
   @media (min-width: 768px) {
+    .exp-scroller {
+      @apply overflow-x-auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 4rem;
+      scrollbar-width: none;
+    }
+
+    .exp-scroller::-webkit-scrollbar {
+      display: none;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .exp-scroller {
+        cursor: grab;
+      }
+    }
+
+    .exp-scroller.is-dragging {
+      @apply cursor-grabbing select-none;
+      scroll-snap-type: none;
+    }
+
+    /* native image-drag fires pointercancel and kills mouse drag-to-scroll */
+    .exp-scroller img {
+      -webkit-user-drag: none;
+      user-drag: none;
+    }
+
+    .exp-track {
+      @apply flex-row w-max;
+      gap: 2.5rem;
+      padding-inline: 4rem;
+    }
+
+    .exp-line {
+      @apply h-0.5 w-auto;
+      left: 0;
+      right: 0;
+      top: calc(3rem / 2 - 1px);
+      bottom: auto;
+      background: linear-gradient(
+        90deg,
+        rgba(69, 222, 196, 0) 0%,
+        #62e0ff 8%,
+        #52aeff 28%,
+        #fd5c79 58%,
+        #6d45ce 88%,
+        rgba(109, 69, 206, 0) 100%
+      );
+    }
+
+    .exp-entry {
+      @apply flex-col items-stretch;
+      width: 26rem;
+      gap: 0;
+      scroll-snap-align: start;
+    }
+
+    .exp-entry > .timeline-card {
+      @apply flex-none;
+    }
+
+    @media (min-width: 1024px) {
+      .exp-entry {
+        width: 30rem;
+      }
+    }
+
+    .exp-node-zone {
+      @apply items-center;
+      width: auto;
+      height: 3rem;
+      padding-top: 0;
+    }
+
+    .timeline-logo {
+      @apply size-12;
+    }
+
+    .exp-card-row {
+      @apply flex-row gap-4;
+    }
+
+    .exp-card-illu {
+      @apply w-36 h-auto flex-none;
+    }
+
     .exp-controls {
-      padding-inline: 5rem;
+      @apply flex items-center gap-4 mt-6;
+      padding-inline: 4rem;
     }
-  }
 
-  .exp-arrow {
-    @apply size-10 flex-none rounded-full border border-black-50 bg-black-100 flex items-center justify-center text-white-50 transition-colors;
-  }
-
-  @media (hover: hover) {
-    .exp-arrow:hover:not(:disabled) {
-      @apply border-blue-500/40 text-white;
+    .exp-arrow {
+      @apply size-9 flex-none rounded-full border border-black-50 bg-black-100 flex items-center justify-center text-white-50 transition-colors;
     }
-  }
 
-  .exp-arrow:disabled {
-    @apply opacity-30 cursor-not-allowed;
-  }
+    @media (hover: hover) {
+      .exp-arrow:hover:not(:disabled) {
+        @apply border-blue-500/40 text-white;
+      }
+    }
 
-  .exp-progress {
-    @apply flex-1 h-0.5 rounded-full bg-black-50 overflow-hidden;
-  }
+    .exp-arrow:disabled {
+      @apply opacity-30 cursor-not-allowed;
+    }
 
-  .exp-progress-fill {
-    @apply h-full w-full rounded-full origin-left;
-    background: linear-gradient(90deg, #62e0ff, #52aeff, #fd5c79, #6d45ce);
+    .exp-progress {
+      @apply flex-1 h-0.5 rounded-full bg-black-50 overflow-hidden;
+    }
+
+    .exp-progress-fill {
+      @apply h-full w-full rounded-full origin-left;
+      background: linear-gradient(90deg, #62e0ff, #52aeff, #fd5c79, #6d45ce);
+    }
   }
 
   /* Positioned so the fill below is scoped to the card — without this it

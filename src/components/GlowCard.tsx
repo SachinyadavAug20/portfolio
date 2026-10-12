@@ -52,16 +52,16 @@ const GlowCard = ({
       }}
       onPointerEnter={handlePointerEnter}
       onPointerMove={handlePointerMove}
-      className="card card-border timeline-card rounded-xl p-4 sm:p-5 bread-inside-avoid-column"
+      className="card card-border timeline-card rounded-xl p-3 sm:p-4 bread-inside-avoid-column"
     >
       <div className="glow" />
-      <div className="flex items-center gap-1 mb-3">
+      <div className="flex items-center gap-0.5 mb-2">
         {Array.from({ length: 5 }, (_, i) => (
-          <img src="/images/star.png" key={i} alt="star" className="size-4" />
+          <img src="/images/star.png" key={i} alt="star" className="size-3.5" />
         ))}
       </div>
-      <div className="mb-3">
-        <p className="text-white-50 text-sm leading-relaxed">{card.review}</p>
+      <div className="mb-2">
+        <p className="text-white-50 text-xs leading-snug">{card.review}</p>
       </div>
       {children}
     </div>

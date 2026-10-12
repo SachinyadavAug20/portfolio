@@ -84,18 +84,43 @@ const ExperienceSection = () => {
     if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
   };
 
+  /* desktop only: vertical wheel over the rail scrolls it horizontally;
+     at the edges the event bubbles so Lenis/page scroll resumes. Native
+     non-passive listener — React's synthetic onWheel is passive. */
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      pauseAuto();
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 0) return;
+      const atStart = el.scrollLeft <= 1 && e.deltaY < 0;
+      const atEnd = el.scrollLeft >= max - 1 && e.deltaY > 0;
+      if (atStart || atEnd) return;
+      e.preventDefault();
+      e.stopPropagation(); // keep Lenis from also scrolling the page
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [pauseAuto]);
+
   useEffect(() => {
     updateScroller();
     window.addEventListener("resize", updateScroller);
     return () => window.removeEventListener("resize", updateScroller);
   }, [updateScroller]);
 
-  /* auto-advance carousel: advances one entry per tick while on screen,
-     wraps to the start at the end, pauses on hover / drag / wheel / keys */
+  /* auto-advance carousel: desktop only (mobile is a vertical list),
+     advances one entry per tick while on screen, wraps at the end,
+     pauses on hover / drag / wheel / keys */
   useEffect(() => {
     if (reduced) return;
     const el = scrollerRef.current;
     if (!el) return;
+    const mq = window.matchMedia("(min-width: 768px)");
+    if (!mq.matches) return;
 
     let inView = false;
     const io = new IntersectionObserver(
@@ -132,19 +157,39 @@ const ExperienceSection = () => {
     if (reduced) return;
 
     const mm = gsap.matchMedia();
+    mm.add(
+      "(prefers-reduced-motion: no-preference) and (min-width: 768px)",
+      () => {
+        gsap.from(".exp-line", {
+          scaleX: 0,
+          transformOrigin: "left center",
+          duration: 1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: "#experience",
+            start: "top 80%",
+            once: true,
+          },
+        });
+      },
+    );
+    mm.add(
+      "(prefers-reduced-motion: no-preference) and (max-width: 767px)",
+      () => {
+        gsap.from(".exp-line", {
+          scaleY: 0,
+          transformOrigin: "center top",
+          duration: 1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: "#experience",
+            start: "top 80%",
+            once: true,
+          },
+        });
+      },
+    );
     mm.add("(prefers-reduced-motion: no-preference)", () => {
-      gsap.from(".exp-line", {
-        scaleX: 0,
-        transformOrigin: "left center",
-        duration: 1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: "#experience",
-          start: "top 80%",
-          once: true,
-        },
-      });
-
       gsap.from(".exp-entry", {
         y: 40,
         opacity: 0,
@@ -184,7 +229,6 @@ const ExperienceSection = () => {
         onPointerLeave={() => {
           hoverRef.current = false;
         }}
-        onWheel={pauseAuto}
         onKeyDown={pauseAuto}
         onDragStart={(e) => e.preventDefault()}
         role="region"
@@ -216,16 +260,16 @@ const ExperienceSection = () => {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h2 className="font-semibold text-lg xl:text-xl leading-snug">
+                    <h2 className="font-semibold text-base xl:text-lg leading-snug">
                       {exp.title}
                     </h2>
-                    <p className="mt-1 text-xs text-white-50">{exp.date}</p>
-                    <p className="mt-3 text-xs italic text-blue-50">
+                    <p className="mt-0.5 text-xs text-white-50">{exp.date}</p>
+                    <p className="mt-2 text-[11px] italic text-blue-50">
                       Responsibities
                     </p>
-                    <ul className="list-disc ms-4 mt-1.5 flex flex-col gap-1.5 text-white-50">
+                    <ul className="list-disc ms-4 mt-1 flex flex-col gap-1 text-white-50">
                       {exp.responsibilities.map((responsibility) => (
-                        <li key={responsibility} className="text-xs sm:text-sm leading-relaxed">
+                        <li key={responsibility} className="text-xs leading-snug">
                           {responsibility}
                         </li>
                       ))}
