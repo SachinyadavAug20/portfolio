@@ -109,7 +109,7 @@
       align-items: center;
       justify-content: center;
       font-family: "SF Mono", "Fira Code", "Courier New", monospace;
-      transition: opacity 0.6s ease;
+      transition: opacity 0.32s ease;
       overflow: hidden;
       touch-action: manipulation;
       user-select: none;
@@ -189,11 +189,32 @@
   <script>
     (function () {
       var splash = document.getElementById("splash");
+      if (!splash) return;
+
+      var SEEN_KEY = "splash:seen";
+      var reduced = false;
+      try {
+        reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      } catch (e) {}
+      var seen = false;
+      try {
+        seen = sessionStorage.getItem(SEEN_KEY) === "1";
+      } catch (e) {}
+
+      /* repeat visits this session + reduced-motion: no splash at all */
+      if (reduced || seen) {
+        splash.parentNode.removeChild(splash);
+        return;
+      }
+      try {
+        sessionStorage.setItem(SEEN_KEY, "1");
+      } catch (e) {}
+
       var asciiEl = document.getElementById("splash-ascii");
       var filelistEl = document.getElementById("splash-filelist");
       var bar = document.getElementById("splash-progress-bar");
 
-      const ascii = [
+      var ascii = [
         "  ██████  █████   ██████ ██   ██ ██ ███    ██ ",
         " ██      ██   ██ ██      ██   ██ ██ ████   ██ ",
         " ███████ ███████ ██      ███████ ██ ██ ██  ██ ",
@@ -274,32 +295,35 @@
       var progress = 0;
       var progInterval = setInterval(function () {
         if (progress < 99) {
-          progress += Math.random() * 6 + 1;
+          progress += Math.random() * 10 + 4;
           if (progress > 99) progress = 99;
           bar.style.width = progress + "%";
         }
-      }, 250);
+      }, 90);
 
-      var cursorInterval = setInterval(cycleCursor, 600);
+      var cursorInterval = setInterval(cycleCursor, 220);
 
       var startedAt = Date.now();
       var dismissed = false;
+      /* never gate content longer than this — the app mounts behind us */
+      var hardCapTimer = setTimeout(dismiss, 1000);
 
       function dismiss() {
         if (dismissed) return;
         dismissed = true;
+        clearTimeout(hardCapTimer);
         clearInterval(progInterval);
         clearInterval(cursorInterval);
         bar.style.width = "100%";
 
         var elapsed = Date.now() - startedAt;
-        var remaining = Math.max(0, 700 - elapsed);
+        var remaining = Math.max(0, 650 - elapsed);
 
         setTimeout(function () {
           splash.classList.add("fade-out");
           setTimeout(function () {
-            splash.remove();
-          }, 650);
+            if (splash.parentNode) splash.parentNode.removeChild(splash);
+          }, 340);
         }, remaining);
       }
 
@@ -310,12 +334,12 @@
 
       var observer = new MutationObserver(function () {
         if (document.getElementById("root").children.length > 0) {
-          setTimeout(dismiss, 500);
+          setTimeout(dismiss, 150);
           observer.disconnect();
         }
       });
       if (document.getElementById("root").children.length > 0) {
-        setTimeout(dismiss, 500);
+        setTimeout(dismiss, 150);
       } else {
         observer.observe(document.getElementById("root"), {
           childList: true,

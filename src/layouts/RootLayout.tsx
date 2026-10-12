@@ -46,14 +46,6 @@ const RootLayout = () => {
     [],
   );
 
-  useEffect(() => {
-    const splash = document.getElementById("splash");
-    if (splash) {
-      splash.classList.add("fade-out");
-      setTimeout(() => splash.remove(), 550);
-    }
-  }, []);
-
   // iOS-style edge-swipe back (sub-routes only; the nav drawer opens from the
   // right edge, so this never collides with it). Browsers that own the gesture
   // simply never deliver these events — harmless either way.
