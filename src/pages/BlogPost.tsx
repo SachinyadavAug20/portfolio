@@ -936,7 +936,7 @@ const BlogPost = () => {
       <div ref={pageRef} className="w-full h-full md:px-10 max-w-6xl mx-auto">
         <Link
           to={backTo}
-          className="post-anim text-blue-50 hover:text-foreground transition-colors inline-flex items-center gap-2 mb-6 px-2 py-2 -mx-2 -my-2 active:opacity-70"
+          className="post-anim text-blue-50 hover:text-foreground transition-colors inline-flex items-center gap-2 mb-4 sm:mb-6 px-2 py-2 -mx-2 -my-2 active:opacity-70"
         >
           &larr; Back
         </Link>
@@ -947,7 +947,7 @@ const BlogPost = () => {
                 {post.title}
               </h1>
             )}
-            <div className="post-anim flex items-center gap-4 text-white-50 text-sm mb-4 flex-wrap">
+            <div className="post-anim flex items-center gap-x-3 gap-y-1.5 sm:gap-4 text-xs sm:text-sm text-white-50 mb-4 flex-wrap">
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="size-4" />
                 {readingTime} min read
@@ -968,10 +968,10 @@ const BlogPost = () => {
                 </span>
               )}
               <ReadAloud />
-              <div className="flex items-center gap-1.5 bg-black-200 border border-black-50 rounded-lg px-2 py-1.5">
+              <div className="flex items-center gap-1.5 bg-black-200 border border-black-50 rounded-lg px-1.5 sm:px-2 py-1 sm:py-1.5">
                 <button
                   onClick={handleShare}
-                  className="flex items-center gap-1.5 px-2.5 py-2 rounded-md text-xs text-white-50/60 hover:text-foreground hover:bg-black-100 transition-colors"
+                  className="flex items-center gap-1.5 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-md text-xs text-white-50/60 hover:text-foreground hover:bg-black-100 transition-colors"
                   title="Share"
                 >
                   <Share2 className="size-4" />
@@ -979,7 +979,7 @@ const BlogPost = () => {
                 </button>
               </div>
               <div
-                className="flex items-center gap-0.5 bg-black-200 border border-black-50 rounded-lg px-1 py-1"
+                className="flex items-center gap-0.5 bg-black-200 border border-black-50 rounded-lg px-1 py-0.5 sm:py-1"
                 role="group"
                 aria-label="Text size"
               >
@@ -989,7 +989,7 @@ const BlogPost = () => {
                   disabled={readerStep === 0}
                   aria-label="Smaller text"
                   title="Smaller text"
-                  className="p-2 rounded-md text-white-50/60 hover:text-foreground hover:bg-black-100 disabled:opacity-30 transition-colors"
+                  className="p-1.5 sm:p-2 rounded-md text-white-50/60 hover:text-foreground hover:bg-black-100 disabled:opacity-30 transition-colors"
                 >
                   <AArrowDown className="size-4" />
                 </button>
@@ -999,14 +999,14 @@ const BlogPost = () => {
                   disabled={readerStep === READER_STEPS.length - 1}
                   aria-label="Larger text"
                   title="Larger text"
-                  className="p-2 rounded-md text-white-50/60 hover:text-foreground hover:bg-black-100 disabled:opacity-30 transition-colors"
+                  className="p-1.5 sm:p-2 rounded-md text-white-50/60 hover:text-foreground hover:bg-black-100 disabled:opacity-30 transition-colors"
                 >
                   <AArrowUp className="size-4" />
                 </button>
               </div>
             </div>
             {post.dir && (
-              <div className="post-anim flex flex-wrap gap-2 mb-8">
+              <div className="post-anim flex flex-wrap gap-2 mb-5 sm:mb-8">
                 {post.dir.split("/").filter(Boolean).map((tag) => (
                   <MotionLink
                     key={tag}
@@ -1020,7 +1020,7 @@ const BlogPost = () => {
               </div>
             )}
             {headings.length > 0 && (
-              <details className="post-anim lg:hidden mb-4 rounded-xl border border-black-50 bg-black-100/60 overflow-hidden group">
+              <details className="post-anim lg:hidden mb-3 sm:mb-4 rounded-xl border border-black-50 bg-black-100/60 overflow-hidden group">
                 <summary className="px-4 py-3 text-sm font-medium text-white-50 cursor-pointer flex items-center justify-between select-none list-none [&::-webkit-details-marker]:hidden">
                   Table of contents
                   <ChevronDown className="size-4 text-white-50/50 transition-transform group-open:rotate-180" />

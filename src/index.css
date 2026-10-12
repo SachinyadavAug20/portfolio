@@ -1524,9 +1524,19 @@ section {
 }
 
 .blog-content pre {
-  @apply bg-black-200 p-4 md:p-5 rounded-xl overflow-x-auto whitespace-pre-wrap break-words;
+  @apply bg-black-200 p-4 md:p-5 rounded-xl overflow-x-auto;
+  /* mobile: real code scrolls sideways (overscroll contained below) instead
+     of soft-wrapping into unreadable mush; md+ keeps the wrapped form */
+  white-space: pre;
   font-size: 0.875rem;
   line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+  .blog-content pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
 }
 
 .blog-content code {
