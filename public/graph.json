@@ -1,11 +1,11 @@
 {
- "generatedAt": "2026-10-12T12:06:51.993Z",
+ "generatedAt": "2026-10-12T13:37:46.349Z",
  "counts": {
-  "notes": 339,
+  "notes": 340,
   "folders": 60,
-  "links": 595,
-  "wikiLinks": 204,
-  "fresh": 22
+  "links": 597,
+  "wikiLinks": 205,
+  "fresh": 23
  },
  "nodes": [
   {
@@ -96,6 +96,14 @@
    "kind": "note",
    "dir": "Programing/Concepts/FDE and GenAI",
    "updated": "2026-10-11T13:59:04Z",
+   "fresh": true
+  },
+  {
+   "id": "Programing/Concepts/FDE and GenAI/8.Vector DB",
+   "title": "Big data set",
+   "kind": "note",
+   "dir": "Programing/Concepts/FDE and GenAI",
+   "updated": "2026-10-12T13:34:30Z",
    "fresh": true
   },
   {
@@ -2450,6 +2458,11 @@
  ],
  "links": [
   {
+   "source": "Programing/Concepts/FDE and GenAI/8.Vector DB",
+   "target": "Programing/Concepts/FDE and GenAI/7.Movie Recommendation system",
+   "kind": "wiki"
+  },
+  {
    "source": "Programing/Concepts/LLD/0.LLD",
    "target": "Programing/Concepts/LLD/0.Intro",
    "kind": "wiki"
@@ -3526,6 +3539,11 @@
   },
   {
    "source": "Programing/Concepts/FDE and GenAI/7.Movie Recommendation system",
+   "target": "dir:Programing/Concepts/FDE and GenAI",
+   "kind": "member"
+  },
+  {
+   "source": "Programing/Concepts/FDE and GenAI/8.Vector DB",
    "target": "dir:Programing/Concepts/FDE and GenAI",
    "kind": "member"
   },
