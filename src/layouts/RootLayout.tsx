@@ -9,6 +9,7 @@ import DevShortcuts from "../components/DevShortcuts";
 import Footer from "../sections/Footer";
 import { isTouchDevice } from "../hooks/useNearViewport";
 import { useIdleReady } from "../hooks/useIdleReady";
+import { useIsMobile } from "../hooks/useIsMobile";
 import { tap } from "../lib/haptics";
 import { isToasterWanted, onToasterWanted } from "../lib/toast";
 import { canViewTransition, useRenderedLocation } from "../lib/routeTransition";
@@ -30,6 +31,10 @@ const RootLayout = () => {
      would crowd the stack, so the page stands alone */
   const quiet = rendered.pathname === "/links";
   const catReady = useIdleReady(1200);
+  const isMobile = useIsMobile();
+  /* the cat gets in the way of reading on small screens — she keeps
+     company everywhere else (blog desktop, home, …) */
+  const catHidden = isMobile && rendered.pathname.startsWith("/blog");
   const [toasterWanted, setToasterWanted] = useState(isToasterWanted);
 
   useEffect(
@@ -90,7 +95,7 @@ const RootLayout = () => {
     <MotionConfig reducedMotion="user">
       {!quiet && <Navbar />}
       <CursorGlow />
-      {catReady && !quiet && (
+      {catReady && !quiet && !catHidden && (
         <Suspense fallback={null}>
           <CatCompanion />
         </Suspense>
