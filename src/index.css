@@ -313,6 +313,33 @@ section {
 
     .inner {
       @apply mx-auto flex items-center justify-between;
+      position: relative;
+    }
+
+    /* cursor-following spotlight inside the glass capsule (desktop, fine pointers) */
+    .inner::before {
+      content: "";
+      position: absolute;
+      inset: -6px -10px;
+      border-radius: inherit;
+      background: radial-gradient(
+        420px circle at var(--spotlight-x, 50%) 50%,
+        rgb(98 224 255 / 0.07),
+        transparent 45%
+      );
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 0;
+    }
+
+    &.scrolled .inner::before {
+      opacity: 1;
+    }
+
+    .inner > * {
+      position: relative;
+      z-index: 1;
     }
 
     .logo {
@@ -324,41 +351,69 @@ section {
       @apply hidden lg:flex items-center;
 
       ul {
-        @apply flex space-x-8;
+        @apply flex items-center;
+        position: relative;
+        gap: 0.15rem;
+
+        /* shared sliding pill — glides between items (GSAP sets x/width) */
+        .nav-pill {
+          position: absolute;
+          top: 50%;
+          left: 0;
+          height: 2.1rem;
+          margin-top: -1.05rem;
+          border-radius: 9999px;
+          background: var(--nav-hover-bg);
+          border: 1px solid color-mix(in srgb, var(--nav-underline) 30%, transparent);
+          pointer-events: none;
+          opacity: 0;
+          z-index: 0;
+          will-change: transform, width;
+        }
 
         li {
           @apply text-white-50 relative cursor-pointer;
 
-          span {
+          a {
+            @apply relative z-[1] inline-flex flex-col items-center px-3 py-1 rounded-full;
+          }
+
+          .nav-label {
+            line-height: 1.25;
             transition:
               color 0.3s ease,
               text-shadow 0.3s ease;
-            &:hover {
-              color: var(--nav-link-hover);
-              text-shadow: var(--nav-link-glow);
-            }
           }
 
-          .underline {
-            @apply absolute -bottom-1 left-0 w-full h-0.5;
-            background-color: var(--nav-underline);
-            box-shadow: var(--nav-underline-glow);
-            transform: scaleX(0);
-            transform-origin: left center;
-            transition: transform var(--dur-base) var(--ease-standard);
-          }
-
-          /* Keyboard focus lives on the child anchor, not the li —
-             :has() bridges it so the underline animates on Tab too. */
-          &:hover .underline,
-          &:has(a:focus-visible) .underline,
-          &:has(a[aria-current="page"]) .underline {
-            transform: scaleX(1);
-          }
-
-          &:has(a[aria-current="page"]) a span:not(.underline) {
+          /* Keyboard focus / hover / active all light the label —
+             works without a mouse (a11y) and without the pill. */
+          &:hover .nav-label,
+          &:has(a:focus-visible) .nav-label,
+          &:has(a[aria-current="page"]) .nav-label {
             color: var(--nav-link-hover);
             text-shadow: var(--nav-link-glow);
+          }
+
+          /* per-section scroll progress: a 2px fill under each link */
+          .nav-progress {
+            display: block;
+            width: 100%;
+            height: 2px;
+            margin-top: 3px;
+            border-radius: 1px;
+            background: color-mix(in srgb, var(--nav-underline) 12%, transparent);
+            overflow: hidden;
+          }
+
+          .nav-progress-fill {
+            display: block;
+            height: 100%;
+            width: 100%;
+            transform: scaleX(0);
+            transform-origin: left center;
+            background: var(--nav-underline);
+            box-shadow: var(--nav-underline-glow);
+            transition: transform 0.12s linear;
           }
         }
       }
