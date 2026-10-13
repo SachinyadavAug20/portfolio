@@ -44,14 +44,16 @@ function scrambleLabel(el: HTMLSpanElement, original: string) {
   scrambleTimers.set(el, requestAnimationFrame(frame));
 }
 
+const isMac = () =>
+  typeof navigator !== "undefined" && /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent);
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
-  const [progress, setProgress] = useState<Record<string, number>>({});
   const { pathname } = useLocation();
   const isHome = pathname === "/";
   const contactRef = useMagnetic<HTMLAnchorElement>();
-  const innerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const pillRef = useRef<HTMLSpanElement>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -115,7 +117,7 @@ const Navbar = () => {
     else gsap.to(pill, { opacity: 0, duration: 0.22, overwrite: "auto" });
   }, [reduced]);
 
-  /* ---- scroll spy + per-section progress fills ---- */
+  /* ---- scroll spy: which section is active (pill parking only) ---- */
   useEffect(() => {
     let raf = 0;
     const compute = () => {
@@ -124,14 +126,9 @@ const Navbar = () => {
         const blogIdx = navLinks.findIndex(
           (l) => !l.link.startsWith("#") && !l.link.startsWith("http") && pathname.startsWith(l.link),
         );
-        const doc = document.documentElement;
-        const max = doc.scrollHeight - window.innerHeight;
-        const p = max > 0 ? Math.min(1, window.scrollY / max) : 0;
-        setProgress(blogIdx >= 0 ? { [navLinks[blogIdx].link]: p } : {});
         setActiveIdx(blogIdx);
         return;
       }
-      const next: Record<string, number> = {};
       const mid = window.innerHeight * 0.35;
       let current = -1;
       navLinks.forEach((l, i) => {
@@ -139,11 +136,8 @@ const Navbar = () => {
         const el = document.getElementById(l.link.slice(1));
         if (!el) return;
         const r = el.getBoundingClientRect();
-        const p = Math.min(1, Math.max(0, (mid - r.top) / Math.max(r.height, 1)));
-        next[l.link] = p;
         if (r.top <= mid && r.bottom > mid) current = i;
       });
-      setProgress(next);
       setActiveIdx(current);
     };
     const onScroll = () => {
@@ -173,20 +167,50 @@ const Navbar = () => {
     return () => window.clearTimeout(t);
   }, [pathname, activeIdx, movePill]);
 
-  /* ---- cursor spotlight inside the glass capsule ---- */
+  /* ---- smart hide: slide away on sustained scroll-down, return on up ---- */
   useEffect(() => {
-    const inner = innerRef.current;
-    if (!inner || reduced) return;
-    const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    finePointer.current = fine;
-    if (!fine) return;
-    const onMove = (e: PointerEvent) => {
-      const r = inner.getBoundingClientRect();
-      inner.style.setProperty("--spotlight-x", `${e.clientX - r.left}px`);
+    const el = headerRef.current;
+    if (!el || reduced) return;
+    let raf = 0;
+    let lastY = window.scrollY;
+    let accum = 0;
+    const show = () => {
+      gsap.to(el, { yPercent: 0, duration: 0.35, ease: "power3.out", overwrite: "auto" });
     };
-    inner.addEventListener("pointermove", onMove);
-    return () => inner.removeEventListener("pointermove", onMove);
+    const hide = () => {
+      gsap.to(el, { yPercent: -130, duration: 0.3, ease: "power3.in", overwrite: "auto" });
+    };
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const y = window.scrollY;
+        const dy = y - lastY;
+        lastY = y;
+        if (y < 90) {
+          accum = 0;
+          show();
+          return;
+        }
+        accum = dy > 0 ? Math.min(120, accum + dy) : Math.max(-120, accum + dy);
+        if (accum > 50) hide();
+        else if (accum < -50) show();
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+      gsap.set(el, { yPercent: 0 });
+    };
   }, [reduced]);
+
+  /* always reveal after a route change */
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el || reduced) return;
+    gsap.to(el, { yPercent: 0, duration: 0.3, ease: "power3.out", overwrite: "auto" });
+  }, [pathname, reduced]);
 
   useEffect(() => {
     let ticking = false;
@@ -200,6 +224,11 @@ const Navbar = () => {
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  /* record fine-pointer once (scramble + magnetic gate on their own too) */
+  useEffect(() => {
+    finePointer.current = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   }, []);
 
   const isExternal = (link: string) => link.startsWith("http");
@@ -234,27 +263,24 @@ const Navbar = () => {
   );
 
   const labelSpan = (name: string) => <span className="nav-label">{name}</span>;
-  const progressFill = (link: string) =>
-    link.startsWith("#") || (!link.startsWith("http") && !link.startsWith("#")) ? (
-      <span className="nav-progress" aria-hidden="true">
-        <span
-          className="nav-progress-fill"
-          style={{ transform: `scaleX(${progress[link] ?? 0})` }}
-        />
-      </span>
-    ) : null;
 
   return (
     <header
+      ref={headerRef}
       className={`navbar ${scrolled || !isHome ? "scrolled" : "not-scrolled"}`}
     >
-      <div className="inner" ref={innerRef}>
-        <Link
-          className={`logo ${scrolled ? "text-shadow-zinc-500 font-bold" : ""}`}
-          to="/"
-        >
-          Sachin Yadav
-        </Link>
+      <div className="inner">
+        <div className="flex items-center gap-3 min-w-0">
+          <Link className={`logo ${scrolled ? "text-shadow-zinc-500 font-bold" : ""}`} to="/">
+            Sachin Yadav
+          </Link>
+          <span className="nav-availability" aria-label="Open to work">
+            <span className="nav-availability-dot" aria-hidden="true" />
+            <span className="nav-availability-label" aria-hidden="true">
+              Open to work
+            </span>
+          </span>
+        </div>
         <nav className="desktop" aria-label="Primary">
           <ul ref={listRef} onMouseLeave={onListLeave}>
             <span ref={pillRef} className="nav-pill" aria-hidden="true" />
@@ -265,14 +291,8 @@ const Navbar = () => {
                   link,
                   name,
                   idx,
-                  <motion.a
-                    href={`/${link}`}
-                    aria-current={active ? "page" : undefined}
-                    {...PRESS}
-                    {...HOVER_LIFT}
-                  >
+                  <motion.a href={`/${link}`} aria-current={active ? "page" : undefined} {...PRESS} {...HOVER_LIFT}>
                     {labelSpan(name)}
-                    {progressFill(link)}
                   </motion.a>,
                 );
               }
@@ -281,13 +301,7 @@ const Navbar = () => {
                   link,
                   name,
                   idx,
-                  <motion.a
-                    href={link}
-                    target="_blank"
-                    rel="noreferrer"
-                    {...PRESS}
-                    {...HOVER_LIFT}
-                  >
+                  <motion.a href={link} target="_blank" rel="noreferrer" {...PRESS} {...HOVER_LIFT}>
                     {labelSpan(name)}
                   </motion.a>,
                 );
@@ -296,20 +310,22 @@ const Navbar = () => {
                 link,
                 name,
                 idx,
-                <MotionLink
-                  to={link}
-                  aria-current={active ? "page" : undefined}
-                  {...PRESS}
-                  {...HOVER_LIFT}
-                >
+                <MotionLink to={link} aria-current={active ? "page" : undefined} {...PRESS} {...HOVER_LIFT}>
                   {labelSpan(name)}
-                  {progressFill(link)}
                 </MotionLink>,
               );
             })}
           </ul>
         </nav>
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            className="nav-cmdk"
+            aria-label="Open command palette"
+            onClick={() => window.dispatchEvent(new Event("palette-open"))}
+          >
+            <span aria-hidden="true">{isMac() ? "⌘K" : "Ctrl K"}</span>
+          </button>
           <ThemeToggle />
           <a ref={contactRef} href="/#contact" className="contact-btn group">
             <div className="inner">

@@ -78,11 +78,15 @@ const CommandPalette = () => {
       setOpen(true);
     };
     const onPop = () => setOpen(false);
+    /* the navbar ⌘K chip opens the palette without faking a keypress */
+    const onChip = () => setOpen(true);
     window.addEventListener("keydown", onKey);
     window.addEventListener("popstate", onPop);
+    window.addEventListener("palette-open", onChip);
     return () => {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("popstate", onPop);
+      window.removeEventListener("palette-open", onChip);
     };
   }, []);
 

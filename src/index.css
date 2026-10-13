@@ -268,6 +268,7 @@ section {
 
   .navbar {
     @apply fixed w-full left-1/2 py-2 px-4 md:px-10 -translate-x-1/2 z-[100];
+    will-change: transform;
     transition:
       background-color 0.3s ease,
       border-color 0.3s ease,
@@ -314,27 +315,6 @@ section {
     .inner {
       @apply mx-auto flex items-center justify-between;
       position: relative;
-    }
-
-    /* cursor-following spotlight inside the glass capsule (desktop, fine pointers) */
-    .inner::before {
-      content: "";
-      position: absolute;
-      inset: -6px -10px;
-      border-radius: inherit;
-      background: radial-gradient(
-        420px circle at var(--spotlight-x, 50%) 50%,
-        rgb(98 224 255 / 0.07),
-        transparent 45%
-      );
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.35s ease;
-      z-index: 0;
-    }
-
-    &.scrolled .inner::before {
-      opacity: 1;
     }
 
     .inner > * {
@@ -393,30 +373,53 @@ section {
             color: var(--nav-link-hover);
             text-shadow: var(--nav-link-glow);
           }
-
-          /* per-section scroll progress: a 2px fill under each link */
-          .nav-progress {
-            display: block;
-            width: 100%;
-            height: 2px;
-            margin-top: 3px;
-            border-radius: 1px;
-            background: color-mix(in srgb, var(--nav-underline) 12%, transparent);
-            overflow: hidden;
-          }
-
-          .nav-progress-fill {
-            display: block;
-            height: 100%;
-            width: 100%;
-            transform: scaleX(0);
-            transform-origin: left center;
-            background: var(--nav-underline);
-            box-shadow: var(--nav-underline-glow);
-            transition: transform 0.12s linear;
-          }
         }
       }
+    }
+
+    /* availability: breathing dot + mono micro-label — the one status signal */
+    .nav-availability {
+      @apply hidden md:flex items-center gap-2 select-none;
+      padding-inline-start: 0.25rem;
+    }
+
+    .nav-availability-dot {
+      @apply size-1.5 rounded-full flex-none;
+      background: #34d399;
+      animation: nav-pulse 2.6s ease-in-out infinite;
+    }
+
+    .nav-availability-label {
+      @apply font-mono uppercase;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: color-mix(in srgb, var(--nav-link-hover) 70%, transparent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .nav-availability-dot {
+        animation: none;
+      }
+    }
+
+    /* ⌘K chip — opens the command palette */
+    .nav-cmdk {
+      @apply hidden lg:flex items-center rounded-md border px-2 py-1 font-mono text-[10px] leading-none transition-colors;
+      border-color: var(--nav-glass-border);
+      color: color-mix(in srgb, var(--nav-link-hover) 65%, transparent);
+      background: color-mix(in srgb, var(--nav-hover-bg) 55%, transparent);
+    }
+
+    @media (hover: hover) {
+      .nav-cmdk:hover {
+        color: var(--nav-link-hover);
+        border-color: color-mix(in srgb, var(--nav-underline) 35%, transparent);
+      }
+    }
+
+    .nav-cmdk:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--nav-underline) 55%, transparent);
+      outline-offset: 2px;
     }
 
     .contact-btn {
@@ -468,6 +471,18 @@ section {
     .navbar {
       padding-left: max(2.5rem, env(safe-area-inset-left, 0px));
       padding-right: max(2.5rem, env(safe-area-inset-right, 0px));
+    }
+  }
+
+  @keyframes nav-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgb(52 211 153 / 0.5);
+      opacity: 0.85;
+    }
+    50% {
+      box-shadow: 0 0 0 5px rgb(52 211 153 / 0);
+      opacity: 1;
     }
   }
 
