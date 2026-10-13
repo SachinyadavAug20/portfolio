@@ -830,9 +830,16 @@ section {
      vertical left-rail list that page-scrolls (no carousel, no arrows). */
 
   /* --- mobile: vertical timeline (default styles) --- */
+  .exp-stage {
+    height: auto;
+  }
+
+  .exp-pin {
+    display: block;
+  }
+
   .exp-scroller {
     @apply overflow-visible;
-    scroll-snap-type: none;
   }
 
   .exp-track {
@@ -875,16 +882,22 @@ section {
     @apply size-10 flex-none rounded-full flex justify-center items-center border border-black-50 bg-black-100 relative z-40;
   }
 
+  .timeline-logo img {
+    @apply size-6 object-contain;
+  }
+
   .exp-entry > .timeline-card {
     @apply flex-1 min-w-0;
   }
 
   .exp-card-row {
-    @apply flex flex-col gap-3;
+    @apply flex flex-col gap-3 items-start;
   }
 
+  /* aspect matches the 400x200 SVGs — with items-start the art keeps its
+     full frame instead of being cover-cropped into the text column height */
   .exp-card-illu {
-    @apply w-full h-20 rounded-lg overflow-hidden;
+    @apply w-full h-20 rounded-lg overflow-hidden flex-none;
   }
 
   .exp-card-illu img {
@@ -895,31 +908,36 @@ section {
     @apply hidden;
   }
 
-  /* --- desktop: horizontal carousel --- */
+  /* --- desktop: pinned scroll-scrub gallery --- */
   @media (min-width: 768px) {
+    /* JS sets --exp-stage-h = 100vh + horizontal travel so the sticky pin
+       holds for exactly the scrub distance (1:1 with scroll pixels) */
+    .exp-stage {
+      height: var(--exp-stage-h, auto);
+    }
+
+    .exp-pin {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.75rem;
+      padding-block: 5rem 2.5rem;
+    }
+
+    /* clip (not hidden): hidden would force overflow-y to auto and crop
+       tall cards; clip lets the rail translate while cards stay whole */
     .exp-scroller {
-      @apply overflow-x-auto;
-      scroll-snap-type: x mandatory;
-      scroll-padding-inline: 4rem;
-      scrollbar-width: none;
+      overflow-x: clip;
     }
 
     .exp-scroller::-webkit-scrollbar {
       display: none;
     }
 
-    @media (hover: hover) and (pointer: fine) {
-      .exp-scroller {
-        cursor: grab;
-      }
-    }
-
-    .exp-scroller.is-dragging {
-      @apply cursor-grabbing select-none;
-      scroll-snap-type: none;
-    }
-
-    /* native image-drag fires pointercancel and kills mouse drag-to-scroll */
+    /* native image-drag is irrelevant now, but keep it locked */
     .exp-scroller img {
       -webkit-user-drag: none;
       user-drag: none;
@@ -929,6 +947,7 @@ section {
       @apply flex-row w-max;
       gap: 2.5rem;
       padding-inline: 4rem;
+      will-change: transform;
     }
 
     .exp-line {
@@ -952,7 +971,6 @@ section {
       @apply flex-col items-stretch;
       width: 26rem;
       gap: 0;
-      scroll-snap-align: start;
     }
 
     .exp-entry > .timeline-card {
@@ -974,29 +992,42 @@ section {
 
     .timeline-logo {
       @apply size-12;
+      box-shadow: 0 0 0 4px var(--background), 0 0 22px rgb(98 224 255 / 0.12);
+      backdrop-filter: blur(6px);
+    }
+
+    .timeline-logo img {
+      @apply size-7;
     }
 
     .exp-card-row {
-      @apply flex-row gap-4;
+      @apply flex-row gap-4 items-start;
     }
 
     .exp-card-illu {
-      @apply w-36 h-auto flex-none;
+      @apply w-40;
+      aspect-ratio: 2 / 1;
+      height: auto;
     }
 
     .exp-controls {
-      @apply flex items-center gap-4 mt-6;
+      @apply flex items-center gap-4;
       padding-inline: 4rem;
     }
 
     .exp-arrow {
-      @apply size-9 flex-none rounded-full border border-black-50 bg-black-100 flex items-center justify-center text-white-50 transition-colors;
+      @apply size-10 flex-none rounded-full border border-black-50 bg-black-100 flex items-center justify-center text-white-50 transition-colors;
     }
 
     @media (hover: hover) {
       .exp-arrow:hover:not(:disabled) {
         @apply border-blue-500/40 text-white;
+        box-shadow: 0 0 16px rgb(98 224 255 / 0.15);
       }
+    }
+
+    .exp-arrow:active:not(:disabled) {
+      transform: scale(0.94);
     }
 
     .exp-arrow:disabled {
@@ -1010,6 +1041,27 @@ section {
     .exp-progress-fill {
       @apply h-full w-full rounded-full origin-left;
       background: linear-gradient(90deg, #62e0ff, #52aeff, #fd5c79, #6d45ce);
+      transform: scaleX(0);
+    }
+  }
+
+  /* reduced motion: no pin/scrub — a plain swipe carousel (arrows work,
+     nothing animates on its own) */
+  @media (prefers-reduced-motion: reduce) {
+    .exp-stage {
+      height: auto !important;
+    }
+
+    .exp-pin {
+      position: static;
+      height: auto;
+      display: block;
+      padding-block: 0;
+    }
+
+    .exp-scroller {
+      overflow-x: auto;
+      scrollbar-width: none;
     }
   }
 

@@ -3,36 +3,39 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { expCards } from "../../constants";
 import GlowCard from "../components/GlowCard";
 import TitleHeader from "../components/TitleHeader";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "../lib/gsapSetup";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "../hooks/useReducedMotion";
+import { useIsMobile } from "../hooks/useIsMobile";
 
-gsap.registerPlugin(ScrollTrigger);
-
-const AUTO_MS = 4000;
-const RESUME_MS = 7000;
+/* Desktop is a pinned scroll-scrub gallery: vertical page scroll drives the
+   rail horizontally (sticky pin + ScrollTrigger scrub, Lenis-friendly).
+   Mobile stays the vertical left-rail list. Reduced motion on desktop falls
+   back to a plain overflow-x carousel driven by the arrows. */
 
 const ExperienceSection = () => {
   const reduced = useReducedMotion();
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef({ active: false, startX: 0, startScroll: 0 });
-  const hoverRef = useRef(false);
-  const pausedUntilRef = useRef(0);
-  const [canScroll, setCanScroll] = useState({ prev: false, next: true });
-  const [progress, setProgress] = useState(0);
+  const isMobile = useIsMobile();
+  const scrubMode = !isMobile && !reduced;
 
-  const updateScroller = useCallback(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const max = el.scrollWidth - el.clientWidth;
-    const left = el.scrollLeft;
-    setCanScroll({ prev: left > 4, next: left < max - 4 });
-    setProgress(max > 0 ? left / max : 0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const fillRef = useRef<HTMLDivElement>(null);
+  const mainSTRef = useRef<ScrollTrigger | null>(null);
+  const canRef = useRef({ prev: false, next: true });
+  const [canScroll, setCanScroll] = useState({ prev: false, next: true });
+
+  const setFill = useCallback((p: number) => {
+    if (fillRef.current) fillRef.current.style.transform = `scaleX(${p})`;
   }, []);
 
-  const pauseAuto = useCallback(() => {
-    pausedUntilRef.current = Date.now() + RESUME_MS;
+  const setCan = useCallback((prev: boolean, next: boolean) => {
+    if (canRef.current.prev !== prev || canRef.current.next !== next) {
+      canRef.current = { prev, next };
+      setCanScroll({ prev, next });
+    }
   }, []);
 
   const stepSize = useCallback(() => {
@@ -44,269 +47,283 @@ const ExperienceSection = () => {
     return (entry?.offsetWidth ?? el.clientWidth * 0.8) + gap;
   }, []);
 
-  const nudge = useCallback(
+  /* scrub mode: scroll the WINDOW to the offset that maps a card to the
+     rail's left inset — the scrub tween is the single source of truth */
+  const goTo = useCallback(
     (dir: 1 | -1) => {
-      const el = scrollerRef.current;
-      if (!el) return;
-      pauseAuto();
-      el.scrollBy({ left: stepSize() * dir, behavior: reduced ? "auto" : "smooth" });
+      const scroller = scrollerRef.current;
+      const track = trackRef.current;
+      if (!scroller || !track) return;
+      const st = mainSTRef.current;
+      if (st) {
+        const travel = track.scrollWidth - scroller.clientWidth;
+        if (travel <= 0) return;
+        const entries = Array.from(
+          track.querySelectorAll<HTMLElement>(".exp-entry"),
+        );
+        if (!entries.length) return;
+        const pad = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+        const curX = st.progress * travel;
+        let idx = 0;
+        for (let i = 0; i < entries.length; i++) {
+          if (entries[i].offsetLeft - pad <= curX + 8) idx = i;
+        }
+        const target = Math.min(Math.max(idx + dir, 0), entries.length - 1);
+        const targetX = Math.min(
+          Math.max(entries[target].offsetLeft - pad, 0),
+          travel,
+        );
+        const p = targetX / travel;
+        window.scrollTo({
+          top: st.start + p * (st.end - st.start),
+          behavior: "smooth",
+        });
+      } else {
+        scroller.scrollBy({ left: stepSize() * dir, behavior: "auto" });
+      }
     },
-    [pauseAuto, reduced, stepSize],
+    [stepSize],
   );
 
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType !== "mouse" || e.button !== 0) return;
-    const el = scrollerRef.current;
-    if (!el) return;
-    pauseAuto();
-    dragRef.current = {
-      active: true,
-      startX: e.clientX,
-      startScroll: el.scrollLeft,
-    };
-    el.classList.add("is-dragging");
-    el.setPointerCapture(e.pointerId);
-  };
-
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current.active) return;
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollLeft = dragRef.current.startScroll - (e.clientX - dragRef.current.startX);
-  };
-
-  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current.active) return;
-    dragRef.current.active = false;
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.classList.remove("is-dragging");
-    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
-  };
-
-  /* desktop only: vertical wheel over the rail scrolls it horizontally;
-     at the edges the event bubbles so Lenis/page scroll resumes. Native
-     non-passive listener — React's synthetic onWheel is passive. */
+  /* reduced-motion desktop: native overflow-x carousel, arrows + progress */
   useEffect(() => {
+    if (scrubMode || isMobile) return;
     const el = scrollerRef.current;
     if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      pauseAuto();
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    const update = () => {
       const max = el.scrollWidth - el.clientWidth;
-      if (max <= 0) return;
-      const atStart = el.scrollLeft <= 1 && e.deltaY < 0;
-      const atEnd = el.scrollLeft >= max - 1 && e.deltaY > 0;
-      if (atStart || atEnd) return;
-      e.preventDefault();
-      e.stopPropagation(); // keep Lenis from also scrolling the page
-      el.scrollLeft += e.deltaY;
+      const left = el.scrollLeft;
+      setFill(max > 0 ? left / max : 0);
+      setCan(left > 4, left < max - 4);
     };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, [pauseAuto]);
-
-  useEffect(() => {
-    updateScroller();
-    window.addEventListener("resize", updateScroller);
-    return () => window.removeEventListener("resize", updateScroller);
-  }, [updateScroller]);
-
-  /* auto-advance carousel: desktop only (mobile is a vertical list),
-     advances one entry per tick while on screen, wraps at the end,
-     pauses on hover / drag / wheel / keys */
-  useEffect(() => {
-    if (reduced) return;
-    const el = scrollerRef.current;
-    if (!el) return;
-    const mq = window.matchMedia("(min-width: 768px)");
-    if (!mq.matches) return;
-
-    let inView = false;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        inView = entry.isIntersecting;
-      },
-      { threshold: 0.25 },
-    );
-    io.observe(el);
-
-    const id = window.setInterval(() => {
-      if (
-        !inView ||
-        hoverRef.current ||
-        dragRef.current.active ||
-        Date.now() < pausedUntilRef.current
-      ) {
-        return;
-      }
-      const max = el.scrollWidth - el.clientWidth;
-      if (max <= 0) return;
-      const next = el.scrollLeft + stepSize();
-      if (next >= max - 8) el.scrollTo({ left: 0, behavior: "auto" });
-      else el.scrollTo({ left: next, behavior: "smooth" });
-    }, AUTO_MS);
-
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
     return () => {
-      io.disconnect();
-      window.clearInterval(id);
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
     };
-  }, [reduced, stepSize]);
+  }, [scrubMode, isMobile, setFill, setCan]);
 
-  useGSAP(() => {
-    if (reduced) return;
+  useGSAP(
+    () => {
+      if (reduced) return;
+      const mm = gsap.matchMedia();
 
-    const mm = gsap.matchMedia();
-    mm.add(
-      "(prefers-reduced-motion: no-preference) and (min-width: 768px)",
-      () => {
-        gsap.from(".exp-line", {
-          scaleX: 0,
-          transformOrigin: "left center",
-          duration: 1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: "#experience",
-            start: "top 80%",
-            once: true,
-          },
-        });
-      },
-    );
-    mm.add(
-      "(prefers-reduced-motion: no-preference) and (max-width: 767px)",
-      () => {
-        gsap.from(".exp-line", {
-          scaleY: 0,
-          transformOrigin: "center top",
-          duration: 1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: "#experience",
-            start: "top 80%",
-            once: true,
-          },
-        });
-      },
-    );
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      gsap.from(".exp-entry", {
-        y: 40,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.12,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: "#experience",
-          start: "top 75%",
-          once: true,
+      /* --- desktop: sticky pin + scroll-scrub gallery --- */
+      mm.add(
+        "(prefers-reduced-motion: no-preference) and (min-width: 768px)",
+        () => {
+          const stage = stageRef.current;
+          const scroller = scrollerRef.current;
+          const track = trackRef.current;
+          if (!stage || !scroller || !track) return;
+
+          const getTravel = () =>
+            Math.max(0, track.scrollWidth - scroller.clientWidth);
+          const setStageHeight = () => {
+            stage.style.setProperty(
+              "--exp-stage-h",
+              `${window.innerHeight + getTravel()}px`,
+            );
+          };
+          setStageHeight();
+          window.addEventListener("resize", setStageHeight);
+
+          gsap.from(".exp-line", {
+            scaleX: 0,
+            transformOrigin: "left center",
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: "#experience",
+              start: "top 80%",
+              once: true,
+            },
+          });
+
+          const tween = gsap.to(track, {
+            x: () => -getTravel(),
+            ease: "none",
+            scrollTrigger: {
+              trigger: stage,
+              start: "top top",
+              end: "bottom bottom",
+              scrub: 0.45,
+              invalidateOnRefresh: true,
+              onRefresh(self) {
+                mainSTRef.current = self;
+                setFill(self.progress);
+                setCan(self.progress > 0.015, self.progress < 0.985);
+              },
+              onUpdate(self) {
+                mainSTRef.current = self;
+                setFill(self.progress);
+                setCan(self.progress > 0.015, self.progress < 0.985);
+              },
+            },
+          });
+
+          gsap.utils.toArray<HTMLElement>(".exp-entry").forEach((entry) => {
+            gsap.from(entry, {
+              opacity: 0,
+              y: 30,
+              duration: 0.45,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: entry,
+                containerAnimation: tween,
+                start: "left 88%",
+                toggleActions: "play none none reverse",
+              },
+            });
+          });
+
+          return () => {
+            window.removeEventListener("resize", setStageHeight);
+            mainSTRef.current = null;
+          };
         },
-      });
-    });
-    return () => mm.revert();
-  }, [reduced]);
+      );
+
+      /* --- mobile: vertical rail, one-shot line + card stagger --- */
+      mm.add(
+        "(prefers-reduced-motion: no-preference) and (max-width: 767px)",
+        () => {
+          gsap.from(".exp-line", {
+            scaleY: 0,
+            transformOrigin: "center top",
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: "#experience",
+              start: "top 80%",
+              once: true,
+            },
+          });
+          gsap.from(".exp-entry", {
+            y: 40,
+            opacity: 0,
+            duration: 0.5,
+            stagger: 0.12,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: "#experience",
+              start: "top 75%",
+              once: true,
+            },
+          });
+        },
+      );
+
+      return () => mm.revert();
+    },
+    { dependencies: [reduced], scope: sectionRef },
+  );
+
+  /* heights can settle after fonts/images — re-measure once loaded */
+  useEffect(() => {
+    if (!scrubMode) return;
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener("load", refresh);
+    return () => window.removeEventListener("load", refresh);
+  }, [scrubMode]);
 
   return (
     <section
+      ref={sectionRef}
       id="experience"
       className="w-full md:mt-40 mt-20 section-padding md:px-0"
     >
-      <div className="w-full h-full md:px-20">
-        <TitleHeader title="Experience" sub="My CS Experience" />
-      </div>
+      <div ref={stageRef} className="exp-stage">
+        <div className="exp-pin">
+          <div className="w-full md:px-20">
+            <TitleHeader title="Experience" sub="My CS Experience" />
+          </div>
 
-      <div
-        ref={scrollerRef}
-        className="exp-scroller"
-        onScroll={updateScroller}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-        onPointerEnter={() => {
-          hoverRef.current = true;
-        }}
-        onPointerLeave={() => {
-          hoverRef.current = false;
-        }}
-        onKeyDown={pauseAuto}
-        onDragStart={(e) => e.preventDefault()}
-        role="region"
-        aria-label="Experience timeline"
-        tabIndex={0}
-      >
-        <div className="exp-track">
-          <div className="exp-line" aria-hidden="true" />
-          {expCards.map((exp, i) => (
-            <div key={exp.title} className="exp-entry exp-card-wrapper">
-              <div className="exp-node-zone">
-                <div className="timeline-logo">
-                  <img
-                    src={exp.logoPath}
-                    alt="logo"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-              </div>
-              <GlowCard card={exp} index={i}>
-                <div className="exp-card-row">
-                  <div className="exp-card-illu">
-                    <img
-                      src={exp.imgPath}
-                      alt={exp.title}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h2 className="font-semibold text-base xl:text-lg leading-snug">
-                      {exp.title}
-                    </h2>
-                    <p className="mt-0.5 text-xs text-white-50">{exp.date}</p>
-                    <p className="mt-2 text-[11px] italic text-blue-50">
-                      Responsibities
-                    </p>
-                    <ul className="list-disc ms-4 mt-1 flex flex-col gap-1 text-white-50">
-                      {exp.responsibilities.map((responsibility) => (
-                        <li key={responsibility} className="text-xs leading-snug">
-                          {responsibility}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </GlowCard>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="exp-controls">
-        <button
-          type="button"
-          onClick={() => nudge(-1)}
-          disabled={!canScroll.prev}
-          aria-label="Scroll experience timeline left"
-          className="exp-arrow"
-        >
-          <ChevronLeft className="size-5" aria-hidden="true" />
-        </button>
-        <div className="exp-progress" aria-hidden="true">
           <div
-            className="exp-progress-fill"
-            style={{ transform: `scaleX(${progress})` }}
-          />
+            ref={scrollerRef}
+            className="exp-scroller"
+            role="region"
+            aria-label="Experience timeline"
+            tabIndex={0}
+          >
+            <div ref={trackRef} className="exp-track">
+              <div className="exp-line" aria-hidden="true" />
+              {expCards.map((exp, i) => (
+                <div key={exp.title} className="exp-entry exp-card-wrapper">
+                  <div className="exp-node-zone">
+                    <div className="timeline-logo">
+                      <img
+                        src={exp.logoPath}
+                        alt="logo"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  </div>
+                  <GlowCard card={exp} index={i}>
+                    <div className="exp-card-row">
+                      <div className="exp-card-illu">
+                        <img
+                          src={exp.imgPath}
+                          alt={exp.title}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h2 className="font-semibold text-lg xl:text-xl leading-snug tracking-tight">
+                          {exp.title}
+                        </h2>
+                        <p className="mt-1 text-[11px] font-mono uppercase tracking-[0.12em] text-white-50/70">
+                          {exp.date}
+                        </p>
+                        <p className="mt-3 text-[11px] font-mono uppercase tracking-[0.14em] text-blue-50">
+                          Responsibilities
+                        </p>
+                        <ul className="list-disc ms-4 mt-1.5 flex flex-col gap-1.5 text-white-50">
+                          {exp.responsibilities.map((responsibility) => (
+                            <li
+                              key={responsibility}
+                              className="text-[13px] leading-relaxed"
+                            >
+                              {responsibility}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </GlowCard>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="exp-controls">
+            <button
+              type="button"
+              onClick={() => goTo(-1)}
+              disabled={!canScroll.prev}
+              aria-label="Scroll experience timeline left"
+              className="exp-arrow"
+            >
+              <ChevronLeft className="size-5" aria-hidden="true" />
+            </button>
+            <div className="exp-progress" aria-hidden="true">
+              <div ref={fillRef} className="exp-progress-fill" />
+            </div>
+            <button
+              type="button"
+              onClick={() => goTo(1)}
+              disabled={!canScroll.next}
+              aria-label="Scroll experience timeline right"
+              className="exp-arrow"
+            >
+              <ChevronRight className="size-5" aria-hidden="true" />
+            </button>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => nudge(1)}
-          disabled={!canScroll.next}
-          aria-label="Scroll experience timeline right"
-          className="exp-arrow"
-        >
-          <ChevronRight className="size-5" aria-hidden="true" />
-        </button>
       </div>
     </section>
   );
