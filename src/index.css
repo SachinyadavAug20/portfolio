@@ -830,14 +830,6 @@ section {
      vertical left-rail list that page-scrolls (no carousel, no arrows). */
 
   /* --- mobile: vertical timeline (default styles) --- */
-  .exp-stage {
-    height: auto;
-  }
-
-  .exp-pin {
-    display: block;
-  }
-
   .exp-scroller {
     @apply overflow-visible;
   }
@@ -908,36 +900,26 @@ section {
     @apply hidden;
   }
 
-  /* --- desktop: pinned scroll-scrub gallery --- */
+  /* --- desktop: plain GSAP horizontal carousel (no pin, no scroll hijack) --- */
   @media (min-width: 768px) {
-    /* JS sets --exp-stage-h = 100vh + horizontal travel so the sticky pin
-       holds for exactly the scrub distance (1:1 with scroll pixels) */
-    .exp-stage {
-      height: var(--exp-stage-h, auto);
-    }
-
-    .exp-pin {
-      position: sticky;
-      top: 0;
-      height: 100svh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 1.75rem;
-      padding-block: 5rem 2.5rem;
-    }
-
     /* clip (not hidden): hidden would force overflow-y to auto and crop
        tall cards; clip lets the rail translate while cards stay whole */
     .exp-scroller {
       overflow-x: clip;
+      touch-action: pan-y;
+      cursor: grab;
+    }
+
+    .exp-scroller.is-dragging {
+      cursor: grabbing;
+      user-select: none;
     }
 
     .exp-scroller::-webkit-scrollbar {
       display: none;
     }
 
-    /* native image-drag is irrelevant now, but keep it locked */
+    /* native image-drag steals pointer events from carousel drag */
     .exp-scroller img {
       -webkit-user-drag: none;
       user-drag: none;
@@ -1042,26 +1024,6 @@ section {
       @apply h-full w-full rounded-full origin-left;
       background: linear-gradient(90deg, #62e0ff, #52aeff, #fd5c79, #6d45ce);
       transform: scaleX(0);
-    }
-  }
-
-  /* reduced motion: no pin/scrub — a plain swipe carousel (arrows work,
-     nothing animates on its own) */
-  @media (prefers-reduced-motion: reduce) {
-    .exp-stage {
-      height: auto !important;
-    }
-
-    .exp-pin {
-      position: static;
-      height: auto;
-      display: block;
-      padding-block: 0;
-    }
-
-    .exp-scroller {
-      overflow-x: auto;
-      scrollbar-width: none;
     }
   }
 
