@@ -30,9 +30,10 @@
   <meta name="twitter:creator" content="@samtagon38824" />
   <meta name="theme-color" content="#0e0e10" />
   <link rel="preconnect" href="https://api.github.com" crossorigin />
-  <!-- `/` is served straight from assets (the edge worker never sees it), so
-       canonical + structured data for the homepage live here. The
-       data-seo="jsonld" marker lets the client head manager upsert in place. -->
+  <!-- Every HTML response passes through the edge worker (run_worker_first),
+       which rewrites og/twitter/json-ld per route from /seo.json — these home
+       tags are the no-worker fallback. The data-seo="jsonld" marker lets the
+       client head manager upsert in place. -->
   <link rel="canonical" href="https://portfolio.samtagon777.workers.dev/" />
   <script type="application/ld+json" data-seo="jsonld">
     {

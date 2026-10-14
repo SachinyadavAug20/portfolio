@@ -115,12 +115,20 @@ async function main() {
     "    <changefreq>weekly</changefreq>",
     "    <priority>0.7</priority>",
     "  </url>",
-    "  <url>",
+  "  <url>",
     `    <loc>${escapeXml(baseUrl)}/links</loc>`,
     `    <lastmod>${getLastmod("/links")}</lastmod>`,
-    "    <changefreq>monthly</changefreq>",
-    "    <priority>0.6</priority>",
+    `    <changefreq>monthly</changefreq>`,
+    `    <priority>0.6</priority>`,
     "  </url>",
+    ...["/experience", "/work", "/skills", "/contact"].flatMap((path) => [
+      "  <url>",
+      `    <loc>${escapeXml(baseUrl)}${path}</loc>`,
+      `    <lastmod>${getLastmod(path)}</lastmod>`,
+      `    <changefreq>monthly</changefreq>`,
+      `    <priority>0.5</priority>`,
+      "  </url>",
+    ]),
   ];
 
   for (const slug of slugs) {

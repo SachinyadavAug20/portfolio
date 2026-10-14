@@ -42,6 +42,15 @@ const App = () => {
   useEffect(() => {
     if (firstNav.current) {
       firstNav.current = false;
+      // Fresh load straight into /#contact — the anchor doesn't exist when
+      // the browser tries its native scroll (SPA), so land here after mount.
+      if (location.hash) {
+        const id = decodeURIComponent(location.hash.slice(1));
+        requestAnimationFrame(() => {
+          const el = document.getElementById(id);
+          if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
+        });
+      }
       return;
     }
     if (rendered.key === location.key) return;
@@ -51,16 +60,15 @@ const App = () => {
       // The new page can be much taller than the last one; Lenis caches its
       // scroll limit, so re-measure before any scroll-to-hash below.
       refreshSmoothScroll();
-      if (!location.hash) {
-        scrollToY(0, true);
-        return;
-      }
-      // Hash navigation (e.g. /links → /#contact): the route just mounted
-      // inside flushSync, so the target exists — scroll it into view.
-      const id = decodeURIComponent(location.hash.slice(1));
+      // Target = hash if present (#contact), else the path base — mirror
+      // routes like /experience open straight at their section. No match
+      // (e.g. /blog) falls back to the top.
+      const raw = location.hash ? location.hash.slice(1) : location.pathname;
+      const id = decodeURIComponent(raw.replace(/^\/+|\/+$/g, ""));
       requestAnimationFrame(() => {
-        const el = document.getElementById(id);
+        const el = id ? document.getElementById(id) : null;
         if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
+        else scrollToY(0, true);
       });
     };
 
@@ -76,6 +84,12 @@ const App = () => {
       <Routes location={rendered}>
         <Route element={<RootLayout />}>
           <Route index element={<HomePage />} />
+          {/* mirror routes — real paths so scrapers get their own OG card
+              (/#contact never reaches the server) */}
+          <Route path="work" element={<HomePage section="work" />} />
+          <Route path="experience" element={<HomePage section="experience" />} />
+          <Route path="skills" element={<HomePage section="skills" />} />
+          <Route path="contact" element={<HomePage section="contact" />} />
           <Route path="blog" element={
             <Suspense fallback={<PageLoading />}>
               <BlogList />

@@ -384,6 +384,25 @@ const STATIC_PAGES = {
     t: "Links",
     d: "Everywhere to find me — portfolio, blog, X, LinkedIn, GitHub, LeetCode, Codeforces, itch.io and more, all in one place.",
   },
+  /* mirror routes for the home-page sections — scrapers never see /#contact
+     fragments, so these real paths carry the section's own OG card. Keep
+     t/d in sync with SECTION_SEO in src/pages/HomePage.tsx */
+  "/work": {
+    t: "Projects",
+    d: "Selected projects and case studies by Sachin Yadav — web apps, games, and systems.",
+  },
+  "/experience": {
+    t: "Experience",
+    d: "Work experience and timeline — roles, responsibilities, and projects shipped by Sachin Yadav.",
+  },
+  "/skills": {
+    t: "Skills",
+    d: "Tech stack and skills — languages, frameworks, tools, and platforms I work with.",
+  },
+  "/contact": {
+    t: "Contact",
+    d: "Get in touch with Sachin Yadav — contact form, email, and social links.",
+  },
 };
 
 function writeSeo(notes) {

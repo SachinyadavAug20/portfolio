@@ -181,6 +181,16 @@ function buildTags(entry, seo) {
         sameAs: seo?.sameAs || [],
       },
     };
+  } else if (entry.kind === "page") {
+    /* section mirror routes (/contact, /experience, …) and future pages */
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: entry.title,
+      description: desc,
+      url: entry.url,
+      isPartOf: { "@id": `${entry.site}/#website` },
+    };
   }
 
   const section = isPost && entry.dir ? entry.dir.split("/").pop() : "";
