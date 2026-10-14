@@ -4,14 +4,24 @@ import { naturalCompare } from "./tree";
 
 let cachedFiles: BlogPost[] | null = null;
 
-function extractTitle(content: string, fallback: string): string {
-  const match = content.match(/^#{1,6}\s+(.+)$/m);
-  return cleanTitle(match ? match[1] : "", fallback);
+/* mirror of scripts/generate-graph.js fileTitle — the title is the FILE NAME,
+   not the first heading (headings are often section labels like
+   "Requirements"); og:title, <title> and the h1 must all agree */
+function fileTitle(basename: string): string {
+  const name = basename
+    .replace(/\.md$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const cleaned = name
+    .replace(/^[\s"'“”‘’.,:;!?()[\]=+/\\-]+/, "")
+    .replace(/[\s"'“”‘’.,:;!?()[\]=+/\\|-]+$/, "");
+  const title = /[\p{L}\p{N}]/u.test(cleaned) ? cleaned : name;
+  if (title.length <= 100) return title;
+  return title.slice(0, 97).replace(/\s+\S*$/, "") + "…";
 }
 
-/* mirror of scripts/generate-graph.js cleanTitle — headings embed images or
-   markdown, and the cleaned string ends up in <title>/<h1>/og:title */
-function cleanTitle(raw: string, fallback: string): string {
+/* headings in the note body are cleaned for the lead-title check below */
+function cleanTitle(raw: string): string {
   const cleaned = raw
     .replace(/!\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, " ")
     .replace(/\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, "$1")
@@ -19,12 +29,8 @@ function cleanTitle(raw: string, fallback: string): string {
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/[*_~`#>|]/g, " ")
     .replace(/\s+/g, " ")
-    .trim()
-    .replace(/^[\s"'“”‘’.,:;!?()[\]=+/\\-]+/, "")
-    .replace(/[\s"'“”‘’.,:;!?()[\]=+/\\|-]+$/, "");
-  if (!/[\p{L}\p{N}]/u.test(cleaned)) return fallback;
-  if (cleaned.length <= 100) return cleaned;
-  return cleaned.slice(0, 97).replace(/\s+\S*$/, "") + "…";
+    .trim();
+  return cleaned;
 }
 
 /* does the note open with its own title as a heading? the post page withholds
@@ -37,7 +43,7 @@ export function leadsWithTitle(content: string, title: string): boolean {
   const firstLine = body.trimStart().split("\n", 1)[0] || "";
   const m = firstLine.match(/^(#{1,6})\s+(.+)$/);
   if (!m) return false;
-  return cleanTitle(m[2], "") === title;
+  return fileTitle(cleanTitle(m[2])) === title;
 }
 
 export async function getPosts(): Promise<BlogPost[]> {
@@ -61,7 +67,7 @@ export async function getPostByFullSlug(fullSlug: string): Promise<BlogPost | un
 
   if (post.content === null) {
     post.content = await fetchContent(fullSlug);
-    post.title = extractTitle(post.content, post.title);
+    post.title = fileTitle(post.title);
   }
 
   return post;
