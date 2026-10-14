@@ -325,6 +325,32 @@ export default {
 
     const res = (await env.ASSETS?.fetch(request)) ?? new Response(null, { status: 404 });
     const type = res.headers.get("content-type") || "";
+
+    /* /assets/* is content-hashed — pin it for a year; images and models
+       change rarely — a day plus SWR; the JSON build artifacts (graph, seo,
+       blog-tree) stay fresh for 5 minutes then revalidate in the background.
+       Repeat visits stop paying revalidation round-trips. ASSETS headers are
+       immutable, so a matching file gets a fresh Response instead. */
+    if ((request.method === "GET" || request.method === "HEAD") && res.status === 200) {
+      const p = url.pathname;
+      const cache = p.startsWith("/assets/")
+        ? "public, max-age=31536000, immutable"
+        : p.startsWith("/images/") || p.startsWith("/models/")
+          ? "public, max-age=86400, stale-while-revalidate=604800"
+          : /^\/(seo|graph|dates|backlinks|blog-tree)\.json$/.test(p)
+            ? "public, max-age=300, stale-while-revalidate=3600"
+            : null;
+      if (cache) {
+        const headers = new Headers(res.headers);
+        headers.set("Cache-Control", cache);
+        return new Response(res.body, {
+          status: res.status,
+          statusText: res.statusText,
+          headers,
+        });
+      }
+    }
+
     if (request.method !== "GET" || !type.includes("text/html")) return res;
 
     /* HTML navigation (SPA routes fall back to index.html inside ASSETS) —
