@@ -71,10 +71,14 @@ const ShowCaseSection = () => {
           >
             <a href="https://base-case-nu.vercel.app/">
               <div className="image-wrapper">
-                <picture>
-                  <source srcSet="/images/project1.webp" type="image/webp" />
-                  <img src="/images/project1.png" alt="baseCase" loading="lazy" decoding="async" />
-                </picture>
+                <img
+                  src="/images/project1.webp"
+                  alt="baseCase"
+                  width={1920}
+                  height={1280}
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
             </a>
 
@@ -110,10 +114,14 @@ const ShowCaseSection = () => {
               <div className="project w-full!" ref={project2Ref}>
                 <a href="https://banking-app-nine-jet.vercel.app/">
                   <div className="image-wrapper bg-[#ffefdb] ">
-                    <picture>
-                      <source srcSet="/images/project2.webp" type="image/webp" />
-                      <img src="/images/project2.png" alt="Meow mega corp bank" loading="lazy" decoding="async" />
-                    </picture>
+                    <img
+                      src="/images/project2.webp"
+                      alt="Meow mega corp bank"
+                      width={1920}
+                      height={1280}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </div>
                 </a>
                 <a href="https://github.com/SachinyadavAug20/banking-app">
@@ -123,15 +131,14 @@ const ShowCaseSection = () => {
               <div className="project w-full!" ref={project3Ref}>
                 <a href="https://github.com/SachinyadavAug20/Meow">
                   <div className="image-wrapper bg-[#ffefdb] ">
-                    <picture>
-                      <source srcSet="/images/project3.webp" type="image/webp" />
-                      <img
-                        src="/images/project3.png"
-                        alt="Meow terminal AI agent"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </picture>
+                    <img
+                      src="/images/project3.webp"
+                      alt="Meow terminal AI agent"
+                      width={1920}
+                      height={1280}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </div>
                 </a>
                 <a href="https://github.com/SachinyadavAug20/Meow">
