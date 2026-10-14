@@ -180,28 +180,21 @@ function extractLinkTargets(content) {
   return targets;
 }
 
-function extractTitle(content, fallback) {
-  const match = content.match(/^#{1,6}\s+(.+)$/m);
-  return cleanTitle(match ? match[1] : "", fallback);
-}
-
-/* headings in the vault routinely embed images (`![[Pasted image …]]`) or
-   markdown — scrapers show this string as the card title, so strip the syntax
-   and fall back to the filename when nothing readable survives */
-function cleanTitle(raw, fallback) {
-  const cleaned = raw
-    .replace(/!\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, " ")
-    .replace(/\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g, "$1")
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/[*_~`#>|]/g, " ")
+/* titles come from the FILE NAME, not the first heading — vault headings are
+   often section labels ("Requirements"), which made every social card and
+   index row show the wrong title. The filename is the stable identity and
+   already carries the numbering humans see in the file tree. */
+function fileTitle(basename) {
+  const name = basename
+    .replace(/\.md$/i, "")
     .replace(/\s+/g, " ")
-    .trim()
+    .trim();
+  const cleaned = name
     .replace(/^[\s"'“”‘’.,:;!?()[\]=+/\\-]+/, "")
     .replace(/[\s"'“”‘’.,:;!?()[\]=+/\\|-]+$/, "");
-  if (!/[\p{L}\p{N}]/u.test(cleaned)) return fallback;
-  if (cleaned.length <= 100) return cleaned;
-  return cleaned.slice(0, 97).replace(/\s+\S*$/, "") + "…";
+  const title = /[\p{L}\p{N}]/u.test(cleaned) ? cleaned : name;
+  if (title.length <= 100) return title;
+  return title.slice(0, 97).replace(/\s+\S*$/, "") + "…";
 }
 
 /**
@@ -489,7 +482,7 @@ async function main() {
     const basename = slug.split("/").pop();
     const note = {
       id: slug,
-      title: extractTitle(content, basename),
+      title: fileTitle(basename),
       kind: "note",
       dir,
       content,
