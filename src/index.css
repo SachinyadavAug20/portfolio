@@ -2845,27 +2845,36 @@ h4 {
   }
 }
 
-/* custom cursor: a little pixel mouse rides the pointer (nose on the hot
-   spot, flips with direction) — Luna's friend out front, while the cat
-   either shadows it fast or keeps a shy berth when it rests */
+/* custom cursor: the shape-shifting pixel pointer — a plump mouse rides
+   the hot spot by default (flips with direction, wags its tail, bobs as
+   it scurries), a pink cat paw over links, a rearing explorer mouse over
+   3D scenes, plus an arrow badge on external links. Luna's little friend
+   in every state; fields keep the native caret */
 html.cat-cursor-on * {
   cursor: none !important;
 }
 html.cat-cursor-on :is(input, textarea, [contenteditable="true"]) {
   cursor: auto !important;
 }
+@property --press {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
 .cat-cursor {
   position: fixed;
   left: 0;
   top: 0;
   z-index: 300;
-  width: 32px;
-  height: 24px;
+  width: 0;
+  height: 0;
   pointer-events: none;
   image-rendering: pixelated;
   opacity: 0;
-  transition: opacity 0.15s ease;
-  transform-origin: 29px 13px;
+  --face: 1;
+  transition:
+    opacity 0.15s ease,
+    --press 0.09s ease;
   filter: drop-shadow(1px 2px 0 rgb(0 0 0 / 0.35));
 }
 .cat-cursor.is-on {
@@ -2874,14 +2883,90 @@ html.cat-cursor-on :is(input, textarea, [contenteditable="true"]) {
 .cat-cursor.is-field {
   opacity: 0;
 }
-.cat-cursor svg {
-  display: block;
-  width: 32px;
-  height: 24px;
-  transform-origin: 29px 13px;
+.cat-cursor.is-press {
+  --press: 0.82;
 }
-.cat-cursor.facing-left svg {
-  transform: scaleX(-1);
+.cat-cursor.facing-left {
+  --face: -1;
+}
+.cat-cursor .cur {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: none;
+  transform: scaleX(var(--face)) scale(var(--press));
+}
+.cat-cursor[data-cursor="mouse"] .cur-mouse,
+.cat-cursor[data-cursor="paw"] .cur-paw,
+.cat-cursor[data-cursor="ext"] .cur-paw,
+.cat-cursor[data-cursor="three"] .cur-three {
+  display: block;
+}
+.cat-cursor .cur svg {
+  display: block;
+}
+.cat-cursor .cur-mouse {
+  transform-origin: 43px 13px;
+}
+.cat-cursor .cur-paw {
+  /* the paw never flips — symmetric, and the badge must stay upright */
+  --face: 1;
+  transform-origin: 15px 18px;
+}
+.cat-cursor .cur-three {
+  transform-origin: 28px 11px;
+}
+.cat-cursor .cur-badge {
+  position: absolute;
+  left: 22px;
+  top: 2px;
+  display: none;
+}
+.cat-cursor[data-cursor="ext"] .cur-badge {
+  display: block;
+}
+.cat-cursor.is-on svg g.tail {
+  transform-box: fill-box;
+  transform-origin: 100% 50%;
+  animation: catTailWag 0.42s ease-in-out infinite alternate;
+}
+.cat-cursor.is-on .cur-mouse svg,
+.cat-cursor.is-on .cur-paw svg,
+.cat-cursor.is-on .cur-three svg {
+  animation: catCurIdle 0.76s steps(2, jump-none) infinite;
+}
+.cat-cursor.is-on.is-moving .cur-mouse svg,
+.cat-cursor.is-on.is-moving .cur-paw svg,
+.cat-cursor.is-on.is-moving .cur-three svg {
+  animation: catCurScurry 0.13s steps(2, jump-none) infinite;
+}
+@keyframes catTailWag {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(16deg);
+  }
+}
+@keyframes catCurIdle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+@keyframes catCurScurry {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-2px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
 }
 
 /* prey mouse: bolts across the floor while the cat gives chase */

@@ -10,7 +10,11 @@ import {
   WEEKEND_GREETING,
   GREETED_KEY,
   GUIDE_HEADERS,
-  MOUSE_SVG,
+  CURSOR_3D_SVG,
+  CURSOR_BADGE_SVG,
+  CURSOR_MOUSE_SVG,
+  CURSOR_NOSE,
+  CURSOR_PAW_SVG,
   PET_KEY,
   PET_LINES,
   READS_KEY,
@@ -43,6 +47,7 @@ import {
   spawnSunbeam,
   spawnYarn,
 } from "../lib/cat";
+import type { CursorVariant } from "../lib/cat";
 import type { CatContext } from "../lib/catTypes";
 import type { ActId, EncourageKind, NoteStats } from "../lib/catBrain";
 import type { BlogSuggestion } from "../lib/blogSuggestions";
@@ -4061,10 +4066,11 @@ const CatCompanion = () => {
     return () => cancelAnimationFrame(raf);
   }, [phrase, sleeping, suggest, reduced]);
 
-  /* the mouse-themed pointer: a pixel mouse rides the cursor with its nose
-     on the hot spot, flipping to face whichever way it scurries — the
-     little friend Luna either shadows (fast pointer) or gives a wide berth
-     (resting pointer). Fine pointers only; fields keep the native caret */
+  /* the shape-shifting pointer: plump pixel mouse by default (nose on the
+     hot spot, flips with direction), pink cat paw over links, rearing
+     explorer mouse over 3D canvases, NE arrow badge on external links —
+     Luna's little friend in every state, with a walk-bob while it scurries
+     and a squash on press. Fine pointers only; fields keep the caret */
   useEffect(() => {
     if (!enabled || reduced) return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
@@ -4079,6 +4085,14 @@ const CatCompanion = () => {
     let lastTx = tx;
     let seen = false;
     let raf = 0;
+    let variant: CursorVariant | "ext" = "mouse";
+    let moveTimer = 0;
+    let pressTimer = 0;
+    const setVariant = (v: CursorVariant | "ext") => {
+      if (v === variant) return;
+      variant = v;
+      el.dataset.cursor = v;
+    };
     const onMove = (e: MouseEvent) => {
       if (!e.isTrusted) return;
       if (e.clientX - lastTx > 0.6) el.classList.remove("facing-left");
@@ -4086,6 +4100,13 @@ const CatCompanion = () => {
       lastTx = e.clientX;
       tx = e.clientX;
       ty = e.clientY;
+      /* walk bob: feet only while the pointer is actually travelling */
+      el.classList.add("is-moving");
+      window.clearTimeout(moveTimer);
+      moveTimer = window.setTimeout(
+        () => el.classList.remove("is-moving"),
+        140,
+      );
       if (!seen) {
         seen = true;
         cx = tx;
@@ -4097,34 +4118,60 @@ const CatCompanion = () => {
     };
     const onOver = (e: MouseEvent) => {
       const t = e.target as Element | null;
+      const hit = t && typeof t.closest === "function" ? t : null;
       el.classList.toggle(
         "is-field",
-        !!t &&
-          typeof t.closest === "function" &&
-          t.closest("input, textarea, [contenteditable='true']") !== null,
+        !!hit?.closest("input, textarea, [contenteditable='true']"),
       );
+      if (hit?.closest("input, textarea, [contenteditable='true']")) return;
+      /* specificity order: 3D canvas, external link, any link/button */
+      if (hit?.closest('canvas, [data-cursor="three"]')) setVariant("three");
+      else if (hit?.closest('a[href^="http"]')) setVariant("ext");
+      else if (
+        hit?.closest(
+          'a, button, [role="button"], summary, .chip, kbd, [data-cursor="paw"]',
+        )
+      )
+        setVariant("paw");
+      else setVariant("mouse");
     };
     const onOut = (e: PointerEvent) => {
       if (!e.relatedTarget) el.classList.remove("is-on");
     };
+    const onDown = () => {
+      el.classList.add("is-press");
+      window.clearTimeout(pressTimer);
+      pressTimer = window.setTimeout(
+        () => el.classList.remove("is-press"),
+        180,
+      );
+    };
+    const onUp = () => el.classList.remove("is-press");
     const tick = () => {
       /* eased glide — the mouse sneaks along instead of snapping */
       cx += (tx - cx) * 0.45;
       cy += (ty - cy) * 0.45;
-      /* nose (29,13 at 2x) sits exactly on the hot spot */
-      el.style.transform = `translate3d(${(cx - 29).toFixed(1)}px, ${(cy - 13).toFixed(1)}px, 0)`;
+      /* this state's hot spot (nose / paw pad) sits on the real pointer */
+      const nose = CURSOR_NOSE[variant === "ext" ? "paw" : variant];
+      el.style.transform = `translate3d(${(cx - nose.x).toFixed(1)}px, ${(cy - nose.y).toFixed(1)}px, 0)`;
       raf = requestAnimationFrame(tick);
     };
     document.addEventListener("mousemove", onMove);
     document.addEventListener("pointerover", onOver);
     document.addEventListener("pointerout", onOut);
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("pointerup", onUp);
     tick();
     return () => {
       root.classList.remove("cat-cursor-on");
       cancelAnimationFrame(raf);
+      window.clearTimeout(moveTimer);
+      window.clearTimeout(pressTimer);
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("pointerover", onOver);
       document.removeEventListener("pointerout", onOut);
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("pointerup", onUp);
     };
   }, [enabled, reduced]);
 
@@ -4164,9 +4211,26 @@ const CatCompanion = () => {
       <div
         ref={cursorRef}
         className="cat-cursor"
+        data-cursor="mouse"
         aria-hidden="true"
-        dangerouslySetInnerHTML={{ __html: MOUSE_SVG }}
-      />
+      >
+        <span
+          className="cur cur-mouse"
+          dangerouslySetInnerHTML={{ __html: CURSOR_MOUSE_SVG }}
+        />
+        <span
+          className="cur cur-paw"
+          dangerouslySetInnerHTML={{ __html: CURSOR_PAW_SVG }}
+        />
+        <span
+          className="cur cur-three"
+          dangerouslySetInnerHTML={{ __html: CURSOR_3D_SVG }}
+        />
+        <span
+          className="cur-badge"
+          dangerouslySetInnerHTML={{ __html: CURSOR_BADGE_SVG }}
+        />
+      </div>
       {phrase && (
         <div ref={bubbleRef} className="cat-bubble-anchor" aria-hidden="true">
           <div className="cat-bubble rounded-2xl border border-black-50 bg-black-200/95 px-3.5 py-2 text-xs font-medium text-blue-50 text-center leading-snug shadow-xl backdrop-blur-md max-w-[230px]">
