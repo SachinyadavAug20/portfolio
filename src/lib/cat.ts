@@ -261,7 +261,9 @@ export const spawnDrop = (x: number, y: number) => {
   window.setTimeout(() => drop.remove(), 900);
 };
 
-const MOUSE_SVG = `<svg width="16" height="12" viewBox="0 0 16 12" shape-rendering="crispEdges" aria-hidden="true">
+/** pixel mouse art — faces right, nose at ~(14.5, 6.5) in the 16x12 grid.
+    Shared by the prey chase and the mouse-themed pointer cursor */
+export const MOUSE_SVG = `<svg width="16" height="12" viewBox="0 0 16 12" shape-rendering="crispEdges" aria-hidden="true">
   <rect x="1" y="6" width="2" height="1" fill="#8b9098"/><rect x="0" y="5" width="1" height="2" fill="#8b9098"/>
   <rect x="3" y="5" width="9" height="5" fill="#b7bcc4"/><rect x="5" y="3" width="6" height="3" fill="#c9cdd4"/>
   <rect x="6" y="2" width="2" height="2" fill="#f2a0a8"/><rect x="11" y="5" width="3" height="3" fill="#c9cdd4"/>

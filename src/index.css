@@ -2845,6 +2845,45 @@ h4 {
   }
 }
 
+/* custom cursor: a little pixel mouse rides the pointer (nose on the hot
+   spot, flips with direction) — Luna's friend out front, while the cat
+   either shadows it fast or keeps a shy berth when it rests */
+html.cat-cursor-on * {
+  cursor: none !important;
+}
+html.cat-cursor-on :is(input, textarea, [contenteditable="true"]) {
+  cursor: auto !important;
+}
+.cat-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 300;
+  width: 32px;
+  height: 24px;
+  pointer-events: none;
+  image-rendering: pixelated;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  transform-origin: 29px 13px;
+  filter: drop-shadow(1px 2px 0 rgb(0 0 0 / 0.35));
+}
+.cat-cursor.is-on {
+  opacity: 1;
+}
+.cat-cursor.is-field {
+  opacity: 0;
+}
+.cat-cursor svg {
+  display: block;
+  width: 32px;
+  height: 24px;
+  transform-origin: 29px 13px;
+}
+.cat-cursor.facing-left svg {
+  transform: scaleX(-1);
+}
+
 /* prey mouse: bolts across the floor while the cat gives chase */
 .cat-mouse {
   position: fixed;

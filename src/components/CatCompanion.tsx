@@ -10,6 +10,7 @@ import {
   WEEKEND_GREETING,
   GREETED_KEY,
   GUIDE_HEADERS,
+  MOUSE_SVG,
   PET_KEY,
   PET_LINES,
   READS_KEY,
@@ -49,8 +50,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { gsap } from "../lib/gsapSetup";
 
 /* context-aware standoff: how much room Luna keeps between herself and the
-   cursor — follow close, read calmly, watch the graph from the rim, step
-   back from a highlight (the number feeds neko's distanceFromMouse) */
+   cursor — follow close when the pointer is sweeping, keep a wide berth
+   when it rests, read calmly, watch the graph from the rim, step back from
+   a highlight (the number feeds neko's distanceFromMouse) */
 type StandoffBase = "follow" | "calm" | "observe";
 type StandoffMode = StandoffBase | "back";
 const STANDOFF_DIST: Record<StandoffMode, number> = {
@@ -59,28 +61,35 @@ const STANDOFF_DIST: Record<StandoffMode, number> = {
   observe: 170,
   back: 200,
 };
+/* she ambles now — every gear is slower and the feet deliberately unhurried */
 const STANDOFF_SPEED: Record<StandoffMode, number> = {
-  follow: 12,
-  calm: 10,
-  observe: 11,
-  back: 14,
+  follow: 10,
+  calm: 8,
+  observe: 8,
+  back: 7,
 };
 /* legs match the pace: animationSpeed is the frame refresh in ms, so
    lower = faster feet (stroll ambles, sprint blurs) */
 const STANDOFF_ANIM: Record<StandoffMode, number> = {
-  follow: 100,
-  calm: 125,
-  observe: 112,
-  back: 86,
+  follow: 108,
+  calm: 130,
+  observe: 122,
+  back: 118,
 };
+
+/* pointer mood: a fast sweep (px/ms) invites her right up to the cursor,
+   a resting hand earns the wide berth — hold keeps the flip from flapping */
+const FRIEND_SPEED = 1.15;
+const FRIEND_HOLD = 800;
+const MODE_TICK = 150;
 
 /* movement gears — walking vs running is speed AND foot cadence */
 const PACE = {
-  stroll: { speed: 10, anim: 130 },
-  walk: { speed: 12, anim: 100 },
-  trot: { speed: 14, anim: 84 },
-  run: { speed: 17, anim: 62 },
-  sprint: { speed: 20, anim: 46 },
+  stroll: { speed: 6, anim: 165 },
+  walk: { speed: 7.5, anim: 145 },
+  trot: { speed: 9, anim: 124 },
+  run: { speed: 11, anim: 104 },
+  sprint: { speed: 13, anim: 88 },
 } as const;
 type PaceTier = keyof typeof PACE;
 
@@ -95,8 +104,19 @@ const ROAMING_ACTS: readonly ActId[] = [
 
 /*
  * Cat companion — a neko-ts desktop pet that sneaks in from a screen edge,
- * chases the cursor (or your finger), naps when you're away, and can be
- * petted, fed, and shooed.
+ * shadows the cursor (or your finger), naps when you're away, and can be
+ * petted, fed, and shooed. Everything she does is deliberately unhurried:
+ * gears run 6–13px/frame (the library floor is lowered at spawn) with
+ * lazy foot cadences.
+ *
+ * - Pointer moods steer the standoff: a sweeping cursor (>1.15px/ms) flips
+ *   her to the friendly 25px follow, a resting one earns the 200px berth —
+ *   and going shy inside that berth seeds an escape heading so she backs
+ *   off even before your next move. Taps count as fast flicks (she runs to
+ *   your finger), select/overlay/form reasons always win over both moods.
+ * - On fine pointers the system cursor becomes a little pixel mouse (nose
+ *   on the hot spot, flips with direction) — the friend she's either
+ *   tailing or giving space. Fields keep the native caret.
  *
  * - neko-ts ships broken package `types` paths; tsconfig.app.json maps both
  *   entries to the real .d.ts location under dist/src.
@@ -109,7 +129,8 @@ const ROAMING_ACTS: readonly ActId[] = [
  * - While the visitor rests she keeps herself busy: strolling the page
  *   (4–16s idle), fidgeting in place every few seconds, and leaving paw
  *   prints whenever she breaks into a trot or faster — walk/run/sprint
- *   gears on the way, leaps sprinkled in.
+ *   gears on the way, leaps sprinkled in. Acts that seed their own target
+ *   claim the stop point first (pace) and hand it back after (restorePace).
  * - Random acts include game-y bits: chasing a pixel mouse, a sky-blue
  *   butterfly, or a red laser dot; claiming a seat on real UI; clawing
  *   cards; napping in sunbeams; boxes; pounces; digs; tail orbits;
@@ -233,6 +254,7 @@ const CatCompanion = () => {
   const nekoRef = useRef<Neko | null>(null);
   const brainRef = useRef<Brain | null>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
+  const cursorRef = useRef<HTMLDivElement>(null);
   const suggestAnchorRef = useRef<HTMLDivElement>(null);
   const zzzRef = useRef<HTMLDivElement>(null);
   const phraseTimer = useRef(0);
@@ -288,6 +310,12 @@ const CatCompanion = () => {
   const standoffReasons = useRef<Set<"select" | "overlay" | "form">>(new Set());
   const standoffModeRef = useRef<StandoffMode>("follow");
   const standoffNum = useRef({ d: STANDOFF_DIST.follow });
+  /* pointer mood: when the cursor last swept fast, and the current verdict */
+  const lastFastMove = useRef(0);
+  const pointerFast = useRef(false);
+  /* acts that seed their own target own the stop point + pace until
+     they call restorePace — the mood must not yank her mid-walk */
+  const actAim = useRef(false);
   const lastStandoffLine = useRef(0);
   const lastRetreat = useRef(0);
   const lastCloseIn = useRef(0);
@@ -809,24 +837,20 @@ const CatCompanion = () => {
     [showPhrase],
   );
 
-  /* settle on the right standoff: GSAP eases the distance so the cat
-     glides between "come here" and "i'll watch from here" instead of
-     teleporting its stop point */
-  const applyStandoff = useCallback(() => {
-    const mode: StandoffMode =
-      standoffReasons.current.size > 0 ? "back" : standoffBase.current;
-    standoffModeRef.current = mode;
+  /* the stop point eases instead of teleporting — GSAP glides the number
+     so she slides between "come here" and "i'll watch from here" */
+  const setStandoffDist = useCallback((d: number) => {
     const neko = nekoRef.current;
     if (!neko) return;
-    const setDist = (d: number) => {
-      (neko as unknown as { distanceFromMouse: number }).distanceFromMouse = d;
+    const setDist = (v: number) => {
+      (neko as unknown as { distanceFromMouse: number }).distanceFromMouse = v;
     };
     if (isReducedMotion()) {
-      standoffNum.current.d = STANDOFF_DIST[mode];
-      setDist(STANDOFF_DIST[mode]);
+      standoffNum.current.d = d;
+      setDist(d);
     } else {
       gsap.to(standoffNum.current, {
-        d: STANDOFF_DIST[mode],
+        d,
         duration: 0.7,
         ease: "power2.out",
         overwrite: true,
@@ -834,37 +858,58 @@ const CatCompanion = () => {
       });
       setDist(standoffNum.current.d);
     }
-    neko.setSpeed(STANDOFF_SPEED[mode]);
-    neko.setAnimationSpeed(STANDOFF_ANIM[mode]);
   }, []);
 
-  /* shift gears: speed + foot cadence together; restorePace returns to
-     whatever the room's standoff asks for — trot and faster leave a
-     trail of little paw prints behind her */
+  /* settle on the right standoff: pointer mood first (a sweeping cursor
+     invites her close, a resting one earns a wide berth), then the room's
+     base, then temporary reasons to step back (select/overlay/form) */
+  const applyStandoff = useCallback(() => {
+    const mode: StandoffMode =
+      standoffReasons.current.size > 0
+        ? "back"
+        : pointerFast.current
+          ? "follow"
+          : standoffBase.current === "follow"
+            ? "back"
+            : standoffBase.current;
+    standoffModeRef.current = mode;
+    /* mid-act she's aiming at her own target — keep the stop point tight
+       and leave the pace to whoever called pace() */
+    setStandoffDist(actAim.current ? STANDOFF_DIST.follow : STANDOFF_DIST[mode]);
+    if (actAim.current || !nekoRef.current) return;
+    nekoRef.current.setSpeed(STANDOFF_SPEED[mode]);
+    nekoRef.current.setAnimationSpeed(STANDOFF_ANIM[mode]);
+  }, [setStandoffDist]);
+
+  /* shift gears: speed + foot cadence together, and claim the stop point
+     so act targets stay reachable — restorePace hands it all back to the
+     room's standoff; trot and faster leave a trail of paw prints */
   const printTimer = useRef(0);
-  const pace = useCallback((tier: PaceTier) => {
-    const n = nekoRef.current;
-    if (!n) return;
-    n.setSpeed(PACE[tier].speed);
-    n.setAnimationSpeed(PACE[tier].anim);
-    window.clearInterval(printTimer.current);
-    if (tier === "trot" || tier === "run" || tier === "sprint") {
-      printTimer.current = window.setInterval(() => {
-        const c = nekoRef.current;
-        if (!c || document.hidden) return;
-        spawnPaw(c.position.x + rand(16) - 8, c.position.y + 20);
-      }, 430);
-    }
-  }, []);
+  const pace = useCallback(
+    (tier: PaceTier) => {
+      const n = nekoRef.current;
+      if (!n) return;
+      actAim.current = true;
+      setStandoffDist(STANDOFF_DIST.follow);
+      n.setSpeed(PACE[tier].speed);
+      n.setAnimationSpeed(PACE[tier].anim);
+      window.clearInterval(printTimer.current);
+      if (tier === "trot" || tier === "run" || tier === "sprint") {
+        printTimer.current = window.setInterval(() => {
+          const c = nekoRef.current;
+          if (!c || document.hidden) return;
+          spawnPaw(c.position.x + rand(16) - 8, c.position.y + 20);
+        }, 430);
+      }
+    },
+    [setStandoffDist],
+  );
 
   const restorePace = useCallback(() => {
-    const n = nekoRef.current;
     window.clearInterval(printTimer.current);
-    if (!n) return;
-    const mode = standoffModeRef.current;
-    n.setSpeed(STANDOFF_SPEED[mode]);
-    n.setAnimationSpeed(STANDOFF_ANIM[mode]);
-  }, []);
+    actAim.current = false;
+    applyStandoff();
+  }, [applyStandoff]);
 
   useEffect(
     () => () => window.clearInterval(printTimer.current),
@@ -983,6 +1028,8 @@ const CatCompanion = () => {
       if (dx !== 0 || dy !== 0) {
         if (dt >= 8 && dt < 400) {
           const v = Math.hypot(dx, dy) / dt;
+          /* a sweeping cursor is an invitation — feed the mood tracker */
+          if (v > FRIEND_SPEED) lastFastMove.current = now;
           if (v > 1.3) speedStreak += 1;
           else speedStreak = Math.max(0, speedStreak - 1);
           if (speedStreak >= 8) {
@@ -1022,10 +1069,12 @@ const CatCompanion = () => {
       }
       /* standoff intelligence: in observe/back mode a crowding cursor gets
          gently shown a wider berth — pick the escape heading that gains the
-         most ground (corners and walls included) and say so, once a while */
+         most ground (corners and walls included) and say so, once a while.
+         mid-act her own target wins; the mood's re-seed handles rests */
       const mode = standoffModeRef.current;
       if (
         (mode === "observe" || mode === "back") &&
+        !actAim.current &&
         !sleepingRef.current &&
         nekoRef.current
       ) {
@@ -1850,6 +1899,34 @@ const CatCompanion = () => {
     };
     window.addEventListener("resize", onResize);
 
+    /* pointer mood: a sweep invites her close, a rest earns the berth.
+       A tick (not just move events) so a dead cursor demotes itself —
+       and going shy inside her personal space seeds an escape heading,
+       since the retreat above only fires on fresh moves */
+    const moodTick = window.setInterval(() => {
+      const fast = Date.now() - lastFastMove.current < FRIEND_HOLD;
+      if (fast === pointerFast.current) return;
+      pointerFast.current = fast;
+      applyStandoff();
+      if (fast) return;
+      const n = nekoRef.current;
+      if (!n || sleepingRef.current || actAim.current) return;
+      const { x, y } = n.position;
+      const m = lastPointer.current;
+      const dx = x - m.x;
+      const dy = y - m.y;
+      const d = Math.hypot(dx, dy);
+      if (d > 1 && d < 150) {
+        /* frame() idles once she's within the standoff of her target, so
+           seed PAST the final berth (not the mid-tween value): travel =
+           seed − berth, landing her (160 − here) px out — ~160px from the
+           resting cursor no matter how tight she was hugging */
+        const berth = STANDOFF_DIST[standoffModeRef.current];
+        const seed = Math.max(berth + 160 - d, berth + 40);
+        seedPointer(x + (dx / d) * seed, y + (dy / d) * seed);
+      }
+    }, MODE_TICK);
+
     return () => {
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("touchmove", onTouch);
@@ -1881,11 +1958,12 @@ const CatCompanion = () => {
       window.removeEventListener("wheel", onWheelRush);
       window.removeEventListener("resize", onResize);
       window.clearTimeout(resizeTimer);
+      window.clearInterval(moodTick);
       document.removeEventListener("click", onCatClick);
       document.removeEventListener("focusin", onContactFocus);
       window.removeEventListener("wheel", onAny);
     };
-  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion, setStandoffReason, pace, restorePace, spotlight, sayUiLine]);
+  }, [markActivity, showPhrase, checkProphecy, acceptSuggestion, denySuggestion, setStandoffReason, applyStandoff, pace, restorePace, spotlight, sayUiLine]);
 
   /* Alt+C shooes / summons the cat for good (the opt-out persists) */
   useEffect(() => {
@@ -2309,7 +2387,10 @@ const CatCompanion = () => {
         suggestRef.current ||
         document.hidden ||
         petNap.current ||
-        Date.now() - lastPhraseAt.current < 3000
+        Date.now() - lastPhraseAt.current < 3000 ||
+        /* her own errands are for when the visitor rests — never yank
+           her off the cursor mid-use (same 4s floor as the stroll) */
+        Date.now() - lastInput.current < 4_000
       ) {
         scheduleAct();
         return;
@@ -2461,6 +2542,7 @@ const CatCompanion = () => {
             );
             const tx = r.left + r.width / 2;
             const ty = onTop ? r.top - 10 : r.bottom - 8;
+            pace("run");
             seedPointer(tx, ty);
             /* once settled she rings the target: spotlight + paw taps so
                the seat reads as a recommendation, not just a nap spot —
@@ -2519,6 +2601,7 @@ const CatCompanion = () => {
             timers.push(
               window.setTimeout(
                 () => {
+                  restorePace();
                   if (!cancelled)
                     seedPointer(lastPointer.current.x, lastPointer.current.y);
                 },
@@ -2612,6 +2695,7 @@ const CatCompanion = () => {
         }
         case "stare": {
           /* park the target right next to the cat so it stops and watches */
+          pace("walk");
           seedPointer(
             Math.max(
               24,
@@ -2622,6 +2706,7 @@ const CatCompanion = () => {
             ),
             y,
           );
+          timers.push(window.setTimeout(() => restorePace(), 3500));
           break;
         }
         case "groom":
@@ -2665,6 +2750,7 @@ const CatCompanion = () => {
             const side = x < r.left + r.width / 2 ? -1 : 1;
             const tx = side < 0 ? r.left + 10 : r.right - 10;
             const ty = r.bottom - 12;
+            pace("run");
             seedPointer(tx, ty);
             const arrive = Math.min(
               Math.max((Math.hypot(tx - x, ty - y) / 130) * 1000, 500),
@@ -2694,6 +2780,7 @@ const CatCompanion = () => {
             timers.push(
               window.setTimeout(
                 () => {
+                  restorePace();
                   if (!cancelled)
                     seedPointer(lastPointer.current.x, lastPointer.current.y);
                 },
@@ -3083,6 +3170,7 @@ const CatCompanion = () => {
             const spot = links[best];
             const tx = spot.r.left + spot.r.width / 2;
             const ty = Math.max(spot.r.bottom - 4, 44);
+            pace("run");
             seedPointer(tx, ty);
             const arrive = Math.min(
               Math.max((Math.hypot(tx - x, ty - y) / 120) * 1000, 500),
@@ -3117,6 +3205,7 @@ const CatCompanion = () => {
             );
             timers.push(
               window.setTimeout(() => {
+                restorePace();
                 if (!cancelled)
                   seedPointer(lastPointer.current.x, lastPointer.current.y);
               }, arrive + 7600),
@@ -3136,12 +3225,14 @@ const CatCompanion = () => {
             if (cta.length) {
               const pick = cta[Math.floor(Math.random() * cta.length)];
               spotlight(pick.el, 2400);
+              pace("run");
               seedPointer(
                 pick.r.left + pick.r.width / 2,
                 pick.r.bottom - 8,
               );
               timers.push(
                 window.setTimeout(() => {
+                  restorePace();
                   if (!cancelled)
                     seedPointer(lastPointer.current.x, lastPointer.current.y);
                 }, 4200),
@@ -3209,6 +3300,7 @@ const CatCompanion = () => {
           /* bat at an invisible speck: four darting taps, paw prints at
              each strike, the prey never stood a chance */
           let n = 0;
+          pace("trot");
           const tap = window.setInterval(() => {
             if (cancelled || n >= 4) {
               window.clearInterval(tap);
@@ -3225,6 +3317,7 @@ const CatCompanion = () => {
           timers.push(
             window.setTimeout(() => {
               window.clearInterval(tap);
+              restorePace();
               if (!cancelled)
                 seedPointer(lastPointer.current.x, lastPointer.current.y);
             }, 2500),
@@ -3303,6 +3396,10 @@ const CatCompanion = () => {
         defaultState: "awake",
         breed,
       });
+      /* below the library's 10px floor — Luna ambles, she doesn't hurry;
+         a fresh spawn never inherits a half-finished act's stop point */
+      (neko as unknown as { minNekoSpeed: number }).minNekoSpeed = 4;
+      actAim.current = false;
       /* a good chunk bigger than LARGE on desktop (and a step up on
          mobile) — same pixelated sprite; setSize rescales the sheet */
       neko.setSize(
@@ -3531,8 +3628,14 @@ const CatCompanion = () => {
     const onPointerDown = (e: PointerEvent) => {
       if (!e.isTrusted) return;
       markActivity();
-      /* taps are navigation too: the cat runs to your finger */
+      /* taps are navigation too: the cat runs to your finger — a tap reads
+         as a fast flick, so it flips her into the friendly close standoff */
       seedPointer(e.clientX, e.clientY);
+      lastFastMove.current = Date.now();
+      if (!pointerFast.current) {
+        pointerFast.current = true;
+        applyStandoff();
+      }
       const neko = nekoRef.current;
       if (!neko) return;
       const target = e.target as HTMLElement | null;
@@ -3958,6 +4061,73 @@ const CatCompanion = () => {
     return () => cancelAnimationFrame(raf);
   }, [phrase, sleeping, suggest, reduced]);
 
+  /* the mouse-themed pointer: a pixel mouse rides the cursor with its nose
+     on the hot spot, flipping to face whichever way it scurries — the
+     little friend Luna either shadows (fast pointer) or gives a wide berth
+     (resting pointer). Fine pointers only; fields keep the native caret */
+  useEffect(() => {
+    if (!enabled || reduced) return;
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    const el = cursorRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    root.classList.add("cat-cursor-on");
+    let tx = -80;
+    let ty = -80;
+    let cx = tx;
+    let cy = ty;
+    let lastTx = tx;
+    let seen = false;
+    let raf = 0;
+    const onMove = (e: MouseEvent) => {
+      if (!e.isTrusted) return;
+      if (e.clientX - lastTx > 0.6) el.classList.remove("facing-left");
+      else if (e.clientX - lastTx < -0.6) el.classList.add("facing-left");
+      lastTx = e.clientX;
+      tx = e.clientX;
+      ty = e.clientY;
+      if (!seen) {
+        seen = true;
+        cx = tx;
+        cy = ty;
+        el.classList.add("is-on");
+      } else if (!el.classList.contains("is-on")) {
+        el.classList.add("is-on");
+      }
+    };
+    const onOver = (e: MouseEvent) => {
+      const t = e.target as Element | null;
+      el.classList.toggle(
+        "is-field",
+        !!t &&
+          typeof t.closest === "function" &&
+          t.closest("input, textarea, [contenteditable='true']") !== null,
+      );
+    };
+    const onOut = (e: PointerEvent) => {
+      if (!e.relatedTarget) el.classList.remove("is-on");
+    };
+    const tick = () => {
+      /* eased glide — the mouse sneaks along instead of snapping */
+      cx += (tx - cx) * 0.45;
+      cy += (ty - cy) * 0.45;
+      /* nose (29,13 at 2x) sits exactly on the hot spot */
+      el.style.transform = `translate3d(${(cx - 29).toFixed(1)}px, ${(cy - 13).toFixed(1)}px, 0)`;
+      raf = requestAnimationFrame(tick);
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("pointerover", onOver);
+    document.addEventListener("pointerout", onOut);
+    tick();
+    return () => {
+      root.classList.remove("cat-cursor-on");
+      cancelAnimationFrame(raf);
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("pointerover", onOver);
+      document.removeEventListener("pointerout", onOut);
+    };
+  }, [enabled, reduced]);
+
   /* the tour-guide header over each suggestion (stable while bubble lives) */
   const suggestHeader = useMemo(
     () => (suggest ? GUIDE_HEADERS[rand(GUIDE_HEADERS.length)] : null),
@@ -3967,10 +4137,36 @@ const CatCompanion = () => {
   const typedPhrase = useTypewriter(phrase?.text ?? null);
   const typedSuggest = useTypewriter(suggest?.msg ?? null);
 
+  /* dev-only introspection for the verify harness — tree-shaken from prod */
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const w = window as unknown as Record<string, unknown>;
+    w.__cat = {
+      pointerFast,
+      actAim,
+      standoffNum,
+      standoffBase,
+      standoffMode: standoffModeRef,
+      reasons: standoffReasons,
+      lastFastMove,
+      lastInput,
+      sleeping: sleepingRef,
+    };
+    return () => {
+      delete w.__cat;
+    };
+  }, []);
+
   if (reduced || !enabled) return null;
 
   return (
     <>
+      <div
+        ref={cursorRef}
+        className="cat-cursor"
+        aria-hidden="true"
+        dangerouslySetInnerHTML={{ __html: MOUSE_SVG }}
+      />
       {phrase && (
         <div ref={bubbleRef} className="cat-bubble-anchor" aria-hidden="true">
           <div className="cat-bubble rounded-2xl border border-black-50 bg-black-200/95 px-3.5 py-2 text-xs font-medium text-blue-50 text-center leading-snug shadow-xl backdrop-blur-md max-w-[230px]">
