@@ -55,13 +55,19 @@ const GlowCard = ({
       className="card card-border timeline-card rounded-xl p-3 sm:p-4 bread-inside-avoid-column"
     >
       <div className="glow" />
-      <div className="flex items-center gap-0.5 mb-2">
+      <div className="mb-2 flex items-center gap-0.5" role="img" aria-label="Rated 5 out of 5">
         {Array.from({ length: 5 }, (_, i) => (
-          <img src="/images/star.png" key={i} alt="star" className="size-3.5" />
+          <img
+            src="/images/star.png"
+            key={i}
+            alt=""
+            aria-hidden="true"
+            className="size-3.5"
+          />
         ))}
       </div>
       <div className="mb-2">
-        <p className="text-white-50 text-xs leading-snug">{card.review}</p>
+        <p className="text-white-50 text-[13px] leading-relaxed">{card.review}</p>
       </div>
       {children}
     </div>

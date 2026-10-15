@@ -274,12 +274,6 @@ const Navbar = () => {
           <Link className={`logo ${scrolled ? "text-shadow-zinc-500 font-bold" : ""}`} to="/">
             Sachin Yadav
           </Link>
-          <span className="nav-availability" aria-label="Open to work">
-            <span className="nav-availability-dot" aria-hidden="true" />
-            <span className="nav-availability-label" aria-hidden="true">
-              Open to work
-            </span>
-          </span>
         </div>
         <nav className="desktop" aria-label="Primary">
           <ul ref={listRef} onMouseLeave={onListLeave}>

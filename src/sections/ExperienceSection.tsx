@@ -22,6 +22,7 @@ const ExperienceSection = () => {
   const fillRef = useRef<HTMLDivElement>(null);
   const xRef = useRef(0);
   const [canScroll, setCanScroll] = useState({ prev: false, next: true });
+  const [active, setActive] = useState(0);
 
   const setFill = useCallback((p: number) => {
     if (fillRef.current) fillRef.current.style.transform = `scaleX(${p})`;
@@ -47,12 +48,19 @@ const ExperienceSection = () => {
   const goToX = useCallback(
     (x: number, instant = false) => {
       const track = trackRef.current;
-      const { travel } = metrics();
+      const { travel, positions } = metrics();
       if (!track) return;
       const clamped = Math.min(Math.max(x, 0), travel);
       xRef.current = clamped;
       setFill(travel > 0 ? clamped / travel : 0);
       setCan(clamped > 8, clamped < travel - 8);
+      let nearest = 0;
+      for (let i = 0; i < positions.length; i++) {
+        if (Math.abs(positions[i] - clamped) < Math.abs(positions[nearest] - clamped)) {
+          nearest = i;
+        }
+      }
+      setActive(nearest);
       if (instant || reduced) {
         gsap.killTweensOf(track);
         gsap.set(track, { x: -clamped });
@@ -188,6 +196,15 @@ const ExperienceSection = () => {
         role="region"
         aria-label="Experience timeline"
         tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight") {
+            e.preventDefault();
+            step(1);
+          } else if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            step(-1);
+          }
+        }}
       >
         <div ref={trackRef} className="exp-track">
           <div className="exp-line" aria-hidden="true" />
@@ -217,20 +234,11 @@ const ExperienceSection = () => {
                     <h2 className="font-semibold text-lg xl:text-xl leading-snug tracking-tight">
                       {exp.title}
                     </h2>
-                    <p className="mt-1 text-[11px] font-mono uppercase tracking-[0.12em] text-white-50/70">
-                      {exp.date}
-                    </p>
-                    <p className="mt-3 text-[11px] font-mono uppercase tracking-[0.14em] text-blue-50">
-                      Responsibilities
-                    </p>
-                    <ul className="list-disc ms-4 mt-1.5 flex flex-col gap-1.5 text-white-50">
+                    <p className="exp-date">{exp.date}</p>
+                    <p className="exp-label">Responsibilities</p>
+                    <ul className="exp-bullets">
                       {exp.responsibilities.map((responsibility) => (
-                        <li
-                          key={responsibility}
-                          className="text-[13px] leading-relaxed"
-                        >
-                          {responsibility}
-                        </li>
+                        <li key={responsibility}>{responsibility}</li>
                       ))}
                     </ul>
                   </div>
@@ -254,6 +262,9 @@ const ExperienceSection = () => {
         <div className="exp-progress" aria-hidden="true">
           <div ref={fillRef} className="exp-progress-fill" />
         </div>
+        <span className="exp-count" aria-live="polite" aria-atomic="true">
+          {String(active + 1).padStart(2, "0")} / {String(expCards.length).padStart(2, "0")}
+        </span>
         <button
           type="button"
           onClick={() => step(1)}

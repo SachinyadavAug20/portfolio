@@ -377,31 +377,6 @@ section {
       }
     }
 
-    /* availability: breathing dot + mono micro-label — the one status signal */
-    .nav-availability {
-      @apply hidden md:flex items-center gap-2 select-none;
-      padding-inline-start: 0.25rem;
-    }
-
-    .nav-availability-dot {
-      @apply size-1.5 rounded-full flex-none;
-      background: #34d399;
-      animation: nav-pulse 2.6s ease-in-out infinite;
-    }
-
-    .nav-availability-label {
-      @apply font-mono uppercase;
-      font-size: 10px;
-      letter-spacing: 0.14em;
-      color: color-mix(in srgb, var(--nav-link-hover) 70%, transparent);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .nav-availability-dot {
-        animation: none;
-      }
-    }
-
     /* ⌘K chip — opens the command palette */
     .nav-cmdk {
       @apply hidden lg:flex items-center rounded-md border px-2 py-1 font-mono text-[10px] leading-none transition-colors;
@@ -471,18 +446,6 @@ section {
     .navbar {
       padding-left: max(2.5rem, env(safe-area-inset-left, 0px));
       padding-right: max(2.5rem, env(safe-area-inset-right, 0px));
-    }
-  }
-
-  @keyframes nav-pulse {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgb(52 211 153 / 0.5);
-      opacity: 0.85;
-    }
-    50% {
-      box-shadow: 0 0 0 5px rgb(52 211 153 / 0);
-      opacity: 1;
     }
   }
 
@@ -887,6 +850,7 @@ section {
 
   .timeline-logo {
     @apply size-10 flex-none rounded-full flex justify-center items-center border border-black-50 bg-black-100 relative z-40;
+    box-shadow: 0 0 0 3px var(--background);
   }
 
   .timeline-logo img {
@@ -904,11 +868,63 @@ section {
   /* aspect matches the 400x200 SVGs — with items-start the art keeps its
      full frame instead of being cover-cropped into the text column height */
   .exp-card-illu {
-    @apply w-full h-20 rounded-lg overflow-hidden flex-none;
+    @apply w-full rounded-lg overflow-hidden flex-none border border-black-50;
+    aspect-ratio: 2 / 1;
+    height: auto;
   }
 
   .exp-card-illu img {
     @apply w-full h-full object-cover;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (hover: hover) {
+    .timeline-card:hover .exp-card-illu img {
+      transform: scale(1.06);
+    }
+  }
+
+  /* date — mono pill under the title */
+  .exp-date {
+    @apply mt-2 inline-flex items-center rounded-full border border-black-50 px-2.5 py-1 font-mono uppercase text-white-50/80;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+
+  /* section label — mono caps with a gradient lead-in dash */
+  .exp-label {
+    @apply mt-3.5 flex items-center gap-2 font-mono uppercase text-blue-50;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+  }
+
+  .exp-label::before {
+    content: "";
+    @apply h-px w-4 flex-none;
+    background: linear-gradient(90deg, #62e0ff, #6d45ce);
+  }
+
+  /* bullets — gradient diamond markers instead of default discs */
+  .exp-bullets {
+    @apply mt-2 flex flex-col gap-2 text-white-50;
+    list-style: none;
+  }
+
+  .exp-bullets li {
+    @apply ps-4 text-[13px] leading-relaxed;
+    position: relative;
+  }
+
+  .exp-bullets li::before {
+    content: "";
+    position: absolute;
+    left: 0.0625rem;
+    top: 0.55em;
+    width: 0.3125rem;
+    height: 0.3125rem;
+    border-radius: 1px;
+    transform: rotate(45deg);
+    background: linear-gradient(135deg, #62e0ff, #6d45ce);
   }
 
   .exp-controls {
@@ -1039,6 +1055,12 @@ section {
       @apply h-full w-full rounded-full origin-left;
       background: linear-gradient(90deg, #62e0ff, #52aeff, #fd5c79, #6d45ce);
       transform: scaleX(0);
+    }
+
+    .exp-count {
+      @apply flex-none font-mono tabular-nums text-white-50/80;
+      font-size: 11px;
+      letter-spacing: 0.1em;
     }
   }
 
