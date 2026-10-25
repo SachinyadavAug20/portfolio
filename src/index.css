@@ -2210,53 +2210,15 @@ h4 {
   animation: term-blink 1.1s step-end infinite;
 }
 
-/* /links cards: a soft spotlight follows the pointer inside each row —
-   coordinates come from trackGlow() in Links.tsx */
-.link-row::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    170px circle at var(--mx, 50%) var(--my, 50%),
-    rgb(56 189 248 / 0.14),
-    transparent 65%
-  );
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  pointer-events: none;
+/* /links page: crisp, professional pro Linktree styles with solid surfaces */
+.pro-link-card {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
-
-.link-row:hover::before,
-.link-row:focus-visible::before {
-  opacity: 1;
+.pro-link-card:hover {
+  transform: translateY(-2px);
 }
-
-/* /links avatar: a comet of sky-blue circling the monogram.
-   The ring is a masked 2px border; global reduced-motion parks it. */
-.links-avatar-ring {
-  background: conic-gradient(
-    from 180deg,
-    transparent 0 62%,
-    rgb(56 189 248 / 0.95) 80%,
-    transparent 100%
-  );
-  padding: 2px;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  animation: links-ring-spin 5.5s linear infinite;
-}
-
-@keyframes links-ring-spin {
-  to {
-    transform: rotate(360deg);
-  }
+.pro-link-card:active {
+  transform: scale(0.985);
 }
 
 @media (prefers-reduced-motion: reduce) {
