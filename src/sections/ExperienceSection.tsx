@@ -46,7 +46,7 @@ const ExperienceSection = () => {
   }, []);
 
   const goToX = useCallback(
-    (x: number, instant = false) => {
+    (x: number, instant = false, duration = 0.65) => {
       const track = trackRef.current;
       const { travel, positions } = metrics();
       if (!track) return;
@@ -65,7 +65,12 @@ const ExperienceSection = () => {
         gsap.killTweensOf(track);
         gsap.set(track, { x: -clamped });
       } else {
-        gsap.to(track, { x: -clamped, duration: 0.65, ease: "power3.out", overwrite: true });
+        gsap.to(track, {
+          x: -clamped,
+          duration,
+          ease: "power2.out",
+          overwrite: true,
+        });
       }
     },
     [metrics, reduced, setFill, setCan],
@@ -120,12 +125,58 @@ const ExperienceSection = () => {
         });
       }
 
+      /* wheel-to-horizontal scrolling: desktop trackpad or mouse wheel
+         translates to horizontal carousel scrub. At the boundaries,
+         the event bubbles freely so natural vertical page scroll resumes. */
+      let snapTimeout: number | undefined;
+      const onWheel = (e: WheelEvent) => {
+        if (window.innerWidth < 768) return;
+        const { travel } = metrics();
+        if (travel <= 0) return;
+
+        // Support horizontal trackpad swipe, shift+wheel, and vertical wheel
+        const delta =
+          Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+        if (!delta) return;
+
+        const current = xRef.current;
+        const atStart = current <= 2 && delta < 0;
+        const atEnd = current >= travel - 2 && delta > 0;
+
+        // Allow natural vertical page scroll when at start or end
+        if (atStart || atEnd) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const multiplier =
+          e.deltaMode === 1 ? 30 : e.deltaMode === 2 ? 100 : 1;
+        const nextX = Math.min(
+          Math.max(current + delta * multiplier, 0),
+          travel,
+        );
+
+        goToX(nextX, false, 0.25);
+
+        window.clearTimeout(snapTimeout);
+        snapTimeout = window.setTimeout(() => {
+          const { positions } = metrics();
+          const cur = xRef.current;
+          let target = positions[0] ?? 0;
+          for (const p of positions) {
+            if (Math.abs(p - cur) < Math.abs(target - cur)) target = p;
+          }
+          goToX(target, false, 0.45);
+        }, 160);
+      };
+
       /* drag to scrub the carousel; release snaps to the nearest card */
       let dragging = false;
       let startX = 0;
       let startOffset = 0;
       const onDown = (e: PointerEvent) => {
         if (e.pointerType === "mouse" && e.button !== 0) return;
+        window.clearTimeout(snapTimeout);
         dragging = true;
         startX = e.clientX;
         startOffset = xRef.current;
@@ -157,12 +208,15 @@ const ExperienceSection = () => {
       };
       const onResize = () => goToX(xRef.current, true);
 
+      scroller.addEventListener("wheel", onWheel, { passive: false });
       scroller.addEventListener("pointerdown", onDown);
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
       window.addEventListener("pointercancel", onUp);
       window.addEventListener("resize", onResize);
       return () => {
+        scroller.removeEventListener("wheel", onWheel);
+        window.clearTimeout(snapTimeout);
         scroller.removeEventListener("pointerdown", onDown);
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointerup", onUp);

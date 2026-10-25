@@ -937,6 +937,7 @@ section {
        tall cards; clip lets the rail translate while cards stay whole */
     .exp-scroller {
       overflow-x: clip;
+      overscroll-behavior-x: none;
       touch-action: pan-y;
       cursor: grab;
     }
