@@ -57,7 +57,9 @@ const Contact = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [wide, setWide] = useState(false);
+  const [wide, setWide] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 1280px)").matches,
+  );
   const reduced = useReducedMotion();
   const submitMagneticRef = useMagnetic<HTMLButtonElement>();
 

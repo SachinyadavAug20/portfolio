@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 import { useGLTF } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
-import { useRef, type JSX } from "react";
+import { useMemo, useRef, type JSX } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
@@ -35,17 +35,23 @@ export function Computer({
   const innerRef = useRef<THREE.Group>(null!);
   const reduced = useReducedMotion();
 
-  const deskMaterial = materials["ComputerDesk.001"].clone();
-  deskMaterial.roughness = 0.35;
-  deskMaterial.metalness = 0.05;
-  deskMaterial.envMapIntensity = 0.8;
+  const { deskMaterial, floppyMaterial, ogColor } = useMemo(() => {
+    const dMat = materials["ComputerDesk.001"].clone();
+    dMat.roughness = 0.35;
+    dMat.metalness = 0.05;
+    dMat.envMapIntensity = 0.8;
 
-  const floppyMaterial = materials["FloppyDisk.001"].clone();
-  floppyMaterial.roughness = 0.25;
-  floppyMaterial.metalness = 0.6;
-  floppyMaterial.envMapIntensity = 1.5;
+    const fMat = materials["FloppyDisk.001"].clone();
+    fMat.roughness = 0.25;
+    fMat.metalness = 0.6;
+    fMat.envMapIntensity = 1.5;
 
-  const ogColor = new THREE.Color(floppyMaterial.color);
+    return {
+      deskMaterial: dMat,
+      floppyMaterial: fMat,
+      ogColor: new THREE.Color(fMat.color),
+    };
+  }, [materials]);
 
   useGSAP(() => {
     if (!submitted || reduced) return;

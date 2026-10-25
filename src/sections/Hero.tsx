@@ -105,11 +105,20 @@ const Hero = () => {
               Hi, I'm Sachin, a developer based in India with a passion for
               code.
             </p>
-            <Button
-              text="See my work"
-              className="md:w-80 md:h-16 w-60 h-12"
-              id="counter"
-            />
+            <div className="flex flex-wrap items-center gap-4 z-10">
+              <Button
+                text="See my work"
+                className="md:w-72 md:h-16 w-60 h-12"
+                id="counter"
+              />
+              <Button
+                text="See my resume"
+                href="https://docs.google.com/document/d/1RFTuBerLRMMHeu0Ac4GvaXu7lUuRUDXo/edit?usp=sharing&ouid=104382201638634718035&rtpof=true&sd=true"
+                arrowImg="/images/arrow-right.svg"
+                arrowAlt="resume link"
+                className="md:w-72 md:h-16 w-60 h-12"
+              />
+            </div>
           </div>
         </header>
         <figure className="w-full xl:w-auto px-5 xl:px-0">

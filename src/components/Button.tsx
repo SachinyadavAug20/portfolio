@@ -3,32 +3,68 @@ import { useMagnetic } from "../hooks/useMagnetic";
 
 interface Props {
   text: string;
-  className: string;
+  className?: string;
   id?: string; // scroll to key
+  href?: string;
+  target?: string;
+  rel?: string;
+  arrowImg?: string;
+  arrowAlt?: string;
 }
-const Button = ({ text, className, id = "" }: Props) => {
-  const magneticRef = useMagnetic<HTMLButtonElement>();
+
+const Button = ({
+  text,
+  className = "",
+  id = "",
+  href,
+  target,
+  rel,
+  arrowImg = "/images/arrow-down.svg",
+  arrowAlt = "arrow",
+}: Props) => {
+  const buttonMagneticRef = useMagnetic<HTMLButtonElement>();
+  const anchorMagneticRef = useMagnetic<HTMLAnchorElement>();
+
+  const content = (
+    <div className="cta-button group">
+      <div className="bg-circle" />
+      <p className="text">{text}</p>
+      <div className="arrow-wrapper">
+        <img src={arrowImg} alt={arrowAlt} />
+      </div>
+    </div>
+  );
+
+  if (href) {
+    return (
+      <a
+        ref={anchorMagneticRef}
+        href={href}
+        target={target ?? "_blank"}
+        rel={rel ?? "noreferrer"}
+        className={`cta-wrapper ${className}`}
+      >
+        {content}
+      </a>
+    );
+  }
+
   return (
     <button
-      ref={magneticRef}
+      ref={buttonMagneticRef}
       type="button"
-      className={`cta-wrapper ${className ?? ""}`}
+      className={`cta-wrapper ${className}`}
       onClick={() => {
-        const target = document.getElementById(id);
-        if (target && id) {
+        const targetEl = document.getElementById(id);
+        if (targetEl && id) {
           const offset = 72;
-          const top = target.getBoundingClientRect().top + window.scrollY - offset;
+          const top =
+            targetEl.getBoundingClientRect().top + window.scrollY - offset;
           scrollToY(top);
         }
       }}
     >
-      <div className="cta-button group">
-        <div className="bg-circle" />
-        <p className="text">{text}</p>
-        <div className="arrow-wrapper">
-          <img src="/images/arrow-down.svg" alt="arrow" />
-        </div>
-      </div>
+      {content}
     </button>
   );
 };

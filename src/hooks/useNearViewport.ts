@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function isTouchDevice(): boolean {
   if (typeof window === "undefined") return false;
@@ -15,15 +15,22 @@ export function isTouchDevice(): boolean {
 export function useNearViewport<T extends HTMLElement = HTMLDivElement>(
   rootMargin = "400px",
 ) {
-  const ref = useRef<T>(null);
+  const [node, setNode] = useState<T | null>(null);
+  const innerRef = useRef<T | null>(null);
   const [near, setNear] = useState(
     () => typeof IntersectionObserver === "undefined",
   );
   const [visible, setVisible] = useState(true);
 
+  const ref = useCallback((el: T | null) => {
+    innerRef.current = el;
+    (ref as unknown as { current: T | null }).current = el;
+    setNode(el);
+  }, []) as React.RefCallback<T> & { current: T | null };
+  ref.current = innerRef.current;
+
   useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
+    if (!node || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -33,9 +40,9 @@ export function useNearViewport<T extends HTMLElement = HTMLDivElement>(
       },
       { rootMargin },
     );
-    io.observe(el);
+    io.observe(node);
     return () => io.disconnect();
-  }, [rootMargin]);
+  }, [node, rootMargin]);
 
   return { ref, near, visible, setNear };
 }

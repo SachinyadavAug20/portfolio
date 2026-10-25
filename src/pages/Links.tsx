@@ -6,6 +6,7 @@ import {
   Boxes,
   Briefcase,
   ChefHat,
+  FileText,
   Gamepad2,
   GitBranch,
   Home,
@@ -304,8 +305,8 @@ const Links = () => {
           </Link>
         </motion.nav>
 
-        {/* featured call-to-action — the one link that outranks the rest */}
-        <motion.div {...rise(3)} className="mt-6">
+        {/* featured call-to-action — direct actions */}
+        <motion.div {...rise(3)} className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Link
             to="/#contact"
             className="group flex items-center gap-3.5 rounded-2xl border border-green-500/25 bg-gradient-to-br from-green-500/[0.09] via-transparent to-transparent p-4 transition-all hover:border-green-500/50 hover:shadow-[0_0_30px_-8px_rgba(74,222,128,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -314,13 +315,30 @@ const Links = () => {
               <Briefcase className="size-5 text-green-600 dark:text-green-400" aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block font-semibold text-foreground">Work with me</span>
+              <span className="block font-semibold text-foreground text-sm sm:text-base">Work with me</span>
             </span>
             <ArrowUpRight
               className="size-4 shrink-0 text-green-600 dark:text-green-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
               aria-hidden="true"
             />
           </Link>
+          <a
+            href="https://docs.google.com/document/d/1RFTuBerLRMMHeu0Ac4GvaXu7lUuRUDXo/edit?usp=sharing&ouid=104382201638634718035&rtpof=true&sd=true"
+            target="_blank"
+            rel="noreferrer"
+            className="group flex items-center gap-3.5 rounded-2xl border border-blue-500/25 bg-gradient-to-br from-blue-500/[0.09] via-transparent to-transparent p-4 transition-all hover:border-blue-500/50 hover:shadow-[0_0_30px_-8px_rgba(59,130,246,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            <span className="size-11 shrink-0 rounded-xl border border-blue-500/25 bg-blue-500/15 flex-center">
+              <FileText className="size-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold text-foreground text-sm sm:text-base">See my resume</span>
+            </span>
+            <ArrowUpRight
+              className="size-4 shrink-0 text-blue-600 dark:text-blue-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              aria-hidden="true"
+            />
+          </a>
         </motion.div>
 
         <ul aria-label="Primary links" className="mt-6 space-y-3">
