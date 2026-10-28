@@ -14,6 +14,7 @@ import {
   Globe,
   Mail,
   PenLine,
+  PenTool,
   Share2,
   Swords,
   Terminal,
@@ -131,6 +132,14 @@ const ECOSYSTEM: LinkItem[] = [
     accentBorderHover: "hover:border-zinc-400",
   },
   {
+    id: "figma",
+    label: "Figma",
+    sub: "@sachinyadavaug · UI/UX designs & prototypes",
+    href: "https://www.figma.com/@sachinyadavaug",
+    icon: PenTool,
+    accentBorderHover: "hover:border-purple-400",
+  },
+  {
     id: "itch",
     label: "itch.io",
     sub: "sachinapr20.itch.io · Indie games & web prototypes",
@@ -185,7 +194,7 @@ const DAILY_FACT = FACTS[new Date().getDate() % FACTS.length];
 const ProCard = ({
   item,
   index,
-  variant = "row",
+  variant: _variant = "row",
 }: {
   item: LinkItem;
   index: number;
