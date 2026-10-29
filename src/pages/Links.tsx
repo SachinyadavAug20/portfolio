@@ -107,15 +107,7 @@ const CODING_PROFILES: LinkItem[] = [
   },
 ];
 
-const ECOSYSTEM: LinkItem[] = [
-  {
-    id: "github",
-    label: "GitHub",
-    sub: "SachinyadavAug20 · Open source repositories & code",
-    href: "https://github.com/SachinyadavAug20",
-    img: { dark: "/images/github.png", light: "/images/github-light.png" },
-    accentBorderHover: "hover:border-zinc-400",
-  },
+const SOCIAL_PROFILES: LinkItem[] = [
   {
     id: "linkedin",
     label: "LinkedIn",
@@ -133,14 +125,6 @@ const ECOSYSTEM: LinkItem[] = [
     accentBorderHover: "hover:border-zinc-400",
   },
   {
-    id: "figma",
-    label: "Figma",
-    sub: "@sachinyadavaug · UI/UX designs & prototypes",
-    href: "https://www.figma.com/@sachinyadavaug",
-    icon: PenTool,
-    accentBorderHover: "hover:border-purple-400",
-  },
-  {
     id: "discord",
     label: "Discord",
     sub: "@samtagon · Chat, projects & community",
@@ -149,12 +133,23 @@ const ECOSYSTEM: LinkItem[] = [
     accentBorderHover: "hover:border-indigo-400",
   },
   {
-    id: "itch",
-    label: "itch.io",
-    sub: "sachinapr20.itch.io · Indie games & web prototypes",
-    href: "https://sachinapr20.itch.io/",
-    icon: Gamepad2,
-    accentBorderHover: "hover:border-rose-400",
+    id: "figma",
+    label: "Figma",
+    sub: "@sachinyadavaug · UI/UX designs & prototypes",
+    href: "https://www.figma.com/@sachinyadavaug",
+    icon: PenTool,
+    accentBorderHover: "hover:border-purple-400",
+  },
+];
+
+const CODE_REPOS: LinkItem[] = [
+  {
+    id: "github",
+    label: "GitHub",
+    sub: "SachinyadavAug20 · Open source repositories & code",
+    href: "https://github.com/SachinyadavAug20",
+    img: { dark: "/images/github.png", light: "/images/github-light.png" },
+    accentBorderHover: "hover:border-zinc-400",
   },
   {
     id: "gitlab",
@@ -171,6 +166,14 @@ const ECOSYSTEM: LinkItem[] = [
     href: "https://codeberg.org/SachinyadavAug20",
     icon: Boxes,
     accentBorderHover: "hover:border-sky-400",
+  },
+  {
+    id: "itch",
+    label: "itch.io",
+    sub: "sachinapr20.itch.io · Indie games & web prototypes",
+    href: "https://sachinapr20.itch.io/",
+    icon: Gamepad2,
+    accentBorderHover: "hover:border-rose-400",
   },
 ];
 
@@ -554,25 +557,42 @@ const Links = () => {
             </ul>
           </div>
 
-          {/* Ecosystem & Repositories */}
+          {/* Social & Community (Bento 2x2 Grid) */}
           <div className="mt-7">
             <motion.p
               {...rise(11)}
               className="mb-2.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white-50/50"
             >
               <span className="h-px w-3 bg-black-50" />
-              Ecosystem & Repositories
+              Social &amp; Community
               <span className="h-px flex-1 bg-black-50" />
             </motion.p>
-            <ul aria-label="Ecosystem" className="space-y-2.5">
-              {ECOSYSTEM.map((item, i) => (
-                <ProCard key={item.id} item={item} index={i + 12} />
+            <ul aria-label="Social profiles" className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {SOCIAL_PROFILES.map((item, i) => (
+                <ProCard key={item.id} item={item} index={i + 12} variant="grid" />
+              ))}
+            </ul>
+          </div>
+
+          {/* Code & Repositories (Bento 2x2 Grid) */}
+          <div className="mt-7">
+            <motion.p
+              {...rise(16)}
+              className="mb-2.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white-50/50"
+            >
+              <span className="h-px w-3 bg-black-50" />
+              Code &amp; Repositories
+              <span className="h-px flex-1 bg-black-50" />
+            </motion.p>
+            <ul aria-label="Code repositories" className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {CODE_REPOS.map((item, i) => (
+                <ProCard key={item.id} item={item} index={i + 17} variant="grid" />
               ))}
             </ul>
           </div>
 
           {/* Interactive Share / Controls */}
-          <motion.div {...rise(18)} className="mt-9 flex flex-col items-center gap-2.5">
+          <motion.div {...rise(21)} className="mt-9 flex flex-col items-center gap-2.5">
             <button
               type="button"
               onClick={share}
@@ -590,7 +610,7 @@ const Links = () => {
           </motion.div>
 
           {/* Footer with Daily Vault Thought */}
-          <motion.footer {...rise(19)} className="mt-8 text-center pb-8">
+          <motion.footer {...rise(22)} className="mt-8 text-center pb-8">
             <p className="font-mono text-xs text-white-50/60 leading-relaxed">
               <span aria-hidden="true" className="text-blue-400">
                 ✦{" "}

@@ -85,19 +85,19 @@ const RootLayout = () => {
     /* Honor prefers reduced-motion for every motion/react interaction
         (whileTap springs below) without affecting view transitions. */
     <MotionConfig reducedMotion="user">
-      {/* Global crisp micro-grid background matching Links style */}
+      {/* Global ambient wave-grid — soft undulating rows, static, minimal */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden z-[-1]">
         <svg
-          className="absolute inset-0 size-full stroke-black/[0.05] dark:stroke-white/[0.05]"
+          className="absolute inset-0 size-full stroke-black/[0.06] dark:stroke-white/[0.07]"
           width="100%"
           height="100%"
         >
           <defs>
-            <pattern id="global-micro-grid" width="28" height="28" patternUnits="userSpaceOnUse">
-              <path d="M.5 28V.5H28" fill="none" />
+            <pattern id="global-wave-grid" width="120" height="56" patternUnits="userSpaceOnUse">
+              <path d="M0 28 Q30 14 60 28 T120 28" fill="none" />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#global-micro-grid)" />
+          <rect width="100%" height="100%" fill="url(#global-wave-grid)" />
         </svg>
       </div>
       {!quiet && <Navbar />}
