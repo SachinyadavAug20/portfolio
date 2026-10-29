@@ -13,6 +13,7 @@ import {
   GitBranch,
   Globe,
   Mail,
+  MessageCircle,
   PenLine,
   PenTool,
   Share2,
@@ -138,6 +139,14 @@ const ECOSYSTEM: LinkItem[] = [
     href: "https://www.figma.com/@sachinyadavaug",
     icon: PenTool,
     accentBorderHover: "hover:border-purple-400",
+  },
+  {
+    id: "discord",
+    label: "Discord",
+    sub: "@samtagon · Chat, projects & community",
+    href: "https://discord.com/users/1388334913601671219",
+    icon: MessageCircle,
+    accentBorderHover: "hover:border-indigo-400",
   },
   {
     id: "itch",
@@ -350,22 +359,6 @@ const Links = () => {
       />
 
       <main className="relative min-h-[100svh] flex-center px-4 sm:px-6 py-12 sm:py-16 selection:bg-blue-500/30">
-        {/* Zero blur, zero gradient crisp micro-grid */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-          <svg
-            className="absolute inset-0 size-full stroke-white/[0.04] dark:stroke-white/[0.04]"
-            width="100%"
-            height="100%"
-          >
-            <defs>
-              <pattern id="pro-links-grid" width="28" height="28" patternUnits="userSpaceOnUse">
-                <path d="M.5 28V.5H28" fill="none" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#pro-links-grid)" />
-          </svg>
-        </div>
-
         {/* Pro status badge - fixed top right */}
         <motion.div {...rise(0)} className="fixed top-4 right-4 sm:top-6 sm:right-6 z-20">
           <Link
