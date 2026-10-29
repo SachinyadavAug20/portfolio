@@ -7,6 +7,7 @@ import CursorGlow from "../components/CursorGlow";
 import CommandPalette from "../components/CommandPalette";
 import DevShortcuts from "../components/DevShortcuts";
 import Footer from "../sections/Footer";
+import WaveHexGrid from "../components/WaveHexGrid";
 import { isTouchDevice } from "../hooks/useNearViewport";
 import { useIdleReady } from "../hooks/useIdleReady";
 import { useIsMobile } from "../hooks/useIsMobile";
@@ -85,21 +86,9 @@ const RootLayout = () => {
     /* Honor prefers reduced-motion for every motion/react interaction
         (whileTap springs below) without affecting view transitions. */
     <MotionConfig reducedMotion="user">
-      {/* Global ambient wave-grid — soft undulating rows, static, minimal */}
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden z-[-1]">
-        <svg
-          className="absolute inset-0 size-full stroke-black/[0.06] dark:stroke-white/[0.07]"
-          width="100%"
-          height="100%"
-        >
-          <defs>
-            <pattern id="global-wave-grid" width="120" height="56" patternUnits="userSpaceOnUse">
-              <path d="M0 28 Q30 14 60 28 T120 28" fill="none" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#global-wave-grid)" />
-        </svg>
-      </div>
+      {/* Global ambient honeycomb — hex lattice warped by random smooth wave
+          fields, regenerated every load; static, thin, minimal */}
+      <WaveHexGrid />
       {!quiet && <Navbar />}
       <CursorGlow />
       {catReady && !quiet && !catHidden && (
