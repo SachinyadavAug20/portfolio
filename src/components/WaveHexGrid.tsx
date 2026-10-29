@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 type Vec = { x: number; y: number };
 
@@ -9,10 +10,21 @@ type Vec = { x: number; y: number };
    so no overlay can ever hide it. Fields are randomised every generation,
    so each page (and resize) gets a unique pattern. */
 const WaveHexGrid = () => {
+  const location = useLocation();
   const [dims, setDims] = useState({ w: 0, h: 0 });
   const [dark, setDark] = useState(
     () => document.documentElement.classList.contains("dark"),
   );
+
+  /* the lattice only whispers — landing (and its section mirrors) and blog
+     reading pages get a plain flat background so content does all the
+     talking; everywhere else it stays but at a whisper you must look for */
+  const show = useMemo(() => {
+    const p = location.pathname.replace(/\/+$/, "");
+    if (p === "" || p === "/work" || p === "/experience" || p === "/skills" || p === "/contact") return false;
+    if (p.startsWith("/blog/post")) return false;
+    return true;
+  }, [location.pathname]);
 
   /* full document height, remeasured on resize and on any content change
      (route swaps change it). Debounced — the page hosts a DOM-mutating cat
@@ -58,6 +70,7 @@ const WaveHexGrid = () => {
   }, []);
 
   const backgroundImage = useMemo(() => {
+    if (!show) return "";
     const { w, h } = dims;
     if (!w || !h) return "";
     const r = 44; // hex circumradius
@@ -119,11 +132,11 @@ const WaveHexGrid = () => {
       }
     }
 
-    /* dark ink needs lighter strokes for the same perceived confidence */
-    const stroke = dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)";
+    /* a whisper on purpose: visible only if you go looking for it */
+    const stroke = dark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)";
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${H}"><path d="${d}" fill="none" stroke="${stroke}" stroke-width="1"/></svg>`;
     return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
-  }, [dims, dark]);
+  }, [dims, dark, show]);
 
   useEffect(() => {
     if (!backgroundImage) return;
