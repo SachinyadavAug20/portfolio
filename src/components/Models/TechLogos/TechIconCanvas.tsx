@@ -24,17 +24,18 @@ const TechIconCanvas = ({
     [isTouch],
   );
   useEffect(() => {
-    if (model.name == "Interactive Developer") {
+    if (model.name === "Interactive 3D Developer") {
       scene.scene.traverse((child) => {
         if (child instanceof THREE.Mesh && child.name === "Object_5") {
           child.material = new THREE.MeshStandardMaterial({ color: "white" });
         }
       });
     }
-  });
+  }, [model.name, scene.scene]);
+
   return (
     <Canvas
-      dpr={isTouch ? [1, 1.25] : [1, 2]}
+      dpr={[1, 1.25]}
       gl={glProps}
       frameloop={reduced ? "demand" : active ? "always" : "never"}
     >

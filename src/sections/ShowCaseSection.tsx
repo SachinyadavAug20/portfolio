@@ -20,28 +20,29 @@ const ShowCaseSection = () => {
       const mobile = window.matchMedia("(max-width: 767px)").matches;
       const dur = mobile ? 0.3 : 0.4;
 
-      const projectEls = document.querySelectorAll(".showcase-card");
-      projectEls.forEach((el, i) => {
-        gsap.fromTo(
-          el,
-          {
-            y: mobile ? 28 : 50,
-            opacity: 0,
+      const projectEls = sectionRef.current?.querySelectorAll<HTMLElement>(".showcase-card");
+      if (!projectEls || projectEls.length === 0) return;
+
+      gsap.fromTo(
+        projectEls,
+        {
+          y: mobile ? 24 : 40,
+          opacity: 0,
+        },
+        {
+          y: 0,
+          opacity: 1,
+          duration: dur,
+          stagger: 0.07,
+          ease: "power2.out",
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 82%",
+            once: true,
           },
-          {
-            y: 0,
-            opacity: 1,
-            duration: dur,
-            delay: Math.min(0.08 * (i + 1), 0.3),
-            ease: "power2.out",
-            clearProps: "transform,opacity",
-            scrollTrigger: {
-              trigger: el,
-              start: "top bottom-=80",
-            },
-          },
-        );
-      });
+        },
+      );
     },
     { scope: sectionRef, dependencies: [reduced], revertOnUpdate: true },
   );

@@ -19,10 +19,19 @@ export function initSmoothScroll() {
     mql.addEventListener("change", onPrefChange);
     return;
   }
-  lenis = new Lenis({ duration: 1.1 });
+  lenis = new Lenis({
+    duration: 1.0,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    orientation: "vertical",
+    gestureOrientation: "vertical",
+    smoothWheel: true,
+    touchMultiplier: 1.5,
+    wheelMultiplier: 0.95,
+  });
   lenis.on("scroll", ScrollTrigger.update);
   gsap.ticker.add(raf);
-  gsap.ticker.lagSmoothing(0);
+  // Absorb transient frame spikes smoothly rather than dropping frames
+  gsap.ticker.lagSmoothing(500, 33);
 }
 
 function raf(time: number) {

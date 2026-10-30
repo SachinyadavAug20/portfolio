@@ -107,17 +107,47 @@ export const ProjectCard = ({ project, isTop = false }: ProjectCardProps) => {
     ro.observe(card);
     resize();
 
+    let isHovered = false;
+    let idleCountdown = 0;
+    let isDrawing = false;
+
+    const startDraw = () => {
+      if (isDrawing) return;
+      isDrawing = true;
+      animId = requestAnimationFrame(draw);
+    };
+
+    const stopDraw = () => {
+      isDrawing = false;
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = 0;
+      }
+      ctx.clearRect(0, 0, width, height);
+    };
+
+    const onPointerEnter = () => {
+      isHovered = true;
+      idleCountdown = 45;
+      startDraw();
+    };
+
     const onPointerMove = (e: PointerEvent) => {
       const rect = card.getBoundingClientRect();
       mouseX = e.clientX - rect.left;
       mouseY = e.clientY - rect.top;
+      isHovered = true;
+      idleCountdown = 45;
+      startDraw();
     };
 
     const onPointerLeave = () => {
+      isHovered = false;
       mouseX = -1000;
       mouseY = -1000;
     };
 
+    card.addEventListener("pointerenter", onPointerEnter, { passive: true });
     card.addEventListener("pointermove", onPointerMove, { passive: true });
     card.addEventListener("pointerleave", onPointerLeave, { passive: true });
 
@@ -157,24 +187,30 @@ export const ProjectCard = ({ project, isTop = false }: ProjectCardProps) => {
         ctx.fill();
       }
 
+      if (!isHovered) {
+        idleCountdown--;
+        if (idleCountdown <= 0) {
+          stopDraw();
+          return;
+        }
+      }
+
       animId = requestAnimationFrame(draw);
     };
 
     const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        if (!animId) animId = requestAnimationFrame(draw);
-      } else {
-        cancelAnimationFrame(animId);
-        animId = 0;
+      if (!entry.isIntersecting) {
+        stopDraw();
       }
     });
 
     io.observe(card);
 
     return () => {
-      cancelAnimationFrame(animId);
+      stopDraw();
       ro.disconnect();
       io.disconnect();
+      card.removeEventListener("pointerenter", onPointerEnter);
       card.removeEventListener("pointermove", onPointerMove);
       card.removeEventListener("pointerleave", onPointerLeave);
     };

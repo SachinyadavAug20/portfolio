@@ -28,6 +28,7 @@ const TechStack = ({ isImage = false }: { isImage?: boolean }) => {
         scrollTrigger: {
           trigger: "#skills",
           start: "top center",
+          once: true,
         },
       },
     );

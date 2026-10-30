@@ -26,17 +26,22 @@ const WaveHexGrid = () => {
     return true;
   }, [location.pathname]);
 
-  /* full document height, remeasured on resize and on any content change
-     (route swaps change it). Debounced — the page hosts a DOM-mutating cat
-     and a doc that can be 10k+ px tall, so regeneration stays rare. */
+  /* Measure document dimensions only when the grid is actually active.
+     ResizeObserver on documentElement + window resize handles all real size changes
+     without listening to every single DOM mutation in the body subtree. */
   useEffect(() => {
+    if (!show) {
+      setDims({ w: 0, h: 0 });
+      return;
+    }
+
     let timer = 0;
     let lastW = 0;
     let lastH = 0;
     const measure = () => {
       timer = 0;
       const w = document.documentElement.clientWidth;
-      const h = document.documentElement.scrollHeight;
+      const h = Math.min(document.documentElement.scrollHeight, 12000);
       if (w === lastW && h === lastH) return;
       lastW = w;
       lastH = h;
@@ -44,21 +49,17 @@ const WaveHexGrid = () => {
     };
     const schedule = () => {
       if (timer) return;
-      timer = window.setTimeout(measure, 250);
+      timer = window.setTimeout(measure, 300);
     };
-    const ro = new ResizeObserver(schedule);
-    ro.observe(document.body);
-    window.addEventListener("resize", schedule);
-    const mo = new MutationObserver(schedule);
-    mo.observe(document.body, { childList: true, subtree: true });
+
+    window.addEventListener("resize", schedule, { passive: true });
     schedule();
+
     return () => {
       if (timer) window.clearTimeout(timer);
-      ro.disconnect();
       window.removeEventListener("resize", schedule);
-      mo.disconnect();
     };
-  }, []);
+  }, [show]);
 
   /* follow dark-mode toggles so the stroke contrast flips with the theme */
   useEffect(() => {

@@ -4226,12 +4226,41 @@ const CatCompanion = () => {
     const neko = nekoRef.current;
     if (!neko) return;
     let raf = 0;
+    let bw = bubbleRef.current?.offsetWidth || 0;
+    let bh = bubbleRef.current?.offsetHeight || 0;
+    let sw = suggestAnchorRef.current?.offsetWidth || 0;
+    let sh = suggestAnchorRef.current?.offsetHeight || 0;
+    let lastX = -9999;
+    let lastY = -9999;
+    let sizeCounter = 0;
+
     const place = () => {
       const { x, y } = neko.position;
       const b = bubbleRef.current;
-      if (b && phrase) {
-        const bw = b.offsetWidth;
-        const bh = b.offsetHeight;
+      const s = suggestAnchorRef.current;
+
+      // Re-measure dimensions only when first mounting or every 30 ticks (~500ms) while typing
+      sizeCounter++;
+      if (sizeCounter % 30 === 0 || (phrase && bw === 0) || (suggest && sw === 0)) {
+        if (b && phrase) {
+          bw = b.offsetWidth;
+          bh = b.offsetHeight;
+        }
+        if (s && suggest) {
+          sw = s.offsetWidth;
+          sh = s.offsetHeight;
+        }
+      }
+
+      // Skip DOM mutation when cat hasn't moved
+      if (Math.abs(x - lastX) < 0.5 && Math.abs(y - lastY) < 0.5) {
+        raf = requestAnimationFrame(place);
+        return;
+      }
+      lastX = x;
+      lastY = y;
+
+      if (b && phrase && bw > 0) {
         const cx = Math.min(
           Math.max(x, bw / 2 + 8),
           window.innerWidth - bw / 2 - 8,
@@ -4245,10 +4274,7 @@ const CatCompanion = () => {
         if (b.style.getPropertyValue("--bubble-arrow-x") !== tailPx)
           b.style.setProperty("--bubble-arrow-x", tailPx);
       }
-      const s = suggestAnchorRef.current;
-      if (s && suggest) {
-        const sw = s.offsetWidth;
-        const sh = s.offsetHeight;
+      if (s && suggest && sw > 0) {
         const cx = Math.min(
           Math.max(x, sw / 2 + 8),
           window.innerWidth - sw / 2 - 8,
