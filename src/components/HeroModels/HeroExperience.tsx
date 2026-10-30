@@ -77,6 +77,7 @@ const HeroExperience = ({ active = true }: { active?: boolean }) => {
 
   return (
     <Canvas
+      className="size-full pointer-events-auto"
       camera={cameraProps}
       dpr={isTouch ? [1, 1.5] : [1, 2]}
       gl={glProps}

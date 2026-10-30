@@ -31,21 +31,19 @@ export const cd = (ms: number) =>
  */
 export const CAT_NAME = "Luna";
 
-export const GREETING = (name: string) =>
-  `${name} reporting for duty. (pspsps to call, alt+c to shoo me)`;
+export const GREETING = (_name: string) =>
+  "strolling through the codebase. zero warnings so far.";
 
-export const WEEKEND_GREETING = (name: string) => [
-  `${name} on duty — even on weekends. (that's the flex.)`,
-  `weekend~ ${name} still opens this tab. dedication.`,
-  `saturday rule: no deploys, only cuddles. ${name} approves.`,
-  `it's the weekend. recruiters relax. ${name} doesn't.`,
-  `weekend energy, ${name} edition. browse slowly, hire fast.`,
-  `sun's out, paws out. hi — it's ${name}.`,
+export const WEEKEND_GREETING = (_name: string) => [
+  "weekend mode~ browsing code with zero deadlines.",
+  "saturday rule: clean commits, warm tea.",
+  "inspecting the stack. good architectural choices.",
+  "browse around. everything compiles cleanly.",
 ];
-export const RETURNING = (name: string) => [
-  `${name} missed you.`,
-  `${name} is back.`,
-  `pspsps… oh— hi. it's ${name}.`,
+export const RETURNING = (_name: string) => [
+  "back again. still compiling cleanly.",
+  "welcome back.",
+  "pspsps... checking the routes.",
 ];
 
 export const PET_LINES = [

@@ -1,21 +1,17 @@
 import type { LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
+  ArrowLeft,
   ArrowUpRight,
-  BadgeCheck,
-  Boxes,
   Briefcase,
   Check,
   ChefHat,
   Copy,
   FileText,
-  Gamepad2,
-  GitBranch,
   Globe,
   Mail,
   MessageCircle,
   PenLine,
-  PenTool,
   Share2,
   Swords,
   Terminal,
@@ -38,26 +34,34 @@ interface LinkItem {
   icon?: LucideIcon;
   img?: { dark: string; light: string };
   badge?: string;
-  accentBorderHover?: string;
-  accentBgIcon?: string;
-  accentTextIcon?: string;
 }
 
 const RESUME_URL =
   "https://docs.google.com/document/d/1RFTuBerLRMMHeu0Ac4GvaXu7lUuRUDXo/edit?usp=sharing";
 
-const CORE_PLATFORMS: LinkItem[] = [
+const FEATURED_PLATFORMS: LinkItem[] = [
+  {
+    id: "ccltce",
+    label: "CCLTCE — Coding Club Platform",
+    sub: "3D Minecraft-themed community hub with 1100vh scroll & chat",
+    href: "https://ccltce.vercel.app/",
+    icon: Globe,
+    badge: "Top Project",
+  },
+  {
+    id: "samtagon",
+    label: "Samtagon Game Studio",
+    sub: "3D low-poly island world with Pinecone AI vector search",
+    href: "https://samtagon.vercel.app/",
+    icon: Globe,
+  },
   {
     id: "portfolio",
-    label: "Portfolio Site",
-    sub: "Interactive 3D web experience, selected projects & stack",
+    label: "Main 3D Portfolio",
+    sub: "Full-stack portfolio featuring Three.js & system architecture",
     href: "/",
     internal: true,
-    icon: Globe,
-    badge: "Main site",
-    accentBorderHover: "hover:border-blue-500/70",
-    accentBgIcon: "bg-blue-500/15",
-    accentTextIcon: "text-blue-400",
+    icon: Terminal,
   },
   {
     id: "blog",
@@ -67,9 +71,6 @@ const CORE_PLATFORMS: LinkItem[] = [
     internal: true,
     icon: PenLine,
     badge: "Obsidian",
-    accentBorderHover: "hover:border-purple-500/70",
-    accentBgIcon: "bg-purple-500/15",
-    accentTextIcon: "text-purple-400",
   },
 ];
 
@@ -77,111 +78,80 @@ const CODING_PROFILES: LinkItem[] = [
   {
     id: "leetcode",
     label: "LeetCode",
-    sub: "b2mIkNz0h5",
+    sub: "b2mIkNz0h5 · 165+ Streak",
     href: "https://leetcode.com/u/b2mIkNz0h5/",
     img: { dark: "/images/leetcode.png", light: "/images/leetcode-light.png" },
-    accentBorderHover: "hover:border-amber-500/70",
   },
   {
     id: "codeforces",
     label: "Codeforces",
-    sub: "sachinapr20",
+    sub: "sachinapr20 · CP Problem Solving",
     href: "https://codeforces.com/profile/sachinapr20",
     icon: Swords,
-    accentBorderHover: "hover:border-rose-500/70",
   },
   {
     id: "codechef",
     label: "CodeChef",
-    sub: "sachinaug_20",
+    sub: "sachinaug_20 · Competitive Contests",
     href: "https://www.codechef.com/users/sachinaug_20",
     icon: ChefHat,
-    accentBorderHover: "hover:border-orange-500/70",
   },
   {
     id: "hackerrank",
     label: "HackerRank",
-    sub: "samtagon777",
+    sub: "samtagon777 · Algorithms & Data",
     href: "https://www.hackerrank.com/profile/samtagon777",
     icon: Terminal,
-    accentBorderHover: "hover:border-emerald-500/70",
   },
 ];
 
 const SOCIAL_PROFILES: LinkItem[] = [
   {
+    id: "github",
+    label: "GitHub",
+    sub: "SachinyadavAug20 · Open source repositories",
+    href: "https://github.com/SachinyadavAug20",
+    img: { dark: "/images/github.png", light: "/images/github-light.png" },
+  },
+  {
     id: "linkedin",
     label: "LinkedIn",
-    sub: "sachin-yadav-05a105374 · Experience & professional network",
+    sub: "sachin-yadav-05a105374 · Experience & network",
     href: "https://www.linkedin.com/in/sachin-yadav-05a105374/",
     img: { dark: "/images/linkedin.png", light: "/images/linkedin-light.png" },
-    accentBorderHover: "hover:border-blue-400",
   },
   {
     id: "x",
     label: "X (Twitter)",
-    sub: "@samtagon38824 · Thoughts, updates & tech insights",
+    sub: "@samtagon38824 · Thoughts & build updates",
     href: "https://x.com/samtagon38824",
     img: { dark: "/images/x.png", light: "/images/x-light.png" },
-    accentBorderHover: "hover:border-zinc-400",
   },
   {
     id: "discord",
     label: "Discord",
-    sub: "@samtagon · Chat, projects & community",
+    sub: "@samtagon · Direct chat & collaboration",
     href: "https://discord.com/users/1388334913601671219",
     icon: MessageCircle,
-    accentBorderHover: "hover:border-indigo-400",
-  },
-  {
-    id: "figma",
-    label: "Figma",
-    sub: "@sachinyadavaug · UI/UX designs & prototypes",
-    href: "https://www.figma.com/@sachinyadavaug",
-    icon: PenTool,
-    accentBorderHover: "hover:border-purple-400",
-  },
-];
-
-const CODE_REPOS: LinkItem[] = [
-  {
-    id: "github",
-    label: "GitHub",
-    sub: "SachinyadavAug20 · Open source repositories & code",
-    href: "https://github.com/SachinyadavAug20",
-    img: { dark: "/images/github.png", light: "/images/github-light.png" },
-    accentBorderHover: "hover:border-zinc-400",
-  },
-  {
-    id: "gitlab",
-    label: "GitLab",
-    sub: "SachinyadavAug20 · Project mirrors & code",
-    href: "https://gitlab.com/SachinyadavAug20",
-    icon: GitBranch,
-    accentBorderHover: "hover:border-orange-400",
-  },
-  {
-    id: "codeberg",
-    label: "Codeberg",
-    sub: "SachinyadavAug20 · FOSS git hosting & mirrors",
-    href: "https://codeberg.org/SachinyadavAug20",
-    icon: Boxes,
-    accentBorderHover: "hover:border-sky-400",
-  },
-  {
-    id: "itch",
-    label: "itch.io",
-    sub: "sachinapr20.itch.io · Indie games & web prototypes",
-    href: "https://sachinapr20.itch.io/",
-    icon: Gamepad2,
-    accentBorderHover: "hover:border-rose-400",
   },
 ];
 
 const SOCIALS: { label: string; href: string; img: LinkItem["img"] }[] = [
-  { label: "GitHub", href: "https://github.com/SachinyadavAug20", img: { dark: "/images/github.png", light: "/images/github-light.png" } },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/sachin-yadav-05a105374/", img: { dark: "/images/linkedin.png", light: "/images/linkedin-light.png" } },
-  { label: "X", href: "https://x.com/samtagon38824", img: { dark: "/images/x.png", light: "/images/x-light.png" } },
+  {
+    label: "GitHub",
+    href: "https://github.com/SachinyadavAug20",
+    img: { dark: "/images/github.png", light: "/images/github-light.png" },
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/sachin-yadav-05a105374/",
+    img: { dark: "/images/linkedin.png", light: "/images/linkedin-light.png" },
+  },
+  {
+    label: "X",
+    href: "https://x.com/samtagon38824",
+    img: { dark: "/images/x.png", light: "/images/x-light.png" },
+  },
 ];
 
 const GITHUB_AVATAR = "https://github.com/SachinyadavAug20.png?size=160";
@@ -190,95 +160,84 @@ const riseWith = (reduced: boolean) => (i: number) =>
   reduced
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.15 } }
     : {
-        initial: { opacity: 0, y: 14 },
+        initial: { opacity: 0, y: 12 },
         animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.35, delay: 0.05 + i * 0.04, ease: "easeOut" as const },
+        transition: { duration: 0.3, delay: 0.04 + i * 0.03, ease: "easeOut" as const },
       };
 
-const FACTS = [
-  "Built from an Obsidian vault — view source, it is markdown all the way down.",
-  "The graph page maps every note I have ever hoarded. Go get lost.",
-  "psst — press ? anywhere for the shortcut sheet.",
-  "Luna the cat naps between your clicks. Pet her.",
-  "Press t and the lights flip. I dare you.",
-];
-const DAILY_FACT = FACTS[new Date().getDate() % FACTS.length];
-
-const ProCard = ({
+const LinkRow = ({
   item,
   index,
-  variant: _variant = "row",
+  grid = false,
 }: {
   item: LinkItem;
   index: number;
-  variant?: "row" | "grid";
+  grid?: boolean;
 }) => {
   const Icon = item.icon;
   const reduced = useReducedMotion();
   const rise = riseWith(reduced);
 
-  const containerClasses = [
-    "group relative flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border border-black-50 bg-black-100",
-    "transition-all duration-200 ease-out",
-    "hover:-translate-y-1 hover:bg-black-200",
-    item.accentBorderHover || "hover:border-zinc-500",
-    "active:scale-[0.985] active:translate-y-0",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-  ].join(" ");
+  const containerClasses = `group relative flex items-center gap-3 p-3 sm:p-3.5 rounded-xl border border-zinc-200/90 dark:border-zinc-800/80 bg-white/90 dark:bg-zinc-950/70 hover:bg-zinc-50 dark:hover:bg-zinc-900/80 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 active:scale-[0.985] shadow-sm hover:shadow-md ${
+    grid ? "w-full" : "w-full"
+  }`;
 
   const inner = (
     <>
-      <span
-        className={`size-11 rounded-xl flex-center shrink-0 border border-black-50 transition-all duration-200 group-hover:scale-105 group-hover:-rotate-3 ${
-          item.accentBgIcon || "bg-black-200"
-        }`}
-      >
+      <span className="size-9 rounded-lg flex items-center justify-center shrink-0 border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900/90 text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white group-hover:scale-105 transition-all">
         {item.img ? (
           <>
-            <img src={item.img.dark} alt="" className="hidden dark:block size-5" loading="lazy" decoding="async" />
-            <img src={item.img.light} alt="" className="dark:hidden size-5" loading="lazy" decoding="async" />
+            <img
+              src={item.img.dark}
+              alt=""
+              className="hidden dark:block size-4"
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              src={item.img.light}
+              alt=""
+              className="dark:hidden size-4"
+              loading="lazy"
+              decoding="async"
+            />
           </>
         ) : (
-          Icon && (
-            <Icon
-              className={`size-5 transition-colors ${
-                item.accentTextIcon || "text-foreground"
-              }`}
-              aria-hidden="true"
-            />
-          )
+          Icon && <Icon className="size-4" aria-hidden="true" />
         )}
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-2">
-          <span className="block font-semibold text-foreground text-sm sm:text-base tracking-tight">
+        <span className="flex items-center gap-1.5">
+          <span className="block font-medium text-zinc-900 dark:text-zinc-200 group-hover:text-black dark:group-hover:text-white text-xs sm:text-sm tracking-tight truncate transition-colors">
             {item.label}
           </span>
           {item.badge && (
-            <span className="hidden sm:inline-flex items-center rounded-md border border-black-50 bg-black-200 px-1.5 py-0.5 text-[10px] font-mono font-medium text-white-50/70">
+            <span className="hidden sm:inline-flex items-center rounded px-1.5 py-0.2 font-mono text-[9px] uppercase tracking-wider font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
               {item.badge}
             </span>
           )}
         </span>
-        <span className="block text-xs text-white-50/60 truncate mt-0.5">{item.sub}</span>
+        <span className="block text-[11px] text-zinc-500 dark:text-zinc-400 truncate mt-0.5">
+          {item.sub}
+        </span>
       </span>
 
       <ArrowUpRight
-        className="size-4 shrink-0 text-white-50/40 transition-all duration-200 group-hover:text-foreground group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+        className="size-3.5 shrink-0 text-zinc-400 dark:text-zinc-500 transition-all duration-200 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
         aria-hidden="true"
       />
     </>
   );
 
   return (
-    <motion.li {...rise(index)}>
+    <motion.li {...rise(index)} className="list-none">
       {item.internal ? (
         <Link
           to={item.href}
           className={containerClasses}
           data-linkrow
-          onClick={() => tap(10)}
+          onClick={() => tap(8)}
         >
           {inner}
         </Link>
@@ -289,7 +248,7 @@ const ProCard = ({
           rel="noreferrer"
           className={containerClasses}
           data-linkrow
-          onClick={() => tap(10)}
+          onClick={() => tap(8)}
         >
           {inner}
         </a>
@@ -303,7 +262,6 @@ const Links = () => {
   const rise = riseWith(reduced);
   const [avatarOk, setAvatarOk] = useState(true);
   const [copiedHandle, setCopiedHandle] = useState(false);
-  const [shareNote, setShareNote] = useState("");
 
   /* Keyboard arrow navigation */
   useEffect(() => {
@@ -311,7 +269,9 @@ const Links = () => {
       if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
       const el = document.activeElement;
       if (!(el instanceof HTMLAnchorElement)) return;
-      const rows = [...document.querySelectorAll<HTMLAnchorElement>("[data-linkrow]")];
+      const rows = [
+        ...document.querySelectorAll<HTMLAnchorElement>("[data-linkrow]"),
+      ];
       const i = rows.indexOf(el);
       if (i === -1) return;
       e.preventDefault();
@@ -322,7 +282,7 @@ const Links = () => {
   }, []);
 
   const copyHandle = async () => {
-    tap(15);
+    tap(12);
     try {
       await navigator.clipboard.writeText("@samtagon38824");
       setCopiedHandle(true);
@@ -334,13 +294,11 @@ const Links = () => {
   };
 
   const share = async () => {
-    tap(15);
+    tap(12);
     const url = window.location.href;
     try {
       await navigator.clipboard.writeText(url);
-      setShareNote("Profile link copied!");
-      notify("success", "Page link copied to clipboard");
-      setTimeout(() => setShareNote(""), 2200);
+      notify("success", "Link copied to clipboard");
     } catch {
       /* clipboard blocked */
     }
@@ -357,274 +315,216 @@ const Links = () => {
     <>
       <SEOHead
         title="Links"
-        description="Everywhere to find me — portfolio, blog, resume, GitHub, LinkedIn, X, LeetCode, Codeforces and more."
+        description="Everywhere to find Sachin Yadav — projects, resume, GitHub, LinkedIn, X, LeetCode, Codeforces and more."
         path="/links"
         jsonLd={buildLinksSchema()}
       />
 
-      <main className="relative min-h-[100svh] flex-center px-4 sm:px-6 py-12 sm:py-16 selection:bg-blue-500/30">
-        {/* Modern Interactive HTML5 Canvas Layer with Mode Switcher & Physics */}
+      <main className="relative min-h-[100svh] bg-background text-foreground flex flex-col items-center px-4 sm:px-6 py-10 sm:py-14 selection:bg-cyan-500/20">
+        {/* Subtle Ambient Particle Constellation Canvas */}
         <InteractiveLinksCanvas />
 
-        {/* Pro status badge - fixed top right */}
-        <motion.div {...rise(0)} className="fixed top-4 right-4 sm:top-6 sm:right-6 z-20">
+        {/* Navigation Bar: Back & Status */}
+        <div className="w-full max-w-xl flex items-center justify-between relative z-20 mb-6">
           <Link
-            to="/#contact"
-            onClick={() => tap(10)}
-            className="group inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-black-100 px-3 py-1.5 font-mono text-xs text-white-50/90 transition-all duration-200 hover:border-emerald-500 hover:bg-black-200 hover:-translate-y-0.5 active:scale-95 shadow-md"
-            title="Available for freelance & full-time roles"
+            to="/"
+            onClick={() => tap(8)}
+            className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 px-3 py-1 text-xs font-mono text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-sm"
           >
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-              <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
-            </span>
-            <span className="font-medium text-emerald-400">Available for work</span>
-            <ArrowUpRight className="size-3 text-emerald-400/60 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ArrowLeft className="size-3" />
+            <span>Portfolio</span>
           </Link>
-        </motion.div>
 
-        <div className="w-full max-w-lg relative z-10">
-          {/* Pro Header Profile */}
-          <motion.header {...rise(1)} className="text-center">
-            {/* Avatar with status dot */}
-            <div className="relative mx-auto size-24 sm:size-28">
-              <div className="size-24 sm:size-28 rounded-3xl overflow-hidden border-2 border-black-50 bg-black-100 hover:border-zinc-500 transition-colors duration-200 select-none shadow-xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-mono text-emerald-600 dark:text-emerald-400">
+            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Available for work</span>
+          </div>
+        </div>
+
+        <div className="w-full max-w-xl relative z-10 space-y-6">
+          {/* Profile Header */}
+          <motion.header {...rise(1)} className="text-center space-y-3">
+            {/* Avatar */}
+            <div className="relative mx-auto size-24">
+              <div className="size-24 rounded-full overflow-hidden border-2 border-zinc-300 dark:border-zinc-700/80 bg-zinc-100 dark:bg-zinc-900 shadow-xl mx-auto p-0.5">
                 {avatarOk ? (
                   <img
                     src={GITHUB_AVATAR}
                     alt="Sachin Yadav"
-                    width={112}
-                    height={112}
-                    className="size-full object-cover transition-transform duration-300 hover:scale-105"
+                    width={96}
+                    height={96}
+                    className="size-full rounded-full object-cover"
                     decoding="async"
                     onError={() => setAvatarOk(false)}
                   />
                 ) : (
-                  <span className="text-foreground text-3xl font-bold flex-center size-full">SY</span>
+                  <span className="text-zinc-700 dark:text-zinc-200 text-2xl font-bold flex items-center justify-center size-full">
+                    SY
+                  </span>
                 )}
               </div>
               <span
-                title="Online & Available"
-                className="absolute -bottom-1 -right-1 size-5 rounded-full border-2 border-background bg-emerald-500 flex-center shadow"
-              >
-                <span className="size-2 rounded-full bg-white animate-pulse" />
-              </span>
+                title="Active"
+                className="absolute bottom-1 right-1 size-4 rounded-full border-2 border-background bg-emerald-500 flex items-center justify-center shadow"
+              />
             </div>
 
-            {/* Name + Verified Badge */}
-            <div className="mt-4 flex items-center justify-center gap-1.5">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            {/* Name */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
                 Sachin Yadav
               </h1>
-              <span title="Verified Pro Profile" className="inline-flex items-center" aria-label="Verified Profile">
-                <BadgeCheck className="size-5 text-sky-400 transition-transform duration-200 hover:scale-125" />
-              </span>
+              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+                Computer Engineering undergraduate (2nd Year) · Full-Stack & 3D Web
+              </p>
             </div>
 
-            {/* Interactive Handle Button */}
-            <div className="mt-1.5 flex items-center justify-center gap-2">
+            {/* Handle & Quick Share */}
+            <div className="flex items-center justify-center gap-2">
               <button
                 type="button"
                 onClick={copyHandle}
-                className="group/handle inline-flex items-center gap-1.5 rounded-full border border-black-50 bg-black-100 hover:border-zinc-500 hover:bg-black-200 px-3 py-1 text-xs font-mono text-white-50/80 transition-all duration-200 active:scale-95"
-                title="Click to copy handle"
+                className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 hover:border-zinc-300 dark:hover:border-zinc-700 px-3 py-1 text-xs font-mono text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors"
+                title="Copy handle"
               >
                 <span>@samtagon38824</span>
                 {copiedHandle ? (
-                  <Check className="size-3 text-emerald-400" />
+                  <Check className="size-3 text-emerald-600 dark:text-emerald-400" />
                 ) : (
-                  <Copy className="size-3 text-white-50/40 group-hover/handle:text-white-50 transition-colors" />
+                  <Copy className="size-3 text-zinc-400 dark:text-zinc-500" />
                 )}
+              </button>
+
+              <button
+                type="button"
+                onClick={share}
+                className="inline-flex items-center gap-1 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 hover:border-zinc-300 dark:hover:border-zinc-700 p-1.5 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors"
+                title="Share link"
+              >
+                <Share2 className="size-3" />
               </button>
             </div>
 
-            {/* Sharp, alive Bio matching new resume */}
-            <p className="mt-2 text-sm text-white-50/75 max-w-md mx-auto leading-relaxed">
-              Computer Engineering undergraduate (2nd Year) & full-stack engineer. Building 3D web, backend APIs (Spring Boot, Next.js), AI/RAG systems & low-level CLI tools.
-            </p>
-
-            {/* Quick 1-Tap Social Row */}
-            <nav aria-label="Quick socials" className="mt-4 flex items-center justify-center gap-2.5">
+            {/* Quick 1-Tap Social Icons */}
+            <nav
+              aria-label="Social links"
+              className="flex items-center justify-center gap-2 pt-1"
+            >
               {SOCIALS.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
                   target="_blank"
                   rel="noreferrer"
-                  aria-label={s.label}
-                  onClick={() => tap(8)}
-                  className="group size-10 rounded-xl border border-black-50 bg-black-100 flex-center transition-all duration-200 hover:border-zinc-500 hover:bg-black-200 hover:-translate-y-0.5 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+                  onClick={() => tap(6)}
+                  className="size-8 rounded-lg border border-zinc-200 dark:border-zinc-800/80 bg-zinc-100/80 dark:bg-zinc-900/60 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 flex items-center justify-center transition-colors"
                   title={s.label}
                 >
                   {s.img && (
                     <>
-                      <img src={s.img.dark} alt="" className="hidden dark:block size-[18px] transition-transform duration-200 group-hover:scale-110" loading="lazy" decoding="async" />
-                      <img src={s.img.light} alt="" className="dark:hidden size-[18px] transition-transform duration-200 group-hover:scale-110" loading="lazy" decoding="async" />
+                      <img
+                        src={s.img.dark}
+                        alt=""
+                        className="hidden dark:block size-3.5"
+                      />
+                      <img
+                        src={s.img.light}
+                        alt=""
+                        className="dark:hidden size-3.5"
+                      />
                     </>
                   )}
                 </a>
               ))}
               <Link
                 to="/#contact"
-                aria-label="Contact"
-                onClick={() => tap(8)}
-                className="group size-10 rounded-xl border border-black-50 bg-black-100 flex-center transition-all duration-200 hover:border-emerald-500/60 hover:bg-black-200 hover:-translate-y-0.5 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
-                title="Send Message"
+                onClick={() => tap(6)}
+                className="size-8 rounded-lg border border-zinc-200 dark:border-zinc-800/80 bg-zinc-100/80 dark:bg-zinc-900/60 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                title="Contact via email"
               >
-                <Mail className="size-[18px] text-foreground transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <Mail className="size-3.5" />
               </Link>
             </nav>
           </motion.header>
 
-          {/* Featured Hero Actions (Bento 2-Col Grid) */}
-          <motion.div {...rise(2)} className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Link
-              to="/#contact"
-              data-linkrow
-              onClick={() => tap(12)}
-              className="group relative flex items-center gap-3.5 p-4 rounded-2xl border border-emerald-500/35 bg-black-100 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-400 hover:bg-black-200 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
-            >
-              <span className="size-11 shrink-0 rounded-xl border border-emerald-500/30 bg-emerald-500/15 flex-center transition-transform duration-200 group-hover:scale-105 group-hover:-rotate-3">
-                <Briefcase className="size-5 text-emerald-400" aria-hidden="true" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block font-semibold text-foreground text-sm sm:text-base tracking-tight">
-                  Work with me
-                </span>
-                <span className="block text-xs text-white-50/60 mt-0.5">
-                  Contracts & full-time
-                </span>
-              </span>
-              <ArrowUpRight
-                className="size-4 shrink-0 text-emerald-400/70 transition-all duration-200 group-hover:text-emerald-400 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                aria-hidden="true"
-              />
-            </Link>
-
+          {/* Primary Action Buttons */}
+          <motion.div
+            {...rise(2)}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1"
+          >
             <a
               href={RESUME_URL}
               target="_blank"
               rel="noreferrer"
-              data-linkrow
-              onClick={() => tap(12)}
-              className="group relative flex items-center gap-3.5 p-4 rounded-2xl border border-sky-500/35 bg-black-100 transition-all duration-200 hover:-translate-y-1 hover:border-sky-400 hover:bg-black-200 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50"
+              onClick={() => tap(10)}
+              className="group flex items-center justify-center gap-2 rounded-xl bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 px-4 py-3 text-xs sm:text-sm font-semibold shadow-md transition-all active:scale-[0.99]"
             >
-              <span className="size-11 shrink-0 rounded-xl border border-sky-500/30 bg-sky-500/15 flex-center transition-transform duration-200 group-hover:scale-105 group-hover:-rotate-3">
-                <FileText className="size-5 text-sky-400" aria-hidden="true" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block font-semibold text-foreground text-sm sm:text-base tracking-tight">
-                  See my resume
-                </span>
-                <span className="block text-xs text-white-50/60 mt-0.5">
-                  CV, skills & track record
-                </span>
-              </span>
-              <ArrowUpRight
-                className="size-4 shrink-0 text-sky-400/70 transition-all duration-200 group-hover:text-sky-400 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                aria-hidden="true"
-              />
+              <FileText className="size-4" />
+              <span>See My Resume</span>
+              <ArrowUpRight className="size-3.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </a>
+
+            <Link
+              to="/#contact"
+              onClick={() => tap(10)}
+              className="group flex items-center justify-center gap-2 rounded-xl border border-zinc-300 dark:border-zinc-700/80 bg-white dark:bg-zinc-900/80 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-200 px-4 py-3 text-xs sm:text-sm font-semibold shadow-md transition-all active:scale-[0.99]"
+            >
+              <Briefcase className="size-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Work With Me</span>
+              <ArrowUpRight className="size-3.5 text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </Link>
           </motion.div>
 
-          {/* Core Platforms (Bento 2-Col) */}
-          <div className="mt-6">
-            <motion.p
-              {...rise(3)}
-              className="mb-2.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white-50/50"
-            >
-              <span className="h-px w-3 bg-black-50" />
-              Core Platforms
-              <span className="h-px flex-1 bg-black-50" />
-            </motion.p>
-            <ul aria-label="Core platforms" className="space-y-2.5">
-              {CORE_PLATFORMS.map((item, i) => (
-                <ProCard key={item.id} item={item} index={i + 4} />
+          {/* Featured Platforms */}
+          <div className="space-y-2 pt-2">
+            <h2 className="text-[11px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-medium px-1">
+              Selected Platforms & Systems
+            </h2>
+            <ul className="space-y-2">
+              {FEATURED_PLATFORMS.map((item, i) => (
+                <LinkRow key={item.id} item={item} index={i + 3} />
               ))}
             </ul>
           </div>
 
-          {/* Coding & Competitive Profiles (Bento 2x2 Grid) */}
-          <div className="mt-7">
-            <motion.p
-              {...rise(6)}
-              className="mb-2.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white-50/50"
-            >
-              <span className="h-px w-3 bg-black-50" />
-              Coding & Competitive Profiles
-              <span className="h-px flex-1 bg-black-50" />
-            </motion.p>
-            <ul aria-label="Coding profiles" className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {/* Coding & Competitive Programming */}
+          <div className="space-y-2 pt-2">
+            <h2 className="text-[11px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-medium px-1">
+              Competitive Programming
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {CODING_PROFILES.map((item, i) => (
-                <ProCard key={item.id} item={item} index={i + 7} variant="grid" />
+                <LinkRow
+                  key={item.id}
+                  item={item}
+                  index={i + 7}
+                  grid={true}
+                />
               ))}
-            </ul>
+            </div>
           </div>
 
-          {/* Social & Community (Bento 2x2 Grid) */}
-          <div className="mt-7">
-            <motion.p
-              {...rise(11)}
-              className="mb-2.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white-50/50"
-            >
-              <span className="h-px w-3 bg-black-50" />
-              Social &amp; Community
-              <span className="h-px flex-1 bg-black-50" />
-            </motion.p>
-            <ul aria-label="Social profiles" className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {/* Socials & Code Repositories */}
+          <div className="space-y-2 pt-2">
+            <h2 className="text-[11px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-medium px-1">
+              Socials & Open Source
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {SOCIAL_PROFILES.map((item, i) => (
-                <ProCard key={item.id} item={item} index={i + 12} variant="grid" />
+                <LinkRow
+                  key={item.id}
+                  item={item}
+                  index={i + 11}
+                  grid={true}
+                />
               ))}
-            </ul>
+            </div>
           </div>
 
-          {/* Code & Repositories (Bento 2x2 Grid) */}
-          <div className="mt-7">
-            <motion.p
-              {...rise(16)}
-              className="mb-2.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white-50/50"
-            >
-              <span className="h-px w-3 bg-black-50" />
-              Code &amp; Repositories
-              <span className="h-px flex-1 bg-black-50" />
-            </motion.p>
-            <ul aria-label="Code repositories" className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {CODE_REPOS.map((item, i) => (
-                <ProCard key={item.id} item={item} index={i + 17} variant="grid" />
-              ))}
-            </ul>
-          </div>
-
-          {/* Interactive Share / Controls */}
-          <motion.div {...rise(21)} className="mt-9 flex flex-col items-center gap-2.5">
-            <button
-              type="button"
-              onClick={share}
-              className="group inline-flex items-center gap-2 rounded-full border border-black-50 bg-black-100 hover:border-zinc-500 hover:bg-black-200 px-4 py-2 font-mono text-xs text-white-50/90 transition-all duration-200 active:scale-95 shadow-sm"
-            >
-              <Share2 className="size-3.5 text-white-50/60 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
-              <span>Share this page</span>
-            </button>
-            <p aria-live="polite" className="h-4 font-mono text-xs text-emerald-400 empty:hidden">
-              {shareNote}
-            </p>
-            <p className="hidden sm:block font-mono text-[10px] text-white-50/40">
-              tip: use ↑ ↓ arrow keys to walk the cards
-            </p>
-          </motion.div>
-
-          {/* Footer with Daily Vault Thought */}
-          <motion.footer {...rise(22)} className="mt-8 text-center pb-8">
-            <p className="font-mono text-xs text-white-50/60 leading-relaxed">
-              <span aria-hidden="true" className="text-blue-400">
-                ✦{" "}
-              </span>
-              {DAILY_FACT}
-            </p>
-            <p className="mt-4 font-mono text-[11px] text-white-50/50">
-              © {new Date().getFullYear()} Sachin Yadav · Crafted with precision
-            </p>
-          </motion.footer>
+          {/* Clean Footer */}
+          <footer className="text-center pt-6 pb-2 text-xs font-mono text-zinc-400 dark:text-zinc-500">
+            <p>Sachin Yadav · 2026</p>
+          </footer>
         </div>
       </main>
     </>
@@ -632,4 +532,3 @@ const Links = () => {
 };
 
 export default Links;
-

@@ -51,10 +51,18 @@ html, body {
   scroll-behavior: smooth;
   scroll-padding-top: 4.5rem;
   font-family: "Geist Variable", sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: -0.011em;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 section {
@@ -262,8 +270,13 @@ section {
     @apply bg-black-200 py-2 px-4 rounded-full w-fit text-sm md:text-base text-center;
   }
 
+  .hero-sub {
+    @apply text-sm sm:text-[15px] md:text-base font-light text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-xl;
+    letter-spacing: -0.005em;
+  }
+
   .hero-3d-layout {
-    @apply relative w-full h-[42vh] min-h-[280px] xl:absolute xl:-top-20 xl:-right-20 xl:w-[70%] xl:h-full xl:min-h-[50vh];
+    @apply relative w-full h-[42vh] min-h-[280px] xl:absolute xl:top-0 xl:right-0 xl:w-[50%] xl:h-full xl:min-h-[50vh] pointer-events-none;
   }
 
   .navbar {
@@ -2814,7 +2827,8 @@ h4 {
    3D scenes, plus an arrow badge on external links. Luna's little friend
    in every state; fields keep the native caret */
 html.cat-cursor-on * {
-  cursor: none !important;
+  /* Keep native cursor instant and natural; never hijack or hide pointer */
+  cursor: auto;
 }
 html.cat-cursor-on :is(input, textarea, [contenteditable="true"]) {
   cursor: auto !important;
@@ -2825,111 +2839,7 @@ html.cat-cursor-on :is(input, textarea, [contenteditable="true"]) {
   initial-value: 1;
 }
 .cat-cursor {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 300;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-  image-rendering: pixelated;
-  opacity: 0;
-  --face: 1;
-  transition:
-    opacity 0.15s ease,
-    --press 0.09s ease;
-  filter: drop-shadow(1px 2px 0 rgb(0 0 0 / 0.35));
-}
-.cat-cursor.is-on {
-  opacity: 1;
-}
-.cat-cursor.is-field {
-  opacity: 0;
-}
-.cat-cursor.is-press {
-  --press: 0.82;
-}
-.cat-cursor.facing-left {
-  --face: -1;
-}
-.cat-cursor .cur {
-  position: absolute;
-  left: 0;
-  top: 0;
-  display: none;
-  transform: scaleX(var(--face)) scale(var(--press));
-}
-.cat-cursor[data-cursor="mouse"] .cur-mouse,
-.cat-cursor[data-cursor="paw"] .cur-paw,
-.cat-cursor[data-cursor="ext"] .cur-paw,
-.cat-cursor[data-cursor="three"] .cur-three {
-  display: block;
-}
-.cat-cursor .cur svg {
-  display: block;
-}
-.cat-cursor .cur-mouse {
-  transform-origin: 43px 13px;
-}
-.cat-cursor .cur-paw {
-  /* the paw never flips — symmetric, and the badge must stay upright */
-  --face: 1;
-  transform-origin: 15px 18px;
-}
-.cat-cursor .cur-three {
-  transform-origin: 28px 11px;
-}
-.cat-cursor .cur-badge {
-  position: absolute;
-  left: 22px;
-  top: 2px;
-  display: none;
-}
-.cat-cursor[data-cursor="ext"] .cur-badge {
-  display: block;
-}
-.cat-cursor.is-on svg g.tail {
-  transform-box: fill-box;
-  transform-origin: 100% 50%;
-  animation: catTailWag 0.42s ease-in-out infinite alternate;
-}
-.cat-cursor.is-on .cur-mouse svg,
-.cat-cursor.is-on .cur-paw svg,
-.cat-cursor.is-on .cur-three svg {
-  animation: catCurIdle 0.76s steps(2, jump-none) infinite;
-}
-.cat-cursor.is-on.is-moving .cur-mouse svg,
-.cat-cursor.is-on.is-moving .cur-paw svg,
-.cat-cursor.is-on.is-moving .cur-three svg {
-  animation: catCurScurry 0.13s steps(2, jump-none) infinite;
-}
-@keyframes catTailWag {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(16deg);
-  }
-}
-@keyframes catCurIdle {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-1px);
-  }
-}
-@keyframes catCurScurry {
-  0% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-2px) rotate(2deg);
-  }
-  100% {
-    transform: translateY(0) rotate(-2deg);
-  }
+  display: none !important;
 }
 
 /* prey mouse: bolts across the floor while the cat gives chase */
@@ -3089,9 +2999,19 @@ html.cat-cursor-on :is(input, textarea, [contenteditable="true"]) {
   }
 }
 
-/* hide act: sinks into the whitespace, pops back when the class lifts */
+/* data-neko sprite: directly hoverable and clickable desktop pet */
 [data-neko="0"] {
-  transition: opacity 0.45s ease;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  transition: opacity 0.45s ease, filter 0.25s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  user-select: none;
+}
+[data-neko="0"]:hover {
+  filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.85)) drop-shadow(0 0 4px rgba(56, 189, 248, 0.6)) !important;
+  transform: scale(1.14) !important;
+}
+[data-neko="0"]:active {
+  transform: scale(0.94) !important;
 }
 [data-neko="0"].cat-peek {
   opacity: 0.5;

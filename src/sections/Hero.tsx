@@ -12,6 +12,8 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+import { HeroModelPlaceholder } from "../components/HeroModels/HeroModelPlaceholder";
+
 gsap.registerPlugin(ScrollTrigger);
 
 const HeroExperience = lazy(
@@ -21,9 +23,8 @@ const HeroExperience = lazy(
 const Hero = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
-  /* the 3D scene waits for a post-paint idle slot — entry JS + the hero
-     text paint first, three.js (~340KB gz) loads right after */
-  const sceneReady = useIdleReady(1500);
+  /* Three.js mounts right after first paint without an artificial long freeze */
+  const sceneReady = useIdleReady(100);
   const { ref: figureRef, visible: figureVisible } =
     useNearViewport<HTMLDivElement>("100px");
 
@@ -87,7 +88,7 @@ const Hero = () => {
         </picture>
       </div>
       <div className="hero-layout">
-        <header className="flex flex-col justify-center md:w-full w-full md:px-20 px-5">
+        <header className="flex flex-col justify-center md:w-full w-full xl:max-w-[54%] md:px-20 px-5">
           <div className="flex flex-col gap-7">
             <div className="hero-text">
               <h1>
@@ -101,8 +102,8 @@ const Hero = () => {
                 <FlickeringText>that Perform at scale</FlickeringText>
               </h2>
             </div>
-            <p className="hero-sub text-white-50 md:text-xl relative z-10 xl:pointer-events-none">
-              Hi, I'm Sachin, a 2nd Year Computer Engineering undergraduate building high-performance systems, backend APIs, and interactive 3D web experiences.
+            <p className="hero-sub text-sm sm:text-[15px] md:text-base font-light text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl relative z-10 tracking-normal xl:pointer-events-none">
+              Hi, I'm <span className="font-medium text-zinc-900 dark:text-zinc-100">Sachin</span>, a 2nd Year Computer Engineering undergraduate building high-performance systems, backend APIs, and interactive 3D web experiences.
             </p>
             <div className="flex flex-wrap items-center gap-4 z-10">
               <Button
@@ -126,15 +127,11 @@ const Hero = () => {
             className="hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 block"
           >
             {sceneReady ? (
-              <Suspense
-                fallback={
-                  <div className="skeleton absolute inset-0 rounded-4xl bg-black-200" />
-                }
-              >
+              <Suspense fallback={<HeroModelPlaceholder />}>
                 <HeroExperience active={figureVisible} />
               </Suspense>
             ) : (
-              <div className="skeleton absolute inset-0 rounded-4xl bg-black-200" />
+              <HeroModelPlaceholder />
             )}
           </div>
         </figure>

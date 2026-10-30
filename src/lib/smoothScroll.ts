@@ -35,6 +35,14 @@ export function destroySmoothScroll() {
   lenis = null;
 }
 
+export function stopSmoothScroll() {
+  lenis?.stop();
+}
+
+export function startSmoothScroll() {
+  lenis?.start();
+}
+
 /** Re-measure the page. Call after a route swap: Lenis caches its scroll
  *  limit, so navigating from a short page (e.g. /links) to a tall one
  *  would otherwise clamp scrollTo targets to the old limit. */
