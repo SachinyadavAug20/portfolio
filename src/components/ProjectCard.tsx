@@ -236,6 +236,8 @@ export const ProjectCard = ({ project, isTop = false }: ProjectCardProps) => {
             key={currentImage.src}
             src={currentImage.src}
             alt={currentImage.caption || project.title}
+            width={640}
+            height={400}
             className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
             decoding="async"

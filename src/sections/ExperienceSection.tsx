@@ -269,6 +269,8 @@ const ExperienceSection = () => {
                   <img
                     src={exp.logoPath}
                     alt="logo"
+                    width={40}
+                    height={40}
                     loading="lazy"
                     decoding="async"
                   />
@@ -278,11 +280,13 @@ const ExperienceSection = () => {
                 <div className="exp-card-row">
                   <div className="exp-card-illu">
                     <img
-                      src={exp.imgPath}
-                      alt={exp.title}
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    src={exp.imgPath}
+                    alt={exp.title}
+                    width={96}
+                    height={96}
+                    loading="lazy"
+                    decoding="async"
+                  />
                   </div>
                   <div className="min-w-0 flex-1">
                     <h2 className="font-semibold text-lg xl:text-xl leading-snug tracking-tight">
