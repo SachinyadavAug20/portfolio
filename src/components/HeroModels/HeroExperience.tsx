@@ -77,8 +77,9 @@ const HeroExperience = ({ active = true }: { active?: boolean }) => {
 
   return (
     <Canvas
+      className="size-full pointer-events-auto"
       camera={cameraProps}
-      dpr={isTouch ? [1, 1.5] : [1, 2]}
+      dpr={[1, 1.5]}
       gl={glProps}
       frameloop={reduced ? "demand" : active ? "always" : "never"}
     >
@@ -97,7 +98,7 @@ const HeroExperience = ({ active = true }: { active?: boolean }) => {
         <Lightformer intensity={1.1} position={[6, 3, 1]} rotation-y={-Math.PI / 2} scale={[8, 4, 1]} color="#7aa2ff" />
         <Lightformer intensity={0.6} position={[0, -4, 0]} rotation-x={Math.PI / 2} scale={[10, 10, 1]} color="#2a3350" />
       </Environment>
-      {!isMobile && <Partical count={40} spread={3} />}
+      {!isMobile && <Partical count={24} spread={3} />}
 
       <Grid
         position={[0, -1, 0]}

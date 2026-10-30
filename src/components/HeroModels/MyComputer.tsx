@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useGLTF } from "@react-three/drei";
+import { useMemo, type JSX } from "react";
 import type { GLTF } from "three-stdlib";
-import type { JSX } from "react";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -20,10 +20,13 @@ export function MyComputer({
     "/models/my_computer.glb",
   ) as unknown as GLTFResult;
 
-  const computerMaterial = materials.palette.clone();
-  computerMaterial.roughness = 0.15;
-  computerMaterial.metalness = 0.7;
-  computerMaterial.envMapIntensity = 1.5;
+  const computerMaterial = useMemo(() => {
+    const mat = materials.palette.clone();
+    mat.roughness = 0.15;
+    mat.metalness = 0.7;
+    mat.envMapIntensity = 1.5;
+    return mat;
+  }, [materials.palette]);
 
   const nightness = 1 - todFactor;
 

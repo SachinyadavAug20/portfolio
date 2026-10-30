@@ -32,7 +32,7 @@ const ContactExperience = ({
     <Canvas
       camera={cameraProps}
       shadows={!isTouch}
-      dpr={isTouch ? [1, 1.5] : [1, 2]}
+      dpr={[1, 1.5]}
       gl={glProps}
       frameloop={reduced ? "demand" : active ? "always" : "never"}
     >

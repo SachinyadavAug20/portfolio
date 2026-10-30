@@ -20,9 +20,12 @@ export function useNearViewport<T extends HTMLElement = HTMLDivElement>(
   const [near, setNear] = useState(
     () => typeof IntersectionObserver === "undefined",
   );
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(
+    () => typeof IntersectionObserver === "undefined",
+  );
 
   const ref = useCallback((el: T | null) => {
+    if (innerRef.current === el) return;
     innerRef.current = el;
     (ref as unknown as { current: T | null }).current = el;
     setNode(el);

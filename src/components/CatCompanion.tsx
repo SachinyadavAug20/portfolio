@@ -10,11 +10,6 @@ import {
   WEEKEND_GREETING,
   GREETED_KEY,
   GUIDE_HEADERS,
-  CURSOR_3D_SVG,
-  CURSOR_BADGE_SVG,
-  CURSOR_MOUSE_SVG,
-  CURSOR_NOSE,
-  CURSOR_PAW_SVG,
   PET_KEY,
   PET_LINES,
   READS_KEY,
@@ -47,7 +42,6 @@ import {
   spawnSunbeam,
   spawnYarn,
 } from "../lib/cat";
-import type { CursorVariant } from "../lib/cat";
 import type { CatContext } from "../lib/catTypes";
 import type { ActId, EncourageKind, NoteStats } from "../lib/catBrain";
 import type { BlogSuggestion } from "../lib/blogSuggestions";
@@ -255,11 +249,27 @@ const CatCompanion = () => {
   );
   const [sleeping, setSleeping] = useState(false);
   const [suggest, setSuggest] = useState<BlogSuggestion | null>(null);
+  const [, setPetCount] = useState(() => {
+    const stored = Number(safeGet(localStorage, PET_KEY));
+    return Number.isFinite(stored) ? stored : 0;
+  });
+  const [, setMood] = useState<
+    "purr" | "curious" | "playing" | "eating" | "nap"
+  >("curious");
+
+  interface CatActions {
+    pet: () => void;
+    treat: () => void;
+    yarn: () => void;
+    nap: () => void;
+    perch: () => void;
+    chat: () => void;
+  }
+  const catActionsRef = useRef<CatActions | null>(null);
 
   const nekoRef = useRef<Neko | null>(null);
   const brainRef = useRef<Brain | null>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
-  const cursorRef = useRef<HTMLDivElement>(null);
   const suggestAnchorRef = useRef<HTMLDivElement>(null);
   const zzzRef = useRef<HTMLDivElement>(null);
   const phraseTimer = useRef(0);
@@ -3797,6 +3807,211 @@ const CatCompanion = () => {
     };
     document.addEventListener("dblclick", onDblClick);
 
+    /* expose companion dock actions to react UI */
+    catActionsRef.current = {
+      pet: () => {
+        const neko = nekoRef.current;
+        if (!neko) return;
+        const { x, y } = neko.position;
+        const now = Date.now();
+        lastPetAt.current = now;
+        tap(8);
+        if (sleepingRef.current) {
+          sleepingRef.current = false;
+          neko.wake();
+          setSleeping(false);
+          setMood("curious");
+          spawnHearts(x, y, 4);
+          const b = brainRef.current;
+          if (b) showPhrase(b.wakeLine(), 2800, true);
+          return;
+        }
+        const stored = Number(safeGet(localStorage, PET_KEY));
+        const pets = (Number.isFinite(stored) ? stored : 0) + 1;
+        safeSet(localStorage, PET_KEY, String(pets));
+        setPetCount(pets);
+        setMood("purr");
+        spawnHearts(x, y, 6);
+        hop(14);
+        const b = brainRef.current;
+        showPhrase(
+          b
+            ? b.petLine(pets)
+            : pets % 10 === 0
+              ? `${pets} pets. ${CAT_NAME} approves.`
+              : PET_LINES[rand(PET_LINES.length)],
+          3000,
+          true,
+        );
+      },
+      treat: () => {
+        const neko = nekoRef.current;
+        if (!neko) return;
+        const { x, y } = neko.position;
+        tap(10);
+        treatActive.current = true;
+        spawnFish(x, y, x > window.innerWidth / 2 ? -1 : 1);
+        setMood("eating");
+        const b = brainRef.current;
+        showPhrase(
+          b ? b.treatLine() : TREAT_LINES[rand(TREAT_LINES.length)],
+          2800,
+          true,
+        );
+        timers.push(
+          window.setTimeout(() => {
+            treatActive.current = false;
+            if (cancelled) return;
+            spawnHearts(x, y, 5);
+            hop(15);
+            setMood("purr");
+          }, 600),
+        );
+      },
+      yarn: () => {
+        const neko = nekoRef.current;
+        if (!neko) return;
+        const { x, y } = neko.position;
+        tap(12);
+        setMood("playing");
+        const ball = spawnYarn(x, y);
+        pace("run");
+        let chaseHops = 0;
+        const chase = window.setInterval(() => {
+          if (cancelled || !ball.isConnected) {
+            window.clearInterval(chase);
+            return;
+          }
+          const r = ball.getBoundingClientRect();
+          seedPointer(r.left + r.width / 2, r.top + r.height / 2);
+          chaseHops += 1;
+          if (chaseHops % 4 === 0) jump(16);
+        }, 180);
+        intervals.push(chase);
+        const b = brainRef.current;
+        showPhrase(
+          b ? b.playLine() : "a yarn ball?! MINE! *pounces with both paws* 🧶",
+          3200,
+          true,
+        );
+        timers.push(
+          window.setTimeout(() => {
+            window.clearInterval(chase);
+            ball.remove();
+            restorePace();
+            if (!cancelled) {
+              seedPointer(lastPointer.current.x, lastPointer.current.y);
+              setMood("curious");
+            }
+          }, 3000),
+        );
+      },
+      nap: () => {
+        const neko = nekoRef.current;
+        if (!neko) return;
+        const { x, y } = neko.position;
+        tap(8);
+        if (sleepingRef.current) {
+          sleepingRef.current = false;
+          neko.wake();
+          setSleeping(false);
+          setMood("curious");
+          spawnSparkles(x, y);
+          const b = brainRef.current;
+          showPhrase(
+            b ? b.wakeLine() : "*stretches paws* yawn~ wide awake! ☀️",
+            2800,
+            true,
+          );
+        } else {
+          sleepingRef.current = true;
+          lastSleptAt.current = Date.now();
+          neko.sleep();
+          setSleeping(true);
+          setMood("nap");
+          showPhrase("bread loaf mode activated. zZz... 🍞", 2800, true);
+        }
+      },
+      perch: () => {
+        const neko = nekoRef.current;
+        if (!neko) return;
+        tap(10);
+        const cand = Array.from(
+          document.querySelectorAll<HTMLElement>(
+            ".showcase-card, .exp-entry, #contact, #skills, #work, header h1, article, .tech-pill",
+          ),
+        );
+        const spots = cand
+          .map((c) => ({ el: c, r: c.getBoundingClientRect() }))
+          .filter(
+            ({ r }) =>
+              r.top >= 40 &&
+              r.bottom <= window.innerHeight - 40 &&
+              r.width >= 60,
+          );
+        const target =
+          spots[0] ||
+          (cand[0] ? { el: cand[0], r: cand[0].getBoundingClientRect() } : null);
+        if (!target || !target.el || !target.r) return;
+        const r = target.r;
+        const tx = Math.min(
+          Math.max(r.left + r.width * 0.8, 60),
+          window.innerWidth - 60,
+        );
+        const ty = Math.min(Math.max(r.top + 16, 70), window.innerHeight - 70);
+        pace("trot");
+        seedPointer(tx, ty);
+        spotlight(target.el, 2600);
+        spawnPaw(tx, ty);
+        hop(12);
+        setMood("curious");
+        const b = brainRef.current;
+        const raw = (
+          target.el.querySelector("h1, h2, h3, h4")?.textContent ||
+          target.el.textContent ||
+          ""
+        )
+          .replace(/\s+/g, " ")
+          .trim();
+        showPhrase(
+          raw
+            ? b
+              ? b.seatAbout(raw)
+              : `sitting on ${raw}~ 🐾`
+            : "found the best perch spot on this page! 🐾",
+          3400,
+          true,
+        );
+        timers.push(
+          window.setTimeout(() => {
+            if (!cancelled) restorePace();
+          }, 2000),
+        );
+      },
+      chat: () => {
+        const neko = nekoRef.current;
+        if (!neko) return;
+        tap(8);
+        hop(10);
+        const b = brainRef.current;
+        if (!b) return;
+        const sec = Array.from(
+          document.querySelectorAll<HTMLElement>("section[id]"),
+        ).find((s) => {
+          const r = s.getBoundingClientRect();
+          return (
+            r.top <= window.innerHeight / 2 &&
+            r.bottom >= window.innerHeight / 3
+          );
+        });
+        if (sec) {
+          showPhrase(b.sectionLine(sec.id), 3600, true);
+        } else {
+          showPhrase(b.chatterLine(getCtx()), 3400, true);
+        }
+      },
+    };
+
     /* scroll fast and the cat breaks into a run; depth feeds the brain
        and once-per-route milestones get a line */
     const onScroll = () => {
@@ -4011,12 +4226,41 @@ const CatCompanion = () => {
     const neko = nekoRef.current;
     if (!neko) return;
     let raf = 0;
+    let bw = bubbleRef.current?.offsetWidth || 0;
+    let bh = bubbleRef.current?.offsetHeight || 0;
+    let sw = suggestAnchorRef.current?.offsetWidth || 0;
+    let sh = suggestAnchorRef.current?.offsetHeight || 0;
+    let lastX = -9999;
+    let lastY = -9999;
+    let sizeCounter = 0;
+
     const place = () => {
       const { x, y } = neko.position;
       const b = bubbleRef.current;
-      if (b && phrase) {
-        const bw = b.offsetWidth;
-        const bh = b.offsetHeight;
+      const s = suggestAnchorRef.current;
+
+      // Re-measure dimensions only when first mounting or every 30 ticks (~500ms) while typing
+      sizeCounter++;
+      if (sizeCounter % 30 === 0 || (phrase && bw === 0) || (suggest && sw === 0)) {
+        if (b && phrase) {
+          bw = b.offsetWidth;
+          bh = b.offsetHeight;
+        }
+        if (s && suggest) {
+          sw = s.offsetWidth;
+          sh = s.offsetHeight;
+        }
+      }
+
+      // Skip DOM mutation when cat hasn't moved
+      if (Math.abs(x - lastX) < 0.5 && Math.abs(y - lastY) < 0.5) {
+        raf = requestAnimationFrame(place);
+        return;
+      }
+      lastX = x;
+      lastY = y;
+
+      if (b && phrase && bw > 0) {
         const cx = Math.min(
           Math.max(x, bw / 2 + 8),
           window.innerWidth - bw / 2 - 8,
@@ -4030,10 +4274,7 @@ const CatCompanion = () => {
         if (b.style.getPropertyValue("--bubble-arrow-x") !== tailPx)
           b.style.setProperty("--bubble-arrow-x", tailPx);
       }
-      const s = suggestAnchorRef.current;
-      if (s && suggest) {
-        const sw = s.offsetWidth;
-        const sh = s.offsetHeight;
+      if (s && suggest && sw > 0) {
         const cx = Math.min(
           Math.max(x, sw / 2 + 8),
           window.innerWidth - sw / 2 - 8,
@@ -4066,114 +4307,10 @@ const CatCompanion = () => {
     return () => cancelAnimationFrame(raf);
   }, [phrase, sleeping, suggest, reduced]);
 
-  /* the shape-shifting pointer: plump pixel mouse by default (nose on the
-     hot spot, flips with direction), pink cat paw over links, rearing
-     explorer mouse over 3D canvases, NE arrow badge on external links —
-     Luna's little friend in every state, with a walk-bob while it scurries
-     and a squash on press. Fine pointers only; fields keep the caret */
+  /* ensure native cursor is always clean and responsive */
   useEffect(() => {
-    if (!enabled || reduced) return;
-    if (!window.matchMedia("(pointer: fine)").matches) return;
-    const el = cursorRef.current;
-    if (!el) return;
-    const root = document.documentElement;
-    root.classList.add("cat-cursor-on");
-    let tx = -80;
-    let ty = -80;
-    let cx = tx;
-    let cy = ty;
-    let lastTx = tx;
-    let seen = false;
-    let raf = 0;
-    let variant: CursorVariant | "ext" = "mouse";
-    let moveTimer = 0;
-    let pressTimer = 0;
-    const setVariant = (v: CursorVariant | "ext") => {
-      if (v === variant) return;
-      variant = v;
-      el.dataset.cursor = v;
-    };
-    const onMove = (e: MouseEvent) => {
-      if (!e.isTrusted) return;
-      if (e.clientX - lastTx > 0.6) el.classList.remove("facing-left");
-      else if (e.clientX - lastTx < -0.6) el.classList.add("facing-left");
-      lastTx = e.clientX;
-      tx = e.clientX;
-      ty = e.clientY;
-      /* walk bob: feet only while the pointer is actually travelling */
-      el.classList.add("is-moving");
-      window.clearTimeout(moveTimer);
-      moveTimer = window.setTimeout(
-        () => el.classList.remove("is-moving"),
-        140,
-      );
-      if (!seen) {
-        seen = true;
-        cx = tx;
-        cy = ty;
-        el.classList.add("is-on");
-      } else if (!el.classList.contains("is-on")) {
-        el.classList.add("is-on");
-      }
-    };
-    const onOver = (e: MouseEvent) => {
-      const t = e.target as Element | null;
-      const hit = t && typeof t.closest === "function" ? t : null;
-      el.classList.toggle(
-        "is-field",
-        !!hit?.closest("input, textarea, [contenteditable='true']"),
-      );
-      if (hit?.closest("input, textarea, [contenteditable='true']")) return;
-      /* specificity order: 3D canvas, external link, any link/button */
-      if (hit?.closest('canvas, [data-cursor="three"]')) setVariant("three");
-      else if (hit?.closest('a[href^="http"]')) setVariant("ext");
-      else if (
-        hit?.closest(
-          'a, button, [role="button"], summary, .chip, kbd, [data-cursor="paw"]',
-        )
-      )
-        setVariant("paw");
-      else setVariant("mouse");
-    };
-    const onOut = (e: PointerEvent) => {
-      if (!e.relatedTarget) el.classList.remove("is-on");
-    };
-    const onDown = () => {
-      el.classList.add("is-press");
-      window.clearTimeout(pressTimer);
-      pressTimer = window.setTimeout(
-        () => el.classList.remove("is-press"),
-        180,
-      );
-    };
-    const onUp = () => el.classList.remove("is-press");
-    const tick = () => {
-      /* eased glide — the mouse sneaks along instead of snapping */
-      cx += (tx - cx) * 0.45;
-      cy += (ty - cy) * 0.45;
-      /* this state's hot spot (nose / paw pad) sits on the real pointer */
-      const nose = CURSOR_NOSE[variant === "ext" ? "paw" : variant];
-      el.style.transform = `translate3d(${(cx - nose.x).toFixed(1)}px, ${(cy - nose.y).toFixed(1)}px, 0)`;
-      raf = requestAnimationFrame(tick);
-    };
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("pointerover", onOver);
-    document.addEventListener("pointerout", onOut);
-    document.addEventListener("pointerdown", onDown);
-    document.addEventListener("pointerup", onUp);
-    tick();
-    return () => {
-      root.classList.remove("cat-cursor-on");
-      cancelAnimationFrame(raf);
-      window.clearTimeout(moveTimer);
-      window.clearTimeout(pressTimer);
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("pointerover", onOver);
-      document.removeEventListener("pointerout", onOut);
-      document.removeEventListener("pointerdown", onDown);
-      document.removeEventListener("pointerup", onUp);
-    };
-  }, [enabled, reduced]);
+    document.documentElement.classList.remove("cat-cursor-on");
+  }, []);
 
   /* the tour-guide header over each suggestion (stable while bubble lives) */
   const suggestHeader = useMemo(
@@ -4208,42 +4345,21 @@ const CatCompanion = () => {
 
   return (
     <>
-      <div
-        ref={cursorRef}
-        className="cat-cursor"
-        data-cursor="mouse"
-        aria-hidden="true"
-      >
-        <span
-          className="cur cur-mouse"
-          dangerouslySetInnerHTML={{ __html: CURSOR_MOUSE_SVG }}
-        />
-        <span
-          className="cur cur-paw"
-          dangerouslySetInnerHTML={{ __html: CURSOR_PAW_SVG }}
-        />
-        <span
-          className="cur cur-three"
-          dangerouslySetInnerHTML={{ __html: CURSOR_3D_SVG }}
-        />
-        <span
-          className="cur-badge"
-          dangerouslySetInnerHTML={{ __html: CURSOR_BADGE_SVG }}
-        />
-      </div>
       {phrase && (
         <div ref={bubbleRef} className="cat-bubble-anchor" aria-hidden="true">
-          <div className="cat-bubble rounded-2xl border border-black-50 bg-black-200/95 px-3.5 py-2 text-xs font-medium text-blue-50 text-center leading-snug shadow-xl backdrop-blur-md max-w-[230px]">
-            {typedPhrase}
-            {typedPhrase.length < phrase.text.length && (
-              <span className="cat-caret">▌</span>
-            )}
+          <div className="cat-bubble rounded-xl border border-zinc-700/60 bg-zinc-950/90 px-3 py-1.5 text-xs text-zinc-200 shadow-xl backdrop-blur-sm max-w-[240px] select-none text-center">
+            <p className="leading-snug">
+              {typedPhrase}
+              {typedPhrase.length < phrase.text.length && (
+                <span className="cat-caret">▌</span>
+              )}
+            </p>
           </div>
         </div>
       )}
       {suggest && (
         <div ref={suggestAnchorRef} className="cat-bubble-anchor">
-          <div className="cat-bubble cat-suggest rounded-2xl border border-blue-500/40 bg-black-200/95 px-3.5 py-2 text-xs font-medium text-blue-50 text-center leading-snug shadow-xl backdrop-blur-md max-w-[240px]">
+          <div className="cat-bubble cat-suggest rounded-2xl border border-blue-500/40 bg-zinc-950/95 px-3.5 py-2 text-xs font-medium text-blue-50 text-center leading-snug shadow-xl backdrop-blur-md max-w-[250px]">
             {suggestHeader && (
               <span className="cat-suggest-head" aria-hidden="true">
                 {suggestHeader}

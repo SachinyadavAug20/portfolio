@@ -25,6 +25,12 @@ export default defineConfig({
           ) {
             return "react-vendor";
           }
+          if (id.includes("node_modules/gsap") || id.includes("node_modules/@gsap")) {
+            return "gsap-vendor";
+          }
+          if (id.includes("node_modules/lucide-react")) {
+            return "lucide-icons";
+          }
           if (id.includes("node_modules/three") || id.includes("node_modules/three-stdlib") || id.includes("node_modules/@react-three")) {
             return "three-bundle";
           }

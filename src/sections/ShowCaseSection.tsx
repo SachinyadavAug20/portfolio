@@ -3,15 +3,16 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "../hooks/useReducedMotion";
+import { projects } from "../lib/projects";
+import TitleHeader from "../components/TitleHeader";
+import { ProjectCard } from "../components/ProjectCard";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ShowCaseSection = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const project1Ref = useRef<HTMLDivElement>(null);
-  const project2Ref = useRef<HTMLDivElement>(null);
-  const project3Ref = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
+
   useGSAP(
     () => {
       if (reduced) return;
@@ -19,134 +20,50 @@ const ShowCaseSection = () => {
       const mobile = window.matchMedia("(max-width: 767px)").matches;
       const dur = mobile ? 0.3 : 0.4;
 
-      const projects = [
-        project1Ref.current,
-        project2Ref.current,
-        project3Ref.current,
-      ];
-      projects.forEach((project, i) => {
-        gsap.fromTo(
-          project,
-          {
-            y: mobile ? 28 : 60,
-            opacity: 0,
-          },
-          {
-            y: 0,
-            opacity: 1,
-            duration: dur,
-            delay: Math.min(0.12 * (i + 1), 0.24),
-            ease: "power2.out",
-            clearProps: "transform,opacity",
-            scrollTrigger: {
-              trigger: project,
-              start: "top bottom-=100",
-            },
-          },
-        );
-      });
+      const projectEls = sectionRef.current?.querySelectorAll<HTMLElement>(".showcase-card");
+      if (!projectEls || projectEls.length === 0) return;
+
       gsap.fromTo(
-        sectionRef.current,
+        projectEls,
         {
+          y: mobile ? 24 : 40,
           opacity: 0,
         },
         {
+          y: 0,
           opacity: 1,
-          duration: 0.6,
+          duration: dur,
+          stagger: 0.07,
           ease: "power2.out",
-          clearProps: "opacity",
+          clearProps: "transform,opacity",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 82%",
+            once: true,
+          },
         },
       );
     },
-    { dependencies: [reduced], revertOnUpdate: true },
+    { scope: sectionRef, dependencies: [reduced], revertOnUpdate: true },
   );
+
   return (
-    <section ref={sectionRef} id="work" className="app-showcase">
-      <div className="w-full">
-        <div className="showcaselayout">
-          <div
-            id="work-left"
-            className="first-project-wrapper"
-            ref={project1Ref}
-          >
-            <a href="https://base-case-nu.vercel.app/">
-              <div className="image-wrapper">
-                <img
-                  src="/images/project1.webp"
-                  alt="baseCase"
-                  width={1920}
-                  height={1280}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-            </a>
+    <section ref={sectionRef} id="work" className="w-full section-padding">
+      <div className="w-full h-full md:px-10">
+        <TitleHeader
+          title="Featured Projects"
+          sub="Selected systems & architecture"
+        />
 
-            <a href="https://github.com/SachinyadavAug20/BaseCase">
-              <div className="text-content">
-                <h2 className="text-xl font-bold md:text-3xl mb-4 text-foreground">
-                  A full-stack Q&A platform built for developers.
-                </h2>
-
-                <div>
-                  <p className="text-white-50 md:text-lg">
-                    Features a responsive UI with full MDX support, allowing
-                    users to easily write and format complex code snippets.
-                  </p>
-
-                  <p className="text-white-50 md:text-lg">
-                    A custom engine tracks user interactions to award reputation
-                    badges and algorithmically recommend questions based on past
-                    activity.
-                  </p>
-
-                  <p className="text-white-50 md:text-lg">
-                    Secured via OAuth and Zod validation, backed by an
-                    optimized, relational MongoDB schema for efficient data
-                    querying.
-                  </p>
-                </div>
-              </div>
-            </a>
-          </div>
-          <div id="work-right">
-            <div className="project-list-wrapper overflow-hidden w-full">
-              <div className="project w-full!" ref={project2Ref}>
-                <a href="https://banking-app-nine-jet.vercel.app/">
-                  <div className="image-wrapper bg-[#ffefdb] ">
-                    <img
-                      src="/images/project2.webp"
-                      alt="Meow mega corp bank"
-                      width={1920}
-                      height={1280}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-                </a>
-                <a href="https://github.com/SachinyadavAug20/banking-app">
-                  <h2>Meow Mega Corp Bank</h2>
-                </a>
-              </div>
-              <div className="project w-full!" ref={project3Ref}>
-                <a href="https://github.com/SachinyadavAug20/Meow">
-                  <div className="image-wrapper bg-[#ffefdb] ">
-                    <img
-                      src="/images/project3.webp"
-                      alt="Meow terminal AI agent"
-                      width={1920}
-                      height={1280}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-                </a>
-                <a href="https://github.com/SachinyadavAug20/Meow">
-                  <h2>Meow terminal AI agent</h2>
-                </a>
-              </div>
-            </div>
-          </div>
+        {/* Unified 2-column project grid */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {projects.map((project, idx) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              isTop={idx === 0}
+            />
+          ))}
         </div>
       </div>
     </section>

@@ -82,6 +82,9 @@ const TOPICS = [
   "the scroll bar", "your tabs", "that one bug", "the deploy button",
   "his dotfiles", "the vault graph", "the send button", "his side projects",
   "night builds", "the games tab", "his commit history", "the graph view",
+  "Horizon Banking", "Meow CLI", "BaseCase Q&A", "TermDeck", "Samtagon 3D",
+  "GDG ClubHub", "Spring Boot backends", "Plaid and Dwolla transactions",
+  "150 LeetCode problems", "Arch Linux configs", "Neovim macros", "Supabase real-time",
 ].map((s) => s);
 
 const VERBS = [
@@ -1288,31 +1291,31 @@ export const resizeLine = (): string => freshPick(RESIZE_LINES);
 
 const SECTION_POOLS: Record<string, readonly string[]> = {
   work: [
-    "project time~ start with the shiny ones.",
-    "his work. i've purred on every card.",
-    "the demos actually load. i checked. twice.",
-    "this is the 'he ships things' section.",
-    "case studies below. snacks recommended.",
+    "ccltce is top tier: 1100vh 3d camera scroll with chunky voxel clouds.",
+    "200+ members chatting in realtime on ccltce. vercel edge speed.",
+    "ccltce has a full minecraft theme, custom tool cursors and supabase sync.",
+    "meow cli is pure terminal sorcery: AST diffs and @ context indexing.",
+    "horizon banking: plaid + dwolla transfers with real-time analytics. zero overdrafts.",
+    "termdeck: terminal-native presentation engine in Go & DAG routing. hacker aesthetic.",
+    "basecase: modern developer Q&A with mongodb aggregations and nextauth.",
+    "click any project card to inspect the full architecture and gallery.",
   ],
   experience: [
     "his story so far~ good growth curve.",
+    "gdg on campus ltce! core documentation associate. pr #21, #26, #29 merged cleanly.",
+    "ltce coding club: sachin built the platform for 200+ members! that's a massive clowder.",
+    "150+ leetcode and codeforces problems solved. his big-o beats my zoomies.",
+    "2nd year computer engineering at ltce navi mumbai, building enterprise banking backends.",
+    "hsc 84%, ssc 89% — academic foundations paired with real-world full-stack chops.",
     "recruiters screenshot this part. usually.",
-    "every entry is real. i was there for some of it. (napping.)",
-    "2nd year, already building banking systems. noted.",
-    "the timeline reads well. excellent pacing.",
-    "genesis 1.0 hackathon — priority task built under pressure. i supervised.",
-    "he built BaseCase, a full stackoverflow clone. answers everywhere.",
-    "first year: C, C++, unity physics. foundations like a good box.",
-    "dhun started as a folder browser. grew up into a whole player.",
-    "the netflix clone was pixel-perfect. even the logos lined up.",
     "his git history reads like a diary. a very disciplined diary.",
   ],
   skills: [
     "the skills shelf~ dusted, aligned, ready.",
-    "tools of the trade. he wields all of them.",
-    "hover the pills — each links to proof. efficient.",
-    "a wide shelf. i nap on the top row.",
-    "everything here has receipts. nice.",
+    "java spring boot, next.js, fastAPI, hono, bun, and c/c++.",
+    "arch linux + neovim user. he configures dotfiles; i sleep on his keyboard.",
+    "hover the pills — each links to real proof. efficient.",
+    "webgl, three.js, mongodb, postgresql, docker... wide arsenal.",
   ],
   contact: [
     "want to hire sachin? the form's right here. he replies fast.",
@@ -1320,8 +1323,7 @@ const SECTION_POOLS: Record<string, readonly string[]> = {
     "drop him a message — he actually answers.",
     "fun fact: every message gets read. even 'hi'.",
     "the fastest hire starts 30 seconds from here.",
-    "your move. the cat believes in you.",
-    "psst— say 'the cat sent you'. he'll smile. probably.",
+    "psst— say 'luna sent me'. he'll smile. probably.",
   ],
 };
 export const sectionLine = (id: string): string =>
@@ -1860,6 +1862,15 @@ const TREAT_POOL = [
   "i'm suspiciously happy now.", "okay. we're best friends. it's official. dinner sealed it.",
 ];
 export const treatLine = () => freshPick(TREAT_POOL);
+
+const PLAY_POOL = [
+  "a yarn ball?! MINE! *pounces with both paws*",
+  "acrobatic leap activated! wheeeee~",
+  "hunting instinct: 100%. git commit -m 'yarn captured'.",
+  "batting the yarn across your screen! did you see that speed?",
+  "i caught it! victory stretch. ♥",
+];
+export const playLine = () => freshPick(PLAY_POOL);
 
 /* ------------------------------ templates ------------------------------ */
 

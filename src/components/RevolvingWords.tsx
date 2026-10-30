@@ -85,8 +85,18 @@ const RevolvingWords = ({ items }: { items: Word[] }) => {
     const onResize = () => measureAndBuild();
     window.addEventListener("resize", onResize);
 
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        tl?.play();
+      } else {
+        tl?.pause();
+      }
+    });
+    io.observe(root);
+
     return () => {
       tl?.kill();
+      io.disconnect();
       window.removeEventListener("resize", onResize);
     };
   }, [count, reduced]);

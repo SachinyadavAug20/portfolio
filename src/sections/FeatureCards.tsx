@@ -5,13 +5,27 @@ import { useReducedMotion } from "../hooks/useReducedMotion";
 import gsap from "gsap";
 import { abilities } from "../../constants";
 
-/* the liquid blob inside each card trails the pointer — coords feed
-   .liquid-card::before in index.css */
+const cardRects = new WeakMap<HTMLElement, { rect: DOMRect; time: number }>();
+let liquidRaf = 0;
+
 const trackLiquid = (e: ReactPointerEvent<HTMLDivElement>) => {
   const el = e.currentTarget;
-  const r = el.getBoundingClientRect();
-  el.style.setProperty("--lx", `${e.clientX - r.left}px`);
-  el.style.setProperty("--ly", `${e.clientY - r.top}px`);
+  const clientX = e.clientX;
+  const clientY = e.clientY;
+
+  if (liquidRaf) return;
+  liquidRaf = requestAnimationFrame(() => {
+    liquidRaf = 0;
+    const now = performance.now();
+    let cached = cardRects.get(el);
+    if (!cached || now - cached.time > 400) {
+      cached = { rect: el.getBoundingClientRect(), time: now };
+      cardRects.set(el, cached);
+    }
+    const r = cached.rect;
+    el.style.setProperty("--lx", `${Math.round(clientX - r.left)}px`);
+    el.style.setProperty("--ly", `${Math.round(clientY - r.top)}px`);
+  });
 };
 
 const FeatureCards = () => {
@@ -35,6 +49,7 @@ const FeatureCards = () => {
           scrollTrigger: {
             trigger: rootRef.current,
             start: "top 80%",
+            once: true,
           },
         },
       );
