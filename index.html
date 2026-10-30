@@ -307,7 +307,7 @@
       var startedAt = Date.now();
       var dismissed = false;
       /* never gate content longer than this — the app mounts behind us */
-      var hardCapTimer = setTimeout(dismiss, 1000);
+      var hardCapTimer = setTimeout(dismiss, 650);
 
       function dismiss() {
         if (dismissed) return;
@@ -318,13 +318,13 @@
         bar.style.width = "100%";
 
         var elapsed = Date.now() - startedAt;
-        var remaining = Math.max(0, 650 - elapsed);
+        var remaining = Math.max(0, 320 - elapsed);
 
         setTimeout(function () {
           splash.classList.add("fade-out");
           setTimeout(function () {
             if (splash.parentNode) splash.parentNode.removeChild(splash);
-          }, 340);
+          }, 300);
         }, remaining);
       }
 
@@ -335,12 +335,12 @@
 
       var observer = new MutationObserver(function () {
         if (document.getElementById("root").children.length > 0) {
-          setTimeout(dismiss, 150);
+          setTimeout(dismiss, 60);
           observer.disconnect();
         }
       });
       if (document.getElementById("root").children.length > 0) {
-        setTimeout(dismiss, 150);
+        setTimeout(dismiss, 60);
       } else {
         observer.observe(document.getElementById("root"), {
           childList: true,
