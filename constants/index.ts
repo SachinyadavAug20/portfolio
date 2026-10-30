@@ -47,8 +47,8 @@ export const counterItems: counterItem[] = [
     suffix: "+",
     url: "https://github.com/SachinyadavAug20#contributions-calendar",
   },
-  { value: 5, text: "Production Projects", suffix: "+", url: "https://github.com/SachinyadavAug20"},
-  { value: 3, text: "Open-Source PRs", suffix: "+", url: "https://github.com/GDGltce/ClubHub" },
+  { value: 5, text: "Production Projects", suffix: "+", url: "https://github.com/SachinyadavAug20" },
+  { value: 6, text: "Games on itch.io", suffix: "+", url: "https://sachinapr20.itch.io/" },
 ];
 export const GITHUB_REPO = "SachinyadavAug20/portfolio";
 export const GITHUB_REPO_URL = `https://github.com/${GITHUB_REPO}`;

@@ -50,7 +50,7 @@ const CounterItem = ({
   );
 
   return (
-    <a href={url}>
+    <a href={url} target="_blank" rel="noreferrer">
       <div
         className="counter-tile rounded-xl p-4! sm:p-5! md:p-8! xl:p-10! flex flex-col justify-center mt-2 min-w-0"
         style={{
