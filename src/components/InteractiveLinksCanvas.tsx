@@ -125,22 +125,6 @@ export const InteractiveLinksCanvas = () => {
       const mouse = mouseRef.current;
       const pts = particlesRef.current;
 
-      // Soft ambient bloom at cursor
-      if (mouse.active && mouse.x > 0) {
-        const grad = ctx.createRadialGradient(
-          mouse.x,
-          mouse.y,
-          0,
-          mouse.x,
-          mouse.y,
-          200,
-        );
-        grad.addColorStop(0, isDark ? "rgba(56, 189, 248, 0.07)" : "rgba(14, 165, 233, 0.05)");
-        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-      }
-
       // Draw subtle connecting lines
       for (let i = 0; i < pts.length; i++) {
         const p1 = pts[i];
