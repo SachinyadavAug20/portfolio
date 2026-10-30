@@ -102,8 +102,7 @@ const Hero = () => {
               </h2>
             </div>
             <p className="hero-sub text-white-50 md:text-xl relative z-10 xl:pointer-events-none">
-              Hi, I'm Sachin, a developer based in India with a passion for
-              code.
+              Hi, I'm Sachin, a 2nd Year Computer Engineering undergraduate building high-performance systems, backend APIs, and interactive 3D web experiences.
             </p>
             <div className="flex flex-wrap items-center gap-4 z-10">
               <Button
@@ -113,7 +112,7 @@ const Hero = () => {
               />
               <Button
                 text="See my resume"
-                href="https://docs.google.com/document/d/1RFTuBerLRMMHeu0Ac4GvaXu7lUuRUDXo/edit?usp=sharing&ouid=104382201638634718035&rtpof=true&sd=true"
+                href="https://docs.google.com/document/d/1RFTuBerLRMMHeu0Ac4GvaXu7lUuRUDXo/edit?usp=sharing"
                 arrowImg="/images/arrow-right.svg"
                 arrowAlt="resume link"
                 className="md:w-72 md:h-16 w-60 h-12"

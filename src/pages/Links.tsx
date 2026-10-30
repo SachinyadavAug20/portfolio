@@ -27,6 +27,7 @@ import { buildLinksSchema } from "../lib/schema";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { tap } from "../lib/haptics";
 import { notify } from "../lib/toast";
+import InteractiveLinksCanvas from "../components/InteractiveLinksCanvas";
 
 interface LinkItem {
   id: string;
@@ -43,7 +44,7 @@ interface LinkItem {
 }
 
 const RESUME_URL =
-  "https://docs.google.com/document/d/1RFTuBerLRMMHeu0Ac4GvaXu7lUuRUDXo/edit?usp=sharing&ouid=104382201638634718035&rtpof=true&sd=true";
+  "https://docs.google.com/document/d/1RFTuBerLRMMHeu0Ac4GvaXu7lUuRUDXo/edit?usp=sharing";
 
 const CORE_PLATFORMS: LinkItem[] = [
   {
@@ -362,6 +363,9 @@ const Links = () => {
       />
 
       <main className="relative min-h-[100svh] flex-center px-4 sm:px-6 py-12 sm:py-16 selection:bg-blue-500/30">
+        {/* Modern Interactive HTML5 Canvas Layer with Mode Switcher & Physics */}
+        <InteractiveLinksCanvas />
+
         {/* Pro status badge - fixed top right */}
         <motion.div {...rise(0)} className="fixed top-4 right-4 sm:top-6 sm:right-6 z-20">
           <Link
@@ -434,9 +438,9 @@ const Links = () => {
               </button>
             </div>
 
-            {/* Sharp, alive Bio */}
-            <p className="mt-2 text-sm text-white-50/75 max-w-sm mx-auto leading-relaxed">
-              Full-Stack Engineer & Creative Developer. Crafting interactive 3D web experiences, tools & systems.
+            {/* Sharp, alive Bio matching new resume */}
+            <p className="mt-2 text-sm text-white-50/75 max-w-md mx-auto leading-relaxed">
+              Computer Engineering undergraduate (2nd Year) & full-stack engineer. Building 3D web, backend APIs (Spring Boot, Next.js), AI/RAG systems & low-level CLI tools.
             </p>
 
             {/* Quick 1-Tap Social Row */}

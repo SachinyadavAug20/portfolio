@@ -38,17 +38,17 @@ export const counterItems: counterItem[] = [
   {
     value: 150,
     text: "Problems Solved",
-    suffix: "",
+    suffix: "+",
     url: "https://leetcode.com/u/b2mIkNz0h5/",
   },
   {
     value: 500,
     text: "Git Commits",
-    suffix: "",
+    suffix: "+",
     url: "https://github.com/SachinyadavAug20#contributions-calendar",
   },
-  { value: 4, text: "Projects in Production", suffix: "+", url: "https://github.com/SachinyadavAug20"},
-  { value: 2, text: "Games Built", suffix: "+", url: "https://sachinapr20.itch.io/" },
+  { value: 5, text: "Production Projects", suffix: "+", url: "https://github.com/SachinyadavAug20"},
+  { value: 3, text: "Open-Source PRs", suffix: "+", url: "https://github.com/GDGltce/ClubHub" },
 ];
 export const GITHUB_REPO = "SachinyadavAug20/portfolio";
 export const GITHUB_REPO_URL = `https://github.com/${GITHUB_REPO}`;
@@ -87,7 +87,7 @@ export const logoIconsList = [
     Icon: SiNextdotjs, 
     name: "Next.js", 
     link: "https://github.com/SachinyadavAug20/BaseCase", // Flagship full-stack Q&A platform
-    proof: "Core framework for BaseCase & Hackathon sprints" 
+    proof: "Core framework for BaseCase & Horizon Banking" 
   },
   { 
     Icon: SiTailwindcss, 
@@ -104,7 +104,7 @@ export const logoIconsList = [
   { 
     Icon: SiMongodb, 
     name: "MongoDB", 
-    link: "https://github.com/SachinyadavAug20/Onedev-PriorityTask", // Genesis Hackathon persistent database
+    link: "https://github.com/SachinyadavAug20/BaseCase", // Persistent database
     proof: "Relational schema modeling & persistent storage" 
   },
   { 
@@ -122,8 +122,8 @@ export const logoIconsList = [
   { 
     Icon: SiNodedotjs, 
     name: "Node.js", 
-    link: "https://github.com/SachinyadavAug20/Onedev-PriorityTask", // Backend routing and authentication APIs
-    proof: "Backend API routing & server execution" 
+    link: "https://github.com/SachinyadavAug20/Meow", // Backend routing and CLI execution
+    proof: "Backend API routing & CLI AST execution" 
   },
   { 
     Icon: SiGit, 
@@ -152,7 +152,7 @@ export const logoIconsList = [
   {
     Icon: SiSpringboot,
     name: "Spring Boot",
-    link: "https://github.com/SachinyadavAug20/My-Obsidian-notes/tree/main/Notes", // Directs to Meow Mega Corp Bank backend architecture
+    link: "https://github.com/SachinyadavAug20",
     proof: "Enterprise backend architecture & banking transactions" 
   },
 ];
@@ -161,22 +161,22 @@ export const abilities = [
   {
     imgPath: "/images/logic.svg",
     title: "Algorithmic Problem Solving",
-    desc: "Thriving on rigorous logic. Consistently solving complex Data Structures and Algorithms (DSA) challenges to write highly optimized, efficient code.",
+    desc: "150+ DSA problems solved across LeetCode & Codeforces. Thriving on rigorous logic, optimal time-space complexity, and weekly contests.",
   },
   {
     imgPath: "/images/learn.svg",
     title: "Rapid Skill Acquisition",
-    desc: "Highly adaptable and quick to master new technologies, languages, and system architectures to engineer the best possible solutions.",
+    desc: "Highly adaptable across tech stacks—from modern Next.js/React frontends to Java Spring Boot, FastAPI, Bun, and C/C++ low-level systems.",
   },
   {
     imgPath: "/images/compass.svg",
-    title: "Relentless Exploration",
-    desc: "Driven by curiosity to continuously explore new technical domains—from configuring custom Linux environments to experimenting with game engines and modern backends.",
+    title: "Relentless Systems Exploration",
+    desc: "Driven by curiosity to explore deep internals—custom Arch Linux environments, terminal CLI tools, RAG AI agents, and 3D WebGL graphics.",
   },
   {
     imgPath: "/images/craft.svg",
-    title: "Full-Stack Engineering",
-    desc: "Building reliable systems end to end—from Spring Boot banking backends with strict transactional integrity to polished, animated React frontends—where clean architecture and data safety are non-negotiable.",
+    title: "Full-Stack & Backend Engineering",
+    desc: "Building reliable, scalable systems end-to-end—from Spring Boot banking backends and Plaid/Dwolla integrations to interactive 3D WebGL experiences.",
   },
 ];
 
@@ -192,54 +192,54 @@ export interface expCardProps {
 export const expCards = [
   {
     review:
-      "Entering my 2nd year of Computer Science, transitioning into advanced backend systems, strict data architecture, and enterprise frameworks.",
+      "Core contributor to GDGltce/ClubHub (Next.js, Tailwind, TypeScript), authoring developer onboarding guides, and standardizing GitHub PR templates.",
+    imgPath: "/images/exp-fullstack.svg",
+    logoPath: "/images/ltcoe-logo.svg",
+    title: "GDG on Campus LTCE — Core Documentation & Open Source",
+    date: "09/2026 – Present",
+    responsibilities: [
+      "Contributing to GDGltce/ClubHub (Next.js, Tailwind, TypeScript), authoring developer onboarding guides, and standardizing GitHub PR templates.",
+      "Merged PR #21 (docs restructure), PR #26 (component testing guide), and PR #29 (API route specs).",
+      "Mentoring incoming contributors on Git workflows, semantic commit practices, and high-quality pull requests.",
+    ],
+  },
+  {
+    review:
+      "Designed and built the official LTCE Coding Club Platform using React and Supabase, enabling 200+ members to track hackathons and share problem solutions.",
     imgPath: "/images/exp-college-2.svg",
     logoPath: "/images/ltcoe-logo.svg",
-    title: "B.Tech Computer Engineering — 2nd Year",
-    date: "July 2026 – Present",
+    title: "Coding Club & Competitive Programming — LTCE",
+    date: "08/2025 – Present",
     responsibilities: [
-      "Deepening core computer science fundamentals, data structures, and algorithmic optimization at Lokmanya Tilak College of Engineering.",
-      "Built 'Meow Mega Corp Bank', a secure full-stack banking backend using Spring Boot to handle transactional states and robust validations via Plaid.",
-      "Scaling backend systems with strict schema modeling and performance optimization across local and production databases.",
+      "Designed and built the official LTCE Coding Club Platform using React and Supabase for 200+ members to track hackathons and share problem solutions.",
+      "Solved 150+ algorithmic problems across LeetCode and Codeforces; regular participant in weekly contests.",
+      "Collaborated on data structure problem sets and technical workshops for student engineers.",
     ],
   },
   {
     review:
-      "Completed major full-stack milestones, moving beyond simple layouts into complex database relationships and hackathon sprints.",
-    imgPath: "/images/exp-fullstack.svg",
-    logoPath: "/images/logoIcons/2.svg",
-    title: "Full-Stack Development & Sprints",
-    date: "Early 2026 – Mid 2026",
-    responsibilities: [
-      "Engineered 'BaseCase', a robust full-stack StackOverflow alternative featuring MDX rendering, complex MongoDB schemas, and a basic recommendation system.",
-      "Competed in the Genesis 1.0 Hackathon, developing 'Priority Task' under high-pressure conditions using NextAuth.js for clean authentication loops.",
-      "Refined low-level problem-solving approaches, using custom data structures to write efficient code on LeetCode and Codeforces.",
-    ],
-  },
-  {
-    review:
-      "Laid the programming foundations during my 1st year of college, mastering fundamental logic execution and interactive software mechanics.",
+      "Pursuing B.Tech in Computer Engineering with focus on systems programming, algorithmic rigor, and distributed web architectures.",
     imgPath: "/images/exp-college-1.svg",
     logoPath: "/images/ltcoe-logo.svg",
-    title: "B.Tech Computer Engineering — 1st Year",
-    date: "Mid 2025 – Early 2026",
+    title: "B.Tech Computer Engineering (2nd Year)",
+    date: "2025 – 04/2029",
     responsibilities: [
-      "Mastered low-level systems programming foundations using C and C++ alongside core university mathematics.",
-      "Developed a multi-platform 2D adventure game ('First-Game') in Unity/Godot, translating mathematical concepts into functional game physics loops.",
-      "Built 'Dhun', a custom folder-based local music player, and configured a high-performance, keyboard-driven Linux development workflow.",
+      "Deepening core computer science fundamentals: Data Structures & Algorithms, OS, DBMS, Computer Networks, and OOP at LTCE Navi Mumbai.",
+      "Academic foundation: 12th HSC (84%) at CHM College Ulhasnagar and 10th SSC (89%) at New English School Badlapur.",
+      "Active systems exploration in C, C++, and TypeScript with custom Linux environments and Neovim workflows.",
     ],
   },
   {
     review:
-      "Began my self-taught development journey, shipping my first production interfaces.",
+      "Engineering full-stack architectures and low-level CLI engines with strict performance and transactional integrity.",
     imgPath: "/images/exp-frontend.svg",
-    logoPath: "/images/logoIcons/1.svg",
-    title: "Frontend Explorations",
-    date: "Mid 2025",
+    logoPath: "/images/logoIcons/2.svg",
+    title: "Systems & Full-Stack Engineering Sprints",
+    date: "2025 – 2026",
     responsibilities: [
-      "Learned the absolute fundamentals of web architectures, mastering JavaScript, semantic layouts, and Tailwind CSS configuration.",
-      "Built a pixel-perfect Netflix Clone",
-      "Established a disciplined Git version control workflow, focusing on semantic commits and detailed documentation structures with images and timeline.",
+      "Built 'Horizon' Banking Platform (Next.js 14, Appwrite, Plaid, Dwolla) with real-time fund transfers and financial analytics.",
+      "Engineered 'BaseCase' Developer Q&A Platform with complex MongoDB aggregations, NextAuth, and AI-assisted answers.",
+      "Created 'Meow CLI' (TypeScript/AST Parser/Gemini RAG) and 'TermDeck' (C/ncurses presentation engine).",
     ],
   },
 ];
