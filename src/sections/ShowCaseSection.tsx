@@ -56,7 +56,7 @@ const ShowCaseSection = () => {
         />
 
         {/* Unified 2-column project grid */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="mt-6 sm:mt-8 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
           {projects.map((project, idx) => (
             <ProjectCard
               key={project.id}

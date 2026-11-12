@@ -166,14 +166,14 @@ export const CalScheduler = ({
 
       {/* Embedded Cal.com Frame */}
       <div className="relative z-10 w-full rounded-2xl sm:rounded-3xl border border-black-50 card-border bg-white/80 dark:bg-[#0c101a]/85 backdrop-blur-xl shadow-2xl overflow-hidden">
-        <div className="relative w-full min-h-[580px] h-[640px] sm:h-[680px] md:h-[700px] overflow-hidden bg-transparent">
+        <div className="relative w-full min-h-[440px] h-[480px] sm:h-[510px] md:h-[540px] overflow-hidden bg-transparent">
           <Cal
             key={`${activeMeeting.slug}-${isDark ? "dark" : "light"}`}
             calLink={activeMeeting.calLink}
             style={{
               width: "100%",
               height: "100%",
-              minHeight: "580px",
+              minHeight: "440px",
               overflow: "auto",
             }}
             config={{

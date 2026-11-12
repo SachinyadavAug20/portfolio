@@ -62,11 +62,11 @@ const TitleHeader = ({ title, sub }: { title: string; sub: string }) => {
   }, [reduced, sub]);
 
   return (
-    <div ref={ref} className="flex flex-col items-center gap-5">
+    <div ref={ref} className="flex flex-col items-center gap-2.5 sm:gap-3">
       <div className="hero-badge">
         <p>{sub}</p>
       </div>
-      <div className="th-title font-semibold md:text-5xl text-3xl text-center">
+      <div className="th-title font-semibold md:text-4xl text-2xl sm:text-3xl text-center">
         {title}
       </div>
     </div>

@@ -34,4 +34,9 @@ export const SECTION_SEO: Record<
     description:
       "Get in touch with Sachin Yadav — contact form, email, and social links.",
   },
+  schedule: {
+    title: "Schedule a Call",
+    description:
+      "Book a 1-on-1 meeting or call with Sachin Yadav via Cal.com.",
+  },
 };

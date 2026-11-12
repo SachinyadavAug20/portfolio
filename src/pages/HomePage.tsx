@@ -12,19 +12,28 @@ import ShowCaseSection from "../sections/ShowCaseSection";
 import TechStack from "../sections/TechStack";
 
 const HomePage = ({ section }: { section?: string }) => {
-  const seo = section ? SECTION_SEO[section] : undefined;
+  const isSchedule = section === "schedule" || section === "book" || section === "meeting";
+  const seo = section ? SECTION_SEO[section] || SECTION_SEO.contact : undefined;
 
   /* mirror route entered directly (fresh load) — App's route-change effect
      skips the first navigation, so the section scroll happens here */
   useEffect(() => {
     if (!section) return;
     refreshSmoothScroll();
-    const raf = requestAnimationFrame(() => {
-      const el = document.getElementById(section);
-      if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
-    });
+    const targetId = isSchedule ? "schedule" : section;
+    let attempts = 0;
+    const tryScroll = () => {
+      const el = document.getElementById(targetId) || (isSchedule ? document.getElementById("contact") : null);
+      if (el) {
+        scrollToY(el.getBoundingClientRect().top + window.scrollY);
+      } else if (attempts < 10) {
+        attempts++;
+        setTimeout(tryScroll, 40);
+      }
+    };
+    const raf = requestAnimationFrame(tryScroll);
     return () => cancelAnimationFrame(raf);
-  }, [section]);
+  }, [section, isSchedule]);
 
   return (
     <>
@@ -40,7 +49,7 @@ const HomePage = ({ section }: { section?: string }) => {
       <FeatureCards />
       <ExperienceSection />
       <TechStack />
-      <Contact />
+      <Contact initialMode={isSchedule ? "meeting" : undefined} />
     </>
   );
 };

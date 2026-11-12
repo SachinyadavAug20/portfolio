@@ -403,6 +403,10 @@ const STATIC_PAGES = {
     t: "Contact",
     d: "Get in touch with Sachin Yadav — contact form, email, and social links.",
   },
+  "/schedule": {
+    t: "Schedule a Call",
+    d: "Book a 1-on-1 meeting or call with Sachin Yadav via Cal.com.",
+  },
 };
 
 function writeSeo(notes) {

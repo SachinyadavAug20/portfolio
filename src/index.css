@@ -221,11 +221,11 @@ section {
   }
 
   .section-padding {
-    @apply px-5 md:px-10 md:mt-40 mt-20;
+    @apply px-5 md:px-10 md:mt-16 mt-12;
   }
 
   .mt-responsive {
-    @apply xl:mt-20 md:mt-0 mt-40;
+    @apply xl:mt-12 md:mt-0 mt-16;
   }
 
   /* General Grids */
@@ -254,11 +254,11 @@ section {
   }
 
   .grid-12-cols {
-    @apply grid grid-cols-1 xl:grid-cols-12 gap-10;
+    @apply grid grid-cols-1 xl:grid-cols-12 gap-8 lg:gap-10;
   }
 
   .hero-layout {
-    @apply relative z-10 xl:mt-20 mt-20 xl:h-dvh min-h-0 h-auto flex flex-wrap xl:flex-nowrap xl:items-center items-start justify-center xl:justify-start;
+    @apply relative z-10 xl:mt-10 mt-14 xl:min-h-[calc(100dvh-5rem)] min-h-0 h-auto flex flex-wrap xl:flex-nowrap xl:items-center items-start justify-center xl:justify-start;
   }
 
   .hero-text {
@@ -289,7 +289,7 @@ section {
   }
 
   .hero-badge {
-    @apply bg-black-200 py-2 px-4 rounded-full w-fit text-sm md:text-base text-center;
+    @apply bg-black-200 py-1 sm:py-1.5 px-3 sm:px-3.5 rounded-full w-fit text-xs md:text-sm text-center;
   }
 
   .hero-sub {
@@ -762,7 +762,7 @@ section {
   }
 
   .cta-button {
-    @apply px-4 py-4 rounded-lg flex justify-center items-center relative cursor-pointer overflow-hidden;
+    @apply px-4 py-2.5 sm:py-3 rounded-lg flex justify-center items-center relative cursor-pointer overflow-hidden;
     background-color: var(--cta-bg);
     transition: transform var(--dur-fast) var(--ease-standard);
 
@@ -1127,30 +1127,30 @@ section {
   }
 
   .tech-card-content {
-    @apply flex flex-col md:justify-center items-center xl:gap-5 xl:h-[50vh] overflow-hidden relative z-10 group-hover:cursor-grab;
+    @apply flex flex-col md:justify-center items-center xl:gap-3 xl:h-[32vh] xl:min-h-[220px] overflow-hidden relative z-10 group-hover:cursor-grab;
 
     & p {
-      @apply text-lg 2xl:text-2xl pb-5 xl:pb-0 font-semibold text-white-50 text-center;
+      @apply text-base 2xl:text-xl pb-3 xl:pb-0 font-semibold text-white-50 text-center;
     }
   }
 
   .tech-grid {
-    @apply grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-5 md:gap-10 xl:gap-16 mt-16;
+    @apply grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 xl:gap-8 mt-8 sm:mt-12;
   }
 
   .tech-icon-wrapper {
-    @apply flex justify-center items-center w-full max-w-52 h-44 sm:h-60 relative;
+    @apply flex justify-center items-center w-full max-w-44 h-32 sm:h-40 relative;
   }
 
   form {
     label {
-      @apply block text-white-50 mb-2;
+      @apply block text-white-50 mb-1 text-xs sm:text-sm font-medium;
     }
 
     input,
     textarea,
     select {
-      @apply w-full px-4 py-4 text-base placeholder:text-blue-50 bg-blue-100 rounded-md;
+      @apply w-full px-3.5 py-2.5 sm:py-3 text-sm placeholder:text-blue-50 bg-blue-100 rounded-lg;
       border: 1px solid transparent;
       transition:
         border-color var(--dur-fast) var(--ease-standard),
@@ -1277,7 +1277,7 @@ section {
 
 /* marquee */
 .marquee-section {
-  @apply relative overflow-hidden py-20 md:py-28;
+  @apply relative overflow-hidden py-10 md:py-14;
 }
 
 .marquee-ghost {

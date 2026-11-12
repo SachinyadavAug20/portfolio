@@ -17,7 +17,7 @@ const ContactExperience = ({
   const reduced = useReducedMotion();
   // Stable identity so an `active` flip never re-applies renderer props.
   const cameraProps = useMemo(
-    () => ({ position: [0, 1.5, 10] as [number, number, number], fov: 45 }),
+    () => ({ position: [0, 1.2, 11] as [number, number, number], fov: 42 }),
     [],
   );
   const glProps = useMemo(
@@ -54,6 +54,7 @@ const ContactExperience = ({
       {!isTouch && (
         <OrbitControls
           enableZoom={false}
+          target={[0, -0.6, 0]}
           minDistance={5}
           minPolarAngle={Math.PI / 4}
           maxPolarAngle={Math.PI / 2}

@@ -238,7 +238,7 @@ const ExperienceSection = () => {
     <section
       ref={sectionRef}
       id="experience"
-      className="w-full md:mt-40 mt-20 section-padding md:px-0"
+      className="w-full section-padding md:px-0"
     >
       <div className="w-full md:px-20">
         <TitleHeader title="Experience" sub="My CS Experience" />

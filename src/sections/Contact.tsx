@@ -9,6 +9,7 @@ import { tap } from "../lib/haptics";
 import { notify } from "../lib/toast";
 import { socialImg } from "../../constants";
 import { Calendar, Copy, Mail } from "lucide-react";
+import { scrollToY } from "../lib/smoothScroll";
 
 const ContactExperience = lazy(
   () => import("../components/ContactModels/ContactExperience"),
@@ -38,7 +39,11 @@ const INTENTS = [
   },
 ] as const;
 
-const Contact = () => {
+interface ContactProps {
+  initialMode?: "message" | "meeting";
+}
+
+const Contact = ({ initialMode }: ContactProps = {}) => {
   const formRef = useRef<HTMLFormElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const messageRef = useRef<HTMLTextAreaElement>(null);
@@ -60,9 +65,18 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [contactMode, setContactMode] = useState<"message" | "meeting">(() => {
+    if (initialMode) return initialMode;
     if (typeof window !== "undefined") {
       const hash = window.location.hash.toLowerCase();
-      if (hash === "#schedule" || hash === "#book" || hash === "#meeting") {
+      const path = window.location.pathname.toLowerCase();
+      if (
+        hash.includes("schedule") ||
+        hash.includes("book") ||
+        hash.includes("meeting") ||
+        path.includes("schedule") ||
+        path.includes("book") ||
+        path.includes("meeting")
+      ) {
         return "meeting";
       }
     }
@@ -77,12 +91,35 @@ const Contact = () => {
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.toLowerCase();
-      if (hash === "#schedule" || hash === "#book" || hash === "#meeting") {
+      const path = window.location.pathname.toLowerCase();
+      const isMeeting =
+        hash.includes("schedule") ||
+        hash.includes("book") ||
+        hash.includes("meeting") ||
+        path.includes("schedule") ||
+        path.includes("book") ||
+        path.includes("meeting");
+
+      if (isMeeting) {
         setContactMode("meeting");
+        requestAnimationFrame(() => {
+          const el = document.getElementById("schedule") || document.getElementById("contact");
+          if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
+        });
+      } else if (hash.includes("contact") || path.includes("contact")) {
+        setContactMode("message");
+        requestAnimationFrame(() => {
+          const el = document.getElementById("contact");
+          if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
+        });
       }
     };
     window.addEventListener("hashchange", handleHash);
-    return () => window.removeEventListener("hashchange", handleHash);
+    window.addEventListener("popstate", handleHash);
+    return () => {
+      window.removeEventListener("hashchange", handleHash);
+      window.removeEventListener("popstate", handleHash);
+    };
   }, []);
 
   /* the 3D room is a desktop luxury — phones get the form full-screen
@@ -263,17 +300,21 @@ const Contact = () => {
     <section
       id="contact"
       ref={sectionRef}
-      className="flex-center px-4 sm:px-6 md:px-10 pt-20 sm:pt-24 md:pt-28 pb-28 sm:pb-24 md:pb-16 min-h-[100svh]"
+      className="flex-center px-4 sm:px-6 md:px-10 pt-14 sm:pt-16 md:pt-16 pb-12 sm:pb-14 md:pb-12 relative"
     >
-      <div className="w-full h-full max-w-7xl mx-auto flex flex-col gap-6">
+      {/* Anchor targets for direct redirects & hash navigation */}
+      <span id="schedule" className="sr-only -top-20 absolute" />
+      <span id="book" className="sr-only -top-20 absolute" />
+      <span id="meeting" className="sr-only -top-20 absolute" />
+      <div className="w-full max-w-7xl mx-auto flex flex-col gap-4 sm:gap-5">
         {/* Section Header with Mode Switcher */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 contact-reveal">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 contact-reveal">
           <div>
             <TitleHeader title="Contact Me" sub="Get in touch" />
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="inline-flex items-center gap-2 rounded-full border border-black-50 bg-black-100/70 px-3.5 py-1.5 text-xs text-white-50/70">
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-black-50 bg-black-100/70 px-3 py-1 text-xs text-white-50/70">
               <span className="relative flex size-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
                 <span className="relative inline-flex size-2 rounded-full bg-green-400" />
@@ -285,7 +326,7 @@ const Contact = () => {
             <div
               role="tablist"
               aria-label="Contact method"
-              className="inline-flex items-center p-1 rounded-full border border-black-50 bg-black-200/90 dark:bg-black-100/90 backdrop-blur-md shadow-sm"
+              className="inline-flex items-center p-0.5 sm:p-1 rounded-full border border-black-50 bg-black-200/90 dark:bg-black-100/90 backdrop-blur-md shadow-sm"
             >
               <button
                 type="button"
@@ -295,7 +336,7 @@ const Contact = () => {
                   tap(8);
                   setContactMode("message");
                 }}
-                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                   contactMode === "message"
                     ? "bg-zinc-900 text-white dark:bg-white dark:text-black shadow-sm"
                     : "text-white-50/70 hover:text-foreground"
@@ -313,7 +354,7 @@ const Contact = () => {
                   tap(8);
                   setContactMode("meeting");
                 }}
-                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
                   contactMode === "meeting"
                     ? "bg-cyan-500 text-black font-semibold shadow-[0_0_16px_rgba(34,211,238,0.45)]"
                     : "text-white-50/70 hover:text-foreground"
@@ -331,29 +372,27 @@ const Contact = () => {
           <div className="w-full contact-reveal">
             <Suspense
               fallback={
-                <div className="w-full h-[600px] skeleton rounded-3xl bg-black-200/60" />
+                <div className="w-full h-[480px] skeleton rounded-3xl bg-black-200/60" />
               }
             >
               <CalScheduler />
             </Suspense>
           </div>
         ) : (
-          <div className="grid-12-cols items-stretch">
-            <div className="xl:col-span-5 flex flex-col justify-center gap-5">
-              <p className="contact-reveal text-center xl:text-start text-white-50/65 text-sm sm:text-base leading-relaxed max-w-md mx-auto xl:mx-0">
-                Got a project, a role, or just a fun idea? Drop a message — it
-                lands straight in my inbox. Not sure what to write? Pick a starter
-                below.
+          <div className="grid-12-cols items-stretch gap-6 lg:gap-8">
+            <div className="xl:col-span-5 flex flex-col justify-center gap-3 sm:gap-3.5">
+              <p className="contact-reveal text-center xl:text-start text-white-50/70 text-xs sm:text-sm leading-normal max-w-md mx-auto xl:mx-0">
+                Have a project or opportunity? Drop a note or pick a quick starter:
               </p>
 
-              <div className="contact-reveal flex flex-wrap justify-center xl:justify-start gap-2">
+              <div className="contact-reveal flex flex-wrap justify-center xl:justify-start gap-1.5 sm:gap-2">
                 {INTENTS.map((intent) => (
                   <button
                     key={intent.id}
                     type="button"
                     aria-pressed={activeIntent === intent.id}
                     onClick={(e) => pickIntent(intent.id, e.currentTarget)}
-                    className={`chip shrink-0 inline-flex items-center px-3.5 py-2 text-xs rounded-full border transition-colors ${
+                    className={`chip shrink-0 inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs rounded-full border transition-colors ${
                       activeIntent === intent.id
                         ? "chip-filter"
                         : "border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground"
@@ -364,15 +403,15 @@ const Contact = () => {
                 ))}
               </div>
 
-              <div className="contact-card contact-reveal card-border rounded-2xl p-6 sm:p-8">
+              <div className="contact-card contact-reveal card-border rounded-2xl p-4 sm:p-5">
                 {submitted ? (
                   <div
                     ref={successRef}
-                    className="flex flex-col items-center text-center gap-4 py-6"
+                    className="flex flex-col items-center text-center gap-3 py-4"
                   >
                     <svg
                       viewBox="0 0 64 64"
-                      className="size-14 text-green-400"
+                      className="size-12 text-green-400"
                       fill="none"
                       aria-hidden="true"
                     >
@@ -393,8 +432,8 @@ const Contact = () => {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    <h3 className="text-xl font-semibold">Message sent!</h3>
-                    <p className="text-sm text-white-50/60 max-w-xs">
+                    <h3 className="text-lg font-semibold">Message sent!</h3>
+                    <p className="text-xs sm:text-sm text-white-50/60 max-w-xs">
                       Thanks{sentName ? `, ${sentName}` : ""} — it landed in my
                       inbox. I usually reply within 24 hours.
                     </p>
@@ -404,7 +443,7 @@ const Contact = () => {
                         tap(8);
                         setSubmitted(false);
                       }}
-                      className="chip chip-filter px-4 py-2 text-sm rounded-full"
+                      className="chip chip-filter px-3.5 py-1.5 text-xs rounded-full"
                     >
                       Send another message
                     </button>
@@ -412,18 +451,18 @@ const Contact = () => {
                 ) : (
                   <form
                     ref={formRef}
-                    className="w-full flex flex-col gap-6"
+                    className="w-full flex flex-col gap-3"
                     onSubmit={handleSubmit}
                     noValidate
                   >
-                    <div className="flex flex-col gap-2">
-                      <label htmlFor="name">Name</label>
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="name" className="text-xs">Name</label>
                       <input
                         id="name"
                         name="name"
                         type="text"
                         autoComplete="name"
-                        enterKeyHint="send"
+                        enterKeyHint="next"
                         placeholder="Your Name"
                         value={formData.name}
                         onChange={handleChange}
@@ -434,15 +473,15 @@ const Contact = () => {
                       />
                       {fieldError("name")}
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <label htmlFor="email">Email</label>
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="email" className="text-xs">Email</label>
                       <input
                         id="email"
                         name="email"
                         type="email"
                         placeholder="your@email.com"
                         autoComplete="email"
-                        enterKeyHint="send"
+                        enterKeyHint="next"
                         value={formData.email}
                         onChange={handleChange}
                         required
@@ -452,13 +491,13 @@ const Contact = () => {
                       />
                       {fieldError("email")}
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <label htmlFor="message">Message</label>
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="message" className="text-xs">Message</label>
                       <textarea
                         id="message"
                         ref={messageRef}
                         name="message"
-                        rows={5}
+                        rows={3}
                         enterKeyHint="enter"
                         placeholder="Your message..."
                         value={formData.message}
@@ -467,6 +506,7 @@ const Contact = () => {
                         aria-required="true"
                         aria-invalid={errors.message ? "true" : undefined}
                         aria-describedby={errors.message ? "message-error" : undefined}
+                        className="min-h-[64px] sm:min-h-[72px]"
                       />
                       {fieldError("message")}
                     </div>
@@ -474,80 +514,75 @@ const Contact = () => {
                       ref={submitMagneticRef}
                       type="submit"
                       disabled={loading || submitted}
-                      className="transition-opacity disabled:opacity-60 disabled:cursor-wait"
+                      className="transition-opacity disabled:opacity-60 disabled:cursor-wait mt-0.5"
                     >
                       <div className="cta-button group">
                         <div className="bg-circle" />
-                        <p className="text">
-                          {" "}
-                          {loading ? "Sending..." : "Send message"}{" "}
+                        <p className="text text-sm">
+                          {loading ? "Sending..." : "Send message"}
                         </p>
                         <div className="arrow-wrapper">
                           <img src="/images/arrow-down.svg" alt="arrow" />
                         </div>
                       </div>
                     </button>
-                    <p className="text-center text-xs text-white-50/40 -mt-2">
+                    <p className="text-center text-[11px] text-white-50/40 -mt-1">
                       Straight to my inbox &middot; no spam, ever
                     </p>
                   </form>
                 )}
               </div>
 
-
-
-              <div className="contact-reveal flex flex-col items-center gap-3 xl:items-start">
-                <div className="flex items-center gap-2 flex-wrap justify-center xl:justify-start">
-                  <button
-                    type="button"
-                    onClick={copyEmail}
-                    className="chip inline-flex items-center gap-1.5 px-3.5 py-2 text-xs rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors"
-                  >
-                    <Copy className="size-3.5" />
-                    {CONTACT_EMAIL}
-                  </button>
+              <div className="contact-reveal flex flex-wrap items-center justify-center xl:justify-start gap-2 pt-0.5">
+                <button
+                  type="button"
+                  onClick={copyEmail}
+                  className="chip inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors cursor-pointer"
+                >
+                  <Copy className="size-3.5" />
+                  {CONTACT_EMAIL}
+                </button>
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="chip inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors"
+                >
+                  <Mail className="size-3.5" />
+                  Mail app
+                </a>
+                {socialImg.map(({ link, imgPath, imgPathLight, name }) => (
                   <a
-                    href={`mailto:${CONTACT_EMAIL}`}
-                    className="chip inline-flex items-center gap-1.5 px-3.5 py-2 text-xs rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors"
+                    key={name}
+                    href={link}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={name}
+                    className="chip grid place-items-center size-8 rounded-full border border-black-50 bg-black-200 hover:bg-black-50 transition-colors"
                   >
-                    <Mail className="size-3.5" />
-                    Open mail app
+                    <img
+                      src={imgPath}
+                      alt=""
+                      className="hidden dark:block size-3.5"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <img
+                      src={imgPathLight}
+                      alt=""
+                      className="dark:hidden size-3.5"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </a>
-                  {socialImg.map(({ link, imgPath, imgPathLight, name }) => (
-                    <a
-                      key={name}
-                      href={link}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={name}
-                      className="chip grid place-items-center size-9 rounded-full border border-black-50 bg-black-200 hover:bg-black-50 transition-colors"
-                    >
-                      <img
-                        src={imgPath}
-                        alt=""
-                        className="hidden dark:block size-4"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <img
-                        src={imgPathLight}
-                        alt=""
-                        className="dark:hidden size-4"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </a>
-                  ))}
-                </div>
+                ))}
               </div>
             </div>
 
             {wide && (
-              <div className="xl:col-span-7 min-h-96 xl:min-h-[540px]">
+              <div className="xl:col-span-7 min-h-[360px] xl:min-h-[440px] xl:max-h-[500px] h-full flex flex-col justify-center">
                 <div
                   ref={sceneRef}
                   data-testid="contact-scene"
-                  className="relative w-full h-full bg-[#cd7c2e] hover:cursor-grab rounded-3xl overflow-hidden"
+                  className="relative w-full h-full min-h-[380px] xl:min-h-[440px] bg-[#cd7c2e] hover:cursor-grab rounded-3xl overflow-hidden shadow-lg"
                 >
                   {sceneNear && (
                     <div className="scene-in">

@@ -28,6 +28,14 @@ const PageLoading = () => (
   </section>
 );
 
+const resolveTargetEl = (rawId: string): HTMLElement | null => {
+  const lower = rawId.toLowerCase();
+  if (lower === "schedule" || lower === "book" || lower === "meeting" || lower === "cal") {
+    return document.getElementById("schedule") || document.getElementById("contact");
+  }
+  return document.getElementById(rawId);
+};
+
 const App = () => {
   const location = useLocation();
   const firstNav = useRef(true);
@@ -39,17 +47,40 @@ const App = () => {
     initSmoothScroll();
   }, []);
 
+  // Listen to hash change from browser address bar or anchor clicks
+  useEffect(() => {
+    const onHashChange = () => {
+      const raw = window.location.hash ? window.location.hash.slice(1) : "";
+      if (!raw) return;
+      const id = decodeURIComponent(raw);
+      const el = resolveTargetEl(id);
+      if (el) {
+        requestAnimationFrame(() => {
+          scrollToY(el.getBoundingClientRect().top + window.scrollY);
+        });
+      }
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
   useEffect(() => {
     if (firstNav.current) {
       firstNav.current = false;
-      // Fresh load straight into /#contact — the anchor doesn't exist when
-      // the browser tries its native scroll (SPA), so land here after mount.
+      // Fresh load straight into /#contact or /#schedule
       if (location.hash) {
         const id = decodeURIComponent(location.hash.slice(1));
-        requestAnimationFrame(() => {
-          const el = document.getElementById(id);
-          if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
-        });
+        let attempts = 0;
+        const scrollInit = () => {
+          const el = resolveTargetEl(id);
+          if (el) {
+            scrollToY(el.getBoundingClientRect().top + window.scrollY);
+          } else if (attempts < 12) {
+            attempts++;
+            setTimeout(scrollInit, 40);
+          }
+        };
+        requestAnimationFrame(scrollInit);
       }
       return;
     }
@@ -66,7 +97,7 @@ const App = () => {
       const raw = location.hash ? location.hash.slice(1) : location.pathname;
       const id = decodeURIComponent(raw.replace(/^\/+|\/+$/g, ""));
       requestAnimationFrame(() => {
-        const el = id ? document.getElementById(id) : null;
+        const el = id ? resolveTargetEl(id) : null;
         if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
         else scrollToY(0, true);
       });
@@ -90,6 +121,9 @@ const App = () => {
           <Route path="experience" element={<HomePage section="experience" />} />
           <Route path="skills" element={<HomePage section="skills" />} />
           <Route path="contact" element={<HomePage section="contact" />} />
+          <Route path="schedule" element={<HomePage section="schedule" />} />
+          <Route path="book" element={<HomePage section="schedule" />} />
+          <Route path="meeting" element={<HomePage section="schedule" />} />
           <Route path="blog" element={
             <Suspense fallback={<PageLoading />}>
               <BlogList />
