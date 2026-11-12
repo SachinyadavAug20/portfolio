@@ -258,11 +258,11 @@ section {
   }
 
   .hero-layout {
-    @apply relative z-10 xl:mt-10 mt-14 xl:min-h-[calc(100dvh-5rem)] min-h-0 h-auto flex flex-wrap xl:flex-nowrap xl:items-center items-start justify-center xl:justify-start;
+    @apply relative z-10 xl:mt-8 mt-12 xl:min-h-[65vh] min-h-0 h-auto flex flex-wrap xl:flex-nowrap xl:items-center items-start justify-center xl:justify-between;
   }
 
   .hero-text {
-    @apply flex flex-col justify-center gap-1.5 md:gap-2 text-[22px] min-[360px]:text-[24px] sm:text-[34px] md:text-[44px] xl:text-[50px] 2xl:text-[56px] font-semibold relative z-10 xl:pointer-events-none;
+    @apply flex flex-col justify-center gap-1 sm:gap-1.5 md:gap-2 text-[20px] min-[360px]:text-[22px] min-[400px]:text-[26px] sm:text-[34px] md:text-[44px] xl:text-[50px] 2xl:text-[56px] font-semibold relative z-10 xl:pointer-events-none;
 
     h1,
     h2 {
@@ -284,7 +284,7 @@ section {
       }
     }
     img {
-      @apply size-8 md:size-10 object-contain;
+      @apply size-6 sm:size-8 md:size-10 object-contain shrink-0;
     }
   }
 
@@ -298,7 +298,7 @@ section {
   }
 
   .hero-3d-layout {
-    @apply relative w-full h-[42vh] min-h-[280px] xl:absolute xl:top-0 xl:right-0 xl:w-[50%] xl:h-full xl:min-h-[50vh] pointer-events-none;
+    @apply relative w-full h-[240px] sm:h-[280px] xl:h-[480px] 2xl:h-[540px] pointer-events-none overflow-hidden rounded-3xl;
   }
 
   .navbar {
@@ -638,38 +638,39 @@ section {
     display: none;
   }
 
-  /* Bottom tab bar — native app style navigation (mobile only) */
+  /* Bottom tab bar — native app style floating dock (mobile only) */
   .bottom-tabbar {
-    @apply fixed bottom-0 left-0 right-0 z-[80] items-stretch justify-around;
+    @apply fixed bottom-3 inset-x-3 sm:inset-x-6 mx-auto max-w-sm z-[90] items-center justify-around rounded-full;
     background-color: var(--tab-bar-bg);
-    border-top: 1px solid var(--nav-border);
-    @apply backdrop-blur-[16px] backdrop-saturate-[160%];
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
+    border: 1px solid var(--nav-border);
+    @apply backdrop-blur-[24px] backdrop-saturate-[180%] shadow-[0_12px_36px_rgba(0,0,0,0.55)];
+    padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));
+    padding-top: 0.35rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     display: none;
     user-select: none;
     -webkit-user-select: none;
+    touch-action: manipulation;
   }
 
   .bottom-tab {
-    @apply relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium;
+    @apply relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[10px] sm:text-[11px] font-medium tracking-tight rounded-xl;
     color: var(--nav-link-hover);
-    opacity: 0.78;
-    transition: opacity 0.15s, color 0.15s, transform 0.1s;
+    opacity: 0.72;
+    transition: opacity 0.2s, color 0.2s, transform 0.15s;
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Slides in above the active tab; auto-killed by the global
-     reduced-motion override (animation-duration 0.01ms). */
+  /* Slides in above the active tab */
   .bottom-tab::before {
     content: "";
     position: absolute;
-    top: 0;
+    top: 2px;
     left: 50%;
-    width: 28px;
-    height: 3px;
-    border-radius: 0 0 3px 3px;
+    width: 20px;
+    height: 2.5px;
+    border-radius: 9999px;
     background-color: var(--tab-accent);
     transform: translateX(-50%) scaleX(0);
     transform-origin: center;
@@ -682,7 +683,7 @@ section {
   }
 
   .bottom-tab:active {
-    transform: scale(0.92);
+    transform: scale(0.88);
   }
 
   .bottom-tab.active {
@@ -695,7 +696,7 @@ section {
   }
 
   .bottom-tab.active .bottom-tab-icon {
-    transform: translateY(-2px);
+    transform: translateY(-1.5px) scale(1.08);
   }
 
   @media (max-width: 1023px) {
@@ -704,7 +705,7 @@ section {
     }
 
     body {
-      padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
     }
   }
 
@@ -1150,7 +1151,7 @@ section {
     input,
     textarea,
     select {
-      @apply w-full px-3.5 py-2.5 sm:py-3 text-sm placeholder:text-blue-50 bg-blue-100 rounded-lg;
+      @apply w-full px-3.5 py-2.5 sm:py-3 text-base sm:text-sm placeholder:text-blue-50 bg-blue-100 rounded-lg;
       border: 1px solid transparent;
       transition:
         border-color var(--dur-fast) var(--ease-standard),
@@ -1216,7 +1217,7 @@ section {
   }
 
   .footer {
-    @apply my-10 md:mt-20 mt-10 text-white-50 px-5 md:px-20 xl:px-20 flex items-center justify-center;
+    @apply mt-10 md:mt-20 mb-28 md:mb-12 text-white-50 px-5 md:px-20 xl:px-20 flex items-center justify-center;
 
     .footer-container {
       @apply grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-0 w-full items-center;
@@ -1277,7 +1278,9 @@ section {
 
 /* marquee */
 .marquee-section {
-  @apply relative overflow-hidden py-10 md:py-14;
+  @apply relative overflow-hidden py-10 md:py-14 z-10;
+  clear: both;
+  contain: paint;
 }
 
 .marquee-ghost {

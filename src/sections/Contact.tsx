@@ -300,7 +300,7 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
     <section
       id="contact"
       ref={sectionRef}
-      className="flex-center px-4 sm:px-6 md:px-10 pt-14 sm:pt-16 md:pt-16 pb-12 sm:pb-14 md:pb-12 relative"
+      className="w-full flex-center px-4 sm:px-6 md:px-10 py-12 sm:py-16 relative z-10 clear-both"
     >
       {/* Anchor targets for direct redirects & hash navigation */}
       <span id="schedule" className="sr-only -top-20 absolute" />
@@ -310,7 +310,7 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
         {/* Section Header with Mode Switcher */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 contact-reveal">
           <div>
-            <TitleHeader title="Contact Me" sub="Get in touch" />
+            <TitleHeader title="Contact Me" />
           </div>
 
           <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
@@ -336,7 +336,7 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
                   tap(8);
                   setContactMode("message");
                 }}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 touch-manipulation ${
                   contactMode === "message"
                     ? "bg-zinc-900 text-white dark:bg-white dark:text-black shadow-sm"
                     : "text-white-50/70 hover:text-foreground"
@@ -354,7 +354,7 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
                   tap(8);
                   setContactMode("meeting");
                 }}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 touch-manipulation ${
                   contactMode === "meeting"
                     ? "bg-cyan-500 text-black font-semibold shadow-[0_0_16px_rgba(34,211,238,0.45)]"
                     : "text-white-50/70 hover:text-foreground"

@@ -238,15 +238,15 @@ const ExperienceSection = () => {
     <section
       ref={sectionRef}
       id="experience"
-      className="w-full section-padding md:px-0"
+      className="w-full py-12 sm:py-16 md:px-0 relative z-10 clear-both"
     >
       <div className="w-full md:px-20">
-        <TitleHeader title="Experience" sub="My CS Experience" />
+        <TitleHeader title="Experience" />
       </div>
 
       <div
         ref={scrollerRef}
-        className="exp-scroller"
+        className="exp-scroller my-6 sm:my-8"
         role="region"
         aria-label="Experience timeline"
         tabIndex={0}

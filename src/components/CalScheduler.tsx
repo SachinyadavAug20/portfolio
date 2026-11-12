@@ -106,7 +106,7 @@ export const CalScheduler = ({
         <div
           role="tablist"
           aria-label="Meeting options"
-          className="flex items-center gap-1.5 p-1 rounded-2xl border border-black-50 bg-black-200/90 dark:bg-black-100/90 backdrop-blur-md overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex-1 min-w-0"
+          className="flex items-center gap-1.5 p-1 rounded-2xl border border-black-50 bg-black-200/90 dark:bg-black-100/90 backdrop-blur-md overflow-x-auto touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex-1 min-w-0"
         >
           {calMeetings.map((meeting) => {
             const Icon = ICONS[meeting.id as keyof typeof ICONS] || Compass;
@@ -119,7 +119,7 @@ export const CalScheduler = ({
                 role="tab"
                 aria-selected={isSelected}
                 onClick={() => selectMeeting(meeting.slug)}
-                className={`inline-flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-medium transition-all duration-200 shrink-0 cursor-pointer ${
+                className={`inline-flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-medium transition-all duration-200 shrink-0 cursor-pointer active:scale-95 touch-manipulation ${
                   isSelected
                     ? "bg-white text-zinc-950 dark:bg-zinc-900 dark:text-zinc-100 shadow-sm ring-1 ring-cyan-500/50"
                     : "text-white-50/70 hover:text-foreground hover:bg-black-50/40"
@@ -166,14 +166,14 @@ export const CalScheduler = ({
 
       {/* Embedded Cal.com Frame */}
       <div className="relative z-10 w-full rounded-2xl sm:rounded-3xl border border-black-50 card-border bg-white/80 dark:bg-[#0c101a]/85 backdrop-blur-xl shadow-2xl overflow-hidden">
-        <div className="relative w-full min-h-[440px] h-[480px] sm:h-[510px] md:h-[540px] overflow-hidden bg-transparent">
+        <div className="relative w-full min-h-[520px] h-[560px] sm:h-[620px] md:h-[680px] overflow-hidden bg-transparent">
           <Cal
             key={`${activeMeeting.slug}-${isDark ? "dark" : "light"}`}
             calLink={activeMeeting.calLink}
             style={{
               width: "100%",
               height: "100%",
-              minHeight: "440px",
+              minHeight: "520px",
               overflow: "auto",
             }}
             config={{

@@ -332,7 +332,7 @@ const BlogList = () => {
       <section className="section-padding pt-5 min-h-screen">
       <div ref={rootRef} className="w-full h-full md:px-10">
         <div className="blog-intro">
-          <TitleHeader title="Blog" sub="Notes from my Obsidian vault" />
+          <TitleHeader title="Blog" />
         </div>
         {!loading && !error && stats.notes > 0 && (
           <p className="blog-intro text-center text-xs text-white-50/50 mt-3">

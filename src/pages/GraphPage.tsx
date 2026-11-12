@@ -988,10 +988,7 @@ const GraphPage = () => {
       <section className="section-padding pt-5 min-h-screen">
         <div className="w-full h-full md:px-10 max-w-7xl mx-auto">
           <div className="blog-intro">
-            <TitleHeader
-              title="Knowledge Graph"
-              sub="My vault, connected"
-            />
+            <TitleHeader title="Knowledge Graph" />
           </div>
 
           <div className="flex items-center justify-between gap-3 mt-6 flex-wrap">

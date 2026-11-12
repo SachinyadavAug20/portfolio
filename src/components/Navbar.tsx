@@ -8,6 +8,8 @@ import GitHubStar from "./GitHubStar";
 import { useMagnetic } from "../hooks/useMagnetic";
 import { gsap } from "../lib/gsapSetup";
 import { useReducedMotion } from "../hooks/useReducedMotion";
+import { tap } from "../lib/haptics";
+import { Search } from "lucide-react";
 
 const MotionLink = motion.create(Link);
 const PRESS = {
@@ -311,7 +313,7 @@ const Navbar = () => {
             })}
           </ul>
         </nav>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
             className="nav-cmdk"
@@ -319,6 +321,17 @@ const Navbar = () => {
             onClick={() => window.dispatchEvent(new Event("palette-open"))}
           >
             <span aria-hidden="true">{isMac() ? "⌘K" : "Ctrl K"}</span>
+          </button>
+          <button
+            type="button"
+            className="size-8.5 rounded-full border border-black-50 bg-black-200/90 dark:bg-black-100/90 flex items-center justify-center text-white-50/80 hover:text-foreground active:scale-90 transition-transform lg:hidden cursor-pointer shadow-sm"
+            aria-label="Open search and actions"
+            onClick={() => {
+              tap(6);
+              window.dispatchEvent(new Event("palette-open"));
+            }}
+          >
+            <Search className="size-3.5" />
           </button>
           <ThemeToggle />
           <a ref={contactRef} href="/#contact" className="contact-btn group">

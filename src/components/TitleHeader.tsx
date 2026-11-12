@@ -3,7 +3,7 @@ import { gsap } from "../lib/gsapSetup";
 import { loadGsapExtras, type GsapExtras } from "../lib/gsapExtras";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 
-const TitleHeader = ({ title, sub }: { title: string; sub: string }) => {
+const TitleHeader = ({ title }: { title: string; sub?: string }) => {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
@@ -21,8 +21,6 @@ const TitleHeader = ({ title, sub }: { title: string; sub: string }) => {
       if (!titleEl) return;
 
       split = new SplitText(titleEl, { type: "chars" });
-      const badgeText = scope.querySelector(".hero-badge p");
-      if (badgeText) badgeText.textContent = "";
 
       const st = { trigger: scope, start: "top 90%", once: true };
       tl = gsap.timeline({ scrollTrigger: st });
@@ -33,22 +31,6 @@ const TitleHeader = ({ title, sub }: { title: string; sub: string }) => {
         ease: "power2.out",
         stagger: 0.014,
       });
-      if (badgeText) {
-        tl.to(
-          badgeText,
-          {
-            scrambleText: {
-              text: sub,
-              chars: "upperAndLowerCase",
-              speed: 0.7,
-              revealDelay: 0.1,
-            },
-            duration: 0.8,
-            ease: "none",
-          },
-          0.1,
-        );
-      }
     });
 
     return () => {
@@ -59,13 +41,10 @@ const TitleHeader = ({ title, sub }: { title: string; sub: string }) => {
       }
       split?.revert();
     };
-  }, [reduced, sub]);
+  }, [reduced]);
 
   return (
-    <div ref={ref} className="flex flex-col items-center gap-2.5 sm:gap-3">
-      <div className="hero-badge">
-        <p>{sub}</p>
-      </div>
+    <div ref={ref} className="flex flex-col items-center">
       <div className="th-title font-semibold md:text-4xl text-2xl sm:text-3xl text-center">
         {title}
       </div>

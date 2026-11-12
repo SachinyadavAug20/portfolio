@@ -37,6 +37,27 @@ export const ProjectCard = ({ project, isTop = false }: ProjectCardProps) => {
 
   const currentImage = images[activeImageIndex] || images[0];
 
+  const touchStartX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(diff) > 36) {
+      if (diff > 0) {
+        tap(6);
+        setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+      } else {
+        tap(6);
+        setActiveImageIndex((prev) => (prev + 1) % images.length);
+      }
+    }
+    touchStartX.current = null;
+  };
+
   const handleNextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     tap(6);
@@ -230,8 +251,12 @@ export const ProjectCard = ({ project, isTop = false }: ProjectCardProps) => {
 
       {/* Card Content */}
       <div className="relative z-10 space-y-3.5">
-        {/* Compact Screenshot Viewport */}
-        <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-zinc-900/60 border border-zinc-800/60 group/stage">
+        {/* Compact Screenshot Viewport with Touch Swipe */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="relative aspect-[16/10] w-full rounded-xl overflow-hidden bg-zinc-900/60 border border-zinc-800/60 group/stage touch-pan-y"
+        >
           <img
             key={currentImage.src}
             src={currentImage.src}
@@ -263,13 +288,13 @@ export const ProjectCard = ({ project, isTop = false }: ProjectCardProps) => {
             )}
           </div>
 
-          {/* Minimal Navigation Arrows on Hover (if multiple images) */}
+          {/* Navigation Arrows (visible on touch, hover on desktop) */}
           {images.length > 1 && (
             <>
               <button
                 type="button"
                 onClick={handlePrevImage}
-                className="absolute left-2 top-1/2 -translate-y-1/2 size-7 rounded-full bg-black/70 hover:bg-black text-white/80 hover:text-white backdrop-blur-sm border border-white/15 flex items-center justify-center opacity-0 group-hover/stage:opacity-100 transition-opacity active:scale-95 shadow-md"
+                className="absolute left-2 top-1/2 -translate-y-1/2 size-7 rounded-full bg-black/70 hover:bg-black text-white/80 hover:text-white backdrop-blur-sm border border-white/15 flex items-center justify-center opacity-80 sm:opacity-0 sm:group-hover/stage:opacity-100 transition-opacity active:scale-90 shadow-md cursor-pointer"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="size-4" />
@@ -277,7 +302,7 @@ export const ProjectCard = ({ project, isTop = false }: ProjectCardProps) => {
               <button
                 type="button"
                 onClick={handleNextImage}
-                className="absolute right-2 top-1/2 -translate-y-1/2 size-7 rounded-full bg-black/70 hover:bg-black text-white/80 hover:text-white backdrop-blur-sm border border-white/15 flex items-center justify-center opacity-0 group-hover/stage:opacity-100 transition-opacity active:scale-95 shadow-md"
+                className="absolute right-2 top-1/2 -translate-y-1/2 size-7 rounded-full bg-black/70 hover:bg-black text-white/80 hover:text-white backdrop-blur-sm border border-white/15 flex items-center justify-center opacity-80 sm:opacity-0 sm:group-hover/stage:opacity-100 transition-opacity active:scale-90 shadow-md cursor-pointer"
                 aria-label="Next image"
               >
                 <ChevronRight className="size-4" />

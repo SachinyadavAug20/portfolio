@@ -34,9 +34,9 @@ const TechStack = ({ isImage = false }: { isImage?: boolean }) => {
     );
   }, { dependencies: [reduced], revertOnUpdate: true });
   return (
-    <div id="skills" className="flex-center section-padding">
+    <section id="skills" className="w-full flex-center py-12 sm:py-16 px-4 sm:px-6 md:px-10 relative z-10 clear-both">
       <div className="w-full h-full md:px-10">
-        <TitleHeader title="Tech Stack" sub="What I use" />
+        <TitleHeader title="Tech Stack" />
         <div className="tech-grid">
           {techStackIcons.map((icon) => (
             <div
@@ -75,7 +75,7 @@ const TechStack = ({ isImage = false }: { isImage?: boolean }) => {
             ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

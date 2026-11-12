@@ -88,8 +88,8 @@ const Hero = () => {
         </picture>
       </div>
       <div className="hero-layout">
-        <header className="flex flex-col justify-center md:w-full w-full xl:max-w-[55%] 2xl:max-w-[52%] px-5 md:pl-20 md:pr-4">
-          <div className="flex flex-col gap-7">
+        <header className="flex flex-col justify-center w-full xl:w-[50%] 2xl:w-[50%] px-5 md:pl-20 md:pr-4">
+          <div className="flex flex-col gap-6 sm:gap-7">
             <div className="hero-text">
               <h1>
                 <FlickeringText>Engineering </FlickeringText>
@@ -105,10 +105,10 @@ const Hero = () => {
             <p className="hero-sub text-sm sm:text-[15px] md:text-base font-light text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl relative z-10 tracking-normal xl:pointer-events-none">
               Hi, I'm <span className="font-medium text-zinc-900 dark:text-zinc-100">Sachin</span>, a 2nd Year Computer Engineering undergraduate building high-performance systems, backend APIs, and interactive 3D web experiences.
             </p>
-            <div className="flex flex-wrap items-center gap-4 z-10">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 z-10 w-full sm:w-auto">
               <Button
                 text="See my work"
-                className="md:w-72 md:h-16 w-60 h-12"
+                className="w-full sm:w-60 md:w-72 h-12 md:h-16 active:scale-95 transition-transform"
                 id="counter"
               />
               <Button
@@ -116,15 +116,15 @@ const Hero = () => {
                 href="https://docs.google.com/document/d/1RFTuBerLRMMHeu0Ac4GvaXu7lUuRUDXo/edit?usp=sharing"
                 arrowImg="/images/arrow-right.svg"
                 arrowAlt="resume link"
-                className="md:w-72 md:h-16 w-60 h-12"
+                className="w-full sm:w-60 md:w-72 h-12 md:h-16 active:scale-95 transition-transform"
               />
             </div>
           </div>
         </header>
-        <figure className="w-full xl:w-auto px-5 xl:px-0">
+        <figure className="w-full xl:w-[48%] 2xl:w-[48%] px-4 xl:px-0 flex justify-center items-center">
           <div
             ref={figureRef}
-            className="hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-5 block"
+            className="hero-3d-layout border-zinc-950 border-[0px] rounded-4xl mt-3 xl:mt-0 block"
           >
             {sceneReady ? (
               <Suspense fallback={<HeroModelPlaceholder />}>

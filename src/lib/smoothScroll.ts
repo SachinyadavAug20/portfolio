@@ -67,3 +67,24 @@ export function scrollToY(top: number, immediate = false) {
   }
   window.scrollTo({ top, behavior: immediate || isReducedMotion() ? "auto" : "smooth" });
 }
+
+export function scrollToTarget(target: string | HTMLElement | number, immediate = false, offset = 0) {
+  if (lenis) {
+    lenis.scrollTo(target as any, { offset, immediate, duration: immediate ? undefined : 0.9 });
+    return;
+  }
+  if (typeof target === "number") {
+    window.scrollTo({ top: target + offset, behavior: immediate || isReducedMotion() ? "auto" : "smooth" });
+  } else {
+    const el = typeof target === "string" ? document.querySelector(target) : target;
+    if (el) {
+      el.scrollIntoView({ behavior: immediate || isReducedMotion() ? "auto" : "smooth" });
+    }
+  }
+}
+
+if (typeof window !== "undefined") {
+  (window as any).__scrollToY = scrollToY;
+  (window as any).__scrollToTarget = scrollToTarget;
+}
+

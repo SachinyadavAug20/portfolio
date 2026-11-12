@@ -48,12 +48,9 @@ const ShowCaseSection = () => {
   );
 
   return (
-    <section ref={sectionRef} id="work" className="w-full section-padding">
+    <section ref={sectionRef} id="work" className="w-full section-padding relative z-10 clear-both">
       <div className="w-full h-full md:px-10">
-        <TitleHeader
-          title="Featured Projects"
-          sub="Selected systems & architecture"
-        />
+        <TitleHeader title="Featured Projects" />
 
         {/* Unified 2-column project grid */}
         <div className="mt-6 sm:mt-8 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">

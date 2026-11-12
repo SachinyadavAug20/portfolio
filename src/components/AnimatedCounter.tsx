@@ -93,7 +93,7 @@ const AnimatedCounter = () => {
   }, []);
 
   return (
-    <div id="counter" className="padding-x-lg xl:mt-0 mt-10">
+    <div id="counter" className="w-full padding-x-lg py-4 sm:py-6 relative z-10 clear-both">
       <div className="mx-auto grid-4-cols">
         {items.map((item) => (
           <CounterItem key={item.text} {...item} />
