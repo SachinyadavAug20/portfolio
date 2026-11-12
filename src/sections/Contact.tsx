@@ -263,16 +263,13 @@ const Contact = () => {
     <section
       id="contact"
       ref={sectionRef}
-      className="flex-center px-5 md:px-10 pt-24 md:pt-28 pb-20 md:pb-16 min-h-[100svh]"
+      className="flex-center px-4 sm:px-6 md:px-10 pt-20 sm:pt-24 md:pt-28 pb-28 sm:pb-24 md:pb-16 min-h-[100svh]"
     >
       <div className="w-full h-full max-w-7xl mx-auto flex flex-col gap-6">
         {/* Section Header with Mode Switcher */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 contact-reveal">
           <div>
-            <TitleHeader
-              title={contactMode === "meeting" ? "Schedule a Meeting" : "Contact Me"}
-              sub={contactMode === "meeting" ? "Cal.com · Instant 1-on-1 Sync" : "Get in touch"}
-            />
+            <TitleHeader title="Contact Me" sub="Get in touch" />
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
@@ -337,7 +334,7 @@ const Contact = () => {
                 <div className="w-full h-[600px] skeleton rounded-3xl bg-black-200/60" />
               }
             >
-              <CalScheduler onSwitchToMessage={() => setContactMode("message")} />
+              <CalScheduler />
             </Suspense>
           </div>
         ) : (
@@ -497,23 +494,7 @@ const Contact = () => {
                 )}
               </div>
 
-              {/* Callout to switch to scheduling */}
-              <div className="contact-reveal flex items-center justify-center xl:justify-start pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    tap(8);
-                    setContactMode("meeting");
-                  }}
-                  className="inline-flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer group p-1"
-                >
-                  <Calendar className="size-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                  <span>Prefer to talk directly?</span>
-                  <span className="underline decoration-cyan-400/50 underline-offset-4 font-sans font-medium">
-                    Schedule 1-on-1 on Cal.com →
-                  </span>
-                </button>
-              </div>
+
 
               <div className="contact-reveal flex flex-col items-center gap-3 xl:items-start">
                 <div className="flex items-center gap-2 flex-wrap justify-center xl:justify-start">

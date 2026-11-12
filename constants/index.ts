@@ -57,9 +57,7 @@ export interface CalMeeting {
   id: string;
   slug: string;
   title: string;
-  duration: string;
-  badge: string;
-  desc: string;
+  duration?: string;
   url: string;
   calLink: string;
   color: string;
@@ -69,46 +67,38 @@ export const calMeetings: CalMeeting[] = [
   {
     id: "project-discovery",
     slug: "project-discovery",
-    title: "Project Discovery",
-    duration: "30-60 min",
-    badge: "Architecture & MVP",
-    desc: "Discuss project scope, tech stack, 3D web experience, backend APIs, or roadmap.",
+    title: "Discovery",
+    duration: "30m",
     url: "https://cal.com/sachin-yadav-hcvn1b/project-discovery",
     calLink: "sachin-yadav-hcvn1b/project-discovery",
-    color: "#22d3ee", // cyan
+    color: "#22d3ee",
   },
   {
     id: "opportunity-chat",
     slug: "opportunity-chat",
-    title: "Opportunity Chat",
-    duration: "20-45 min",
-    badge: "Roles & Hiring",
-    desc: "Software engineering internship, full-time/freelance role, or technical opportunity.",
+    title: "Opportunity",
+    duration: "20m",
     url: "https://cal.com/sachin-yadav-hcvn1b/opportunity-chat",
     calLink: "sachin-yadav-hcvn1b/opportunity-chat",
-    color: "#38bdf8", // sky blue
+    color: "#38bdf8",
   },
   {
     id: "collab-sync",
     slug: "collab-sync",
-    title: "Collab Sync",
-    duration: "30-40 min",
-    badge: "Hackathons & OSS",
-    desc: "Team up for a hackathon, build something together, or discuss open-source contributions.",
+    title: "Collab",
+    duration: "30m",
     url: "https://cal.com/sachin-yadav-hcvn1b/collab-sync",
     calLink: "sachin-yadav-hcvn1b/collab-sync",
-    color: "#a855f7", // purple
+    color: "#a855f7",
   },
   {
     id: "quick-chat",
     slug: "quick-chat",
     title: "Quick Chat",
-    duration: "10-20 min",
-    badge: "Casual & Q&A",
-    desc: "Casual conversation about web graphics, Linux, competitive programming, or questions.",
+    duration: "15m",
     url: "https://cal.com/sachin-yadav-hcvn1b/quick-chat",
     calLink: "sachin-yadav-hcvn1b/quick-chat",
-    color: "#34d399", // emerald
+    color: "#34d399",
   },
 ];
 
