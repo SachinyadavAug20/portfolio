@@ -8,11 +8,13 @@ import { useMagnetic } from "../hooks/useMagnetic";
 import { tap } from "../lib/haptics";
 import { notify } from "../lib/toast";
 import { socialImg } from "../../constants";
-import { Copy, Mail } from "lucide-react";
+import { Calendar, Copy, Mail } from "lucide-react";
 
 const ContactExperience = lazy(
   () => import("../components/ContactModels/ContactExperience"),
 );
+
+const CalScheduler = lazy(() => import("../components/CalScheduler"));
 
 const CONTACT_EMAIL = "samtagon777@gmail.com";
 
@@ -57,11 +59,31 @@ const Contact = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [contactMode, setContactMode] = useState<"message" | "meeting">(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === "#schedule" || hash === "#book" || hash === "#meeting") {
+        return "meeting";
+      }
+    }
+    return "message";
+  });
   const [wide, setWide] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(min-width: 1280px)").matches,
   );
   const reduced = useReducedMotion();
   const submitMagneticRef = useMagnetic<HTMLButtonElement>();
+
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === "#schedule" || hash === "#book" || hash === "#meeting") {
+        setContactMode("meeting");
+      }
+    };
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
 
   /* the 3D room is a desktop luxury — phones get the form full-screen
      (faster load, one job: the message); appears exactly when the grid splits */
@@ -243,247 +265,329 @@ const Contact = () => {
       ref={sectionRef}
       className="flex-center px-5 md:px-10 pt-24 md:pt-28 pb-20 md:pb-16 min-h-[100svh]"
     >
-      <div className="w-full h-full">
-        <div className="grid-12-cols items-stretch">
-          <div className="xl:col-span-5 flex flex-col justify-center gap-5">
-            <TitleHeader title="Contact Me" sub="Get in touch" />
-
-            <div className="contact-reveal flex justify-center xl:justify-start">
-              <span className="inline-flex items-center gap-2 rounded-full border border-black-50 bg-black-100/70 px-3.5 py-1.5 text-xs text-white-50/70">
-                <span className="relative flex size-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
-                  <span className="relative inline-flex size-2 rounded-full bg-green-400" />
-                </span>
-                Open to work
-              </span>
-            </div>
-
-            <p className="contact-reveal text-center xl:text-start text-white-50/65 text-sm sm:text-base leading-relaxed max-w-md mx-auto xl:mx-0">
-              Got a project, a role, or just a fun idea? Drop a message — it
-              lands straight in my inbox. Not sure what to write? Pick a starter
-              below.
-            </p>
-
-            <div className="contact-reveal flex flex-wrap justify-center xl:justify-start gap-2">
-              {INTENTS.map((intent) => (
-                <button
-                  key={intent.id}
-                  type="button"
-                  aria-pressed={activeIntent === intent.id}
-                  onClick={(e) => pickIntent(intent.id, e.currentTarget)}
-                  className={`chip shrink-0 inline-flex items-center px-3.5 py-2 text-xs rounded-full border transition-colors ${
-                    activeIntent === intent.id
-                      ? "chip-filter"
-                      : "border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground"
-                  }`}
-                >
-                  {intent.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="contact-card contact-reveal card-border rounded-2xl p-6 sm:p-8">
-              {submitted ? (
-                <div
-                  ref={successRef}
-                  className="flex flex-col items-center text-center gap-4 py-6"
-                >
-                  <svg
-                    viewBox="0 0 64 64"
-                    className="size-14 text-green-400"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="29"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      opacity="0.35"
-                    />
-                    <path
-                      className="check-path"
-                      d="M20 33.5 28.5 42 45 24"
-                      stroke="currentColor"
-                      strokeWidth="4.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <h3 className="text-xl font-semibold">Message sent!</h3>
-                  <p className="text-sm text-white-50/60 max-w-xs">
-                    Thanks{sentName ? `, ${sentName}` : ""} — it landed in my
-                    inbox. I usually reply within 24 hours.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      tap(8);
-                      setSubmitted(false);
-                    }}
-                    className="chip chip-filter px-4 py-2 text-sm rounded-full"
-                  >
-                    Send another message
-                  </button>
-                </div>
-              ) : (
-                <form
-                  ref={formRef}
-                  className="w-full flex flex-col gap-6"
-                  onSubmit={handleSubmit}
-                  noValidate
-                >
-                  <div className="flex flex-col gap-2">
-                    <label htmlFor="name">Name</label>
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      autoComplete="name"
-                      enterKeyHint="send"
-                      placeholder="Your Name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      aria-required="true"
-                      aria-invalid={errors.name ? "true" : undefined}
-                      aria-describedby={errors.name ? "name-error" : undefined}
-                    />
-                    {fieldError("name")}
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label htmlFor="email">Email</label>
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="your@email.com"
-                      autoComplete="email"
-                      enterKeyHint="send"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      aria-required="true"
-                      aria-invalid={errors.email ? "true" : undefined}
-                      aria-describedby={errors.email ? "email-error" : undefined}
-                    />
-                    {fieldError("email")}
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label htmlFor="message">Message</label>
-                    <textarea
-                      id="message"
-                      ref={messageRef}
-                      name="message"
-                      rows={5}
-                      enterKeyHint="enter"
-                      placeholder="Your message..."
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      aria-required="true"
-                      aria-invalid={errors.message ? "true" : undefined}
-                      aria-describedby={errors.message ? "message-error" : undefined}
-                    />
-                    {fieldError("message")}
-                  </div>
-                  <button
-                    ref={submitMagneticRef}
-                    type="submit"
-                    disabled={loading || submitted}
-                    className="transition-opacity disabled:opacity-60 disabled:cursor-wait"
-                  >
-                    <div className="cta-button group">
-                      <div className="bg-circle" />
-                      <p className="text">
-                        {" "}
-                        {loading ? "Sending..." : "Send message"}{" "}
-                      </p>
-                      <div className="arrow-wrapper">
-                        <img src="/images/arrow-down.svg" alt="arrow" />
-                      </div>
-                    </div>
-                  </button>
-                  <p className="text-center text-xs text-white-50/40 -mt-2">
-                    Straight to my inbox &middot; no spam, ever
-                  </p>
-                </form>
-              )}
-            </div>
-
-            <div className="contact-reveal flex flex-col items-center gap-3 xl:items-start">
-              <div className="flex items-center gap-2 flex-wrap justify-center xl:justify-start">
-                <button
-                  type="button"
-                  onClick={copyEmail}
-                  className="chip inline-flex items-center gap-1.5 px-3.5 py-2 text-xs rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors"
-                >
-                  <Copy className="size-3.5" />
-                  {CONTACT_EMAIL}
-                </button>
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="chip inline-flex items-center gap-1.5 px-3.5 py-2 text-xs rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors"
-                >
-                  <Mail className="size-3.5" />
-                  Open mail app
-                </a>
-                {socialImg.map(({ link, imgPath, imgPathLight, name }) => (
-                  <a
-                    key={name}
-                    href={link}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={name}
-                    className="chip grid place-items-center size-9 rounded-full border border-black-50 bg-black-200 hover:bg-black-50 transition-colors"
-                  >
-                    <img
-                      src={imgPath}
-                      alt=""
-                      className="hidden dark:block size-4"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <img
-                      src={imgPathLight}
-                      alt=""
-                      className="dark:hidden size-4"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </a>
-                ))}
-              </div>
-            </div>
+      <div className="w-full h-full max-w-7xl mx-auto flex flex-col gap-6">
+        {/* Section Header with Mode Switcher */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 contact-reveal">
+          <div>
+            <TitleHeader
+              title={contactMode === "meeting" ? "Schedule a Meeting" : "Contact Me"}
+              sub={contactMode === "meeting" ? "Cal.com · Instant 1-on-1 Sync" : "Get in touch"}
+            />
           </div>
 
-          {wide && (
-            <div className="xl:col-span-7 min-h-96 xl:min-h-[540px]">
-              <div
-                ref={sceneRef}
-                data-testid="contact-scene"
-                className="relative w-full h-full bg-[#cd7c2e] hover:cursor-grab rounded-3xl overflow-hidden"
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="inline-flex items-center gap-2 rounded-full border border-black-50 bg-black-100/70 px-3.5 py-1.5 text-xs text-white-50/70">
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
+                <span className="relative inline-flex size-2 rounded-full bg-green-400" />
+              </span>
+              Open to work
+            </span>
+
+            {/* Segmented Mode Switcher */}
+            <div
+              role="tablist"
+              aria-label="Contact method"
+              className="inline-flex items-center p-1 rounded-full border border-black-50 bg-black-200/90 dark:bg-black-100/90 backdrop-blur-md shadow-sm"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={contactMode === "message"}
+                onClick={() => {
+                  tap(8);
+                  setContactMode("message");
+                }}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                  contactMode === "message"
+                    ? "bg-zinc-900 text-white dark:bg-white dark:text-black shadow-sm"
+                    : "text-white-50/70 hover:text-foreground"
+                }`}
               >
-                {sceneNear && (
-                  <div className="scene-in">
-                    <Suspense
-                      fallback={
-                        <div className="skeleton absolute inset-0 rounded-3xl bg-black-200" />
-                      }
+                <Mail className="size-3.5" />
+                <span>Message</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={contactMode === "meeting"}
+                onClick={() => {
+                  tap(8);
+                  setContactMode("meeting");
+                }}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer ${
+                  contactMode === "meeting"
+                    ? "bg-cyan-500 text-black font-semibold shadow-[0_0_16px_rgba(34,211,238,0.45)]"
+                    : "text-white-50/70 hover:text-foreground"
+                }`}
+              >
+                <Calendar className="size-3.5" />
+                <span>Book Call</span>
+                <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse hidden sm:inline-block" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {contactMode === "meeting" ? (
+          <div className="w-full contact-reveal">
+            <Suspense
+              fallback={
+                <div className="w-full h-[600px] skeleton rounded-3xl bg-black-200/60" />
+              }
+            >
+              <CalScheduler onSwitchToMessage={() => setContactMode("message")} />
+            </Suspense>
+          </div>
+        ) : (
+          <div className="grid-12-cols items-stretch">
+            <div className="xl:col-span-5 flex flex-col justify-center gap-5">
+              <p className="contact-reveal text-center xl:text-start text-white-50/65 text-sm sm:text-base leading-relaxed max-w-md mx-auto xl:mx-0">
+                Got a project, a role, or just a fun idea? Drop a message — it
+                lands straight in my inbox. Not sure what to write? Pick a starter
+                below.
+              </p>
+
+              <div className="contact-reveal flex flex-wrap justify-center xl:justify-start gap-2">
+                {INTENTS.map((intent) => (
+                  <button
+                    key={intent.id}
+                    type="button"
+                    aria-pressed={activeIntent === intent.id}
+                    onClick={(e) => pickIntent(intent.id, e.currentTarget)}
+                    className={`chip shrink-0 inline-flex items-center px-3.5 py-2 text-xs rounded-full border transition-colors ${
+                      activeIntent === intent.id
+                        ? "chip-filter"
+                        : "border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground"
+                    }`}
+                  >
+                    {intent.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="contact-card contact-reveal card-border rounded-2xl p-6 sm:p-8">
+                {submitted ? (
+                  <div
+                    ref={successRef}
+                    className="flex flex-col items-center text-center gap-4 py-6"
+                  >
+                    <svg
+                      viewBox="0 0 64 64"
+                      className="size-14 text-green-400"
+                      fill="none"
+                      aria-hidden="true"
                     >
-                      <ContactExperience
-                        submitted={submitted}
-                        active={sceneVisible}
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="29"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        opacity="0.35"
                       />
-                    </Suspense>
+                      <path
+                        className="check-path"
+                        d="M20 33.5 28.5 42 45 24"
+                        stroke="currentColor"
+                        strokeWidth="4.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <h3 className="text-xl font-semibold">Message sent!</h3>
+                    <p className="text-sm text-white-50/60 max-w-xs">
+                      Thanks{sentName ? `, ${sentName}` : ""} — it landed in my
+                      inbox. I usually reply within 24 hours.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        tap(8);
+                        setSubmitted(false);
+                      }}
+                      className="chip chip-filter px-4 py-2 text-sm rounded-full"
+                    >
+                      Send another message
+                    </button>
                   </div>
+                ) : (
+                  <form
+                    ref={formRef}
+                    className="w-full flex flex-col gap-6"
+                    onSubmit={handleSubmit}
+                    noValidate
+                  >
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="name">Name</label>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        autoComplete="name"
+                        enterKeyHint="send"
+                        placeholder="Your Name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        aria-required="true"
+                        aria-invalid={errors.name ? "true" : undefined}
+                        aria-describedby={errors.name ? "name-error" : undefined}
+                      />
+                      {fieldError("name")}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="email">Email</label>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        autoComplete="email"
+                        enterKeyHint="send"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        aria-required="true"
+                        aria-invalid={errors.email ? "true" : undefined}
+                        aria-describedby={errors.email ? "email-error" : undefined}
+                      />
+                      {fieldError("email")}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="message">Message</label>
+                      <textarea
+                        id="message"
+                        ref={messageRef}
+                        name="message"
+                        rows={5}
+                        enterKeyHint="enter"
+                        placeholder="Your message..."
+                        value={formData.message}
+                        onChange={handleChange}
+                        required
+                        aria-required="true"
+                        aria-invalid={errors.message ? "true" : undefined}
+                        aria-describedby={errors.message ? "message-error" : undefined}
+                      />
+                      {fieldError("message")}
+                    </div>
+                    <button
+                      ref={submitMagneticRef}
+                      type="submit"
+                      disabled={loading || submitted}
+                      className="transition-opacity disabled:opacity-60 disabled:cursor-wait"
+                    >
+                      <div className="cta-button group">
+                        <div className="bg-circle" />
+                        <p className="text">
+                          {" "}
+                          {loading ? "Sending..." : "Send message"}{" "}
+                        </p>
+                        <div className="arrow-wrapper">
+                          <img src="/images/arrow-down.svg" alt="arrow" />
+                        </div>
+                      </div>
+                    </button>
+                    <p className="text-center text-xs text-white-50/40 -mt-2">
+                      Straight to my inbox &middot; no spam, ever
+                    </p>
+                  </form>
                 )}
-                <div className="pointer-events-none absolute inset-0 [background:radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.42)_100%)]" />
+              </div>
+
+              {/* Callout to switch to scheduling */}
+              <div className="contact-reveal flex items-center justify-center xl:justify-start pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    tap(8);
+                    setContactMode("meeting");
+                  }}
+                  className="inline-flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer group p-1"
+                >
+                  <Calendar className="size-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                  <span>Prefer to talk directly?</span>
+                  <span className="underline decoration-cyan-400/50 underline-offset-4 font-sans font-medium">
+                    Schedule 1-on-1 on Cal.com →
+                  </span>
+                </button>
+              </div>
+
+              <div className="contact-reveal flex flex-col items-center gap-3 xl:items-start">
+                <div className="flex items-center gap-2 flex-wrap justify-center xl:justify-start">
+                  <button
+                    type="button"
+                    onClick={copyEmail}
+                    className="chip inline-flex items-center gap-1.5 px-3.5 py-2 text-xs rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors"
+                  >
+                    <Copy className="size-3.5" />
+                    {CONTACT_EMAIL}
+                  </button>
+                  <a
+                    href={`mailto:${CONTACT_EMAIL}`}
+                    className="chip inline-flex items-center gap-1.5 px-3.5 py-2 text-xs rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors"
+                  >
+                    <Mail className="size-3.5" />
+                    Open mail app
+                  </a>
+                  {socialImg.map(({ link, imgPath, imgPathLight, name }) => (
+                    <a
+                      key={name}
+                      href={link}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={name}
+                      className="chip grid place-items-center size-9 rounded-full border border-black-50 bg-black-200 hover:bg-black-50 transition-colors"
+                    >
+                      <img
+                        src={imgPath}
+                        alt=""
+                        className="hidden dark:block size-4"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <img
+                        src={imgPathLight}
+                        alt=""
+                        className="dark:hidden size-4"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
-          )}
-        </div>
+
+            {wide && (
+              <div className="xl:col-span-7 min-h-96 xl:min-h-[540px]">
+                <div
+                  ref={sceneRef}
+                  data-testid="contact-scene"
+                  className="relative w-full h-full bg-[#cd7c2e] hover:cursor-grab rounded-3xl overflow-hidden"
+                >
+                  {sceneNear && (
+                    <div className="scene-in">
+                      <Suspense
+                        fallback={
+                          <div className="skeleton absolute inset-0 rounded-3xl bg-black-200" />
+                        }
+                      >
+                        <ContactExperience
+                          submitted={submitted}
+                          active={sceneVisible}
+                        />
+                      </Suspense>
+                    </div>
+                  )}
+                  <div className="pointer-events-none absolute inset-0 [background:radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.42)_100%)]" />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -6,6 +6,7 @@ import {
   BadgeCheck,
   Boxes,
   Briefcase,
+  Calendar,
   Check,
   ChefHat,
   Copy,
@@ -71,6 +72,18 @@ const CORE_PLATFORMS: LinkItem[] = [
     accentBorderHover: "hover:border-purple-500/70",
     accentBgIcon: "bg-purple-500/15",
     accentTextIcon: "text-purple-400",
+  },
+  {
+    id: "cal",
+    label: "Schedule a Meeting",
+    sub: "Book a 1-on-1 discovery, role sync, or quick chat on Cal.com",
+    href: "/#schedule",
+    internal: true,
+    icon: Calendar,
+    badge: "Cal.com",
+    accentBorderHover: "hover:border-cyan-500/70",
+    accentBgIcon: "bg-cyan-500/15",
+    accentTextIcon: "text-cyan-400",
   },
 ];
 

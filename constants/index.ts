@@ -53,6 +53,65 @@ export const counterItems: counterItem[] = [
 export const GITHUB_REPO = "SachinyadavAug20/portfolio";
 export const GITHUB_REPO_URL = `https://github.com/${GITHUB_REPO}`;
 
+export interface CalMeeting {
+  id: string;
+  slug: string;
+  title: string;
+  duration: string;
+  badge: string;
+  desc: string;
+  url: string;
+  calLink: string;
+  color: string;
+}
+
+export const calMeetings: CalMeeting[] = [
+  {
+    id: "project-discovery",
+    slug: "project-discovery",
+    title: "Project Discovery",
+    duration: "30-60 min",
+    badge: "Architecture & MVP",
+    desc: "Discuss project scope, tech stack, 3D web experience, backend APIs, or roadmap.",
+    url: "https://cal.com/sachin-yadav-hcvn1b/project-discovery",
+    calLink: "sachin-yadav-hcvn1b/project-discovery",
+    color: "#22d3ee", // cyan
+  },
+  {
+    id: "opportunity-chat",
+    slug: "opportunity-chat",
+    title: "Opportunity Chat",
+    duration: "20-45 min",
+    badge: "Roles & Hiring",
+    desc: "Software engineering internship, full-time/freelance role, or technical opportunity.",
+    url: "https://cal.com/sachin-yadav-hcvn1b/opportunity-chat",
+    calLink: "sachin-yadav-hcvn1b/opportunity-chat",
+    color: "#38bdf8", // sky blue
+  },
+  {
+    id: "collab-sync",
+    slug: "collab-sync",
+    title: "Collab Sync",
+    duration: "30-40 min",
+    badge: "Hackathons & OSS",
+    desc: "Team up for a hackathon, build something together, or discuss open-source contributions.",
+    url: "https://cal.com/sachin-yadav-hcvn1b/collab-sync",
+    calLink: "sachin-yadav-hcvn1b/collab-sync",
+    color: "#a855f7", // purple
+  },
+  {
+    id: "quick-chat",
+    slug: "quick-chat",
+    title: "Quick Chat",
+    duration: "10-20 min",
+    badge: "Casual & Q&A",
+    desc: "Casual conversation about web graphics, Linux, competitive programming, or questions.",
+    url: "https://cal.com/sachin-yadav-hcvn1b/quick-chat",
+    calLink: "sachin-yadav-hcvn1b/quick-chat",
+    color: "#34d399", // emerald
+  },
+];
+
 export const navLinks = [
   {
     name: "Project",

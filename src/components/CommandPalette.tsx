@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   BookOpen,
+  Calendar,
   FileText,
   Home,
   Keyboard,
@@ -175,13 +176,31 @@ const CommandPalette = () => {
         run: () => navigate("/links"),
       },
     ];
-    const jumps: PaletteItem[] = ANCHOR_SECTIONS.map((t) => ({
-      id: `anchor-${t}`,
-      label: t.charAt(0).toUpperCase() + t.slice(1),
-      hint: `/#${t}`,
-      icon: ArrowRight,
-      run: () => goAnchor(t),
-    }));
+    const jumps: PaletteItem[] = [
+      ...ANCHOR_SECTIONS.map((t) => ({
+        id: `anchor-${t}`,
+        label: t.charAt(0).toUpperCase() + t.slice(1),
+        hint: `/#${t}`,
+        icon: ArrowRight,
+        run: () => goAnchor(t),
+      })),
+      {
+        id: "schedule",
+        label: "Schedule a Meeting (Cal.com)",
+        hint: "/#schedule",
+        icon: Calendar,
+        run: () => {
+          const wasHome = window.location.pathname === "/";
+          navigate({ pathname: "/", hash: "#schedule" });
+          const scroll = () => {
+            const el = document.getElementById("contact");
+            if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
+          };
+          if (wasHome) requestAnimationFrame(scroll);
+          else setTimeout(scroll, 450);
+        },
+      },
+    ];
     const actions: PaletteItem[] = [
       {
         id: "theme",
