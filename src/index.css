@@ -642,16 +642,16 @@ section {
     display: none;
   }
 
-  /* Bottom tab bar — native app style floating dock (mobile only) */
+  /* Bottom tab bar — minimal native app style floating capsule dock (mobile only) */
   .bottom-tabbar {
-    @apply fixed bottom-3 inset-x-3 sm:inset-x-6 mx-auto max-w-sm z-[90] items-center justify-around rounded-full;
+    @apply fixed bottom-4 inset-x-0 mx-auto w-fit max-w-[320px] z-[90] items-center justify-center gap-1.5 sm:gap-2 rounded-full;
     background-color: var(--tab-bar-bg);
     border: 1px solid var(--nav-border);
     @apply backdrop-blur-[24px] backdrop-saturate-[180%] shadow-[0_12px_36px_rgba(0,0,0,0.55)];
     padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));
     padding-top: 0.35rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    padding-left: 0.45rem;
+    padding-right: 0.45rem;
     display: none;
     user-select: none;
     -webkit-user-select: none;
@@ -659,48 +659,9 @@ section {
   }
 
   .bottom-tab {
-    @apply relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[10px] sm:text-[11px] font-medium tracking-tight rounded-xl;
+    @apply relative flex items-center justify-center size-11 rounded-full;
     color: var(--nav-link-hover);
-    opacity: 0.72;
-    transition: opacity 0.2s, color 0.2s, transform 0.15s;
     -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Slides in above the active tab */
-  .bottom-tab::before {
-    content: "";
-    position: absolute;
-    top: 2px;
-    left: 50%;
-    width: 20px;
-    height: 2.5px;
-    border-radius: 9999px;
-    background-color: var(--tab-accent);
-    transform: translateX(-50%) scaleX(0);
-    transform-origin: center;
-    transition: transform var(--dur-base) var(--ease-spring);
-  }
-
-  .bottom-tab-icon {
-    @apply size-5;
-    transition: transform var(--dur-base) var(--ease-spring);
-  }
-
-  .bottom-tab:active {
-    transform: scale(0.88);
-  }
-
-  .bottom-tab.active {
-    opacity: 1;
-    color: var(--tab-accent);
-  }
-
-  .bottom-tab.active::before {
-    transform: translateX(-50%) scaleX(1);
-  }
-
-  .bottom-tab.active .bottom-tab-icon {
-    transform: translateY(-1.5px) scale(1.08);
   }
 
   @media (max-width: 1023px) {

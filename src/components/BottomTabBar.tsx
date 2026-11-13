@@ -122,21 +122,44 @@ const BottomTabBar = () => {
             key={tab.id}
             to={tab.href}
             onClick={(e) => handleClick(e, tab)}
-            className={`bottom-tab ${active ? "active text-cyan-400" : ""}`}
+            className="bottom-tab group"
+            aria-label={tab.label}
+            title={tab.label}
             aria-current={active ? "page" : undefined}
             whileTap={{ scale: 0.88 }}
             transition={{ type: "spring", stiffness: 600, damping: 25 }}
           >
-            <div className="relative flex items-center justify-center">
+            {/* Smooth gliding active pill capsule */}
+            {active && (
+              <motion.div
+                layoutId="activeTabPill"
+                className="absolute inset-0.5 rounded-full bg-cyan-500/15 dark:bg-cyan-400/20 border border-cyan-500/40 dark:border-cyan-400/50 shadow-[0_0_16px_-2px_rgba(34,211,238,0.4)]"
+                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              />
+            )}
+
+            {/* Glowing active micro-dot indicator */}
+            {active && (
+              <motion.span
+                layoutId="activeTabDot"
+                className="absolute bottom-0.5 size-1 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)]"
+                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              />
+            )}
+
+            <div className="relative flex items-center justify-center size-6 z-10">
               <Icon
-                className="bottom-tab-icon"
-                strokeWidth={active ? 2.4 : 1.7}
+                className={`size-5 transition-all duration-200 ${
+                  active
+                    ? "text-cyan-400 dark:text-cyan-300 scale-110 drop-shadow-[0_0_10px_rgba(34,211,238,0.65)]"
+                    : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-200"
+                }`}
+                strokeWidth={active ? 2.3 : 1.75}
               />
               {tab.badge && (
                 <span className="absolute -top-1 -right-1 size-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
               )}
             </div>
-            <span className="bottom-tab-label">{tab.label}</span>
           </MotionLink>
         );
       })}
