@@ -18,8 +18,6 @@ const ShowCaseSection = () => {
       if (reduced) return;
 
       const mobile = window.matchMedia("(max-width: 767px)").matches;
-      const dur = mobile ? 0.3 : 0.4;
-
       const projectEls = sectionRef.current?.querySelectorAll<HTMLElement>(".showcase-card");
       if (!projectEls || projectEls.length === 0) return;
 
@@ -28,17 +26,19 @@ const ShowCaseSection = () => {
         {
           y: mobile ? 24 : 40,
           opacity: 0,
+          scale: 0.98,
         },
         {
           y: 0,
           opacity: 1,
-          duration: dur,
-          stagger: 0.07,
-          ease: "power2.out",
-          clearProps: "transform,opacity",
+          scale: 1,
+          duration: mobile ? 0.45 : 0.6,
+          stagger: 0.08,
+          ease: "power3.out",
+          clearProps: "transform,opacity,scale",
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top 82%",
+            start: "top 85%",
             once: true,
           },
         },

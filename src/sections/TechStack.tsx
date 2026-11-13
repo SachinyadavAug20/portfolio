@@ -14,20 +14,21 @@ const TechStack = ({ isImage = false }: { isImage?: boolean }) => {
     gsap.fromTo(
       ".tech-card",
       {
-        y: mobile ? 28 : 48,
+        y: mobile ? 24 : 40,
         opacity: 0,
+        scale: 0.96,
       },
       {
         y: 0,
         opacity: 1,
-        duration: mobile ? 0.3 : 0.4,
-        ease: "power2.out",
-        // 30ms rhythm, capped at 250ms total — keeps the row feeling brisk.
-        stagger: { each: 0.03, amount: 0.25 },
-        clearProps: "transform,opacity",
+        scale: 1,
+        duration: mobile ? 0.38 : 0.5,
+        ease: "power3.out",
+        stagger: { each: 0.03, amount: 0.28 },
+        clearProps: "transform,opacity,scale",
         scrollTrigger: {
           trigger: "#skills",
-          start: "top center",
+          start: "top 80%",
           once: true,
         },
       },

@@ -538,16 +538,18 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
                   type="button"
                   onClick={copyEmail}
                   className="chip inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors cursor-pointer"
+                  title="Click to copy email address"
                 >
                   <Copy className="size-3.5" />
-                  {CONTACT_EMAIL}
+                  <span>{CONTACT_EMAIL}</span>
                 </button>
                 <a
                   href={`mailto:${CONTACT_EMAIL}`}
-                  className="chip inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors"
+                  aria-label="Open in mail app"
+                  title="Open in mail app"
+                  className="chip grid place-items-center size-8 rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-colors"
                 >
                   <Mail className="size-3.5" />
-                  Mail app
                 </a>
                 {socialImg.map(({ link, imgPath, imgPathLight, name }) => (
                   <a

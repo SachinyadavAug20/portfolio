@@ -105,10 +105,10 @@ const Hero = () => {
             <p className="hero-sub text-sm sm:text-[15px] md:text-base font-light text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl relative z-10 tracking-normal xl:pointer-events-none">
               Hi, I'm <span className="font-medium text-zinc-900 dark:text-zinc-100">Sachin</span>, a 2nd Year Computer Engineering undergraduate building high-performance systems, backend APIs, and interactive 3D web experiences.
             </p>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 z-10 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 z-10 w-full sm:w-auto">
               <Button
                 text="See my work"
-                className="w-full sm:w-60 md:w-72 h-12 md:h-16 active:scale-95 transition-transform"
+                className="w-full sm:w-60 md:w-64 h-14 active:scale-95 transition-transform"
                 id="counter"
               />
               <Button
@@ -116,7 +116,7 @@ const Hero = () => {
                 href="https://docs.google.com/document/d/1RFTuBerLRMMHeu0Ac4GvaXu7lUuRUDXo/edit?usp=sharing"
                 arrowImg="/images/arrow-right.svg"
                 arrowAlt="resume link"
-                className="w-full sm:w-60 md:w-72 h-12 md:h-16 active:scale-95 transition-transform"
+                className="w-full sm:w-60 md:w-64 h-14 active:scale-95 transition-transform"
               />
             </div>
           </div>

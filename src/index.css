@@ -250,7 +250,11 @@ section {
   }
 
   .grid-counter {
-    @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-3 xl:gap-5;
+    @apply flex flex-wrap justify-center gap-3 sm:gap-4 xl:gap-5;
+  }
+
+  .counter-item-wrap {
+    @apply w-[calc(50%-0.45rem)] sm:w-[calc(33.333%-0.75rem)] lg:w-[calc(20%-0.85rem)] xl:w-[calc(20%-1.05rem)] max-w-sm flex-none;
   }
 
   .grid-abilities {
@@ -723,18 +727,21 @@ section {
   }
 
   .cta-wrapper {
-    @apply relative z-20 cursor-pointer m-0 border-0 bg-transparent p-0;
+    @apply relative z-20 cursor-pointer m-0 border-0 bg-transparent p-0 inline-flex items-center justify-center;
     font: inherit;
+    box-sizing: border-box;
+    vertical-align: middle;
   }
 
   .cta-button {
-    @apply px-4 py-2.5 sm:py-3 rounded-lg flex justify-center items-center relative cursor-pointer overflow-hidden;
+    @apply px-4 rounded-xl flex justify-center items-center relative cursor-pointer overflow-hidden size-full;
+    box-sizing: border-box;
     background-color: var(--cta-bg);
     transition: transform var(--dur-fast) var(--ease-standard);
 
     .bg-circle {
       @apply absolute -right-10 origin-center top-1/2 -translate-y-1/2 
-        w-[120%] h-[120%] group-hover:size-10 group-hover:right-10
+        w-[120%] h-[120%] group-hover:size-9 md:group-hover:size-10 group-hover:right-5 sm:group-hover:right-6 md:group-hover:right-8
         rounded-full;
       background-color: var(--cta-circle);
       transition-property: width, height, right, border-radius, background-color;
@@ -742,10 +749,10 @@ section {
     }
 
     .text {
-      @apply uppercase md:text-lg
-        group-hover:-translate-x-5 xl:translate-x-0 -translate-x-5;
+      @apply uppercase text-sm sm:text-base md:text-lg font-medium tracking-wide
+        translate-x-0 group-hover:-translate-x-3.5 sm:group-hover:-translate-x-4;
       color: var(--cta-text);
-      transition: color 0.5s ease, transform 0.5s ease;
+      transition: color 0.4s ease, transform 0.4s ease;
     }
 
     .group:hover .text {
@@ -753,13 +760,13 @@ section {
     }
 
     .arrow-wrapper {
-      @apply size-10 rounded-full absolute right-10 top-1/2 
+      @apply size-9 md:size-10 rounded-full absolute right-5 sm:right-6 md:right-8 top-1/2 
         -translate-y-1/2 flex justify-center items-center overflow-hidden;
       background-color: transparent;
 
       img {
-        @apply size-5 xl:-translate-y-32 translate-y-0 animate-bounce;
-        transition: transform 0.5s ease;
+        @apply size-4 sm:size-5 translate-y-0 opacity-80 sm:opacity-0 sm:-translate-x-2 sm:group-hover:opacity-100 sm:group-hover:translate-x-0;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
       }
     }
 
@@ -768,7 +775,8 @@ section {
     }
 
     .group:hover .arrow-wrapper img {
-      transform: translateY(0);
+      opacity: 1;
+      transform: translateX(0);
     }
 
     /* one-shot gloss sweep across the button on hover */

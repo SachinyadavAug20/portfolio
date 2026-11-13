@@ -26,7 +26,7 @@ const Button = ({
   const anchorMagneticRef = useMagnetic<HTMLAnchorElement>();
 
   const content = (
-    <div className="cta-button group">
+    <div className="cta-button group size-full">
       <div className="bg-circle" />
       <p className="text">{text}</p>
       <div className="arrow-wrapper">
@@ -42,7 +42,7 @@ const Button = ({
         href={href}
         target={target ?? "_blank"}
         rel={rel ?? "noreferrer"}
-        className={`cta-wrapper ${className}`}
+        className={`cta-wrapper select-none ${className}`}
       >
         {content}
       </a>
@@ -53,7 +53,7 @@ const Button = ({
     <button
       ref={buttonMagneticRef}
       type="button"
-      className={`cta-wrapper ${className}`}
+      className={`cta-wrapper appearance-none select-none ${className}`}
       onClick={() => {
         const targetEl = document.getElementById(id);
         if (targetEl && id) {

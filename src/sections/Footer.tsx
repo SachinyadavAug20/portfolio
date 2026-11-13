@@ -67,11 +67,8 @@ const Footer = () => {
           </p>
         </div>
         <div className="flex flex-col justify-center items-center lg:items-end">
-          <p className="text-center lg:text-end">
-            © {new Date().getFullYear()} Sachin Yadav
-          </p>
-          <p className="text-center lg:text-end">
-            SachinYadavApr20 · All rights reserved
+          <p className="text-center lg:text-end text-xs text-white-50/70">
+            © {new Date().getFullYear()} Sachin Yadav · All rights reserved
           </p>
         </div>
       </div>

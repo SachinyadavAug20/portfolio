@@ -38,17 +38,18 @@ const FeatureCards = () => {
       const mobile = window.matchMedia("(max-width: 767px)").matches;
       gsap.fromTo(
         ".feature-card",
-        { y: mobile ? 24 : 40, opacity: 0 },
+        { y: mobile ? 24 : 36, opacity: 0, scale: 0.98 },
         {
           y: 0,
           opacity: 1,
-          duration: mobile ? 0.3 : 0.4,
-          ease: "power2.out",
-          stagger: { each: 0.03, amount: 0.25 },
-          clearProps: "transform,opacity",
+          scale: 1,
+          duration: mobile ? 0.4 : 0.55,
+          ease: "power3.out",
+          stagger: { each: 0.04, amount: 0.28 },
+          clearProps: "transform,opacity,scale",
           scrollTrigger: {
             trigger: rootRef.current,
-            start: "top 80%",
+            start: "top 85%",
             once: true,
           },
         },

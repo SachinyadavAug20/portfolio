@@ -144,9 +144,9 @@ const BlogList = () => {
       const scope = rootRef.current;
       if (!scope) return;
 
-      const mobile = window.matchMedia("(max-width: 768px)").matches;
-      const dur = mobile ? 0.24 : 0.3;
-      const cap = mobile ? 0.16 : 0.2;
+      const mobile = typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches;
+      const dur = mobile ? 0.32 : 0.42;
+      const cap = mobile ? 0.2 : 0.28;
       const intros = gsap.utils.toArray<HTMLElement>(".blog-intro", scope);
       const tiles = gsap.utils.toArray<HTMLElement>(".blog-tile, .tag-rail-item", scope);
 
@@ -154,24 +154,25 @@ const BlogList = () => {
       if (intros.length) {
         tl.fromTo(
           intros,
-          { y: mobile ? 8 : 12, opacity: 0 },
-          { y: 0, opacity: 1, duration: dur, ease: "power2.out", stagger: 0.045, clearProps: "transform,opacity" },
+          { y: mobile ? 10 : 16, opacity: 0 },
+          { y: 0, opacity: 1, duration: dur, ease: "power3.out", stagger: 0.045, clearProps: "transform,opacity" },
           0,
         );
       }
       if (tiles.length) {
         tl.fromTo(
           tiles,
-          { y: mobile ? 7 : 10, opacity: 0 },
+          { y: mobile ? 12 : 18, opacity: 0, scale: 0.98 },
           {
             y: 0,
             opacity: 1,
+            scale: 1,
             duration: dur,
-            ease: "power2.out",
-            stagger: (i: number) => Math.min(i * 0.03, cap),
-            clearProps: "transform,opacity",
+            ease: "power3.out",
+            stagger: (i: number) => Math.min(i * 0.035, cap),
+            clearProps: "transform,opacity,scale",
           },
-          0.07,
+          0.06,
         );
       }
     },
@@ -482,13 +483,13 @@ const BlogList = () => {
                     onSelect={(t) => (t ? setTag(t) : clearTag())}
                   />
                 )}
-                <p className="text-xs text-white-50/45 tabular-nums ml-auto">
-                  {currentTag || currentQuery
-                    ? `${filteredPosts.length} of ${posts.length} notes`
-                    : `${posts.length} notes`}
-                  {currentTag ? ` · #${currentTag}` : ""}
-                  {currentQuery ? ` · “${currentQuery}”` : ""}
-                </p>
+                {(currentTag || currentQuery) && (
+                  <p className="text-xs text-white-50/45 tabular-nums ml-auto">
+                    {filteredPosts.length} of {posts.length} notes
+                    {currentTag ? ` · #${currentTag}` : ""}
+                    {currentQuery ? ` · “${currentQuery}”` : ""}
+                  </p>
+                )}
               </div>
               {railTags.length > 0 && (
                 <div className="mb-6 -mx-1 px-1 flex gap-2 overflow-x-auto no-scrollbar lg:flex-wrap lg:overflow-x-visible">

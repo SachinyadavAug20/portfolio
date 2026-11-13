@@ -100,29 +100,43 @@ const ExperienceSection = () => {
       if (!track || !scroller) return;
 
       if (!reduced) {
-        gsap.from(".exp-line", {
-          scaleX: 0,
-          transformOrigin: "left center",
-          duration: 1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: "#experience",
-            start: "top 80%",
-            once: true,
+        gsap.fromTo(
+          ".exp-line",
+          { scaleX: 0 },
+          {
+            scaleX: 1,
+            transformOrigin: "left center",
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: "#experience",
+              start: "top 80%",
+              once: true,
+            },
           },
-        });
-        gsap.from(".exp-entry", {
-          y: 30,
-          opacity: 0,
-          duration: 0.5,
-          stagger: 0.1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: "#experience",
-            start: "top 75%",
-            once: true,
+        );
+        gsap.fromTo(
+          ".exp-entry",
+          {
+            y: 36,
+            opacity: 0,
+            scale: 0.98,
           },
-        });
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            duration: 0.55,
+            stagger: 0.08,
+            ease: "power3.out",
+            clearProps: "transform,opacity,scale",
+            scrollTrigger: {
+              trigger: "#experience",
+              start: "top 78%",
+              once: true,
+            },
+          },
+        );
       }
 
       /* wheel-to-horizontal scrolling: desktop trackpad or mouse wheel

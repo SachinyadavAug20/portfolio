@@ -216,9 +216,9 @@ const riseWith = (reduced: boolean) => (i: number) =>
   reduced
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.15 } }
     : {
-        initial: { opacity: 0, y: 10 },
-        animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.25, delay: 0.03 + i * 0.025, ease: "easeOut" as const },
+        initial: { opacity: 0, y: 14, scale: 0.98 },
+        animate: { opacity: 1, y: 0, scale: 1 },
+        transition: { duration: 0.35, delay: 0.03 + i * 0.03, ease: [0.25, 1, 0.5, 1] as const },
       };
 
 const ProCard = ({

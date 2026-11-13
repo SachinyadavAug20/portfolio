@@ -2,11 +2,11 @@ import { useRef, type JSX } from "react";
 import type { expCardProps } from "../../constants";
 
 const GlowCard = ({
-  card,
+  card: _card,
   children,
   index: _index,
 }: {
-  card: expCardProps;
+  card?: expCardProps;
   children: JSX.Element;
   index: number;
 }) => {
@@ -37,23 +37,9 @@ const GlowCard = ({
       ref={cardRef}
       onPointerEnter={handlePointerEnter}
       onPointerMove={handlePointerMove}
-      className="card card-border timeline-card rounded-xl p-3 sm:p-4 bread-inside-avoid-column"
+      className="card card-border timeline-card rounded-2xl p-4 sm:p-5 break-inside-avoid-column"
     >
       <div className="glow" />
-      <div className="mb-2 flex items-center gap-0.5" role="img" aria-label="Rated 5 out of 5">
-        {Array.from({ length: 5 }, (_, i) => (
-          <img
-            src="/images/star.png"
-            key={i}
-            alt=""
-            aria-hidden="true"
-            className="size-3.5"
-          />
-        ))}
-      </div>
-      <div className="mb-2">
-        <p className="text-white-50 text-[13px] leading-relaxed">{card.review}</p>
-      </div>
       {children}
     </div>
   );

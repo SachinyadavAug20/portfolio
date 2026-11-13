@@ -61,7 +61,7 @@ const CounterItem = ({
 
   const cardContent = (
     <div
-      className="counter-tile group relative rounded-xl p-3.5 sm:p-4 md:p-5 lg:p-4 xl:p-6 flex flex-col justify-center mt-2 min-w-0 transition-transform active:scale-[0.98]"
+      className="counter-tile group relative rounded-xl p-3.5 sm:p-4 md:p-5 lg:p-4 xl:p-6 flex flex-col justify-between h-full min-h-[92px] sm:min-h-[104px] transition-transform active:scale-[0.98]"
       style={{
         backgroundColor: "var(--counter-bg)",
         color: "var(--counter-text)",
@@ -98,7 +98,7 @@ const CounterItem = ({
           tap(8);
           onOpenModal?.();
         }}
-        className={`block text-left w-full cursor-pointer focus:outline-none ${className}`}
+        className={`counter-item-wrap block text-left cursor-pointer focus:outline-none ${className}`}
         aria-label="View Open Source Pull Requests"
       >
         {cardContent}
@@ -111,7 +111,7 @@ const CounterItem = ({
       href={url}
       target="_blank"
       rel="noreferrer"
-      className={`block text-left ${className}`}
+      className={`counter-item-wrap block text-left ${className}`}
     >
       {cardContent}
     </a>
@@ -143,15 +143,50 @@ const AnimatedCounter = () => {
     });
   }, []);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  useGSAP(
+    () => {
+      if (reduced) return;
+      const mobile = window.matchMedia("(max-width: 767px)").matches;
+      const tiles = containerRef.current?.querySelectorAll<HTMLElement>(".counter-tile");
+      if (!tiles || tiles.length === 0) return;
+
+      gsap.fromTo(
+        tiles,
+        {
+          y: mobile ? 20 : 32,
+          opacity: 0,
+          scale: 0.98,
+        },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: mobile ? 0.4 : 0.55,
+          ease: "power3.out",
+          stagger: 0.06,
+          clearProps: "transform,opacity,scale",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 92%",
+            once: true,
+          },
+        },
+      );
+    },
+    { scope: containerRef, dependencies: [reduced], revertOnUpdate: true },
+  );
+
   return (
     <>
-      <div id="counter" className="w-full padding-x-lg py-4 sm:py-6 relative z-10 clear-both">
+      <div id="counter" ref={containerRef} className="w-full padding-x-lg py-4 sm:py-6 relative z-10 clear-both">
         <div className="mx-auto grid-counter">
-          {items.map((item, idx) => (
+          {items.map((item) => (
             <CounterItem
               key={item.text}
               {...item}
-              className={idx === 4 ? "col-span-2 sm:col-span-1" : ""}
               onOpenModal={() => setIsPrModalOpen(true)}
             />
           ))}
