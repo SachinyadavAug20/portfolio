@@ -1,6 +1,9 @@
+import { OPEN_SOURCE_PRS } from "../data/openSourcePrs";
+
 const GITHUB_USER = "SachinyadavAug20";
 const FALLBACK_LEETCODE = 150;
 const FALLBACK_GIT = 500;
+const FALLBACK_PRS = OPEN_SOURCE_PRS.length;
 const CACHE_TTL = 30 * 60 * 1000;
 const PERSIST_KEY = "portfolio:live-stats";
 const PERSIST_TTL = 6 * 60 * 60 * 1000;
@@ -8,6 +11,7 @@ const PERSIST_TTL = 6 * 60 * 60 * 1000;
 export interface LiveStats {
   leetcodeSolved: number;
   gitCommits: number;
+  openSourcePrs: number;
 }
 
 type Persisted = { t: number } & Partial<LiveStats>;
@@ -42,19 +46,19 @@ export function fetchLiveStats(): Promise<LiveStats> {
   // Module-level promise cache: dedupes concurrent mounts within a session.
   if (cached && Date.now() - cached.at < CACHE_TTL) return cached.promise;
 
-  // Across sessions the numbers live in localStorage — repeat visits never
-  // spend GitHub's 10-req/min unauthenticated search quota on commit counts.
-  // Legs are cached independently: one failing API (rate limit, offline
-  // leetcode proxy) must not forfeit the other's quota-saving cache.
   const persisted = readPersisted();
   const cachedLeetcode =
     persisted && typeof persisted.leetcodeSolved === "number" ? persisted.leetcodeSolved : null;
   const cachedGit =
     persisted && typeof persisted.gitCommits === "number" ? persisted.gitCommits : null;
-  if (cachedLeetcode !== null && cachedGit !== null) {
+  const cachedPrs =
+    persisted && typeof persisted.openSourcePrs === "number" ? persisted.openSourcePrs : null;
+
+  if (cachedLeetcode !== null && cachedGit !== null && cachedPrs !== null) {
     const promise = Promise.resolve({
       leetcodeSolved: cachedLeetcode,
       gitCommits: cachedGit,
+      openSourcePrs: cachedPrs,
     });
     cached = { at: Date.now(), promise };
     return promise;
@@ -63,16 +67,17 @@ export function fetchLiveStats(): Promise<LiveStats> {
   const promise = Promise.allSettled([
     cachedLeetcode !== null ? Promise.resolve(cachedLeetcode) : fetchLeetcodeSolved(),
     cachedGit !== null ? Promise.resolve(cachedGit) : fetchGitCommits(),
-  ]).then(([leetcode, git]) => {
+    cachedPrs !== null ? Promise.resolve(cachedPrs) : fetchGitPrs(),
+  ]).then(([leetcode, git, prs]) => {
     const stats: LiveStats = {
       leetcodeSolved:
         leetcode.status === "fulfilled" ? leetcode.value : FALLBACK_LEETCODE,
       gitCommits: git.status === "fulfilled" ? git.value : FALLBACK_GIT,
+      openSourcePrs: prs.status === "fulfilled" ? prs.value : FALLBACK_PRS,
     };
-    // persist only the legs that answered — a rate-limited miss must not
-    // freeze a fallback number for six hours
     if (leetcode.status === "fulfilled") writePersisted({ leetcodeSolved: stats.leetcodeSolved });
     if (git.status === "fulfilled") writePersisted({ gitCommits: stats.gitCommits });
+    if (prs.status === "fulfilled") writePersisted({ openSourcePrs: stats.openSourcePrs });
     return stats;
   });
   cached = { at: Date.now(), promise };
@@ -96,5 +101,14 @@ async function fetchGitCommits(): Promise<number> {
   if (!res.ok) throw new Error(`GitHub API: ${res.status}`);
   const data = await res.json();
   if (typeof data.total_count !== "number") throw new Error("GitHub API: unexpected response");
+  return data.total_count;
+}
+
+async function fetchGitPrs(): Promise<number> {
+  const url = `https://api.github.com/search/issues?q=author:${GITHUB_USER}+type:pr&per_page=1`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`GitHub API PR: ${res.status}`);
+  const data = await res.json();
+  if (typeof data.total_count !== "number") throw new Error("GitHub API PR: unexpected response");
   return data.total_count;
 }
