@@ -7,12 +7,11 @@ import {
   Search,
   CheckCircle2,
   Clock,
-  Layers,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { tap } from "../lib/haptics";
 import { stopSmoothScroll, startSmoothScroll } from "../lib/smoothScroll";
-import { OPEN_SOURCE_PRS, GITHUB_PR_SEARCH_URLS, type OpenSourcePR } from "../data/openSourcePrs";
+import { OPEN_SOURCE_PRS, GITHUB_PR_SEARCH_URLS } from "../data/openSourcePrs";
 
 interface PrModalProps {
   isOpen: boolean;
@@ -88,7 +87,7 @@ export const PrModal = ({ isOpen, onClose, initialFilter = "all" }: PrModalProps
   return (
     <AnimatePresence>
       <div
-        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 overscroll-contain"
+        className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 overscroll-contain"
         role="dialog"
         aria-modal="true"
         aria-labelledby="pr-modal-title"

@@ -60,7 +60,9 @@ const CounterItem = ({
   const cardContent = (
     <div
       className={`counter-tile rounded-xl p-3.5 sm:p-4 md:p-5 lg:p-4 xl:p-6 flex flex-col justify-center mt-2 min-w-0 transition-transform active:scale-[0.98] ${
-        isPr ? "col-span-2 md:col-span-1 border-purple-500/30! bg-gradient-to-br from-[var(--counter-bg)] to-purple-950/20" : ""
+        isPr
+          ? "col-span-2 md:col-span-1 border-purple-500/40! bg-gradient-to-br from-purple-50/70 via-[var(--counter-bg)] to-purple-100/50 dark:from-purple-950/30 dark:via-[var(--counter-bg)] dark:to-purple-900/20 shadow-sm"
+          : ""
       }`}
       style={{
         backgroundColor: "var(--counter-bg)",
@@ -81,11 +83,11 @@ const CounterItem = ({
       {isPr && (
         <div className="mt-2.5">
           <span
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 text-[11px] sm:text-xs font-medium transition-all active:scale-95 touch-manipulation cursor-pointer group-hover:border-purple-400/50"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-600/15 dark:bg-purple-500/20 hover:bg-purple-600/25 border border-purple-500/35 text-purple-700 dark:text-purple-300 text-[11px] sm:text-xs font-semibold transition-all active:scale-95 touch-manipulation cursor-pointer group-hover:border-purple-400 shadow-xs"
           >
-            <GitPullRequest className="size-3" />
+            <GitPullRequest className="size-3 text-purple-700 dark:text-purple-300" />
             <span>View PRs</span>
-            <ExternalLink className="size-2.5 opacity-60" />
+            <ExternalLink className="size-2.5 opacity-70" />
           </span>
         </div>
       )}
