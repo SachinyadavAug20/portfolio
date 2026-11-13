@@ -1,23 +1,31 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { GitPullRequest, ExternalLink } from "lucide-react";
 import { counterItems } from "../../constants";
 import { fetchLiveStats } from "../lib/stats";
 import { useReducedMotion } from "../hooks/useReducedMotion";
+import { tap } from "../lib/haptics";
+import PrModal from "./PrModal";
 
 const CounterItem = ({
   value,
   suffix,
   text,
   url,
+  isModal,
+  onOpenModal,
 }: {
   value: number;
   suffix: string;
   text: string;
   url: string;
+  isModal?: boolean;
+  onOpenModal?: () => void;
 }) => {
   const numRef = useRef<HTMLSpanElement>(null);
   const reduced = useReducedMotion();
+  const isPr = isModal || text === "Open-Source PRs";
 
   useGSAP(
     () => {
@@ -49,32 +57,71 @@ const CounterItem = ({
     { dependencies: [value, reduced], revertOnUpdate: true },
   );
 
-  return (
-    <a href={url} target="_blank" rel="noreferrer">
-      <div
-        className="counter-tile rounded-xl p-4! sm:p-5! md:p-8! xl:p-10! flex flex-col justify-center mt-2 min-w-0"
-        style={{
-          backgroundColor: "var(--counter-bg)",
-          color: "var(--counter-text)",
-          border: "1px solid var(--counter-border)",
-        }}
-      >
-        <div className="counter-number text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-bold mb-1 md:mb-2">
-          <span ref={numRef}>0</span>
-          {suffix}
-        </div>
-        <div style={{ color: "var(--counter-muted)" }} className="text-xs sm:text-sm md:text-base xl:text-lg leading-snug">
-          {text}
-        </div>
+  const cardContent = (
+    <div
+      className={`counter-tile rounded-xl p-3.5 sm:p-4 md:p-5 lg:p-4 xl:p-6 flex flex-col justify-center mt-2 min-w-0 transition-transform active:scale-[0.98] ${
+        isPr ? "col-span-2 md:col-span-1 border-purple-500/30! bg-gradient-to-br from-[var(--counter-bg)] to-purple-950/20" : ""
+      }`}
+      style={{
+        backgroundColor: "var(--counter-bg)",
+        color: "var(--counter-text)",
+        border: "1px solid var(--counter-border)",
+      }}
+    >
+      <div className="counter-number text-2xl sm:text-3xl md:text-3xl xl:text-4xl font-bold mb-1">
+        <span ref={numRef}>0</span>
+        {suffix}
       </div>
+      <div
+        style={{ color: "var(--counter-muted)" }}
+        className="text-xs sm:text-sm md:text-xs xl:text-sm leading-snug"
+      >
+        {text}
+      </div>
+      {isPr && (
+        <div className="mt-2.5">
+          <span
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 text-[11px] sm:text-xs font-medium transition-all active:scale-95 touch-manipulation cursor-pointer group-hover:border-purple-400/50"
+          >
+            <GitPullRequest className="size-3" />
+            <span>View PRs</span>
+            <ExternalLink className="size-2.5 opacity-60" />
+          </span>
+        </div>
+      )}
+    </div>
+  );
+
+  if (isPr) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          tap(8);
+          onOpenModal?.();
+        }}
+        className="text-left w-full cursor-pointer focus:outline-none col-span-2 md:col-span-1"
+        aria-label="View Open Source Pull Requests"
+      >
+        {cardContent}
+      </button>
+    );
+  }
+
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="block text-left">
+      {cardContent}
     </a>
   );
 };
 
 const AnimatedCounter = () => {
+  const [isPrModalOpen, setIsPrModalOpen] = useState(false);
   const [items, setItems] = useState(() =>
     counterItems.map((item) =>
-      item.text === "Problems Solved" || item.text === "Git Commits"
+      item.text === "Problems Solved" ||
+      item.text === "Git Commits" ||
+      item.text === "Open-Source PRs"
         ? { ...item, value: 0 }
         : item,
     ),
@@ -86,6 +133,7 @@ const AnimatedCounter = () => {
         prev.map((item) => {
           if (item.text === "Problems Solved") return { ...item, value: stats.leetcodeSolved };
           if (item.text === "Git Commits") return { ...item, value: stats.gitCommits };
+          if (item.text === "Open-Source PRs") return { ...item, value: stats.openSourcePrs };
           return item;
         }),
       );
@@ -93,13 +141,20 @@ const AnimatedCounter = () => {
   }, []);
 
   return (
-    <div id="counter" className="w-full padding-x-lg py-4 sm:py-6 relative z-10 clear-both">
-      <div className="mx-auto grid-4-cols">
-        {items.map((item) => (
-          <CounterItem key={item.text} {...item} />
-        ))}
+    <>
+      <div id="counter" className="w-full padding-x-lg py-4 sm:py-6 relative z-10 clear-both">
+        <div className="mx-auto grid-counter">
+          {items.map((item) => (
+            <CounterItem
+              key={item.text}
+              {...item}
+              onOpenModal={() => setIsPrModalOpen(true)}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+      <PrModal isOpen={isPrModalOpen} onClose={() => setIsPrModalOpen(false)} />
+    </>
   );
 };
 

@@ -33,6 +33,7 @@ interface counterItem {
   value: number;
   text: string;
   suffix: string;
+  isModal?: boolean;
 }
 export const counterItems: counterItem[] = [
   {
@@ -46,6 +47,13 @@ export const counterItems: counterItem[] = [
     text: "Git Commits",
     suffix: "+",
     url: "https://github.com/SachinyadavAug20#contributions-calendar",
+  },
+  {
+    value: 30,
+    text: "Open-Source PRs",
+    suffix: "+",
+    url: "https://github.com/search?q=author%3ASachinyadavAug20+type%3Apr",
+    isModal: true,
   },
   { value: 5, text: "Production Projects", suffix: "+", url: "https://github.com/SachinyadavAug20" },
   { value: 6, text: "Games on itch.io", suffix: "+", url: "https://sachinapr20.itch.io/" },
