@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { GitPullRequest, ExternalLink } from "lucide-react";
+import { GitPullRequest } from "lucide-react";
 import { counterItems } from "../../constants";
 import { fetchLiveStats } from "../lib/stats";
 import { useReducedMotion } from "../hooks/useReducedMotion";
@@ -14,6 +14,7 @@ const CounterItem = ({
   text,
   url,
   isModal,
+  className = "",
   onOpenModal,
 }: {
   value: number;
@@ -21,6 +22,7 @@ const CounterItem = ({
   text: string;
   url: string;
   isModal?: boolean;
+  className?: string;
   onOpenModal?: () => void;
 }) => {
   const numRef = useRef<HTMLSpanElement>(null);
@@ -59,20 +61,25 @@ const CounterItem = ({
 
   const cardContent = (
     <div
-      className={`counter-tile rounded-xl p-3.5 sm:p-4 md:p-5 lg:p-4 xl:p-6 flex flex-col justify-center mt-2 min-w-0 transition-transform active:scale-[0.98] ${
-        isPr
-          ? "col-span-2 md:col-span-1 border-purple-500/40! bg-gradient-to-br from-purple-50/70 via-[var(--counter-bg)] to-purple-100/50 dark:from-purple-950/30 dark:via-[var(--counter-bg)] dark:to-purple-900/20 shadow-sm"
-          : ""
-      }`}
+      className="counter-tile group relative rounded-xl p-3.5 sm:p-4 md:p-5 lg:p-4 xl:p-6 flex flex-col justify-center mt-2 min-w-0 transition-transform active:scale-[0.98]"
       style={{
         backgroundColor: "var(--counter-bg)",
         color: "var(--counter-text)",
         border: "1px solid var(--counter-border)",
       }}
     >
-      <div className="counter-number text-2xl sm:text-3xl md:text-3xl xl:text-4xl font-bold mb-1">
-        <span ref={numRef}>0</span>
-        {suffix}
+      <div className="counter-number text-2xl sm:text-3xl md:text-3xl xl:text-4xl font-bold mb-1 flex items-baseline justify-between">
+        <span>
+          <span ref={numRef}>0</span>
+          {suffix}
+        </span>
+        {isPr && (
+          <GitPullRequest
+            className="size-3.5 sm:size-4 opacity-40 group-hover:opacity-90 transition-opacity shrink-0"
+            style={{ color: "var(--counter-muted)" }}
+            aria-hidden="true"
+          />
+        )}
       </div>
       <div
         style={{ color: "var(--counter-muted)" }}
@@ -80,17 +87,6 @@ const CounterItem = ({
       >
         {text}
       </div>
-      {isPr && (
-        <div className="mt-2.5">
-          <span
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-600/15 dark:bg-purple-500/20 hover:bg-purple-600/25 border border-purple-500/35 text-purple-700 dark:text-purple-300 text-[11px] sm:text-xs font-semibold transition-all active:scale-95 touch-manipulation cursor-pointer group-hover:border-purple-400 shadow-xs"
-          >
-            <GitPullRequest className="size-3 text-purple-700 dark:text-purple-300" />
-            <span>View PRs</span>
-            <ExternalLink className="size-2.5 opacity-70" />
-          </span>
-        </div>
-      )}
     </div>
   );
 
@@ -102,7 +98,7 @@ const CounterItem = ({
           tap(8);
           onOpenModal?.();
         }}
-        className="text-left w-full cursor-pointer focus:outline-none col-span-2 md:col-span-1"
+        className={`block text-left w-full cursor-pointer focus:outline-none ${className}`}
         aria-label="View Open Source Pull Requests"
       >
         {cardContent}
@@ -111,7 +107,12 @@ const CounterItem = ({
   }
 
   return (
-    <a href={url} target="_blank" rel="noreferrer" className="block text-left">
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className={`block text-left ${className}`}
+    >
       {cardContent}
     </a>
   );
@@ -146,10 +147,11 @@ const AnimatedCounter = () => {
     <>
       <div id="counter" className="w-full padding-x-lg py-4 sm:py-6 relative z-10 clear-both">
         <div className="mx-auto grid-counter">
-          {items.map((item) => (
+          {items.map((item, idx) => (
             <CounterItem
               key={item.text}
               {...item}
+              className={idx === 4 ? "col-span-2 sm:col-span-1" : ""}
               onOpenModal={() => setIsPrModalOpen(true)}
             />
           ))}
