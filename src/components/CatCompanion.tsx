@@ -1583,6 +1583,25 @@ const CatCompanion = () => {
         return;
       }
       const d = Math.hypot(t.clientX - neko.position.x, t.clientY - neko.position.y);
+      const bEl = bubbleRef.current;
+      let overBubble = false;
+      if (bEl) {
+        const bRect = bEl.getBoundingClientRect();
+        overBubble =
+          t.clientX >= bRect.left &&
+          t.clientX <= bRect.right &&
+          t.clientY >= bRect.top &&
+          t.clientY <= bRect.bottom;
+      }
+      /* Fade to transparent when cursor is over/near the cat or speech bubble so buttons behind are fully visible and clickable */
+      if (d < 56 || overBubble) {
+        root.classList.add("cat-transparent");
+        bEl?.classList.add("cat-transparent");
+      } else if (d > 76 && !overBubble) {
+        root.classList.remove("cat-transparent");
+        bEl?.classList.remove("cat-transparent");
+      }
+
       if (d < 40 && !hoveringCat) {
         hoveringCat = true;
         /* a curious tilt-lean, tweened (transform stays neko-free) */
@@ -1919,6 +1938,29 @@ const CatCompanion = () => {
        and going shy inside her personal space seeds an escape heading,
        since the retreat above only fires on fresh moves */
     const moodTick = window.setInterval(() => {
+      const n = nekoRef.current;
+      const root = document.querySelector<HTMLElement>('[data-neko="0"]');
+      if (n && root) {
+        const m = lastPointer.current;
+        const dist = Math.hypot(m.x - n.position.x, m.y - n.position.y);
+        const bEl = bubbleRef.current;
+        let overBubble = false;
+        if (bEl) {
+          const bRect = bEl.getBoundingClientRect();
+          overBubble =
+            m.x >= bRect.left &&
+            m.x <= bRect.right &&
+            m.y >= bRect.top &&
+            m.y <= bRect.bottom;
+        }
+        if (dist < 56 || overBubble) {
+          root.classList.add("cat-transparent");
+          bEl?.classList.add("cat-transparent");
+        } else if (dist > 76 && !overBubble) {
+          root.classList.remove("cat-transparent");
+          bEl?.classList.remove("cat-transparent");
+        }
+      }
       const fast = Date.now() - lastFastMove.current < FRIEND_HOLD;
       if (fast === pointerFast.current) return;
       pointerFast.current = fast;

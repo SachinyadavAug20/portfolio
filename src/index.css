@@ -2559,6 +2559,10 @@ h4 {
   z-index: 132;
   pointer-events: none;
   will-change: transform;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cat-bubble-anchor.cat-transparent {
+  opacity: 0.15 !important;
 }
 .cat-bubble {
   position: relative;
@@ -2997,22 +3001,18 @@ html.cat-cursor-on :is(input, textarea, [contenteditable="true"]) {
   }
 }
 
-/* data-neko sprite: directly hoverable and clickable desktop pet */
+/* data-neko sprite: non-blocking desktop pet with seamless click-through and fade on cursor proximity */
 [data-neko="0"] {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  transition: opacity 0.45s ease, filter 0.25s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  pointer-events: none !important;
   user-select: none;
-}
-[data-neko="0"]:hover {
-  filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.85)) drop-shadow(0 0 4px rgba(56, 189, 248, 0.6)) !important;
-  transform: scale(1.14) !important;
-}
-[data-neko="0"]:active {
-  transform: scale(0.94) !important;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 [data-neko="0"].cat-peek {
   opacity: 0.5;
+}
+[data-neko="0"].cat-transparent {
+  opacity: 0.15 !important;
+  filter: grayscale(35%) !important;
 }
 
 /* clickable blog suggestion: the anchor stays inert, the pill opts back in */
