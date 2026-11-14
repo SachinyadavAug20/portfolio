@@ -4,9 +4,11 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { flushSync } from "react-dom";
 
 export type Theme = "light" | "dark";
 export type ThemeSetting = Theme | "system";
@@ -59,6 +61,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeSetting>(getInitialTheme);
   const [systemTheme, setSystemTheme] = useState<Theme>(getSystemTheme);
+  const isTransitioningRef = useRef(false);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: light)");
@@ -84,6 +87,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const toggleTheme = useCallback(
     (origin?: { x: number; y: number }) => {
+      if (isTransitioningRef.current) return;
+      isTransitioningRef.current = true;
+
       const currentResolved = theme === "system" ? systemTheme : theme;
       const next: Theme = currentResolved === "dark" ? "light" : "dark";
 
@@ -100,84 +106,90 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         typeof window !== "undefined" &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      if (
-        typeof document === "undefined" ||
-        !("startViewTransition" in document) ||
-        prefersReducedMotion
-      ) {
+      // Gecko / Firefox / Zen Browser does not support Web Animations API on ::view-transition-* pseudo-elements.
+      // In these engines, document.startViewTransition + element.animate causes rendering freezes and screen splitting.
+      const isGecko =
+        typeof navigator !== "undefined" &&
+        (/firefox|zen/i.test(navigator.userAgent) || !("chrome" in window));
+
+      const supportsViewTransition =
+        typeof document !== "undefined" &&
+        "startViewTransition" in document &&
+        !isGecko &&
+        !prefersReducedMotion;
+
+      if (!supportsViewTransition) {
+        // Butter-smooth, hardware-accelerated CSS color cross-fade transition
         if (!prefersReducedMotion && typeof document !== "undefined") {
-          const overlay = document.createElement("div");
-          overlay.className = "theme-circle-spread-fallback";
-          overlay.style.cssText = `
-            position: fixed;
-            inset: 0;
-            z-index: 999999;
-            pointer-events: none;
-            background-color: ${next === "dark" ? "#0e0e10" : "#ffffff"};
-            clip-path: circle(0px at ${x}px ${y}px);
-            transition: clip-path 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-          `;
-          document.body.appendChild(overlay);
-          void overlay.offsetWidth;
-          overlay.style.clipPath = `circle(${endRadius}px at ${x}px ${y}px)`;
-          window.setTimeout(() => {
+          const root = document.documentElement;
+          root.classList.add("theme-transitioning");
+          flushSync(() => {
             applyTheme(next);
             setTheme(next);
-            window.setTimeout(() => {
-              overlay.remove();
-            }, 120);
-          }, 320);
+          });
+          window.setTimeout(() => {
+            root.classList.remove("theme-transitioning");
+            isTransitioningRef.current = false;
+          }, 360);
           return;
         }
 
         applyTheme(next);
         setTheme(next);
+        isTransitioningRef.current = false;
         return;
       }
 
-      document.documentElement.classList.add("theme-transitioning");
-
-      const transition = (
-        document as unknown as {
-          startViewTransition: (cb: () => void) => {
-            ready: Promise<void>;
-            finished: Promise<void>;
-          };
-        }
-      ).startViewTransition(() => {
-        applyTheme(next);
-        setTheme(next);
-      });
-
-      transition.ready
-        .then(() => {
-          const clipPath = [
-            `circle(0px at ${x}px ${y}px)`,
-            `circle(${endRadius}px at ${x}px ${y}px)`,
-          ];
-
-          const anim = document.documentElement.animate(
-            {
-              clipPath,
-            },
-            {
-              duration: 480,
-              easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-              pseudoElement: "::view-transition-new(root)",
-            },
-          );
-
-          anim.onfinish = () => {
-            document.documentElement.classList.remove("theme-transitioning");
-          };
-        })
-        .catch(() => {
-          document.documentElement.classList.remove("theme-transitioning");
+      // Chromium circular spread view transition
+      try {
+        const transition = (
+          document as unknown as {
+            startViewTransition: (cb: () => void) => {
+              ready: Promise<void>;
+              finished: Promise<void>;
+            };
+          }
+        ).startViewTransition(() => {
+          flushSync(() => {
+            applyTheme(next);
+            setTheme(next);
+          });
         });
 
-      transition.finished.finally(() => {
-        document.documentElement.classList.remove("theme-transitioning");
-      });
+        transition.ready
+          .then(() => {
+            const clipPath = [
+              `circle(0px at ${x}px ${y}px)`,
+              `circle(${endRadius}px at ${x}px ${y}px)`,
+            ];
+
+            const anim = document.documentElement.animate(
+              {
+                clipPath,
+              },
+              {
+                duration: 420,
+                easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+                pseudoElement: "::view-transition-new(root)",
+              },
+            );
+
+            anim.onfinish = () => {
+              isTransitioningRef.current = false;
+            };
+          })
+          .catch(() => {
+            isTransitioningRef.current = false;
+          });
+
+        transition.finished.finally(() => {
+          isTransitioningRef.current = false;
+        });
+      } catch {
+        applyTheme(next);
+        setTheme(next);
+        isTransitioningRef.current = false;
+      }
     },
     [theme, systemTheme, setTheme],
   );

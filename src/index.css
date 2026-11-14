@@ -2099,41 +2099,30 @@ h4 {
   view-transition-name: site-footer;
 }
 
-/* Circular spread theme transition */
-html.theme-transitioning * {
-  view-transition-name: none !important;
-}
-
-html.theme-transitioning::view-transition-group(root) {
-  animation-duration: 0.48s;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-html.theme-transitioning::view-transition-old(root),
-html.theme-transitioning::view-transition-new(root) {
+/* Circular spread theme transition (Chromium view-transition) */
+::view-transition-old(root),
+::view-transition-new(root) {
   animation: none !important;
   mix-blend-mode: normal !important;
 }
 
-html.theme-transitioning::view-transition-old(root) {
+::view-transition-old(root) {
   z-index: 1;
 }
 
-html.theme-transitioning::view-transition-new(root) {
+::view-transition-new(root) {
   z-index: 999999;
 }
 
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: var(--dur-base);
-  animation-timing-function: var(--ease-standard);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
-  }
+/* Smooth CSS theme transition fallback (Gecko / Zen Browser / Firefox / Safari) */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-delay: 0s !important;
 }
 
 /* Shimmer sweep for loading skeletons (static under reduced motion).
@@ -2525,7 +2514,7 @@ html.theme-transitioning::view-transition-new(root) {
   transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cat-bubble-anchor.cat-transparent {
-  opacity: 0.15 !important;
+  opacity: 0.42 !important;
 }
 .cat-bubble {
   position: relative;
@@ -2974,8 +2963,8 @@ html.cat-cursor-on :is(input, textarea, [contenteditable="true"]) {
   opacity: 0.5;
 }
 [data-neko="0"].cat-transparent {
-  opacity: 0.15 !important;
-  filter: grayscale(35%) !important;
+  opacity: 0.38 !important;
+  filter: grayscale(15%) !important;
 }
 
 /* clickable blog suggestion: the anchor stays inert, the pill opts back in */
