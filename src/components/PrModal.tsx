@@ -10,7 +10,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { tap } from "../lib/haptics";
 import { stopSmoothScroll, startSmoothScroll } from "../lib/smoothScroll";
-import { OPEN_SOURCE_PRS, GITHUB_PR_SEARCH_URLS } from "../data/openSourcePrs";
+import { OPEN_SOURCE_PRS, GITHUB_PR_SEARCH_URLS, type OpenSourcePR } from "../data/openSourcePrs";
 
 interface PrModalProps {
   isOpen: boolean;

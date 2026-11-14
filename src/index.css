@@ -1118,14 +1118,14 @@ section {
 
   form {
     label {
-      @apply block text-white-50 mb-1 text-xs sm:text-sm font-medium;
+      @apply block text-white-50/80 mb-1 text-xs font-medium;
     }
 
     input,
     textarea,
     select {
-      @apply w-full px-3.5 py-2.5 sm:py-3 text-base sm:text-sm placeholder:text-blue-50 bg-blue-100 rounded-lg;
-      border: 1px solid transparent;
+      @apply w-full px-3.5 py-2.5 text-sm placeholder:text-blue-50/60 bg-blue-100 rounded-xl;
+      border: 1px solid var(--stroke-weak);
       transition:
         border-color var(--dur-fast) var(--ease-standard),
         box-shadow var(--dur-fast) var(--ease-standard);
@@ -1134,8 +1134,9 @@ section {
     input:focus,
     textarea:focus,
     select:focus {
+      outline: none;
       border-color: var(--tab-accent);
-      box-shadow: 0 0 0 3px rgb(56 189 248 / 0.22);
+      box-shadow: 0 0 0 3px rgb(56 189 248 / 0.18);
     }
 
     input[aria-invalid="true"],
@@ -1147,17 +1148,14 @@ section {
     /* label nudges toward the accent while its field is focused */
     > div:has(input:focus, textarea:focus) label {
       color: var(--tab-accent);
-      transform: translateX(3px);
     }
 
     label {
-      transition:
-        color var(--dur-fast) var(--ease-standard),
-        transform var(--dur-fast) var(--ease-standard);
+      transition: color var(--dur-fast) var(--ease-standard);
     }
 
     .field-error {
-      @apply text-sm text-red-400 mt-1;
+      @apply text-xs text-red-400 mt-1;
       animation: field-in var(--dur-fast) var(--ease-standard) both;
     }
 

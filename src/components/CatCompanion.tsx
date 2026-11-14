@@ -1966,7 +1966,6 @@ const CatCompanion = () => {
       pointerFast.current = fast;
       applyStandoff();
       if (fast) return;
-      const n = nekoRef.current;
       if (!n || sleepingRef.current || actAim.current) return;
       const { x, y } = n.position;
       const m = lastPointer.current;
