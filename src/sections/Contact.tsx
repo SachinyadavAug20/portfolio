@@ -531,21 +531,61 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
 
       <div className="w-full max-w-7xl mx-auto flex flex-col gap-5 sm:gap-6">
         {/* Section Header with Mode Switcher */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3.5 contact-reveal">
-          <div>
-            <TitleHeader title="Contact Me" />
-            <p className="text-xs sm:text-sm text-white-50/70 mt-1 max-w-md">
-              Have an idea, open role, or collaboration in mind? Drop a note or schedule a call.
-            </p>
-          </div>
+        <div className="contact-reveal flex flex-col items-center text-center max-w-2xl mx-auto gap-3 mb-1 sm:mb-2">
+          <TitleHeader title="Contact Me" />
 
-          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-black-50 bg-black-100/70 px-3 py-1 text-xs text-white-50/70 font-medium">
+          {/* Redesigned Subtitle with Interactive Triggers and Context */}
+          <p className="text-base sm:text-lg md:text-xl text-foreground font-medium leading-relaxed max-w-xl text-balance">
+            Have an idea, open role, or collaboration in mind?{" "}
+            <button
+              type="button"
+              onClick={() => {
+                tap(8);
+                setContactMode("message");
+              }}
+              className={`font-semibold underline underline-offset-4 decoration-current/30 hover:decoration-current transition-colors cursor-pointer ${
+                contactMode === "message"
+                  ? "text-foreground decoration-foreground"
+                  : "text-zinc-500 dark:text-zinc-400 hover:text-foreground"
+              }`}
+            >
+              Drop a note
+            </button>{" "}
+            or{" "}
+            <button
+              type="button"
+              onClick={() => {
+                tap(8);
+                setContactMode("meeting");
+              }}
+              className={`font-semibold underline underline-offset-4 transition-colors cursor-pointer ${
+                contactMode === "meeting"
+                  ? "text-cyan-600 dark:text-cyan-400 decoration-cyan-600 dark:decoration-cyan-400"
+                  : "text-cyan-600/80 dark:text-cyan-400/80 decoration-cyan-600/40 dark:decoration-cyan-400/40 hover:text-cyan-500 dark:hover:text-cyan-300"
+              }`}
+            >
+              schedule a call
+            </button>
+            .
+          </p>
+
+          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-xl text-balance leading-relaxed">
+            Open for full-time engineering roles, freelance projects &amp; open source. Direct to inbox &middot; usually replies within 24 hours.
+          </p>
+
+          {/* Mode Switcher & Status Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 pt-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-black-50 bg-black-200/80 dark:bg-black-100/80 px-3.5 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 font-medium shadow-2xs">
               <span className="relative flex size-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
-                <span className="relative inline-flex size-2 rounded-full bg-green-400" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
               </span>
               Open to work
+            </span>
+
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-black-50 bg-black-200/80 dark:bg-black-100/80 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400 font-medium shadow-2xs">
+              <span className="text-amber-500 text-xs">⚡</span>
+              Replies in 24h
             </span>
 
             {/* Segmented Mode Switcher */}
@@ -565,7 +605,7 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
                 className={`inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 touch-manipulation ${
                   contactMode === "message"
                     ? "bg-zinc-900 text-white dark:bg-white dark:text-black shadow-xs font-semibold"
-                    : "text-white-50/70 hover:text-foreground"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-foreground"
                 }`}
               >
                 <Mail className="size-3.5" />
@@ -583,7 +623,7 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
                 className={`inline-flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-medium transition-all duration-200 cursor-pointer active:scale-95 touch-manipulation ${
                   contactMode === "meeting"
                     ? "bg-cyan-500 text-black font-semibold shadow-xs"
-                    : "text-white-50/70 hover:text-foreground"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-foreground"
                 }`}
               >
                 <Calendar className="size-3.5" />
