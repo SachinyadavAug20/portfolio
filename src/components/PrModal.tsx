@@ -19,6 +19,7 @@ interface PrModalProps {
 }
 
 export const PrModal = ({ isOpen, onClose, initialFilter = "all" }: PrModalProps) => {
+  const [prs, setPrs] = useState<OpenSourcePR[]>(OPEN_SOURCE_PRS);
   const [filter, setFilter] = useState<"all" | "open" | "merged">(initialFilter);
   const [searchQuery, setSearchQuery] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
@@ -31,6 +32,42 @@ export const PrModal = ({ isOpen, onClose, initialFilter = "all" }: PrModalProps
       if (listRef.current) {
         listRef.current.scrollTop = 0;
       }
+
+      // Fetch latest PRs from GitHub to ensure freshly merged PRs appear immediately
+      fetch(
+        "https://api.github.com/search/issues?q=author:SachinyadavAug20+type:pr&sort=created&order=desc&per_page=100",
+      )
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (!data?.items || !Array.isArray(data.items)) return;
+          const live: OpenSourcePR[] = data.items.map((item: {
+            number: number;
+            title: string;
+            repository_url: string;
+            html_url: string;
+            state: string;
+            created_at: string;
+            pull_request?: { merged_at?: string | null };
+          }) => {
+            const repoMatch = item.repository_url.match(/repos\/(.+)$/);
+            const repo = repoMatch ? repoMatch[1] : item.repository_url;
+            const isMerged = !!item.pull_request?.merged_at;
+            const isExternal = !repo.toLowerCase().startsWith("sachinyadavaug20/");
+            return {
+              number: item.number,
+              title: item.title,
+              repo,
+              url: item.html_url,
+              state: (isMerged ? "merged" : item.state) as "open" | "merged" | "closed",
+              date: (item.pull_request?.merged_at || item.created_at).slice(0, 10),
+              isExternal,
+            };
+          });
+          if (live.length >= OPEN_SOURCE_PRS.length) {
+            setPrs(live);
+          }
+        })
+        .catch(() => {});
     }
   }, [isOpen, initialFilter]);
 
@@ -64,15 +101,15 @@ export const PrModal = ({ isOpen, onClose, initialFilter = "all" }: PrModalProps
   }, [isOpen, handleKeyDown]);
 
   const counts = useMemo(() => {
-    const open = OPEN_SOURCE_PRS.filter((p) => p.state === "open").length;
-    const merged = OPEN_SOURCE_PRS.filter(
+    const open = prs.filter((p) => p.state === "open").length;
+    const merged = prs.filter(
       (p) => p.state === "merged" || p.state === "closed",
     ).length;
-    return { all: OPEN_SOURCE_PRS.length, open, merged };
-  }, []);
+    return { all: prs.length, open, merged };
+  }, [prs]);
 
   const filteredPrs = useMemo(() => {
-    return OPEN_SOURCE_PRS.filter((pr) => {
+    return prs.filter((pr) => {
       // Tab filter
       if (filter === "open" && pr.state !== "open") return false;
       if (filter === "merged" && pr.state !== "merged" && pr.state !== "closed") return false;
@@ -86,7 +123,7 @@ export const PrModal = ({ isOpen, onClose, initialFilter = "all" }: PrModalProps
         String(pr.number).includes(q)
       );
     });
-  }, [filter, searchQuery]);
+  }, [prs, filter, searchQuery]);
 
   if (!isOpen) return null;
 
