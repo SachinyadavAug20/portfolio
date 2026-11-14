@@ -522,7 +522,7 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
     <section
       id="contact"
       ref={sectionRef}
-      className="w-full flex-center px-4 sm:px-6 md:px-10 py-12 sm:py-16 relative z-10 clear-both"
+      className="w-full flex-center px-4 sm:px-6 md:px-10 pt-12 sm:pt-16 pb-28 sm:pb-32 md:pb-20 relative z-10 clear-both"
     >
       {/* Anchor targets for direct redirects & hash navigation */}
       <span id="schedule" className="sr-only -top-20 absolute" />

@@ -577,65 +577,6 @@ section {
     opacity: 1;
   }
 
-  .theme-toggle-menu {
-    @apply absolute right-0 top-12 z-[120] min-w-36 rounded-xl border shadow-lg p-1.5 flex flex-col gap-0.5;
-    background-color: var(--flip-black-100);
-    border-color: var(--drawer-border);
-    box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
-    transform-origin: top right;
-    animation: menu-in var(--dur-fast) var(--ease-standard) both;
-  }
-
-  @keyframes menu-in {
-    from {
-      opacity: 0;
-      transform: scale(0.95) translateY(-6px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
-  .theme-toggle-item {
-    @apply flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium cursor-pointer;
-    color: var(--flip-white-50);
-    transition: background-color 0.15s, color 0.15s, transform 0.15s var(--ease-standard);
-    animation: menu-item-in 0.22s var(--ease-standard) backwards;
-  }
-
-  .theme-toggle-item:nth-child(1) {
-    animation-delay: 0.05s;
-  }
-
-  .theme-toggle-item:nth-child(2) {
-    animation-delay: 0.1s;
-  }
-
-  .theme-toggle-item:nth-child(3) {
-    animation-delay: 0.15s;
-  }
-
-  @keyframes menu-item-in {
-    from {
-      opacity: 0;
-      transform: translateY(-5px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .theme-toggle-item:hover {
-    color: var(--nav-link-hover);
-    background-color: var(--drawer-link-hover-bg);
-    transform: translateX(2px);
-  }
-
-  .theme-toggle-check {
-    @apply ml-auto;
-  }
 
   .no-scrollbar {
     scrollbar-width: none;
@@ -2156,6 +2097,30 @@ h4 {
 
 .footer {
   view-transition-name: site-footer;
+}
+
+/* Circular spread theme transition */
+html.theme-transitioning * {
+  view-transition-name: none !important;
+}
+
+html.theme-transitioning::view-transition-group(root) {
+  animation-duration: 0.48s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.theme-transitioning::view-transition-old(root),
+html.theme-transitioning::view-transition-new(root) {
+  animation: none !important;
+  mix-blend-mode: normal !important;
+}
+
+html.theme-transitioning::view-transition-old(root) {
+  z-index: 1;
+}
+
+html.theme-transitioning::view-transition-new(root) {
+  z-index: 999999;
 }
 
 ::view-transition-old(root),
