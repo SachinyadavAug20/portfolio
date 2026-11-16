@@ -479,17 +479,6 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
         )}
       </button>
 
-      <a
-        href={`mailto:${CONTACT_EMAIL}`}
-        aria-label="Open in mail app"
-        title="Open in mail app"
-        className="chip grid place-items-center size-8 rounded-full border border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground transition-all active:scale-95"
-      >
-        <Mail className="size-3.5" />
-      </a>
-
-      <div className="h-4 w-px bg-black-50 mx-0.5 hidden sm:block" />
-
       {socialImg.map(({ link, imgPath, imgPathLight, name }) => (
         <a
           key={name}
@@ -573,22 +562,8 @@ const Contact = ({ initialMode }: ContactProps = {}) => {
             Open for full-time engineering roles, freelance projects &amp; open source. Direct to inbox &middot; usually replies within 24 hours.
           </p>
 
-          {/* Mode Switcher & Status Badges */}
+          {/* Segmented Mode Switcher */}
           <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 pt-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-black-50 bg-black-200/80 dark:bg-black-100/80 px-3.5 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 font-medium shadow-2xs">
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
-              </span>
-              Open to work
-            </span>
-
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-black-50 bg-black-200/80 dark:bg-black-100/80 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400 font-medium shadow-2xs">
-              <span className="text-amber-500 text-xs">⚡</span>
-              Replies in 24h
-            </span>
-
-            {/* Segmented Mode Switcher */}
             <div
               role="tablist"
               aria-label="Contact method"
