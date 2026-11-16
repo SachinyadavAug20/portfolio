@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { GitPullRequest } from "lucide-react";
 import { counterItems } from "../../constants";
 import { fetchLiveStats } from "../lib/stats";
 import { useReducedMotion } from "../hooks/useReducedMotion";
@@ -10,7 +9,6 @@ import PrModal from "./PrModal";
 
 const CounterItem = ({
   value,
-  suffix,
   text,
   url,
   isModal,
@@ -18,7 +16,6 @@ const CounterItem = ({
   onOpenModal,
 }: {
   value: number;
-  suffix: string;
   text: string;
   url: string;
   isModal?: boolean;
@@ -44,7 +41,6 @@ const CounterItem = ({
         val: value,
         duration: 1,
         ease: "power2.out",
-        // Direct DOM write instead of setState — no React re-render per frame.
         onUpdate: () => {
           el.textContent = String(Math.floor(obj.val));
         },
@@ -59,62 +55,34 @@ const CounterItem = ({
     { dependencies: [value, reduced], revertOnUpdate: true },
   );
 
-  const cardContent = (
-    <div
-      className="counter-tile group relative rounded-xl p-3.5 sm:p-4 md:p-5 lg:p-4 xl:p-6 flex flex-col justify-between h-full min-h-[92px] sm:min-h-[104px] transition-transform active:scale-[0.98]"
-      style={{
-        backgroundColor: "var(--counter-bg)",
-        color: "var(--counter-text)",
-        border: "1px solid var(--counter-border)",
-      }}
-    >
-      <div className="counter-number text-2xl sm:text-3xl md:text-3xl xl:text-4xl font-bold mb-1 flex items-baseline justify-between">
-        <span>
-          <span ref={numRef}>0</span>
-          {suffix}
-        </span>
-        {isPr && (
-          <GitPullRequest
-            className="size-3.5 sm:size-4 opacity-40 group-hover:opacity-90 transition-opacity shrink-0"
-            style={{ color: "var(--counter-muted)" }}
-            aria-hidden="true"
-          />
-        )}
-      </div>
-      <div
-        style={{ color: "var(--counter-muted)" }}
-        className="text-xs sm:text-sm md:text-xs xl:text-sm leading-snug"
-      >
-        {text}
-      </div>
-    </div>
-  );
-
-  if (isPr) {
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          tap(8);
-          onOpenModal?.();
-        }}
-        className={`counter-item-wrap block text-left cursor-pointer focus:outline-none ${className}`}
-        aria-label="View Open Source Pull Requests"
-      >
-        {cardContent}
-      </button>
-    );
-  }
+  const handleClick = () => {
+    tap(8);
+    if (isModal) {
+      onOpenModal?.();
+    } else if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noreferrer"
-      className={`counter-item-wrap block text-left ${className}`}
+    <button
+      type="button"
+      onClick={handleClick}
+      className={`counter-item block text-left focus:outline-none ${className}`}
+      aria-label={isPr ? "View Open Source Pull Requests" : text}
     >
-      {cardContent}
-    </a>
+      <div className="counter-tile rounded-xl p-3.5 sm:p-4 min-h-[92px] sm:min-h-[104px] flex flex-col justify-between">
+        <div className="counter-number text-2xl sm:text-3xl md:text-3xl xl:text-4xl font-semibold mb-1 leading-none flex items-baseline justify-between">
+          <span ref={numRef}>0</span>
+        </div>
+        <div
+          style={{ color: "var(--counter-muted)" }}
+          className="text-xs sm:text-sm leading-snug"
+        >
+          {text}
+        </div>
+      </div>
+    </button>
   );
 };
 
@@ -149,22 +117,17 @@ const AnimatedCounter = () => {
   useGSAP(
     () => {
       if (reduced) return;
-      const mobile = window.matchMedia("(max-width: 767px)").matches;
       const tiles = containerRef.current?.querySelectorAll<HTMLElement>(".counter-tile");
       if (!tiles || tiles.length === 0) return;
 
       gsap.fromTo(
         tiles,
-        {
-          y: mobile ? 20 : 32,
-          opacity: 0,
-          scale: 0.98,
-        },
+        { y: 16, opacity: 0, scale: 0.98 },
         {
           y: 0,
           opacity: 1,
           scale: 1,
-          duration: mobile ? 0.4 : 0.55,
+          duration: 0.5,
           ease: "power3.out",
           stagger: 0.06,
           clearProps: "transform,opacity,scale",

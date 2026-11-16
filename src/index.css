@@ -253,7 +253,7 @@ section {
     @apply flex flex-wrap justify-center gap-3 sm:gap-4 xl:gap-5;
   }
 
-  .counter-item-wrap {
+  .counter-item {
     @apply w-[calc(50%-0.45rem)] sm:w-[calc(33.333%-0.75rem)] lg:w-[calc(20%-0.85rem)] xl:w-[calc(20%-1.05rem)] max-w-sm flex-none;
   }
 
@@ -2284,11 +2284,11 @@ html.theme-transitioning *::after {
   }
 
   .counter-tile {
-    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.15s ease;
   }
 
-  .counter-tile:hover {
-    transform: translateY(-3px);
+  .counter-tile:active {
+    transform: scale(0.98);
   }
 
   .app-showcase a .text-content h2 {
@@ -2404,7 +2404,7 @@ html.theme-transitioning *::after {
 }
 
 .counter-tile:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 /* ── Knowledge graph (/graph) ─────────────────────────────────────────── */
