@@ -88,7 +88,7 @@ const Hero = () => {
         </picture>
       </div>
       <div className="hero-layout">
-        <header className="flex flex-col justify-center w-full xl:w-[50%] 2xl:w-[50%] px-5 md:pl-20 md:pr-4">
+        <header className="flex flex-col w-full xl:w-[50%] 2xl:w-[50%] px-5 md:pl-20 md:pr-4 pt-20 sm:pt-24 md:pt-32">
           <div className="flex flex-col gap-6 sm:gap-7">
             <div className="hero-text">
               <h1>
