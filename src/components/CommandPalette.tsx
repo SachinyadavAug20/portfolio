@@ -302,7 +302,7 @@ const CommandPalette = () => {
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-start justify-center bg-black-900/70 px-4 pt-[12vh] backdrop-blur-sm"
+      className="fixed inset-0 z-[200] flex items-start justify-center bg-black-800/60 px-6 pt-[16vh] backdrop-blur-md sm:pt-[20vh]"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) close();
       }}
@@ -314,9 +314,12 @@ const CommandPalette = () => {
       aria-label="Command palette"
       data-testid="command-palette"
     >
-      <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-black-50 bg-black-200 shadow-2xl shadow-black-900/60">
-        <div className="flex items-center gap-3 border-b border-black-50 px-4">
-          <Search className="size-4 shrink-0 text-white-50/40" />
+      <div className="w-full max-w-[600px] overflow-hidden rounded-[20px] border border-white/10 bg-black/45 backdrop-blur-2xl shadow-2xl shadow-black/80">
+        <div className="flex items-center gap-3 border-b border-white/10 px-5 pt-4 pb-3">
+          <div className="relative size-5 shrink-0 text-white/30">
+            <Search className="size-5 shrink-0" />
+            <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          </div>
           <input
             ref={inputRef}
             type="text"
@@ -327,7 +330,7 @@ const CommandPalette = () => {
             }}
             onKeyDown={onInputKeyDown}
             placeholder="Search pages, sections, notes…"
-            className="w-full bg-transparent py-4 text-base text-white-50 placeholder:text-white-50/30 focus:outline-none"
+            className="w-full bg-transparent py-2 text-base font-medium text-white placeholder-white/30 focus:outline-none"
             role="combobox"
             aria-expanded="true"
             aria-controls="palette-list"
@@ -338,7 +341,7 @@ const CommandPalette = () => {
             autoComplete="off"
             spellCheck={false}
           />
-          <kbd className="hidden rounded-md border border-black-50 bg-black-100 px-1.5 py-0.5 text-[10px] text-white-50/40 sm:block">
+          <kbd className="hidden rounded-md border border-white/20 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-white/40 sm:block">
             esc
           </kbd>
         </div>
@@ -347,18 +350,16 @@ const CommandPalette = () => {
           ref={listRef}
           role="listbox"
           aria-label="Results"
-          className="max-h-[50vh] overflow-y-auto p-2"
+          className="max-h-[62vh] overflow-y-auto p-3"
         >
           {visibleSections.length === 0 && (
-            <p className="px-3 py-6 text-center text-sm text-white-50/50">
-              {notes
-                ? "No matches."
-                : "No matches. (notes still loading…)"}
+            <p className="px-4 py-8 text-center text-sm text-white/40">
+              {notes ? "No matches." : "No matches. (notes still loading…)"}
             </p>
           )}
           {visibleSections.map((sec) => (
-            <div key={sec.name} className="mb-1 last:mb-0">
-              <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-white-50/35">
+            <div key={sec.name} className="mb-2 last:mb-0">
+              <p className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wider text-white/30">
                 {sec.name}
               </p>
               {sec.items.map(({ item, idx }) => {
@@ -377,20 +378,22 @@ const CommandPalette = () => {
                       close();
                       item.run();
                     }}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                    className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-150 ${
                       isActive
-                        ? "bg-blue-500/15 text-blue-50"
-                        : "text-white-50/80"
+                        ? "bg-blue-500/20 text-blue-50 shadow-sm"
+                        : "text-white/70 hover:bg-white/5 hover:text-white"
                     }`}
                   >
-                    <Icon
-                      className={`size-4 shrink-0 ${
-                        isActive ? "text-blue-300" : "text-white-50/40"
-                      }`}
-                    />
-                    <span className="truncate">{item.label}</span>
+                    <div className="flex size-6 items-center justify-center rounded-lg shrink-0 transition-colors duration-150">
+                      <Icon
+                        className={`size-4 shrink-0 ${
+                          isActive ? "text-blue-400" : "text-white/50"
+                        }`}
+                      />
+                    </div>
+                    <span className="truncate font-medium">{item.label}</span>
                     {item.hint && (
-                      <span className="ml-auto shrink-0 text-xs text-white-50/35">
+                      <span className="ml-auto shrink-0 text-xs font-mono text-white/40">
                         {item.hint}
                       </span>
                     )}
@@ -400,17 +403,19 @@ const CommandPalette = () => {
             </div>
           ))}
         </div>
-        <div className="flex items-center justify-between border-t border-black-50 px-4 py-2 text-[11px] text-white-50/40">
-          <span>
-            <kbd className="rounded border border-black-50 px-1">↑↓</kbd> move
-            {" · "}
-            <kbd className="rounded border border-black-50 px-1">↵</kbd> open
-            {" · "}
-            <kbd className="rounded border border-black-50 px-1">esc</kbd>{" "}
-            close
+        <div className="flex items-center justify-between border-t border-white/10 px-5 py-3 text-[11px] font-medium text-white/40">
+          <span className="flex items-center gap-1.5">
+            <kbd className="rounded border border-white/20 bg-white/5 px-1.5 py-0.5 text-white/40">↑↓</kbd>
+            <span className="text-white/30">move</span>
+            <span className="mx-1 text-white/20">·</span>
+            <kbd className="rounded border border-white/20 bg-white/5 px-1.5 py-0.5 text-white/40">↵</kbd>
+            <span className="text-white/30">open</span>
+            <span className="mx-1 text-white/20">·</span>
+            <kbd className="rounded border border-white/20 bg-white/5 px-1.5 py-0.5 text-white/40">esc</kbd>
+            <span className="text-white/30">close</span>
           </span>
           {notes && (
-            <span>
+            <span className="text-white/30">
               {query.trim()
                 ? `${flat.length} / ${notes.length} notes`
                 : `${notes.length} notes`}
