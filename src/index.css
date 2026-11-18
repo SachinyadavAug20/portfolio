@@ -438,26 +438,14 @@ section {
     display: none;
   }
 
-  /* Bottom tab bar — minimal native app style floating capsule dock (mobile only) */
+  /* Bottom tab bar — classic floating dock with central cradle and satellite FAB */
   .bottom-tabbar {
-    @apply fixed bottom-4 inset-x-0 mx-auto w-fit max-w-[320px] z-[90] items-center justify-center gap-1.5 sm:gap-2 rounded-full;
-    background-color: var(--tab-bar-bg);
-    border: 1px solid var(--nav-border);
-    @apply backdrop-blur-[24px] backdrop-saturate-[180%] shadow-[0_12px_36px_rgba(0,0,0,0.55)];
-    padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));
-    padding-top: 0.35rem;
-    padding-left: 0.45rem;
-    padding-right: 0.45rem;
+    @apply fixed bottom-4 inset-x-0 mx-auto w-fit max-w-[calc(100vw-1.25rem)] z-[90] items-center justify-center;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     display: none;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
-  }
-
-  .bottom-tab {
-    @apply relative flex items-center justify-center size-11 rounded-full;
-    color: var(--nav-link-hover);
-    -webkit-tap-highlight-color: transparent;
   }
 
   @media (max-width: 767px) {
@@ -466,7 +454,7 @@ section {
     }
 
     body {
-      padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(5.2rem + env(safe-area-inset-bottom, 0px));
     }
   }
 
