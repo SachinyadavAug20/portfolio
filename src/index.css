@@ -60,6 +60,16 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-color);
+}
+
+::-moz-selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-color);
+}
+
 /* Ensure smooth scrolling compositor does not fight programmatic wheel */
 html.lenis, html.lenis body {
   height: auto;
@@ -146,6 +156,8 @@ section {
   --counter-muted: #52525b;
   --tab-accent: #0284c7;
   --tab-bar-bg: rgba(255, 255, 255, 0.96);
+  --selection-bg: #bae6fd;
+  --selection-color: #082f49;
 }
 
 @layer base {
@@ -1544,6 +1556,8 @@ section {
   --counter-muted: #a1a1aa;
   --tab-accent: #38bdf8;
   --tab-bar-bg: rgba(0, 0, 0, 0.94);
+  --selection-bg: #0284c7;
+  --selection-color: #ffffff;
 }
 
 .blog-content {

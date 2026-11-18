@@ -74,7 +74,7 @@ const Hero = () => {
 
   return (
     <section id="hero" ref={sectionRef} className="relative overflow-hidden">
-      <div className="hero-bg absolute top-0 left-0 z-10">
+      <div className="hero-bg absolute top-0 left-0 z-10 pointer-events-none">
         <picture>
           <source srcSet="/images/bg.webp" type="image/webp" />
           <img
@@ -102,7 +102,7 @@ const Hero = () => {
                 <FlickeringText>that Perform at scale</FlickeringText>
               </h2>
             </div>
-            <p className="hero-sub text-sm sm:text-[15px] md:text-base font-light text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl relative z-10 tracking-normal xl:pointer-events-none">
+            <p className="hero-sub text-sm sm:text-[15px] md:text-base font-light text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl relative z-10 tracking-normal">
               Hi, I'm <span className="font-medium text-zinc-900 dark:text-zinc-100">Sachin</span>, a 2nd Year Computer Engineering undergraduate building high-performance systems, backend APIs, and interactive 3D web experiences.
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 z-10 w-full sm:w-auto">
