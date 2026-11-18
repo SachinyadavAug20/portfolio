@@ -321,204 +321,50 @@ section {
     @apply relative w-full h-[240px] sm:h-[280px] xl:h-[480px] 2xl:h-[540px] pointer-events-none overflow-hidden rounded-3xl;
   }
 
+  /* =========================================================================
+     Dynamic Minimal Island Navbar
+     ========================================================================= */
   .navbar {
-    @apply fixed w-full left-1/2 py-2 px-4 md:px-10 -translate-x-1/2 z-[100];
-    will-change: transform;
-    transition:
-      background-color 0.3s ease,
-      border-color 0.3s ease,
-      top 0.3s ease,
-      opacity 0.3s ease,
-      width 0.35s ease,
-      box-shadow 0.35s ease,
-      backdrop-filter 0.3s ease;
-
-    /* scrolled: the flat bar morphs into a floating glass pill —
-       translucent fill, blur, lift shadow, phosphor hairline on top.
-       blur via @apply: hand-written backdrop-filter is minified to the
-       webkit-only form (which Chromium ignores) */
-    &.scrolled {
-      @apply top-0 border rounded-2xl backdrop-blur-[18px] backdrop-saturate-[170%];
-      width: calc(100% - 1.25rem);
-      background-color: var(--nav-glass-bg);
-      border-color: var(--nav-glass-border);
-      box-shadow: var(--nav-shadow);
-      opacity: 1;
-    }
-
-    &.scrolled::before {
-      content: "";
-      position: absolute;
-      inset: 0 0 auto;
-      height: 1px;
-      border-radius: inherit;
-      background: var(--nav-hairline);
-      pointer-events: none;
-    }
-
-    &.not-scrolled {
-      @apply md:top-5 top-0 bg-transparent;
-      opacity: 1;
-    }
-
-    @media (min-width: 768px) {
-      &.scrolled {
-        width: calc(100% - 3rem);
-      }
-    }
-
-    .inner {
-      @apply mx-auto flex items-center justify-between;
-      position: relative;
-    }
-
-    .inner > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .logo {
-      @apply text-white-50 text-xl md:text-2xl font-semibold transition-transform duration-300 hover:scale-105;
-      padding: 0.25rem 0;
-    }
-
-    nav.desktop {
-      @apply hidden lg:flex items-center;
-
-      ul {
-        @apply flex items-center;
-        position: relative;
-        gap: 0.15rem;
-
-        /* shared sliding pill — glides between items (GSAP sets x/width) */
-        .nav-pill {
-          position: absolute;
-          top: 50%;
-          left: 0;
-          height: 2.1rem;
-          margin-top: -1.05rem;
-          border-radius: 9999px;
-          background: var(--nav-hover-bg);
-          border: 1px solid color-mix(in srgb, var(--nav-underline) 30%, transparent);
-          pointer-events: none;
-          opacity: 0;
-          z-index: 0;
-          will-change: transform, width;
-        }
-
-        li {
-          @apply text-white-50 relative cursor-pointer;
-
-          a {
-            @apply relative z-[1] inline-flex flex-col items-center px-3 py-1 rounded-full;
-          }
-
-          .nav-label {
-            line-height: 1.25;
-            transition:
-              color 0.3s ease,
-              text-shadow 0.3s ease;
-          }
-
-          /* Keyboard focus / hover / active all light the label —
-             works without a mouse (a11y) and without the pill. */
-          &:hover .nav-label,
-          &:has(a:focus-visible) .nav-label,
-          &:has(a[aria-current="page"]) .nav-label {
-            color: var(--nav-link-hover);
-            text-shadow: var(--nav-link-glow);
-          }
-        }
-      }
-    }
-
-    /* ⌘K chip — opens the command palette */
-    .nav-cmdk {
-      @apply hidden lg:flex items-center rounded-md border px-2 py-1 font-mono text-[10px] leading-none transition-colors;
-      border-color: var(--nav-glass-border);
-      color: color-mix(in srgb, var(--nav-link-hover) 65%, transparent);
-      background: color-mix(in srgb, var(--nav-hover-bg) 55%, transparent);
-    }
-
-    @media (hover: hover) {
-      .nav-cmdk:hover {
-        color: var(--nav-link-hover);
-        border-color: color-mix(in srgb, var(--nav-underline) 35%, transparent);
-      }
-    }
-
-    .nav-cmdk:focus-visible {
-      outline: 2px solid color-mix(in srgb, var(--nav-underline) 55%, transparent);
-      outline-offset: 2px;
-    }
-
-    .contact-btn {
-      @apply hidden lg:flex;
-
-      .inner {
-        @apply px-5 py-2 rounded-lg;
-        background-color: var(--contact-bg);
-        color: var(--contact-text);
-        box-shadow:
-          var(--contact-glow),
-          inset 0 1px 0 rgba(255, 255, 255, 0.25);
-        transition:
-          background-color var(--dur-base) var(--ease-standard),
-          transform var(--dur-fast) var(--ease-standard),
-          box-shadow 0.3s ease;
-
-        span {
-          @apply transition-colors duration-300;
-        }
-      }
-
-      .inner:hover {
-        background-color: var(--contact-hover-bg);
-        box-shadow:
-          var(--contact-glow),
-          inset 0 1px 0 rgba(255, 255, 255, 0.4);
-      }
-
-      .inner:hover span {
-        color: var(--contact-hover-text);
-      }
-
-      &:active .inner {
-        transform: scale(0.96);
-      }
-    }
+    will-change: transform, opacity;
   }
 
-  /* Notch/landscape safe-area padding for the fixed navbar */
-  @media (max-width: 767px) {
-    .navbar {
-      padding-left: max(1rem, env(safe-area-inset-left, 0px));
-      padding-right: max(1rem, env(safe-area-inset-right, 0px));
-    }
+  .island-capsule {
+    will-change: transform, background-color, border-color, box-shadow;
   }
 
-  @media (min-width: 768px) {
-    .navbar {
-      padding-left: max(2.5rem, env(safe-area-inset-left, 0px));
-      padding-right: max(2.5rem, env(safe-area-inset-right, 0px));
-    }
-  }
-
-  /* Repo star pill — mobile-only, sits where the hamburger used to be
-     (bottom tab bar already covers navigation below lg) */
-  .gh-star {
-    @apply hidden items-center gap-1.5 h-10 pl-2.5 pr-3 rounded-lg cursor-pointer select-none;
+  /* Command Palette chip/button */
+  .nav-cmdk-btn {
+    @apply relative flex items-center justify-center gap-1.5 h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-full cursor-pointer transition-all;
     background-color: var(--nav-hover-bg);
+    border: 1px solid var(--nav-glass-border);
+  }
+
+  .nav-cmdk-btn:hover {
+    background-color: var(--nav-hover-bg-active);
+    border-color: color-mix(in srgb, var(--nav-underline) 25%, transparent);
+    transform: scale(1.04);
+  }
+
+  .nav-cmdk-btn:active {
+    transform: scale(0.94);
+  }
+
+  /* Repo star pill */
+  .gh-star {
+    @apply inline-flex items-center gap-1.5 h-8 sm:h-8.5 px-2.5 rounded-full cursor-pointer select-none text-xs font-medium border transition-all;
+    background-color: var(--nav-hover-bg);
+    border-color: var(--nav-glass-border);
     color: var(--nav-line);
-    transition: background-color 0.2s, transform 0.15s;
   }
 
   .gh-star:hover {
     background-color: var(--nav-hover-bg-active);
+    border-color: color-mix(in srgb, var(--nav-underline) 25%, transparent);
+    transform: scale(1.04);
   }
 
   .gh-star:active {
-    transform: scale(0.95);
+    transform: scale(0.94);
   }
 
   .gh-star:focus-visible {
@@ -527,31 +373,24 @@ section {
   }
 
   .gh-star-count {
-    @apply flex items-center gap-1 text-sm font-semibold;
+    @apply flex items-center gap-1 text-[11px] font-semibold text-zinc-700 dark:text-zinc-200;
     font-variant-numeric: tabular-nums;
-  }
-
-  @media (max-width: 1023px) {
-    .gh-star {
-      display: flex;
-    }
   }
 
   /* Theme toggle */
   .theme-toggle {
-    @apply flex-none;
+    @apply flex items-center justify-center;
   }
 
   .theme-toggle-btn {
-    @apply relative flex items-center justify-center size-10 rounded-lg cursor-pointer;
+    @apply relative flex items-center justify-center size-8 sm:size-8.5 rounded-full cursor-pointer border transition-all;
     background-color: var(--nav-hover-bg);
-    transition:
-      background-color var(--dur-base) var(--ease-standard),
-      transform var(--dur-fast) var(--ease-standard);
+    border-color: var(--nav-glass-border);
   }
 
   .theme-toggle-btn:hover {
     background-color: var(--nav-hover-bg-active);
+    border-color: color-mix(in srgb, var(--nav-underline) 25%, transparent);
   }
 
   .theme-toggle-btn:active {
@@ -565,8 +404,8 @@ section {
   .theme-toggle-sun {
     color: var(--nav-line);
     transition:
-      transform 0.3s ease,
-      opacity 0.3s ease;
+      transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.25s ease;
   }
 
   .theme-toggle-moon {
@@ -575,8 +414,8 @@ section {
     transform: scale(0) rotate(90deg);
     opacity: 0;
     transition:
-      transform 0.3s ease,
-      opacity 0.3s ease;
+      transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.25s ease;
   }
 
   .dark .theme-toggle-sun {
@@ -621,7 +460,7 @@ section {
     -webkit-tap-highlight-color: transparent;
   }
 
-  @media (max-width: 1023px) {
+  @media (max-width: 767px) {
     .bottom-tabbar {
       display: flex;
     }

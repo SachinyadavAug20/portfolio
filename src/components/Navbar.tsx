@@ -1,22 +1,14 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { useGSAP } from "@gsap/react";
 import { navLinks } from "../../constants";
 import ThemeToggle from "./ThemeToggle";
 import GitHubStar from "./GitHubStar";
 import { useMagnetic } from "../hooks/useMagnetic";
-import { gsap } from "../lib/gsapSetup";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { tap } from "../lib/haptics";
+import { scrollToTarget } from "../lib/smoothScroll";
 import { Search } from "lucide-react";
-
-const MotionLink = motion.create(Link);
-const PRESS = {
-  whileTap: { scale: 0.94 },
-  transition: { type: "spring", stiffness: 650, damping: 30 },
-} as const;
-const HOVER_LIFT = { whileHover: { y: -1.5 } };
 
 /* terminal-style decode on hover — random glyphs resolve left-to-right */
 const SCRAMBLE_CHARS = "!<>-_\\/[]{}=+*^?#░▒▓█|";
@@ -49,102 +41,51 @@ function scrambleLabel(el: HTMLSpanElement, original: string) {
 const isMac = () =>
   typeof navigator !== "undefined" && /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent);
 
+const isExternal = (link: string) => link.startsWith("http");
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [activeIdx, setActiveIdx] = useState(-1);
+  const [isHidden, setIsHidden] = useState(false);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [activeSection, setActiveSection] = useState<string>("");
+
   const { pathname } = useLocation();
   const isHome = pathname === "/";
   const contactRef = useMagnetic<HTMLAnchorElement>();
-  const headerRef = useRef<HTMLElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-  const pillRef = useRef<HTMLSpanElement>(null);
-  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
-  const hoverIdx = useRef(-1);
   const reduced = useReducedMotion();
-  const finePointer = useRef(false);
+  const lastScrollY = useRef(0);
 
-  useGSAP(
-    () => {
-      if (reduced) return;
-      gsap.from(".navbar .inner > *", {
-        y: -10,
-        opacity: 0,
-        duration: 0.5,
-        delay: 0.1,
-        stagger: 0.06,
-        ease: "power2.out",
-        clearProps: "transform,opacity",
-      });
-    },
-    { dependencies: [reduced], revertOnUpdate: true },
-  );
-
-  const isActive = (link: string) => {
-    if (link.startsWith("http")) return false;
-    if (link.startsWith("#")) return isHome && pathname === "/" && activeIdx === navLinks.findIndex((l) => l.link === link);
-    return pathname.startsWith(link);
-  };
-
-  /* ---- sliding pill: glides to hovered / active item ---- */
-  const movePill = useCallback(
-    (idx: number, instant = false) => {
-      const pill = pillRef.current;
-      const list = listRef.current;
-      const item = itemRefs.current[idx];
-      if (!pill || !list || !item) return;
-      const lr = list.getBoundingClientRect();
-      const ir = item.getBoundingClientRect();
-      const x = ir.left - lr.left;
-      const w = ir.width;
-      if (reduced || instant) {
-        gsap.set(pill, { x, width: w, opacity: 1 });
-      } else {
-        gsap.to(pill, {
-          x,
-          width: w,
-          opacity: 1,
-          duration: 0.45,
-          ease: "power3.out",
-          overwrite: "auto",
-        });
-      }
-    },
-    [reduced],
-  );
-
-  const hidePill = useCallback(() => {
-    const pill = pillRef.current;
-    if (!pill) return;
-    if (reduced) gsap.set(pill, { opacity: 0 });
-    else gsap.to(pill, { opacity: 0, duration: 0.22, overwrite: "auto" });
-  }, [reduced]);
-
-  /* ---- scroll spy: which section is active (pill parking only) ---- */
+  /* Scroll spy: detects active section on home page */
   useEffect(() => {
+    if (!isHome) {
+      if (pathname.startsWith("/blog")) setActiveSection("blog");
+      else setActiveSection("");
+      return;
+    }
+
     let raf = 0;
     const compute = () => {
       raf = 0;
-      if (!isHome) {
-        const blogIdx = navLinks.findIndex(
-          (l) => !l.link.startsWith("#") && !l.link.startsWith("http") && pathname.startsWith(l.link),
-        );
-        setActiveIdx(blogIdx);
-        return;
-      }
       const mid = window.innerHeight * 0.35;
-      let current = -1;
-      navLinks.forEach((l, i) => {
-        if (!l.link.startsWith("#")) return;
-        const el = document.getElementById(l.link.slice(1));
-        if (!el) return;
-        const r = el.getBoundingClientRect();
-        if (r.top <= mid && r.bottom > mid) current = i;
-      });
-      setActiveIdx(current);
+      const ids = ["contact", "skills", "experience", "work"];
+      let found = "";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el) {
+          const r = el.getBoundingClientRect();
+          if (r.top <= mid && r.bottom > mid) {
+            found = id;
+            break;
+          }
+        }
+      }
+      setActiveSection(found);
     };
+
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(compute);
     };
+
     compute();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
@@ -155,194 +96,229 @@ const Navbar = () => {
     };
   }, [isHome, pathname]);
 
-  /* park the pill on the active item whenever it changes */
-  useEffect(() => {
-    if (hoverIdx.current >= 0) return;
-    if (activeIdx >= 0) movePill(activeIdx);
-    else hidePill();
-  }, [activeIdx, movePill, hidePill]);
-
-  /* re-measure after layout settles (route change, fonts, resize) */
-  useEffect(() => {
-    if (activeIdx < 0 || hoverIdx.current >= 0) return;
-    const t = window.setTimeout(() => movePill(activeIdx, true), 60);
-    return () => window.clearTimeout(t);
-  }, [pathname, activeIdx, movePill]);
-
-  /* ---- smart hide: slide away on sustained scroll-down, return on up ---- */
-  useEffect(() => {
-    const el = headerRef.current;
-    if (!el || reduced) return;
-    let raf = 0;
-    let lastY = window.scrollY;
-    let accum = 0;
-    const show = () => {
-      gsap.to(el, { yPercent: 0, duration: 0.35, ease: "power3.out", overwrite: "auto" });
-    };
-    const hide = () => {
-      gsap.to(el, { yPercent: -130, duration: 0.3, ease: "power3.in", overwrite: "auto" });
-    };
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const y = window.scrollY;
-        const dy = y - lastY;
-        lastY = y;
-        if (y < 90) {
-          accum = 0;
-          show();
-          return;
-        }
-        accum = dy > 0 ? Math.min(120, accum + dy) : Math.max(-120, accum + dy);
-        if (accum > 50) hide();
-        else if (accum < -50) show();
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-      gsap.set(el, { yPercent: 0 });
-    };
-  }, [reduced]);
-
-  /* always reveal after a route change */
-  useEffect(() => {
-    const el = headerRef.current;
-    if (!el || reduced) return;
-    gsap.to(el, { yPercent: 0, duration: 0.3, ease: "power3.out", overwrite: "auto" });
-  }, [pathname, reduced]);
-
+  /* Smart hide on sustained scroll down, show on scroll up */
   useEffect(() => {
     let ticking = false;
-    const handleScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        ticking = false;
-        setScrolled(window.scrollY > 10);
-      });
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const curY = window.scrollY;
+          const diff = curY - lastScrollY.current;
+
+          setScrolled(curY > 15);
+
+          if (!reduced) {
+            if (curY > 100 && diff > 7) {
+              setIsHidden(true);
+            } else if (diff < -5 || curY <= 100) {
+              setIsHidden(false);
+            }
+          }
+
+          lastScrollY.current = curY;
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
-  /* record fine-pointer once (scramble + magnetic gate on their own too) */
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [reduced]);
+
+  /* Show immediately upon route change */
   useEffect(() => {
-    finePointer.current = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  }, []);
+    setIsHidden(false);
+  }, [pathname]);
 
-  const isExternal = (link: string) => link.startsWith("http");
+  const isActive = (link: string) => {
+    if (isExternal(link)) return false;
+    if (link.startsWith("#")) {
+      return isHome && activeSection === link.slice(1);
+    }
+    return pathname.startsWith(link);
+  };
 
-  const onItemEnter = (idx: number, name: string, labelEl: HTMLSpanElement | null) => {
-    hoverIdx.current = idx;
-    movePill(idx);
-    if (labelEl && finePointer.current && !reduced) {
-      scrambleLabel(labelEl, name);
+  const handleNavClick = (e: React.MouseEvent, link: string) => {
+    tap(6);
+    if (link.startsWith("#") && isHome) {
+      e.preventDefault();
+      scrollToTarget(link, false, -80);
     }
   };
 
-  const onListLeave = () => {
-    hoverIdx.current = -1;
-    if (activeIdx >= 0) movePill(activeIdx);
-    else hidePill();
-  };
-
-  const renderItem = (link: string, name: string, idx: number, content: ReactNode) => (
-    <li
-      key={link}
-      ref={(el) => {
-        itemRefs.current[idx] = el;
-      }}
-      onMouseEnter={() => {
-        const label = itemRefs.current[idx]?.querySelector<HTMLSpanElement>(".nav-label") ?? null;
-        onItemEnter(idx, name, label);
-      }}
-    >
-      {content}
-    </li>
-  );
-
-  const labelSpan = (name: string) => <span className="nav-label">{name}</span>;
-
   return (
-    <header
-      ref={headerRef}
-      className={`navbar ${scrolled || !isHome ? "scrolled" : "not-scrolled"}`}
+    <motion.header
+      className="navbar fixed top-3 sm:top-4 md:top-5 inset-x-0 mx-auto w-fit max-w-[calc(100vw-1.25rem)] sm:max-w-fit z-[100] flex justify-center pointer-events-none"
+      initial={{ y: -30, opacity: 0 }}
+      animate={{
+        y: isHidden ? -90 : 0,
+        opacity: isHidden ? 0 : 1,
+        scale: isHidden ? 0.96 : 1,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 340,
+        damping: 30,
+        mass: 0.8,
+      }}
     >
-      <div className="inner">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link className={`logo ${scrolled ? "text-shadow-zinc-500 font-bold" : ""}`} to="/">
-            Sachin Yadav
-          </Link>
-        </div>
-        <nav className="desktop" aria-label="Primary">
-          <ul ref={listRef} onMouseLeave={onListLeave}>
-            <span ref={pillRef} className="nav-pill" aria-hidden="true" />
+      <div
+        className={`island-capsule pointer-events-auto relative flex items-center gap-1.5 sm:gap-2.5 md:gap-3 p-1.5 sm:p-2 rounded-full transition-all duration-300 ease-out border backdrop-blur-2xl backdrop-saturate-[180%] ${
+          scrolled
+            ? "bg-white/94 dark:bg-[#090a0f]/94 border-black/10 dark:border-white/12 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.12),0_4px_16px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.9),0_0_24px_-6px_rgba(56,189,248,0.25)]"
+            : "bg-white/85 dark:bg-[#090a0f]/85 border-black/8 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_12px_32px_-8px_rgba(0,0,0,0.7),0_0_16px_-6px_rgba(56,189,248,0.15)]"
+        }`}
+      >
+        {/* Specular glass reflection hairline */}
+        <div
+          className="pointer-events-none absolute inset-x-6 top-0 h-[1px] bg-gradient-to-r from-transparent via-sky-400/30 dark:via-sky-400/40 to-transparent rounded-full"
+          aria-hidden="true"
+        />
+
+        {/* 1. Brand & Available status indicator */}
+        <Link
+          to="/"
+          onClick={() => tap(6)}
+          className="group flex items-center gap-2 pl-2 pr-2.5 sm:px-3 py-1 rounded-full text-foreground hover:text-sky-500 dark:hover:text-sky-400 transition-colors"
+          title="Sachin Yadav"
+        >
+          <span className="relative flex size-2 items-center justify-center shrink-0">
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-65" />
+            <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
+          </span>
+          <span className="font-semibold text-xs sm:text-sm tracking-tight text-zinc-900 dark:text-zinc-100 whitespace-nowrap">
+            Sachin <span className="hidden sm:inline">Yadav</span>
+          </span>
+        </Link>
+
+        {/* Hairline Divider */}
+        <div className="hidden md:block h-3.5 w-px bg-zinc-200/80 dark:bg-zinc-800 shrink-0" />
+
+        {/* 2. Desktop Navigation Links (visible on md: 768px+) */}
+        <nav className="hidden md:flex items-center" aria-label="Primary">
+          <ul
+            className="flex items-center gap-0.5 relative"
+            onMouseLeave={() => setHoveredIdx(null)}
+          >
             {navLinks.map(({ link, name }, idx) => {
               const active = isActive(link);
-              if (link.startsWith("#")) {
-                return renderItem(
-                  link,
-                  name,
-                  idx,
-                  <motion.a href={`/${link}`} aria-current={active ? "page" : undefined} {...PRESS} {...HOVER_LIFT}>
-                    {labelSpan(name)}
-                  </motion.a>,
-                );
-              }
-              if (isExternal(link)) {
-                return renderItem(
-                  link,
-                  name,
-                  idx,
-                  <motion.a href={link} target="_blank" rel="noreferrer" {...PRESS} {...HOVER_LIFT}>
-                    {labelSpan(name)}
-                  </motion.a>,
-                );
-              }
-              return renderItem(
-                link,
-                name,
-                idx,
-                <MotionLink to={link} aria-current={active ? "page" : undefined} {...PRESS} {...HOVER_LIFT}>
-                  {labelSpan(name)}
-                </MotionLink>,
+              const isHovered = hoveredIdx === idx;
+              return (
+                <li
+                  key={link}
+                  className="relative"
+                  onMouseEnter={(e) => {
+                    setHoveredIdx(idx);
+                    const label = e.currentTarget.querySelector<HTMLSpanElement>(".nav-label");
+                    if (label && !reduced) scrambleLabel(label, name);
+                  }}
+                >
+                  {/* Active sliding pill */}
+                  {active && (
+                    <motion.span
+                      layoutId="island-active-pill"
+                      className="absolute inset-0 rounded-full bg-zinc-200/90 dark:bg-sky-500/15 dark:border dark:border-sky-500/30 shadow-xs"
+                      transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                      aria-hidden="true"
+                    />
+                  )}
+                  {/* Hover highlight pill */}
+                  {!active && isHovered && (
+                    <motion.span
+                      layoutId="island-hover-pill"
+                      className="absolute inset-0 rounded-full bg-black/[0.04] dark:bg-white/[0.06]"
+                      transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                      aria-hidden="true"
+                    />
+                  )}
+                  {link.startsWith("#") ? (
+                    <a
+                      href={`/${link}`}
+                      onClick={(e) => handleNavClick(e, link)}
+                      className={`relative z-10 block px-2.5 sm:px-3 py-1.5 text-xs font-medium tracking-tight rounded-full transition-colors ${
+                        active
+                          ? "text-zinc-950 dark:text-sky-300 font-semibold"
+                          : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white"
+                      }`}
+                    >
+                      <span className="nav-label">{name}</span>
+                    </a>
+                  ) : isExternal(link) ? (
+                    <a
+                      href={link}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => tap(6)}
+                      className="relative z-10 block px-2.5 sm:px-3 py-1.5 text-xs font-medium tracking-tight rounded-full text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-colors"
+                    >
+                      <span className="nav-label">{name}</span>
+                    </a>
+                  ) : (
+                    <Link
+                      to={link}
+                      onClick={() => tap(6)}
+                      className={`relative z-10 block px-2.5 sm:px-3 py-1.5 text-xs font-medium tracking-tight rounded-full transition-colors ${
+                        active
+                          ? "text-zinc-950 dark:text-sky-300 font-semibold"
+                          : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white"
+                      }`}
+                    >
+                      <span className="nav-label">{name}</span>
+                    </Link>
+                  )}
+                </li>
               );
             })}
           </ul>
         </nav>
-        <div className="flex items-center gap-2 sm:gap-3">
+
+        {/* Hairline Divider */}
+        <div className="h-3.5 w-px bg-zinc-200/80 dark:bg-zinc-800 shrink-0" />
+
+        {/* 3. Action Cluster */}
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          {/* Command Palette button */}
           <button
             type="button"
-            className="nav-cmdk"
-            aria-label="Open command palette"
-            onClick={() => window.dispatchEvent(new Event("palette-open"))}
-          >
-            <span aria-hidden="true">{isMac() ? "⌘K" : "Ctrl K"}</span>
-          </button>
-          <button
-            type="button"
-            className="size-8.5 rounded-full border border-black-50 bg-black-200/90 dark:bg-black-100/90 flex items-center justify-center text-white-50/80 hover:text-foreground active:scale-90 transition-transform lg:hidden cursor-pointer shadow-sm"
-            aria-label="Open search and actions"
             onClick={() => {
               tap(6);
               window.dispatchEvent(new Event("palette-open"));
             }}
+            className="nav-cmdk-btn group"
+            aria-label="Open command palette"
+            title="Search & commands"
           >
-            <Search className="size-3.5" />
+            <Search className="size-3 text-zinc-500 dark:text-zinc-400 group-hover:text-foreground transition-colors" />
+            <span className="hidden sm:inline font-mono text-[10px] text-zinc-500 dark:text-zinc-400 group-hover:text-foreground transition-colors">
+              {isMac() ? "⌘K" : "Ctrl K"}
+            </span>
           </button>
+
+          {/* Theme Toggle */}
           <ThemeToggle />
-          <a ref={contactRef} href="/#contact" className="contact-btn group">
-            <div className="inner">
-              <span>Contact me</span>
-            </div>
+
+          {/* Contact Pill (Desktop / Tablet) */}
+          <a
+            ref={contactRef}
+            href="/#contact"
+            onClick={(e) => {
+              tap(8);
+              if (isHome) {
+                e.preventDefault();
+                scrollToTarget("#contact", false, -80);
+              }
+            }}
+            className="hidden md:inline-flex items-center justify-center h-8 sm:h-8.5 px-3 sm:px-3.5 rounded-full text-xs font-semibold bg-[#38bdf8] text-[#082f49] hover:bg-[#0ea5e9] hover:shadow-[0_0_18px_rgba(56,189,248,0.45)] transition-all duration-300 active:scale-95 shadow-[0_2px_10px_rgba(56,189,248,0.3)] shrink-0"
+          >
+            <span>Contact</span>
           </a>
+
+          {/* GitHub Star Pill */}
           <GitHubStar />
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 };
 

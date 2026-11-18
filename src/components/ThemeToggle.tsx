@@ -30,10 +30,10 @@ const ThemeToggle = () => {
         title={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
       >
         <span className="theme-toggle-sun">
-          <Sun className="size-5" />
+          <Sun className="size-3.5 sm:size-4" />
         </span>
         <span className="theme-toggle-moon">
-          <Moon className="size-5" />
+          <Moon className="size-3.5 sm:size-4" />
         </span>
         <span className="sr-only">
           Toggle theme (currently {resolvedTheme})
