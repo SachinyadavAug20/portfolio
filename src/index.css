@@ -968,32 +968,7 @@ section {
   }
 
   .footer {
-    @apply mt-10 md:mt-20 mb-28 md:mb-12 text-white-50 px-5 md:px-20 xl:px-20 flex items-center justify-center;
-
-    .footer-container {
-      @apply grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-0 w-full items-center;
-    }
-
-    p {
-      @apply text-center lg:text-start cursor-pointer;
-    }
-
-    .socials {
-      @apply flex items-center justify-center gap-5;
-
-      .icon {
-        @apply border border-black-50 bg-black-100 flex justify-center items-center rounded-xl size-10 md:size-12 cursor-pointer hover:bg-black-50;
-        transition: background-color 0.2s ease, transform 0.1s ease;
-      }
-
-      .icon:active {
-        transform: scale(0.94);
-      }
-
-      img {
-        @apply inline-block;
-      }
-    }
+    @apply w-full border-t border-zinc-200/80 dark:border-white/10 mt-16 sm:mt-24 transition-colors;
   }
 }
 
@@ -2150,18 +2125,6 @@ html.theme-transitioning *::after {
     color: var(--tab-accent);
   }
 
-  .footer .footer-container > div > a {
-    text-decoration-line: underline;
-    text-decoration-color: transparent;
-    text-underline-offset: 4px;
-    transition:
-      text-decoration-color var(--dur-base) var(--ease-standard),
-      opacity var(--dur-fast) var(--ease-standard);
-  }
-
-  .footer .footer-container > div > a:hover {
-    text-decoration-color: currentColor;
-  }
 }
 
 /* FeatureCards liquid glass: each card owns an accent hue (--liq) matching

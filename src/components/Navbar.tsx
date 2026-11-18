@@ -176,17 +176,13 @@ const Navbar = () => {
           aria-hidden="true"
         />
 
-        {/* 1. Brand & Available status indicator */}
+        {/* 1. Brand */}
         <Link
           to="/"
           onClick={() => tap(6)}
-          className="group flex items-center gap-2 pl-2 pr-2.5 sm:px-3 py-1 rounded-full text-foreground hover:text-sky-500 dark:hover:text-sky-400 transition-colors"
+          className="group flex items-center px-3 py-1 rounded-full text-foreground hover:text-sky-500 dark:hover:text-sky-400 transition-colors"
           title="Sachin Yadav"
         >
-          <span className="relative flex size-2 items-center justify-center shrink-0">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-65" />
-            <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
-          </span>
           <span className="font-semibold text-xs sm:text-sm tracking-tight text-zinc-900 dark:text-zinc-100 whitespace-nowrap">
             Sachin <span className="hidden sm:inline">Yadav</span>
           </span>
