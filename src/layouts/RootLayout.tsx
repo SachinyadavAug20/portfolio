@@ -106,7 +106,7 @@ const RootLayout = () => {
       <DevShortcuts />
       <div
         key={rendered.pathname}
-        className={`page-content ${canViewTransition ? undefined : "page-enter"} ${rendered.pathname.startsWith("/blog") ? "pl-20 sm:pl-24" : ""}`}
+        className={`page-content ${canViewTransition ? undefined : "page-enter"} ${rendered.pathname.startsWith("/blog") ? "md:pl-64 lg:pl-72" : ""}`}
       >
         <Outlet />
       </div>
@@ -115,7 +115,11 @@ const RootLayout = () => {
           <Toaster />
         </Suspense>
       )}
-      {!quiet && <Footer />}
+      {!quiet && (
+        <div className={rendered.pathname.startsWith("/blog") ? "md:pl-64 lg:pl-72" : ""}>
+          <Footer />
+        </div>
+      )}
       {!quiet && <BottomTabBar />}
     </MotionConfig>
   );
