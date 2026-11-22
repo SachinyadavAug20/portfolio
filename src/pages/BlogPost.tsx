@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams, useSearchParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown, Share2, AArrowDown, AArrowUp, X, Link2, FolderOpen } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Eye, ChevronDown, Share2, AArrowDown, AArrowUp, X, Link2, FolderOpen, List } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ReactMarkdown from "react-markdown";
@@ -132,6 +132,7 @@ const HeadingHash = ({ id, text }: { id: string; text: string }) => (
 
 const TableOfContents = ({ headings }: { headings: TocItem[] }) => {
   const [activeId, setActiveId] = useState("");
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     setActiveId("");
@@ -168,32 +169,68 @@ const TableOfContents = ({ headings }: { headings: TocItem[] }) => {
 
   if (headings.length === 0) return null;
 
+  if (collapsed) {
+    return (
+      <nav className="sticky top-20 flex justify-end">
+        <button
+          type="button"
+          onClick={() => {
+            tap(6);
+            setCollapsed(false);
+          }}
+          title="Show On this page"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-black-50 bg-black-100/70 hover:bg-black-200 text-white-50/70 hover:text-foreground text-xs font-medium transition-all shadow-sm active:scale-95"
+        >
+          <List className="size-3.5" />
+          <span>On this page</span>
+        </button>
+      </nav>
+    );
+  }
+
   return (
-    <nav className="sticky top-24">
-      <h4 className="text-xs font-semibold text-white-50/40 uppercase tracking-wider mb-4">
-        On this page
-      </h4>
-      <ul className="space-y-1.5 border-l border-black-50">
-        {headings.map((h) => (
-          <li key={h.id}>
-            <a
-              href={`#${h.id}`}
-              onClick={(e) => {
-                e.preventDefault();
-                handleClick(h.id);
-              }}
-                      className={`block text-[13px] leading-snug py-1.5 border-l transition-colors ${
-                        h.level === 3 ? "pl-6" : h.level === 4 ? "pl-8" : "pl-4"
-                      } ${
-                activeId === h.id
-                  ? "border-blue-50 text-blue-50"
-                  : "border-transparent text-white-50/40 hover:text-white-50/70 hover:border-white-50/30"
-              }`}
-            >
-              {h.text}
-            </a>
-          </li>
-        ))}
+    <nav className="sticky top-20 text-xs">
+      <div className="flex items-center justify-between pb-2 mb-2 border-b border-black-50">
+        <span className="text-[11px] font-semibold text-white-50/40 uppercase tracking-wider">
+          On this page
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            tap(6);
+            setCollapsed(true);
+          }}
+          title="Minimize On this page"
+          className="text-[11px] text-white-50/40 hover:text-white-50/80 px-1.5 py-0.5 rounded hover:bg-black-100 transition-colors"
+        >
+          Hide
+        </button>
+      </div>
+      <ul className="space-y-0.5 max-h-[calc(100vh-140px)] overflow-y-auto overscroll-contain pr-1 scrollbar-thin">
+        {headings.map((h) => {
+          const isActive = activeId === h.id;
+          return (
+            <li key={h.id}>
+              <a
+                href={`#${h.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleClick(h.id);
+                }}
+                className={`block leading-snug py-1 px-2 rounded-md transition-colors text-xs truncate ${
+                  h.level === 3 ? "ml-2.5 text-[11px]" : h.level === 4 ? "ml-4 text-[11px]" : ""
+                } ${
+                  isActive
+                    ? "bg-blue-500/15 text-blue-400 font-medium border-l-2 border-blue-400 pl-1.5"
+                    : "text-white-50/45 hover:text-white-50/85 hover:bg-black-100/60"
+                }`}
+                title={h.text}
+              >
+                {h.text}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );
@@ -940,8 +977,8 @@ const BlogPost = () => {
         >
           &larr; Back
         </Link>
-        <div className="flex gap-12">
-          <div className="flex-1 min-w-0 max-w-3xl">
+        <div className="flex gap-6 lg:gap-8 xl:gap-12">
+          <div className="flex-1 min-w-0 max-w-3xl xl:max-w-4xl">
             {showTitle && (
               <h1 className="post-anim text-2xl md:text-3xl font-bold leading-tight text-foreground mb-4">
                 {post.title}
@@ -1163,7 +1200,7 @@ const BlogPost = () => {
               )}
             </div>
           </div>
-          <aside className="post-anim hidden lg:block w-56 shrink-0">
+          <aside className="post-anim hidden lg:block w-48 xl:w-52 shrink-0">
             <TableOfContents headings={headings} />
           </aside>
         </div>

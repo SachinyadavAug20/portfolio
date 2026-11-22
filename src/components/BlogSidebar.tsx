@@ -13,6 +13,7 @@ import {
   Home,
   Network,
   PanelLeftOpen,
+  PanelLeftClose,
   Sparkles,
   ExternalLink,
 } from "lucide-react";
@@ -20,6 +21,11 @@ import type { BlogPost } from "../blog/types";
 import { getPosts } from "../blog/posts";
 import { getBlogDates } from "../blog/dates";
 import { tap } from "../lib/haptics";
+import {
+  getSidebarCollapsed,
+  setSidebarCollapsed,
+  onSidebarCollapsedChange,
+} from "../lib/blogSidebarState";
 
 const GITHUB_REPO_URL = "https://github.com/SachinyadavAug20/My-Obsidian-notes";
 
@@ -38,9 +44,27 @@ const BlogSidebar = () => {
 
   // Active query / tag params
   const activeTag = searchParams.get("tag") || "";
-  const currentSlug = location.pathname.startsWith("/blog/post/")
+  const isReading = location.pathname.startsWith("/blog/post/");
+  const currentSlug = isReading
     ? decodeURIComponent(location.pathname.slice("/blog/post/".length))
     : "";
+
+  const [isCollapsed, setIsCollapsed] = useState(() =>
+    isReading ? true : getSidebarCollapsed()
+  );
+
+  useEffect(() => {
+    return onSidebarCollapsedChange((collapsed) => {
+      setIsCollapsed(collapsed);
+    });
+  }, []);
+
+  const handleToggleCollapse = () => {
+    tap(8);
+    const next = !isCollapsed;
+    setIsCollapsed(next);
+    setSidebarCollapsed(next);
+  };
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -196,6 +220,139 @@ const BlogSidebar = () => {
     );
   };
 
+  // Minimized icon-only rail (shown when reading or collapsed)
+  const renderIconRail = () => (
+    <div
+      data-lenis-prevent="true"
+      className="flex flex-col items-center justify-between h-full py-3.5 px-1 select-none overscroll-contain"
+    >
+      {/* Top: Avatar, Expand, Search, Nav icons */}
+      <div className="flex flex-col items-center gap-2.5 w-full">
+        {/* Avatar */}
+        <Link
+          to="/"
+          onClick={() => tap(6)}
+          title="Sachin Yadav (Return to Portfolio)"
+          className="size-8 rounded-full overflow-hidden ring-1 ring-zinc-200/90 dark:ring-zinc-800/90 hover:ring-sky-500 transition-all flex items-center justify-center group active:scale-95 mb-1"
+        >
+          <img
+            src="https://github.com/SachinyadavAug20.png"
+            alt="Sachin Yadav"
+            loading="lazy"
+            className="size-full object-cover group-hover:scale-105 transition-transform"
+            onError={(e) => {
+              (e.currentTarget as HTMLElement).style.display = "none";
+            }}
+          />
+        </Link>
+
+        {/* Expand toggle */}
+        <button
+          type="button"
+          onClick={handleToggleCollapse}
+          title="Expand sidebar"
+          className="size-8 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-100/60 dark:bg-zinc-800/40 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-800/80 flex items-center justify-center transition-all active:scale-95"
+          aria-label="Expand sidebar"
+        >
+          <PanelLeftOpen className="size-4" />
+        </button>
+
+        <div className="w-6 h-px bg-zinc-200/80 dark:bg-zinc-800/80 my-0.5" />
+
+        {/* Search button */}
+        <button
+          type="button"
+          onClick={() => {
+            tap(6);
+            setIsCollapsed(false);
+            setSidebarCollapsed(false);
+            setTimeout(() => searchInputRef.current?.focus(), 150);
+          }}
+          title="Search notes (click to open search)"
+          className="size-8 rounded-lg flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors active:scale-95"
+        >
+          <Search className="size-4" />
+        </button>
+
+        {/* All Notes Icon */}
+        <Link
+          to="/blog"
+          onClick={() => {
+            tap(6);
+            if (activeTag) handleClearTag();
+          }}
+          title={`All Notes (${posts.length || 391})`}
+          className={`size-8 rounded-lg flex items-center justify-center transition-colors active:scale-95 ${
+            location.pathname === "/blog" && !activeTag
+              ? "bg-sky-500/15 text-sky-600 dark:text-sky-400 font-medium"
+              : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
+          }`}
+        >
+          <BookOpen className="size-4" />
+        </Link>
+
+        {/* Knowledge Graph Icon */}
+        <Link
+          to="/graph"
+          onClick={() => tap(6)}
+          title="Knowledge Graph"
+          className={`size-8 rounded-lg flex items-center justify-center transition-colors active:scale-95 ${
+            location.pathname === "/graph"
+              ? "bg-sky-500/15 text-sky-600 dark:text-sky-400 font-medium"
+              : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
+          }`}
+        >
+          <Network className="size-4" />
+        </Link>
+
+        {/* Social & Links Icon */}
+        <Link
+          to="/links"
+          onClick={() => tap(6)}
+          title="Social & Links"
+          className={`size-8 rounded-lg flex items-center justify-center transition-colors active:scale-95 ${
+            location.pathname === "/links"
+              ? "bg-sky-500/15 text-sky-600 dark:text-sky-400 font-medium"
+              : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
+          }`}
+        >
+          <Sparkles className="size-4" />
+        </Link>
+
+        {/* Categories Icon */}
+        <button
+          type="button"
+          onClick={() => {
+            tap(6);
+            setIsCollapsed(false);
+            setSidebarCollapsed(false);
+          }}
+          title="Categories & Folders"
+          className={`size-8 rounded-lg flex items-center justify-center transition-colors active:scale-95 ${
+            activeTag
+              ? "bg-sky-500/15 text-sky-600 dark:text-sky-400 font-medium"
+              : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
+          }`}
+        >
+          <Folder className="size-4" />
+        </button>
+      </div>
+
+      {/* Bottom: Obsidian link */}
+      <div className="flex flex-col items-center gap-1.5 pt-2 border-t border-zinc-200/80 dark:border-zinc-800/80 w-full">
+        <a
+          href={GITHUB_REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Obsidian Vault on GitHub"
+          className="size-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors"
+        >
+          <ExternalLink className="size-3.5" />
+        </a>
+      </div>
+    </div>
+  );
+
   // Sidebar content component (shared between desktop sidebar and mobile drawer)
   const renderSidebar = (isDrawer = false) => (
     <div data-lenis-prevent="true" className="flex flex-col h-full overflow-hidden select-none">
@@ -224,6 +381,18 @@ const BlogSidebar = () => {
         </Link>
 
         <div className="flex items-center gap-1.5 shrink-0">
+          {!isDrawer && (
+            <button
+              type="button"
+              onClick={handleToggleCollapse}
+              title="Minimize sidebar to icons"
+              className="size-7 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 flex items-center justify-center transition-colors"
+              aria-label="Minimize sidebar"
+            >
+              <PanelLeftClose className="size-3.5" />
+            </button>
+          )}
+
           {isDrawer ? (
             <button
               type="button"
@@ -550,10 +719,12 @@ const BlogSidebar = () => {
       {/* ============================================================ */}
       <aside
         data-lenis-prevent="true"
-        className="hidden md:flex flex-col fixed inset-y-0 left-0 w-64 lg:w-72 z-30 bg-zinc-50/95 dark:bg-[#070c18]/95 backdrop-blur-xl border-r border-zinc-200/80 dark:border-zinc-800/80 overscroll-contain"
+        className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-30 bg-zinc-50/95 dark:bg-[#070c18]/95 backdrop-blur-xl border-r border-zinc-200/80 dark:border-zinc-800/80 overscroll-contain transition-[width] duration-200 ${
+          isCollapsed ? "w-16" : "w-64 lg:w-72"
+        }`}
         aria-label="Documentation sidebar"
       >
-        {renderSidebar(false)}
+        {isCollapsed ? renderIconRail() : renderSidebar(false)}
       </aside>
 
       {/* ============================================================ */}

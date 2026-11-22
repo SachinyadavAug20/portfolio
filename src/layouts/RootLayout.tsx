@@ -16,6 +16,11 @@ import { useIsMobile } from "../hooks/useIsMobile";
 import { tap } from "../lib/haptics";
 import { isToasterWanted, onToasterWanted } from "../lib/toast";
 import { canViewTransition, useRenderedLocation } from "../lib/routeTransition";
+import {
+  getSidebarCollapsed,
+  setSidebarCollapsed,
+  onSidebarCollapsedChange,
+} from "../lib/blogSidebarState";
 
 /* the cat is pure delight — her chunk waits for the first idle slot so
    entry paint never queues behind her */
@@ -33,12 +38,34 @@ const RootLayout = () => {
   /* /links is a standalone linktree — chrome (nav, footer, tab bar, cat)
      would crowd the stack, so the page stands alone */
   const quiet = rendered.pathname.startsWith("/links");
+  const isBlog = rendered.pathname.startsWith("/blog");
+  const isReading = rendered.pathname.startsWith("/blog/post/");
   const catReady = useIdleReady(1200);
   const isMobile = useIsMobile();
-  /* the cat gets in the way of reading on small screens — she keeps
-     company everywhere else (blog desktop, home, …) */
-  const catHidden = isMobile && rendered.pathname.startsWith("/blog");
+  /* the cat gets in the way of reading articles — she keeps
+     company on home, links, and the blog directory explorer */
+  const catHidden = isReading || (isMobile && isBlog);
   const [toasterWanted, setToasterWanted] = useState(isToasterWanted);
+
+  const [sidebarCollapsed, setSidebarCollapsedState] = useState(() =>
+    isReading ? true : getSidebarCollapsed(),
+  );
+
+  useEffect(() => {
+    if (isReading) {
+      setSidebarCollapsed(true);
+      setSidebarCollapsedState(true);
+    } else if (rendered.pathname === "/blog") {
+      setSidebarCollapsed(false);
+      setSidebarCollapsedState(false);
+    }
+  }, [rendered.pathname, isReading]);
+
+  useEffect(() => {
+    return onSidebarCollapsedChange((collapsed) => {
+      setSidebarCollapsedState(collapsed);
+    });
+  }, []);
 
   useEffect(
     () =>
@@ -106,7 +133,7 @@ const RootLayout = () => {
       <DevShortcuts />
       <div
         key={rendered.pathname}
-        className={`page-content ${canViewTransition ? undefined : "page-enter"} ${rendered.pathname.startsWith("/blog") ? "md:pl-64 lg:pl-72" : ""}`}
+        className={`page-content transition-[padding] duration-200 ${canViewTransition ? undefined : "page-enter"} ${isBlog ? (sidebarCollapsed ? "md:pl-16" : "md:pl-64 lg:pl-72") : ""}`}
       >
         <Outlet />
       </div>
@@ -116,7 +143,7 @@ const RootLayout = () => {
         </Suspense>
       )}
       {!quiet && (
-        <div className={rendered.pathname.startsWith("/blog") ? "md:pl-64 lg:pl-72" : ""}>
+        <div className={`transition-[padding] duration-200 ${isBlog ? (sidebarCollapsed ? "md:pl-16" : "md:pl-64 lg:pl-72") : ""}`}>
           <Footer />
         </div>
       )}
