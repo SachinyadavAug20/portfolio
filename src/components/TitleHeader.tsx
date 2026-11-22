@@ -45,8 +45,36 @@ const TitleHeader = ({ title }: { title: string; sub?: string }) => {
 
   return (
     <div ref={ref} className="flex flex-col items-center">
-      <div className="th-title font-semibold md:text-4xl text-2xl sm:text-3xl text-center">
-        {title}
+      <div className="flex items-center justify-center gap-2">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="size-4 shrink-0 opacity-30"
+        >
+          <path d="M3 3h7v7" />
+        </svg>
+        <div className="th-title font-semibold md:text-4xl text-2xl sm:text-3xl text-center">
+          {title}
+        </div>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="size-4 shrink-0 opacity-30"
+        >
+          <path d="M21 3h-7v7" />
+        </svg>
       </div>
     </div>
   );
