@@ -6,8 +6,8 @@ import type { BlogPost } from "../blog/types";
 
 const sidebarClasses = (isMobile: boolean) =>
   isMobile
-    ? "fixed left-0 top-0 bottom-0 w-full sm:w-full bg-white dark:bg-[#0d1527] border-0"
-    : "w-16 sm:w-20 bg-white dark:bg-[#0d1527] border-r border-zinc-200/80 dark:border-zinc-800/80 z-40 py-6 transition-transform transform duration-300 translate-x-full sm:translate-x-0";
+    ? "fixed left-0 top-0 bottom-0 w-full sm:w-full bg-white dark:bg-[#0d1527] border-0 translate-x-full sm:translate-x-0 z-50"
+    : "w-16 sm:w-20 bg-white dark:bg-[#0d1527] border-r border-zinc-200/80 dark:border-zinc-800/80 z-40 py-6 transition-transform transform duration-300";
 
 const BlogSidebar = () => {
   const [, setSearchParams] = useSearchParams();

@@ -106,7 +106,7 @@ const RootLayout = () => {
       <DevShortcuts />
       <div
         key={rendered.pathname}
-        className={canViewTransition ? undefined : "page-enter"}
+        className={`page-content ${canViewTransition ? undefined : "page-enter"} ${rendered.pathname.startsWith("/blog") ? "pl-20 sm:pl-24" : ""}`}
       >
         <Outlet />
       </div>
