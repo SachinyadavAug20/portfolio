@@ -280,13 +280,11 @@ const BottomTabBar = () => {
               aria-current={activeSection === "home" ? "page" : undefined}
               whileTap={{ scale: 0.9 }}
               transition={{ type: "spring", stiffness: 600, damping: 25 }}
-              className={`relative size-10 rounded-full flex items-center justify-center transition-colors ${
-                activeSection === "home"
-                  ? "text-cyan-500 dark:text-cyan-400 bg-cyan-500/10 border border-cyan-500/25 shadow-[0_0_12px_rgba(34,211,238,0.2)]"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-              }`}
+              className="relative size-10 rounded-full flex items-center justify-center transition-colors hover:text-cyan-400 dark:hover:text-cyan-300"
             >
-              <Home className="size-5" strokeWidth={activeSection === "home" ? 2.2 : 1.8} />
+              <Home
+                className="size-5 stroke-2 transition-colors duration-200 stroke-zinc-400 dark:stroke-zinc-500"
+              />
             </MotionLink>
 
             {/* Projects */}
@@ -298,13 +296,11 @@ const BottomTabBar = () => {
               aria-current={activeSection === "work" ? "page" : undefined}
               whileTap={{ scale: 0.9 }}
               transition={{ type: "spring", stiffness: 600, damping: 25 }}
-              className={`relative size-10 rounded-full flex items-center justify-center transition-colors ${
-                activeSection === "work"
-                  ? "text-cyan-500 dark:text-cyan-400 bg-cyan-500/10 border border-cyan-500/25 shadow-[0_0_12px_rgba(34,211,238,0.2)]"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-              }`}
+              className="relative size-10 rounded-full flex items-center justify-center transition-colors hover:text-cyan-400 dark:hover:text-cyan-300"
             >
-              <LayoutGrid className="size-5" strokeWidth={activeSection === "work" ? 2.2 : 1.8} />
+              <LayoutGrid
+                className="size-5 stroke-2 transition-colors duration-200 stroke-zinc-400 dark:stroke-zinc-500"
+              />
             </MotionLink>
           </div>
 
