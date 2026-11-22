@@ -18,7 +18,6 @@ const PRESS = {
 import type { BlogPost } from "../blog/types";
 import TitleHeader from "../components/TitleHeader";
 import FileExplorer from "../components/FileExplorer";
-import TagPanel from "../components/TagPanel";
 import BackToTop from "../components/BackToTop";
 import { useReducedMotion } from "../hooks/useReducedMotion";
 import { scrollToY } from "../lib/smoothScroll";
@@ -218,28 +217,6 @@ const BlogList = () => {
       dead = true;
     };
   }, []);
-
-  const latest = useMemo(() => {
-    if (!posts.length) return [];
-    const dated = posts
-      .filter((p) => latestDates[p.fullSlug])
-      .sort((a, b) =>
-        latestDates[b.fullSlug].localeCompare(latestDates[a.fullSlug]),
-      );
-    if (dated.length >= 3) return dated.slice(0, 5);
-    return posts.slice(0, 5);
-  }, [posts, latestDates]);
-
-  /* quick rail: the vault's heaviest tags stay one tap away, the searchable
-     panel keeps the long tail — never another wall of 59 chips */
-  const railTags = useMemo(() => {
-    const rail = tagCounts.slice(0, 12);
-    if (currentTag && !rail.some((t) => t.tag === currentTag)) {
-      const active = tagCounts.find((t) => t.tag === currentTag);
-      if (active) rail.unshift(active);
-    }
-    return rail;
-  }, [tagCounts, currentTag]);
 
   const filteredPosts = useMemo(() => {
     let result = posts;
@@ -477,41 +454,24 @@ const BlogList = () => {
                   </ul>
                 )}
               </div>
-              <div className="blog-intro flex items-center justify-between gap-3 flex-wrap mb-4">
-                {tagCounts.length > 0 && (
-                  <TagPanel
-                    tags={tagCounts}
-                    activeTag={currentTag || null}
-                    onSelect={(t) => (t ? setTag(t) : clearTag())}
-                  />
-                )}
-                {(currentTag || currentQuery) && (
-                  <p className="text-xs text-white-50/45 tabular-nums ml-auto">
+              {(currentTag || currentQuery) && (
+                <div className="blog-intro flex items-center justify-between gap-3 mb-4 text-xs text-white-50/60">
+                  <p className="tabular-nums">
                     {filteredPosts.length} of {posts.length} notes
                     {currentTag ? ` · #${currentTag}` : ""}
                     {currentQuery ? ` · “${currentQuery}”` : ""}
                   </p>
-                )}
-              </div>
-              {railTags.length > 0 && (
-                <div className="mb-6 -mx-1 px-1 flex gap-2 overflow-x-auto no-scrollbar lg:flex-wrap lg:overflow-x-visible">
-                  {railTags.map(({ tag, count }) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => setTag(tag)}
-                      aria-pressed={currentTag === tag}
-                      title={`${count} note${count === 1 ? "" : "s"} in #${tag}`}
-                      className={`tag-rail-item shrink-0 chip inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border transition-colors ${
-                        currentTag === tag
-                          ? "chip-filter"
-                          : "border-black-50 bg-black-200 text-white-50/85 hover:bg-black-50 hover:text-foreground"
-                      }`}
-                    >
-                      <span className="truncate max-w-32">{tag}</span>
-                      <span className="tabular-nums opacity-50">{count}</span>
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clearTag();
+                      setQInput("");
+                      setSearch("");
+                    }}
+                    className="text-sky-500 hover:text-sky-400 hover:underline font-medium text-xs ml-auto"
+                  >
+                    Clear filter
+                  </button>
                 </div>
               )}
               {folder && (folder.children?.length ?? 0) > 0 ? (
@@ -554,53 +514,6 @@ const BlogList = () => {
                       {currentQuery ? "Clear search" : "Back to root"}
                     </motion.button>
                   </div>
-                </div>
-              )}
-              {latest.length > 0 && (
-                <div className="latest-notes mt-14 pt-6 border-t border-black-50">
-                  <div className="flex items-baseline justify-between mb-3">
-                    <h2 className="text-xs font-semibold uppercase tracking-wider text-white-50/40">
-                      Latest notes
-                    </h2>
-                    {latestDates[latest[0].fullSlug] && (
-                      <span className="text-[11px] text-white-50/35">
-                        by last update
-                      </span>
-                    )}
-                  </div>
-                  <ul className="space-y-0.5">
-                    {latest.map((p) => {
-                      const d = latestDates[p.fullSlug];
-                      return (
-                        <li key={p.fullSlug}>
-                          <MotionLink
-                            to={`/blog/post/${p.fullSlug}${p.dir ? `?from=${encodeURIComponent(p.dir)}` : ""}`}
-                            {...PRESS}
-                            className="flex items-center justify-between gap-3 px-3 py-2 -mx-3 rounded-lg hover:bg-black-100/60 transition-colors group"
-                          >
-                            <span className="truncate text-sm text-white-50 group-hover:text-foreground transition-colors">
-                              {p.title}
-                            </span>
-                            <span className="flex items-center gap-3 shrink-0 text-xs text-white-50/40">
-                              {p.dir && (
-                                <span className="truncate max-w-36">
-                                  {p.dir.split("/").pop()}
-                                </span>
-                              )}
-                              {d && (
-                                <span>
-                                  {new Date(d).toLocaleDateString(undefined, {
-                                    month: "short",
-                                    day: "numeric",
-                                  })}
-                                </span>
-                              )}
-                            </span>
-                          </MotionLink>
-                        </li>
-                      );
-                    })}
-                  </ul>
                 </div>
               )}
             </>

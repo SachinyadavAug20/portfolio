@@ -32,7 +32,7 @@ const RootLayout = () => {
   const rendered = useRenderedLocation() ?? location;
   /* /links is a standalone linktree — chrome (nav, footer, tab bar, cat)
      would crowd the stack, so the page stands alone */
-  const quiet = rendered.pathname === "/links";
+  const quiet = rendered.pathname.startsWith("/links");
   const catReady = useIdleReady(1200);
   const isMobile = useIsMobile();
   /* the cat gets in the way of reading on small screens — she keeps
@@ -101,7 +101,7 @@ const RootLayout = () => {
           <CatCompanion />
         </Suspense>
       )}
-      {!quiet && rendered.pathname.startsWith("/blog") ? <BlogSidebar /> : <Navbar />}
+      {!quiet && (rendered.pathname.startsWith("/blog") ? <BlogSidebar /> : <Navbar />)}
       <CommandPalette />
       <DevShortcuts />
       <div

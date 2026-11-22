@@ -7,7 +7,6 @@ import {
   Folder,
   FolderOpen,
   FileText,
-  Star,
   X,
   ChevronDown,
   ChevronRight,
@@ -199,31 +198,32 @@ const BlogSidebar = () => {
 
   // Sidebar content component (shared between desktop sidebar and mobile drawer)
   const renderSidebar = (isDrawer = false) => (
-    <div className="flex flex-col h-full overflow-hidden select-none">
+    <div data-lenis-prevent="true" className="flex flex-col h-full overflow-hidden select-none">
       {/* 1. Header / Brand */}
-      <div className="p-4 pb-3 border-b border-zinc-200/80 dark:border-zinc-800/80 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <Link
-            to="/"
-            onClick={() => {
-              tap(6);
-              if (isDrawer) setMobileOpen(false);
+      <div className="px-4 py-3.5 border-b border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
+        <Link
+          to="/"
+          onClick={() => {
+            tap(6);
+            if (isDrawer) setMobileOpen(false);
+          }}
+          className="group flex items-center gap-2.5 text-zinc-900 dark:text-zinc-100 hover:text-sky-500 dark:hover:text-sky-400 transition-colors min-w-0"
+        >
+          <img
+            src="https://github.com/SachinyadavAug20.png"
+            alt="Sachin Yadav"
+            loading="lazy"
+            className="size-7 rounded-full object-cover ring-1 ring-zinc-200/80 dark:ring-zinc-800/80 shrink-0"
+            onError={(e) => {
+              (e.currentTarget as HTMLElement).style.display = "none";
             }}
-            className="group flex items-center gap-2.5 text-zinc-900 dark:text-zinc-100 hover:text-sky-500 dark:hover:text-sky-400 transition-colors"
-          >
-            <div className="size-8 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 flex items-center justify-center font-bold text-xs tracking-tight shadow-sm">
-              SY
-            </div>
-            <div className="flex flex-col">
-              <span className="font-semibold text-sm leading-tight group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
-                Sachin Yadav
-              </span>
-              <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">
-                Digital Notes &amp; Vault
-              </span>
-            </div>
-          </Link>
+          />
+          <span className="font-semibold text-sm leading-none truncate group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors">
+            Sachin Yadav
+          </span>
+        </Link>
 
+        <div className="flex items-center gap-1.5 shrink-0">
           {isDrawer ? (
             <button
               type="button"
@@ -243,32 +243,6 @@ const BlogSidebar = () => {
               <Home className="size-3.5" />
             </Link>
           )}
-        </div>
-
-        {/* Quick Action Pills: Star on GitHub & Knowledge Graph */}
-        <div className="flex items-center gap-2 pt-1">
-          <a
-            href={GITHUB_REPO_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => tap(6)}
-            className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-100/60 dark:bg-zinc-800/40 hover:bg-zinc-200/70 dark:hover:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 text-xs font-medium transition-all group active:scale-[0.98]"
-          >
-            <Star className="size-3.5 fill-amber-400 text-amber-500 group-hover:scale-110 transition-transform" />
-            <span>Star Vault</span>
-          </a>
-
-          <Link
-            to="/graph"
-            onClick={() => {
-              tap(6);
-              if (isDrawer) setMobileOpen(false);
-            }}
-            className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-100/60 dark:bg-zinc-800/40 hover:bg-sky-500/10 hover:border-sky-500/30 text-zinc-700 dark:text-zinc-300 hover:text-sky-600 dark:hover:text-sky-400 text-xs font-medium transition-all active:scale-[0.98]"
-            title="Interactive Knowledge Graph"
-          >
-            <Network className="size-3.5" />
-          </Link>
         </div>
       </div>
 
@@ -304,7 +278,10 @@ const BlogSidebar = () => {
       </div>
 
       {/* 3. Navigation & Sections (Scrollable Area) */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-5 scrollbar-thin">
+      <div
+        data-lenis-prevent="true"
+        className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-5 scrollbar-thin"
+      >
         {/* If Searching: Display Instant Search Results */}
         {searchQuery.trim() ? (
           <div className="space-y-1.5">
@@ -572,7 +549,8 @@ const BlogSidebar = () => {
       {/* DESKTOP SIDEBAR: Fixed left docs rail                          */}
       {/* ============================================================ */}
       <aside
-        className="hidden md:flex flex-col fixed inset-y-0 left-0 w-64 lg:w-72 z-30 bg-zinc-50/95 dark:bg-[#070c18]/95 backdrop-blur-xl border-r border-zinc-200/80 dark:border-zinc-800/80"
+        data-lenis-prevent="true"
+        className="hidden md:flex flex-col fixed inset-y-0 left-0 w-64 lg:w-72 z-30 bg-zinc-50/95 dark:bg-[#070c18]/95 backdrop-blur-xl border-r border-zinc-200/80 dark:border-zinc-800/80 overscroll-contain"
         aria-label="Documentation sidebar"
       >
         {renderSidebar(false)}
@@ -639,11 +617,12 @@ const BlogSidebar = () => {
 
             {/* Slide-out drawer sheet */}
             <motion.div
+              data-lenis-prevent="true"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 380, damping: 32 }}
-              className="relative w-80 max-w-[85vw] h-full bg-white dark:bg-[#070c18] border-r border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col"
+              className="relative w-80 max-w-[85vw] h-full bg-white dark:bg-[#070c18] border-r border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col overscroll-contain"
             >
               {renderSidebar(true)}
             </motion.div>
