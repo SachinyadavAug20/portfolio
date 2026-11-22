@@ -3,11 +3,13 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { MotionConfig } from "motion/react";
 import Navbar from "../components/Navbar";
 import BottomTabBar from "../components/BottomTabBar";
-import CursorGlow from "../components/CursorGlow";
+import BlogSidebar from "../components/BlogSidebar";
 import CommandPalette from "../components/CommandPalette";
 import DevShortcuts from "../components/DevShortcuts";
 import Footer from "../sections/Footer";
-import WaveHexGrid from "../components/WaveHexGrid";
+/* Heavy components are lazy-loaded so blog pages stay lightweight */
+const WaveHexGrid = lazy(() => import("../components/WaveHexGrid"));
+const CursorGlow = lazy(() => import("../components/CursorGlow"));
 import { isTouchDevice } from "../hooks/useNearViewport";
 import { useIdleReady } from "../hooks/useIdleReady";
 import { useIsMobile } from "../hooks/useIsMobile";
@@ -86,16 +88,20 @@ const RootLayout = () => {
     /* Honor prefers reduced-motion for every motion/react interaction
         (whileTap springs below) without affecting view transitions. */
     <MotionConfig reducedMotion="user">
-      {/* Global ambient honeycomb — hex lattice warped by random smooth wave
-          fields, regenerated every load; static, thin, minimal */}
-      <WaveHexGrid />
-      {!quiet && <Navbar />}
-      <CursorGlow />
+      {/* Global ambient honeycomb — code-split so blog pages skip Three.js */}
+      <Suspense fallback={null}>
+        <WaveHexGrid />
+      </Suspense>
+      {/* Cursor glow — code-split, only interactive when needed */}
+      <Suspense fallback={null}>
+        <CursorGlow />
+      </Suspense>
       {catReady && !quiet && !catHidden && (
         <Suspense fallback={null}>
           <CatCompanion />
         </Suspense>
       )}
+      {!quiet && rendered.pathname.startsWith("/blog") ? <BlogSidebar /> : <Navbar />}
       <CommandPalette />
       <DevShortcuts />
       <div
