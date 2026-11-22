@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { BlogPost } from "../blog/types";
 import { getPosts } from "../blog/posts";
+import { getBlogDates } from "../blog/dates";
 import { tap } from "../lib/haptics";
 
 const GITHUB_REPO_URL = "https://github.com/SachinyadavAug20/My-Obsidian-notes";
@@ -68,13 +69,9 @@ const BlogSidebar = () => {
   // Load dates for accurate latest sorting
   useEffect(() => {
     let cancelled = false;
-    fetch("/dates.json")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data: { dates?: Record<string, string> } | null) => {
-        if (cancelled || !data?.dates) return;
-        setLatestDates(data.dates);
-      })
-      .catch(() => {});
+    getBlogDates().then((dates) => {
+      if (!cancelled) setLatestDates(dates);
+    });
     return () => {
       cancelled = true;
     };

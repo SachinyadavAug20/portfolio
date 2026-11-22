@@ -22,7 +22,7 @@ const WaveHexGrid = () => {
   const show = useMemo(() => {
     const p = location.pathname.replace(/\/+$/, "");
     if (p === "" || p === "/work" || p === "/experience" || p === "/skills" || p === "/contact") return false;
-    if (p.startsWith("/blog/post")) return false;
+    if (p.startsWith("/blog") || p.startsWith("/graph")) return false;
     return true;
   }, [location.pathname]);
 

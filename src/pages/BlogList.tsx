@@ -8,6 +8,7 @@ import SEOHead from "../seo/SEOHead";
 import { buildBlogSchema } from "../lib/schema";
 import { getPosts } from "../blog/posts";
 import { buildTree, getFolderAtPath } from "../blog/tree";
+import { getBlogDates } from "../blog/dates";
 
 const MotionLink = motion.create(Link);
 const PRESS = {
@@ -100,10 +101,17 @@ const BlogList = () => {
   const scrollKey = `blog-scroll::${viewKey}`;
   const restoredRef = useRef(false);
   useEffect(() => {
-    const save = () => sessionStorage.setItem(scrollKey, String(window.scrollY));
+    let timeoutId = 0;
+    const save = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        sessionStorage.setItem(scrollKey, String(window.scrollY));
+      }, 150);
+    };
     window.addEventListener("scroll", save, { passive: true });
     return () => {
-      save();
+      if (timeoutId) clearTimeout(timeoutId);
+      sessionStorage.setItem(scrollKey, String(window.scrollY));
       window.removeEventListener("scroll", save);
     };
   }, [scrollKey]);
@@ -203,15 +211,9 @@ const BlogList = () => {
   const [latestDates, setLatestDates] = useState<Record<string, string>>({});
   useEffect(() => {
     let dead = false;
-    fetch("/dates.json")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data: { dates?: Record<string, string> } | null) => {
-        if (dead || !data?.dates) return;
-        setLatestDates(data.dates);
-      })
-      .catch(() => {
-        /* no dates — tree order fallback */
-      });
+    getBlogDates().then((dates) => {
+      if (!dead) setLatestDates(dates);
+    });
     return () => {
       dead = true;
     };

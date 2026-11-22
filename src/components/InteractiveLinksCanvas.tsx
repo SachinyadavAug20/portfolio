@@ -197,13 +197,26 @@ export const InteractiveLinksCanvas = () => {
       }
       shockwavesRef.current = activeShockwaves;
 
+      // Pause animation when tab is in background
+      if (document.hidden) {
+        animId = 0;
+        return;
+      }
       animId = requestAnimationFrame(draw);
     };
+
+    const onVisibilityChange = () => {
+      if (!document.hidden && !animId) {
+        animId = requestAnimationFrame(draw);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     animId = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(animId);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerleave", onPointerLeave);

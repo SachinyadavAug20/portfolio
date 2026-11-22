@@ -122,6 +122,20 @@ const CODING_PROFILES: LinkItem[] = [
   },
 ];
 
+const CERTIFICATIONS: LinkItem[] = [
+  {
+    id: "credly",
+    label: "Credly",
+    sub: "sachinyadavapr20 · Verified badges & technical certifications",
+    href: "https://www.credly.com/users/sachinyadavapr20",
+    icon: BadgeCheck,
+    badge: "Verified",
+    accentBorderHover: "hover:border-amber-400 dark:hover:border-amber-500",
+    accentBgIcon: "bg-amber-500/15",
+    accentTextIcon: "text-amber-500",
+  },
+];
+
 const SOCIAL_PROFILES: LinkItem[] = [
   {
     id: "linkedin",
@@ -605,6 +619,21 @@ const Links = () => {
                   key={item.id}
                   item={item}
                   index={i + 6}
+                  grid={true}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Certifications & Badges */}
+          <div className="space-y-2.5 pt-2">
+            <SectionDivider title="Certifications & Badges" />
+            <div className="grid grid-cols-1 gap-2.5">
+              {CERTIFICATIONS.map((item, i) => (
+                <ProCard
+                  key={item.id}
+                  item={item}
+                  index={i + 10}
                   grid={true}
                 />
               ))}

@@ -20,6 +20,7 @@ const NAV_LINKS = [
 const RESOURCE_LINKS = [
   { label: "Blog & Vault", href: "/blog", internal: true },
   { label: "All Links", href: "/links", internal: true },
+  { label: "Credly Badges", href: "https://www.credly.com/users/sachinyadavapr20", external: true },
   { label: "Resume", href: RESUME_URL, external: true },
 ];
 
