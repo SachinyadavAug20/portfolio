@@ -154,6 +154,26 @@ section {
   --counter-border: #d8dee8;
   --counter-text: #18181b;
   --counter-muted: #52525b;
+  /* activity section — GitHub heat scale (light theme, all-blue) */
+  --gh-0: rgba(59, 130, 246, 0.10);
+  --gh-1: #93c5fd;
+  --gh-2: #60a5fa;
+  --gh-3: #3b82f6;
+  --gh-4: #2563eb;
+  --gh-mix-commits: #3b82f6;
+  --gh-mix-prs: #60a5fa;
+  --gh-mix-reviews: #818cf8;
+  --gh-mix-issues: #93c5fd;
+  --gh-meta: #52525b;
+  --gh-meta-muted: #9ca3af;
+  --gh-border: #e5e7eb;
+  /* activity section — LeetCode palette (all-blue) */
+  --lc-easy: #3b82f6;
+  --lc-medium: #60a5fa;
+  --lc-hard: #1d4ed8;
+  --lc-rating: #60a5fa;
+  --lc-ring-track: #e4e7ec;
+  --lc-hist: #c9ced6;
   --tab-accent: #0284c7;
   --tab-bar-bg: rgba(255, 255, 255, 0.96);
   --selection-bg: #bae6fd;
@@ -591,6 +611,70 @@ section {
 
   .card-border {
     @apply border border-black-50 bg-black-100;
+  }
+
+  /* Activity section — OSS timeline (GitHub card): merged-PR & review rows. */
+  .gh-oss {
+    @apply border-t border-black-50 pt-4 mt-4;
+  }
+  .gh-oss-row {
+    @apply flex items-center gap-2 min-w-0;
+    padding: 4px 0;
+  }
+  .gh-oss-row-pr > a {
+    font-weight: 500;
+  }
+  .gh-oss-state {
+    @apply shrink-0 rounded-full border border-black-50 px-2 py-0.5 text-[9.5px] tracking-wide uppercase font-semibold leading-none;
+    color: var(--gh-mix-reviews);
+  }
+  .gh-oss-meta {
+    @apply flex items-center gap-1.5 text-[10px] shrink-0 ml-auto font-medium;
+    color: var(--gh-meta);
+  }
+  .gh-oss-meta .gh-oss-age {
+    color: var(--gh-meta-muted);
+    font-weight: 400;
+  }
+
+  /* Activity heatmap cells — hover lift lives here so GSAP's clearProps
+     never fights an inline transform, and reduced-motion drops it. */
+  .hm-cell {
+    transition:
+      transform 0.15s ease,
+      filter 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .hm-cell:hover {
+    transform: scale(1.45);
+    filter: brightness(1.25);
+    z-index: 10;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta-bg) 35%, transparent);
+  }
+  .hm-cell:focus-visible {
+    outline: 1px solid var(--cta-bg);
+    outline-offset: 1px;
+    z-index: 10;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hm-cell {
+      transition: none;
+    }
+    .hm-cell:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  /* Make every cell tappable on small screens so the heatmap never collapses
+     to invisible slivers. */
+  @media (max-width: 767px) {
+    .hm-cell,
+    .hm-cell + span,
+    [role="group"] .hm-cell {
+      min-width: 9px;
+      min-height: 9px;
+    }
   }
 
   /* Timeline — desktop: horizontal auto-advancing rail; mobile (< md):
@@ -1356,6 +1440,26 @@ section {
   --counter-border: #27272a;
   --counter-text: #f4f4f5;
   --counter-muted: #a1a1aa;
+  /* activity section — GitHub heat scale (dark theme, all-blue) */
+  --gh-0: rgba(59, 130, 246, 0.08);
+  --gh-1: #1e3a8a;
+  --gh-2: #3b82f6;
+  --gh-3: #60a5fa;
+  --gh-4: #93c5fd;
+  --gh-mix-commits: #3b82f6;
+  --gh-mix-prs: #60a5fa;
+  --gh-mix-reviews: #818cf8;
+  --gh-mix-issues: #93c5fd;
+  --gh-meta: #a1a1aa;
+  --gh-meta-muted: #71717a;
+  --gh-border: #27272a;
+  /* activity section — LeetCode palette (all-blue) */
+  --lc-easy: #3b82f6;
+  --lc-medium: #60a5fa;
+  --lc-hard: #1d4ed8;
+  --lc-rating: #60a5fa;
+  --lc-ring-track: #27272a;
+  --lc-hist: #3f3f46;
   --tab-accent: #38bdf8;
   --tab-bar-bg: rgba(0, 0, 0, 0.94);
   --selection-bg: #0284c7;

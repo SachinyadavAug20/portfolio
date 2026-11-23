@@ -9,6 +9,342 @@
 const POST_PREFIX = "/blog/post/";
 const SITE_FALLBACK = "https://portfolio.samtagon777.workers.dev";
 
+/* --- /api/github/contributions -----------------------------------------
+   GitHub has no public REST/GraphQL field for the profile calendar without
+   a token, so we scrape the same HTML the profile page renders from. One
+   fetch covers every cell, the streaks and the activity overview, and the
+   whole payload is edge-cached for 30 minutes. */
+
+const GH_USER = "SachinyadavAug20";
+const DAY_MS = 86400000;
+const ACTIVITY_TTL = 1800;
+
+const dayKey = (d) => d.toISOString().slice(0, 10);
+
+/* counts come from the tooltip text ("7 contributions on November 23rd."),
+   the cells themselves only carry a 0–4 bucket */
+function parseContributions(html) {
+  const tips = new Map();
+  const tipRe =
+    /for="contribution-day-component-(\d+-\d+)"[^>]*>([^<]+)<\/tool-tip>/g;
+  const idRe = /id="contribution-day-component-(\d+-\d+)"/;
+  for (const tip of html.matchAll(tipRe)) {
+    const id = tip[1];
+    if (!id) continue;
+    const text = tip[2].replace(/<[^>]+>/g, "").trim();
+    const m = /^(\d+) contribution/.exec(text);
+    tips.set(id, m ? Number(m[1]) : 0);
+  }
+
+  const days = [];
+  const cellRe =
+    /data-date="(\d{4}-\d{2}-\d{2})" id="contribution-day-component-(\d+-\d+)" data-level="(\d)"/g;
+  for (const cell of html.match(cellRe) ?? []) {
+    const m = cellRe.exec(cell);
+    cellRe.lastIndex = 0;
+    if (!m) continue;
+    days.push({ date: m[1], count: tips.get(m[2]) ?? 0, level: Number(m[3]) });
+  }
+  if (!idRe.test(html) || days.length === 0) throw new Error("contribution markup changed");
+
+  days.sort((a, b) => (a.date < b.date ? -1 : 1));
+
+  /* current streak counts back from today, allowing today to be empty (the
+     day isn't over); longest runs over the window GitHub gave us */
+  let longest = 0;
+  let run = 0;
+  for (const d of days) {
+    run = d.count > 0 ? run + 1 : 0;
+    if (run > longest) longest = run;
+  }
+  let current = 0;
+  for (let i = days.length - 1; i >= 0; i--) {
+    if (days[i].count > 0) current++;
+    else if (i !== days.length - 1) break;
+  }
+  const activeDays = days.filter((d) => d.count > 0).length;
+
+  const pct = (label) => {
+    const m = new RegExp(`${label} (\\d+)%`).exec(html);
+    return m ? Number(m[1]) : 0;
+  };
+  const contribLine = /The contributions are [^<]*?(\d+)% commits, (\d+)% pull requests, (\d+)% code review, (\d+)% issues/.exec(
+    html.replace(/\s+/g, " "),
+  );
+  const overview = contribLine
+    ? { commits: Number(contribLine[1]), prs: Number(contribLine[2]), reviews: Number(contribLine[3]), issues: Number(contribLine[4]) }
+    : { commits: pct("commits"), prs: pct("pull requests"), reviews: pct("code review"), issues: pct("issues") };
+
+  const repos = [];
+  const repoRe = /<a href="\/[^"]+\/[^"]+"[^>]*class="text-bold css-truncate css-truncate-target"[^>]*>([^<]+)<\/a>/g;
+  for (const m of html.matchAll(repoRe)) {
+    const name = m[1].trim();
+    if (name && !repos.includes(name)) repos.push(name);
+  }
+  const otherRe = /and ([\d,]+) other repositories/.exec(html.replace(/\s+/g, " "));
+
+  const orgs = [];
+  for (const m of html.matchAll(/select-menu-item-text css-truncate css-truncate-target"[^>]*>(@[^<]+)</g)) {
+    if (!orgs.includes(m[1])) orgs.push(m[1]);
+  }
+
+  const total = /([\d,]+) contributions in the last year/
+    .exec(html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " "))?.[1]
+    ?.replace(/,/g, "");
+
+  return {
+    total: total ? Number(total) : days.reduce((s, d) => s + d.count, 0),
+    days,
+    streak: { current, longest, activeDays },
+    breakdown: overview,
+    repos: repos.slice(0, 4),
+    otherRepos: otherRe ? Number(otherRe[1].replace(/,/g, "")) : 0,
+    orgs: orgs.slice(0, 8),
+    from: days[0].date,
+    to: days[days.length - 1].date,
+    fetchedAt: Date.now(),
+  };
+}
+
+async function buildGithubActivity() {
+  const res = await fetch(`https://github.com/users/${GH_USER}/contributions`, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36",
+      Accept: "text/html",
+    },
+  });
+  if (!res.ok) throw new Error(`github ${res.status}`);
+  return parseContributions(await res.text());
+}
+
+/* --- /api/github/oss -----------------------------------------------------
+   GitHub's public Events feed (no token) exposes every pull request
+   merged/opened, every review submitted, every push, etc. The dev box gets
+   rate-limited, but the Worker has its own egress IP and we cache 30 min,
+   so the hourly API ceiling (60/hr/IP) is never approached. */
+
+const GH_API = "https://api.github.com";
+
+/* Derive the full "owner/repo" from a GitHub API object url, e.g.
+   "https://api.github.com/repos/meshery/meshery/pulls/24052" → "meshery/meshery". */
+const repoFullName = (apiUrl) =>
+  apiUrl?.split("/repos/")[1]?.split("/pulls/")[0] || "";
+
+/* api.github.com/repos/A/B/pulls/N → github.com/A/B/pull/N (public link). */
+const prHtmlUrl = (apiUrl) =>
+  apiUrl
+    .replace("api.github.com/repos/", "github.com/")
+    .replace("/pulls/", "/pull/");
+
+const repoName = (pr) =>
+  repoFullName(pr?.head?.repo?.url) ||
+  repoFullName(pr?.url) ||
+  repoFullName(pr?.base?.repo?.url) ||
+  "";
+
+/* For reviews, the repo is where the PR lives (base), not the reviewer's
+   fork. */
+const repoBase = (pr) =>
+  repoFullName(pr?.base?.repo?.url) ||
+  repoFullName(pr?.url) ||
+  repoFullName(pr?.head?.repo?.url) ||
+  "";
+
+function parseOssEvents(events) {
+  const mergedPulls = [];
+  const reviews = [];
+  const pushes = [];
+  for (const e of events) {
+    if (e.type === "PullRequestEvent") {
+      const pr = e.payload?.pull_request;
+      if (e.payload?.action === "merged" && pr) {
+        const base = pr.url?.match(/github\.com\/([^/]+\/[^/]+)/)?.[1];
+        mergedPulls.push({
+          title: pr.title || `PR #${pr.number}`,
+          number: pr.number,
+          repo: repoName(pr),
+          baseRepo: base || repoName(pr),
+          url: pr.html_url || prHtmlUrl(pr.url),
+          at: pr.merged_at || e.created_at,
+        });
+      }
+    } else if (e.type === "PullRequestReviewEvent") {
+      const pr = e.payload?.pull_request;
+      if (pr) {
+        const base = pr.url?.match(/github\.com\/([^/]+\/[^/]+)/)?.[1];
+        reviews.push({
+          state: e.payload?.review?.state || "commented",
+          title: pr.title || `PR #${pr.number}`,
+          number: pr.number,
+          repo: repoBase(pr),
+          baseRepo: base || repoBase(pr),
+          url: pr.html_url || prHtmlUrl(pr.url),
+          at: e.payload?.review?.submitted_at || e.created_at,
+        });
+      }
+    } else if (e.type === "PushEvent") {
+      pushes.push({ repo: e.repo?.name || "", commits: e.payload?.commits?.length ?? 0 });
+    }
+  }
+  return { mergedPulls, reviews, pushes };
+}
+
+async function buildGithubOss() {
+  const res = await fetch(`${GH_API}/users/${GH_USER}/events/public?per_page=100`, {
+    headers: {
+      "Accept": "application/vnd.github+json",
+      "User-Agent": "portfolio-worker",
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+  });
+  if (!res.ok) throw new Error(`github events ${res.status}`);
+  const events = await res.json();
+  if (!Array.isArray(events)) throw new Error("unexpected events payload");
+  const { mergedPulls, reviews, pushes } = parseOssEvents(events);
+  const counts = {
+    mergedPulls: mergedPulls.length,
+    reviews: reviews.length,
+    pushes: pushes.length,
+  };
+  return { mergedPulls, reviews, pushes, counts };
+}
+
+/* --- /api/leetcode ----------------------------------------------------- */
+
+const LC_LEVELS = [
+  "Beginner",
+  "Intermediate",
+  "Advanced",
+  "Expert",
+  "Knight",
+  "Knight Guardian",
+  "Grandmaster",
+  "Legendary Grandmaster",
+];
+
+/* submissionCalendar is a sparse {unixSeconds: count} map — densify it into a
+   full trailing-year strip so the heatmap renders like GitHub's */
+function submissionDays(calendar) {
+  const counts = new Map();
+  let raw = {};
+  try {
+    raw = JSON.parse(calendar || "{}");
+  } catch {
+    raw = {};
+  }
+  for (const [sec, n] of Object.entries(raw)) {
+    counts.set(dayKey(new Date(Number(sec) * 1000)), Number(n) || 0);
+  }
+
+  const today = new Date();
+  const end = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const days = [];
+  for (let i = 364; i >= 0; i--) {
+    const date = dayKey(new Date(end - i * DAY_MS));
+    days.push({ date, count: counts.get(date) ?? 0, level: 0 });
+  }
+
+  /* bucket non-zero days into 0–4 like GitHub's quartile scale */
+  const nonZero = days.filter((d) => d.count > 0).map((d) => d.count).sort((a, b) => a - b);
+  const q = (p) => (nonZero.length ? nonZero[Math.min(nonZero.length - 1, Math.floor(p * nonZero.length))] : 1);
+  const [q1, q2, q3] = [q(0.25), q(0.5), q(0.75)];
+  for (const d of days) {
+    if (d.count === 0) d.level = 0;
+    else if (d.count <= q1) d.level = 1;
+    else if (d.count <= q2) d.level = 2;
+    else if (d.count <= q3) d.level = 3;
+    else d.level = 4;
+  }
+
+  const active = days.filter((d) => d.count > 0);
+  let maxStreak = 0;
+  let run = 0;
+  for (const d of days) {
+    run = d.count > 0 ? run + 1 : 0;
+    if (run > maxStreak) maxStreak = run;
+  }
+  /* today may legitimately be empty — walk back from yesterday first */
+  let currentStreak = 0;
+  let i = days.length - 1;
+  if (i >= 0 && days[i].count === 0) i--;
+  for (; i >= 0 && days[i].count > 0; i--) currentStreak++;
+
+  return {
+    total: active.reduce((s, d) => s + d.count, 0),
+    activeDays: active.length,
+    maxStreak,
+    currentStreak,
+    days,
+  };
+}
+
+function leetcodePayload(d) {
+  const rank = d.userContestRanking;
+  const m = d.matchedUser;
+  /* difficulty keys arrive as "Easy" from submitStatsGlobal/allQuestionsCount
+     but as "EASY" from userProfileUserQuestionProgressV2 — normalise both */
+  const byDiff = (rows, key) =>
+    Object.fromEntries((rows ?? []).map((x) => [String(x.difficulty).toLowerCase(), x[key]]));
+  const ac = byDiff(m?.submitStatsGlobal?.acSubmissionNum, "count");
+  const totals = byDiff(d.allQuestionsCount, "count");
+  const failed = byDiff(d.userProfileUserQuestionProgressV2?.numFailedQuestions, "count");
+
+  const bucket = (key) => {
+    const k = key.toLowerCase();
+    return { solved: ac[k] ?? 0, total: totals[k] ?? 0 };
+  };
+  const submissions = submissionDays(m?.submissionCalendar);
+
+  /* exact rank needs a session — approximate from the stated top % instead */
+  const totalParticipants = rank?.totalParticipants ?? 0;
+  const topPercentage = rank?.topPercentage ?? 0;
+  const rankEstimate = totalParticipants ? Math.round((topPercentage / 100) * totalParticipants) : 0;
+
+  const badgeNames = new Set((m?.badges ?? []).map((b) => (b.displayName || b.name || "").toLowerCase()));
+  const level = [...LC_LEVELS].reverse().find((l) => badgeNames.has(l.toLowerCase())) ?? "";
+
+  const histogram = (d.contestRatingHistogram ?? []).map((b) => ({
+    userCount: b.userCount,
+    topPercentage: b.topPercentage,
+  }));
+
+  return {
+    profile: {
+      username: "b2mIkNz0h5",
+      name: m?.profile?.realName || "",
+      avatar: m?.profile?.userAvatar || "",
+    },
+    level,
+    solved: ac.all ?? 0,
+    contest: {
+      rating: rank?.rating ?? 0,
+      topPercentage,
+      attended: rank?.attendedContestsCount ?? 0,
+      totalParticipants,
+      rank: rankEstimate,
+      history: (d.userContestRankingHistory ?? [])
+        .filter((h) => h?.attended && typeof h.rating === "number")
+        .map((h) => ({ rating: h.rating, title: h.contest?.title ?? "", time: h.contest?.startTime ?? 0 })),
+    },
+    questions: {
+      all: bucket("All"),
+      easy: bucket("Easy"),
+      medium: bucket("Medium"),
+      hard: bucket("Hard"),
+      attempting: (failed.easy ?? 0) + (failed.medium ?? 0) + (failed.hard ?? 0),
+    },
+    badges: (m?.badges ?? []).map((b) => ({
+      name: b.name ?? "",
+      displayName: b.displayName ?? b.name ?? "",
+      icon: (b.icon ?? "").startsWith("http") ? b.icon : `https://leetcode.com${b.icon ?? ""}`,
+    })),
+    submissions,
+    histogram,
+    fetchedAt: Date.now(),
+  };
+}
+
+
 let seoPromise = null;
 
 function loadSeo(env, url) {
@@ -299,22 +635,151 @@ export default {
       });
     }
 
+    /* GitHub contribution calendar — scraped once at the edge and cached;
+       the SPA falls back to the last persisted payload if this 502s. */
+    if (url.pathname === "/api/github/contributions") {
+      const cache = caches.default;
+      const cacheKey = new Request(new URL("/api/github/contributions", url.origin));
+      try {
+        const hit = await cache.match(cacheKey);
+        if (hit) return hit;
+      } catch {
+        /* cache unavailable — fall through */
+      }
+
+      try {
+        const data = await buildGithubActivity();
+        const body = JSON.stringify(data);
+        const response = new Response(body, {
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": `public, max-age=${ACTIVITY_TTL}, stale-while-revalidate=86400`,
+          },
+        });
+        try {
+          await cache.put(
+            cacheKey,
+            new Response(body, {
+              headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${ACTIVITY_TTL}` },
+            }),
+          );
+        } catch {
+          /* best-effort */
+        }
+        return response;
+      } catch {
+        return new Response(JSON.stringify({ error: "unavailable" }), {
+          status: 502,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    /* GitHub OSS activity — merged PRs, PR reviews, push events from the
+       public Events feed. Used by the GitHub card to show "what you're
+       doing in the wild" — gives it vertical weight to match the LeetCode
+       card. */
+    if (url.pathname === "/api/github/oss") {
+      const cache = caches.default;
+      /* v param so a code change can bust the stale dev cache */
+      const cacheKey = new Request(new URL("/api/github/oss?v=2", url.origin));
+      try {
+        const hit = await cache.match(cacheKey);
+        if (hit) return hit;
+      } catch {
+        /* fall through */
+      }
+
+      try {
+        const oss = await buildGithubOss();
+        const body = JSON.stringify(oss);
+        const response = new Response(body, {
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": `public, max-age=${ACTIVITY_TTL}, stale-while-revalidate=86400`,
+          },
+        });
+        try {
+          await cache.put(
+            cacheKey,
+            new Response(body, {
+              headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${ACTIVITY_TTL}` },
+            }),
+          );
+        } catch { /* best-effort */ }
+        return response;
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "unavailable", details: e?.message }), {
+          status: 502,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    /* Full LeetCode dashboard payload. One batched query — every field below
+       was verified against the live schema (userContestRankingV2, attempted,
+       globalRanking etc. do NOT exist / need auth). The exact global rank is
+       only exposed to logged-in sessions, so it's derived from the rating
+       histogram instead and flagged as an estimate. */
     if (url.pathname === "/api/leetcode") {
+      const cache = caches.default;
+      const cacheKey = new Request(new URL("/api/leetcode", url.origin));
+      try {
+        const hit = await cache.match(cacheKey);
+        if (hit) return hit;
+      } catch {
+        /* cache unavailable — fall through to a live fetch */
+      }
+
+      const QUERY = `query{
+        userContestRanking(username:"b2mIkNz0h5"){
+          rating topPercentage attendedContestsCount totalParticipants
+        }
+        userContestRankingHistory(username:"b2mIkNz0h5"){
+          attended rating ranking contest{ title startTime }
+        }
+        matchedUser(username:"b2mIkNz0h5"){
+          profile{ realName userAvatar }
+          submitStatsGlobal{ acSubmissionNum{ difficulty count } }
+          submissionCalendar
+          badges{ name displayName icon }
+        }
+        userProfileUserQuestionProgressV2(userSlug:"b2mIkNz0h5"){
+          numAcceptedQuestions{ difficulty count }
+          numFailedQuestions{ difficulty count }
+        }
+        allQuestionsCount{ difficulty count }
+        contestRatingHistogram{ userCount topPercentage }
+      }`;
+
       try {
         const res = await fetch("https://leetcode.com/graphql", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            query:
-              `query{matchedUser(username:"b2mIkNz0h5"){submitStats{acSubmissionNum{difficulty count}}}}`,
-          }),
+          headers: { "Content-Type": "application/json", "Origin": "https://leetcode.com" },
+          body: JSON.stringify({ query: QUERY }),
         });
-        const data = await res.json();
-        const solved = data?.data?.matchedUser?.submitStats?.acSubmissionNum?.[0]?.count;
-        if (typeof solved !== "number") throw new Error("bad response");
-        return new Response(JSON.stringify({ solved }), {
-          headers: { "Content-Type": "application/json" },
+        const payload = await res.json();
+        if (payload.errors?.length || !payload.data) throw new Error("graphql error");
+        const out = leetcodePayload(payload.data);
+
+        const body = JSON.stringify(out);
+        const response = new Response(body, {
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": `public, max-age=${ACTIVITY_TTL}, stale-while-revalidate=86400`,
+          },
         });
+        try {
+          await cache.put(
+            cacheKey,
+            new Response(body, {
+              headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${ACTIVITY_TTL}` },
+            }),
+          );
+        } catch {
+          /* caching is best-effort */
+        }
+        return response;
       } catch {
         return new Response(JSON.stringify({ error: "unavailable" }), {
           status: 502,

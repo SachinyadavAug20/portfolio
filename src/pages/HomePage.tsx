@@ -10,6 +10,7 @@ import FeatureCards from "../sections/FeatureCards";
 import Hero from "../sections/Hero";
 import ShowCaseSection from "../sections/ShowCaseSection";
 import TechStack from "../sections/TechStack";
+import Activity from "../sections/Activity";
 
 const HomePage = ({ section }: { section?: string }) => {
   const isSchedule = section === "schedule" || section === "book" || section === "meeting";
@@ -45,6 +46,7 @@ const HomePage = ({ section }: { section?: string }) => {
       />
       <Hero />
       <ShowCaseSection />
+      <Activity />
       <LogoSection />
       <FeatureCards />
       <ExperienceSection />
