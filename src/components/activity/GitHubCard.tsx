@@ -37,6 +37,13 @@ const ago = (iso: string): string => {
   return months < 12 ? `${months}mo ago` : `${Math.floor(months / 12)}yr ago`;
 };
 
+/** Default repo per curated org, used when no merged PR is known for it. */
+const ORG_REPOS: Record<string, string> = {
+  jabref: "JabRef/jabref",
+  airflow: "apache/airflow",
+  meshery: "meshery/meshery",
+};
+
 /** Count-up + bar/tile entrance, all gated behind reduced-motion. */
 const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null }) => {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -137,14 +144,18 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
   ];
   const CAL_URL = `https://github.com/users/${GITHUB_USER}/contributions`;
 
-  /* Org chips: orgs we have merged PRs in (e.g. "meshery") first, then the
-     scrape's org list — deduped, first 3. */
+  /* Org chips: the curated set the user wants — jabref, airflow, meshery —
+     each linking to their PRs on that org's repo. When we have a merged PR
+     we use its real base repo (e.g. meshery/meshery); otherwise a sensible
+     default repo for the org. */
   const orgs = useMemo(() => {
-    const set = new Set<string>();
-    for (const p of oss?.mergedPulls ?? []) set.add(p.baseRepo.split("/")[0]);
-    for (const o of data.orgs) set.add(o.replace(/^@/, ""));
-    return Array.from(set).slice(0, 3);
-  }, [data.orgs, oss?.mergedPulls]);
+    return ["jabref", "airflow", "meshery"].map((name) => {
+      const pull = oss?.mergedPulls.find((p) =>
+        p.baseRepo.toLowerCase().startsWith(`${name}/`),
+      );
+      return { name, repo: pull?.baseRepo ?? ORG_REPOS[name] };
+    });
+  }, [oss?.mergedPulls]);
 
   /* Weekday distribution — 7 bars, one per day of week, from the per-day
      data. This adds a second dimension to the calendar. */
@@ -375,32 +386,24 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
           <span className="text-[11px] uppercase tracking-wider text-white-50/55">
             Orgs
           </span>
-          {orgs.map((o) => {
-            const pull = oss?.mergedPulls.find((p) =>
-              p.baseRepo.toLowerCase().includes(o.toLowerCase()),
-            );
-            const href = pull
-              ? `https://github.com/${pull.baseRepo}/pulls/${GITHUB_USER}`
-              : `https://github.com/${o}`;
-            return (
-              <a
-                key={o}
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                title={o}
-                className="inline-flex items-center gap-1.5 rounded-md border border-black-50 bg-black-200 px-2 py-0.5 text-[11px] text-white-50/65 transition-colors hover:text-white-50 hover:border-white-50/30"
-              >
-                <img
-                  src={`https://github.com/${o}.png`}
-                  alt=""
-                  className="h-[14px] w-[14px] rounded-sm object-contain"
-                  loading="lazy"
-                />
-                {o}
-              </a>
-            );
-          })}
+          {orgs.map(({ name, repo }) => (
+            <a
+              key={name}
+              href={`https://github.com/${repo}/pulls/${GITHUB_USER}`}
+              target="_blank"
+              rel="noreferrer"
+              title={`My PRs on ${repo}`}
+              className="inline-flex items-center gap-1.5 rounded-md border border-black-50 bg-black-200 px-2 py-0.5 text-[11px] text-white-50/65 transition-colors hover:text-white-50 hover:border-white-50/30"
+            >
+              <img
+                src={`https://github.com/${repo.split("/")[0]}.png`}
+                alt=""
+                className="h-[14px] w-[14px] rounded-sm object-contain"
+                loading="lazy"
+              />
+              {name}
+            </a>
+          ))}
         </div>
       )}
 
