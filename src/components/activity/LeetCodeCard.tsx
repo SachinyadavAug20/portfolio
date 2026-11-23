@@ -382,12 +382,14 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
         </div>
         <div className="flex h-20 items-end gap-[3px]">
           {histBars.map((b, i) => (
-            <a
+            <motion.a
               key={i}
               href={`https://leetcode.com/u/${profile.username}`}
               target="_blank"
               rel="noreferrer"
               className="group relative flex-1"
+              whileHover={{ scaleY: 1.15 }}
+              style={{ transformOrigin: "bottom" }}
               title={`${Math.round(b.topPercentage)}% · ${histogram[i].userCount.toLocaleString("en-US")} users`}
             >
               <span
@@ -399,7 +401,7 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
                   opacity: bucketIndex >= 0 && i !== bucketIndex ? 0.55 : 1,
                 }}
               />
-            </a>
+            </motion.a>
           ))}
         </div>
         <div className="mt-1 flex justify-between text-[9px] text-white-50/45">
@@ -430,18 +432,19 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
           </a>
           <div className="mt-2 flex items-center justify-center gap-5">
             {badges.slice(0, 4).map((b) => (
-              <a
+              <motion.a
                 key={b.name}
                 href={`https://leetcode.com/u/${profile.username}`}
                 target="_blank"
                 rel="noreferrer"
                 title={b.displayName}
-                className="transition-transform hover:scale-110"
+                whileHover={{ scale: 1.18, rotate: 6 }}
+                whileTap={{ scale: 0.92 }}
               >
                 {b.icon && (
                   <img src={b.icon} alt={b.displayName} className="h-10 w-10 object-contain" loading="lazy" />
                 )}
-              </a>
+              </motion.a>
             ))}
           </div>
           <div className="mt-2">

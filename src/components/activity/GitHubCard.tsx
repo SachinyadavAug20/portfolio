@@ -247,6 +247,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
               key={s.key}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
+              whileHover={{ y: -3, scale: 1.04 }}
               transition={{ delay: isStreak ? 0.3 : 0.1, type: "spring", stiffness: 400, damping: 20 }}
               className="gh-stat rounded-lg border border-black-50 bg-black-200/70 px-3 py-2.5"
             >
@@ -365,11 +366,13 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
               rel="noreferrer"
               className="wk-bar group relative flex-1 cursor-pointer"
             >
-              <span
-                className="block h-full rounded-t-[2px] transition-all"
+              <motion.span
+                className="block h-full rounded-t-[2px]"
+                whileHover={{ scaleY: 1.3, scaleX: 1.15 }}
                 style={{
                   height: `${Math.max(1, b.pct * 100)}%`,
                   backgroundColor: "var(--gh-mix-prs)",
+                  transformOrigin: "bottom",
                 }}
                 title={`${b.label}: ${b.count.toLocaleString("en-US")} contributions`}
               />
@@ -426,12 +429,14 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
             Orgs
           </span>
           {orgs.map(({ name, repo }) => (
-            <a
+            <motion.a
               key={name}
               href={`https://github.com/${repo}/pulls/${GITHUB_USER}`}
               target="_blank"
               rel="noreferrer"
               title={`My PRs on ${repo}`}
+              whileHover={{ y: -2, scale: 1.05 }}
+              whileTap={{ scale: 0.96 }}
               className="inline-flex items-center gap-1.5 rounded-md border border-black-50 bg-black-200 px-2 py-0.5 text-[11px] text-white-50/65 transition-colors hover:text-white-50 hover:border-white-50/30"
             >
               <img
@@ -441,7 +446,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                 loading="lazy"
               />
               {name}
-            </a>
+            </motion.a>
           ))}
         </div>
       )}
@@ -460,8 +465,9 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
           </div>
           <ul className="flex flex-col gap-1">
             {oss.mergedPulls.slice(0, 6).map((p) => (
-              <li
+              <motion.li
                 key={p.url}
+                whileHover={{ x: 4 }}
                 className="gh-oss-row gh-oss-row-pr"
               >
                 <GitPullRequest className="size-3 shrink-0 text-[var(--gh-mix-commits)]" />
@@ -479,10 +485,10 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                   <span className="text-white-50/40">#{p.number}</span>
                   <span className="gh-oss-age">{ago(p.at)}</span>
                 </span>
-              </li>
+              </motion.li>
             ))}
             {oss.reviews.slice(0, 4).map((r) => (
-              <li key={r.url} className="gh-oss-row">
+              <motion.li key={r.url} whileHover={{ x: 4 }} className="gh-oss-row">
                 <span
                   className="gh-oss-state"
                   style={{ color: `var(--gh-mix-reviews)` }}
@@ -503,7 +509,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                   <span className="text-white-50/40">#{r.number}</span>
                   <span className="gh-oss-age">{ago(r.at)}</span>
                 </span>
-              </li>
+              </motion.li>
             ))}
           </ul>
         </div>

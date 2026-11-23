@@ -1,4 +1,5 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { motion } from "motion/react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
@@ -37,7 +38,6 @@ const Heatmap = ({ days, showDayLabels = true, unit = "contribution", label, hre
   const mobile = useIsMobile();
   const heatRef = useRef<HTMLDivElement>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
-  const [scrollX, setScrollX] = useState(0);
   const tipRef = useRef<HTMLDivElement>(null);
   /* Pad the leading edge so column 0 starts on a Sunday, matching GitHub. */
   const { cells, weekCount, monthMarks } = useMemo(() => {
@@ -63,20 +63,27 @@ const Heatmap = ({ days, showDayLabels = true, unit = "contribution", label, hre
   }, [days]);
 
   const hovered = hoverIdx != null ? cells[hoverIdx] : null;
-  /* Tooltip placement: above the cell when there's room (row ≥ 3), flipping
-     below near the top edge so it never gets clipped by the box. */
-  const tipLeft = hoverIdx != null ? Math.floor(hoverIdx / 7) * 12 + 5 - scrollX : 0;
-  /* When scrolled, the ruler is NOT scrolled — so we shift each mark LEFT by
-     the current scroll offset to compensate, keeping it visually aligned with
-     the column it names. */
-  const rulerLeft = (col: number) => Math.round(col * 12 - scrollX + 5);
+  /* Grid stride is a constant 12px (10px cell + 2px gap). The ruler and tooltip
+     live INSIDE the scrolled content, so they travel with the grid — no scroll
+     compensation, no jitter. */
+  const tipLeft = hoverIdx != null ? Math.floor(hoverIdx / 7) * 12 + 5 : 0;
   const tipTop =
     hoverIdx != null
-      ? (hoverIdx % 7) >= 3
-        ? (hoverIdx % 7) * 12 - 26
-        : (hoverIdx % 7) * 12 + 8
+      ? 16 + ((hoverIdx % 7) >= 3 ? (hoverIdx % 7) * 12 - 26 : (hoverIdx % 7) * 12 + 8)
       : 0;
   const CAL_URL = href ?? `https://github.com/users/${GITHUB_USER}/contributions`;
+
+  /* GSAP hover: lift + glow the hovered cell, settle it back on leave. */
+  const onCellEnter = (e: React.PointerEvent<HTMLAnchorElement>, i: number) => {
+    setHoverIdx(i);
+    if (reduced) return;
+    gsap.to(e.currentTarget, { scale: 1.55, zIndex: 30, duration: 0.18, ease: "power2.out" });
+  };
+  const onCellLeave = (e: React.PointerEvent<HTMLAnchorElement>) => {
+    setHoverIdx(null);
+    if (reduced) return;
+    gsap.to(e.currentTarget, { scale: 1, zIndex: 0, duration: 0.22, ease: "power2.inOut" });
+  };
 
   /* Scroll to the END by default: the leading edge is mostly empty, while the
      most recent (rightmost) week is the filled one worth seeing. Runs after
@@ -158,25 +165,9 @@ const Heatmap = ({ days, showDayLabels = true, unit = "contribution", label, hre
 
   return (
     <div ref={rootRef} className="w-full">
-      {/* month ruler — shares the cell grid's column widths via the same count */}
-      <div className="flex">
-        <div className={showDayLabels ? "w-7 shrink-0 sm:w-8" : "w-0"} />
-        <div className="relative h-4 flex-1 min-w-0">
-          {monthMarks.map((m) => (
-            <span
-              key={`${m.col}-${m.label}`}
-              className="absolute top-0 text-[10px] leading-4 text-white-50/70"
-              style={{ left: `${rulerLeft(m.col)}px` }}
-            >
-              {m.label}
-            </span>
-          ))}
-        </div>
-      </div>
-
       <div className="flex gap-1 sm:gap-1.5">
         {showDayLabels && (
-          <div className="grid w-7 shrink-0 grid-rows-7 gap-[3px] sm:w-8">
+          <div className="grid w-7 shrink-0 grid-rows-7 gap-[3px] pt-4 sm:w-8">
             {["", "Mon", "", "Wed", "", "Fri", ""].map((d, i) => (
               <span key={i} className="text-[9px] leading-[11px] text-white-50/60 text-right pr-1">
                 {d}
@@ -185,65 +176,77 @@ const Heatmap = ({ days, showDayLabels = true, unit = "contribution", label, hre
           </div>
         )}
 
-        <div
-          className="overflow-x-auto pb-1 relative"
-          ref={heatRef}
-          onScroll={(e) => setScrollX((e.currentTarget as HTMLDivElement).scrollLeft)}
-        >
-          <div
-            className="grid gap-[1.5px] sm:gap-[2px]"
-            style={{
-              gridTemplateColumns: `repeat(${weekCount}, 10px)`,
-              gridTemplateRows: "repeat(7, 10px)",
-              gridAutoFlow: "column",
-            }}
-            role="group"
-            aria-label={`${label} ${unit} heatmap`}
-          >
-            {cells.map((cell, i) =>
-              cell ? (
-                <a
-                  key={cell.date}
-                  href={CAL_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  data-filled
-                  className="hm-cell relative w-[10px] h-[10px] rounded-[2px]"
-                  style={{ backgroundColor: `var(--gh-${cell.level})` }}
-                  aria-label={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} on ${shortDate(cell.date)}`}
-                  onPointerEnter={() => setHoverIdx(i)}
-                  onPointerLeave={() => setHoverIdx(null)}
-                  onFocus={() => setHoverIdx(i)}
-                  onBlur={() => setHoverIdx(null)}
-                />
-              ) : (
-                <span key={`pad-${i}`} className="w-[10px] h-[10px] rounded-[2px] bg-black-200" />
-              ),
-            )}
-          </div>
+        <div className="overflow-x-auto pb-1" ref={heatRef}>
+          {/* Ruler + grid + tooltip share one scrolled, fixed-width wrapper so
+              they move together — no scroll-compensation glitches. */}
+          <div className="relative w-max">
+            <div className="relative h-4">
+              {monthMarks.map((m) => (
+                <span
+                  key={`${m.col}-${m.label}`}
+                  className="absolute top-0 text-[10px] leading-4 text-white-50/70"
+                  style={{ left: `${m.col * 12}px` }}
+                >
+                  {m.label}
+                </span>
+              ))}
+            </div>
 
-          {/* Bubble tooltip above the hovered cell — GSAP entrance +
-              Framer-free placement; positioned from the cell's grid coords. */}
-          <div
-            ref={tipRef}
-            className="absolute pointer-events-none z-20"
-            style={{
-              left: tipLeft,
-              top: tipTop,
-              opacity: hoverIdx != null ? 1 : 0,
-            }}
-          >
-            {hovered && (
-              <div className="whitespace-nowrap rounded-md border border-black-50 bg-black-100 px-2 py-1 text-[11px] text-white-50 shadow-sm translate-x-[-50%]">
-                <div className="flex items-center gap-1.5">
-                  <span className="size-2 rounded-full" style={{ backgroundColor: `var(--gh-${hovered.level})` }} />
-                  <span className="font-semibold tabular-nums">{hovered.count}</span>
-                  <span>{hovered.count === 1 ? unit : `${unit}s`}</span>
-                  <span className="text-white-50/50">·</span>
-                  <span>{shortDate(hovered.date)}</span>
-                </div>
-              </div>
-            )}
+            <div
+              className="grid gap-[2px]"
+              style={{
+                gridTemplateColumns: `repeat(${weekCount}, 10px)`,
+                gridTemplateRows: "repeat(7, 10px)",
+                gridAutoFlow: "column",
+              }}
+              role="group"
+              aria-label={`${label} ${unit} heatmap`}
+            >
+              {cells.map((cell, i) =>
+                cell ? (
+                  <a
+                    key={cell.date}
+                    href={CAL_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    data-filled
+                    className="hm-cell relative w-[10px] h-[10px] rounded-[2px]"
+                    style={{ backgroundColor: `var(--gh-${cell.level})` }}
+                    aria-label={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} on ${shortDate(cell.date)}`}
+                    onPointerEnter={(e) => onCellEnter(e, i)}
+                    onPointerLeave={onCellLeave}
+                    onFocus={() => setHoverIdx(i)}
+                    onBlur={() => setHoverIdx(null)}
+                  />
+                ) : (
+                  <span key={`pad-${i}`} className="w-[10px] h-[10px] rounded-[2px] bg-black-200" />
+                ),
+              )}
+            </div>
+
+            {/* Bubble tooltip — Framer spring pop, positioned over the cell. */}
+            <div
+              ref={tipRef}
+              className="absolute pointer-events-none z-20"
+              style={{ left: tipLeft, top: tipTop, opacity: hoverIdx != null ? 1 : 0 }}
+            >
+              {hovered && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6, scale: 0.85 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 28 }}
+                  className="whitespace-nowrap rounded-md border border-black-50 bg-black-100 px-2 py-1 text-[11px] text-white-50 shadow-md translate-x-[-50%]"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="size-2 rounded-full" style={{ backgroundColor: `var(--gh-${hovered.level})` }} />
+                    <span className="font-semibold tabular-nums">{hovered.count}</span>
+                    <span>{hovered.count === 1 ? unit : `${unit}s`}</span>
+                    <span className="text-white-50/50">·</span>
+                    <span>{shortDate(hovered.date)}</span>
+                  </div>
+                </motion.div>
+              )}
+            </div>
           </div>
         </div>
       </div>
