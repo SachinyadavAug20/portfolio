@@ -88,17 +88,27 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
         },
       );
 
-      /* activity-mix bar segments sweep out from the left */
+      /* activity-overview cross: arms draw out from the center, tips pop in */
       gsap.fromTo(
-        scope.querySelectorAll(".gh-seg"),
-        { scaleX: 0 },
+        scope.querySelectorAll(".mix-arm"),
+        { strokeDasharray: 1, strokeDashoffset: 1 },
         {
-          scaleX: 1,
-          duration: 0.7,
+          strokeDashoffset: 0,
+          duration: 0.8,
           ease: "power3.out",
-          stagger: 0.06,
-          transformOrigin: "left center",
-          clearProps: "transform",
+          stagger: 0.08,
+          scrollTrigger: { trigger: scope, start: "top 85%", once: true },
+        },
+      );
+      gsap.fromTo(
+        scope.querySelectorAll(".mix-tip"),
+        { scale: 0, transformOrigin: "center center" },
+        {
+          scale: 1,
+          duration: 0.4,
+          ease: "back.out(2)",
+          stagger: 0.08,
+          delay: 0.4,
           scrollTrigger: { trigger: scope, start: "top 85%", once: true },
         },
       );
@@ -187,10 +197,6 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
       },
     );
   }, [reduced, weekdayBars]);
-  const mixTotal = Math.max(
-    1,
-    mix.reduce((s, m) => s + data.breakdown[m.key], 0),
-  );
 
   return (
     <motion.div
@@ -244,16 +250,16 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
               transition={{ delay: isStreak ? 0.3 : 0.1, type: "spring", stiffness: 400, damping: 20 }}
               className="gh-stat rounded-lg border border-black-50 bg-black-200/70 px-3 py-2.5"
             >
-              <div className="flex items-end gap-1.5">
+              <div className="flex min-w-0 items-end gap-1.5">
                 <s.icon
                   className={`size-3.5 shrink-0 transition-opacity ${s.key === "activeDays" ? "opacity-45 hover:opacity-70" : ""}`}
                   style={{ color: s.iconColor }}
                 />
-                <div className="text-lg font-semibold tabular-nums text-white-50 sm:text-xl">
+                <div className="min-w-0 truncate text-lg font-semibold tabular-nums text-white-50 sm:text-xl">
                   <span data-count={s.value}>0</span>
                 </div>
               </div>
-              <div className="mt-0.5 pl-5 text-[9px] uppercase tracking-wider text-white-50/45">
+              <div className="mt-0.5 truncate pl-5 text-[9px] uppercase tracking-wider text-white-50/45">
                 {s.label}
               </div>
             </motion.div>
@@ -283,33 +289,66 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
           Activity mix
           <ArrowUpRight className="size-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </a>
-        <div className="flex h-2 w-full overflow-hidden rounded-full bg-black-200">
-          {mix.map((m) => {
-            const pct = (data.breakdown[m.key] / mixTotal) * 100;
+        {/* Cross / plus activity-overview (GitHub-style): center node with four
+            arms — Commits left, Code review top, Issues right, PRs bottom.
+            Arm length scales with the share. */}
+        <svg
+          viewBox="0 0 300 200"
+          className="mx-auto h-44 w-full max-w-[300px]"
+          role="img"
+          aria-label="Activity overview by type"
+        >
+          {(
+            [
+              { key: "commits", dx: -1, dy: 0, anchor: "end", lx: -8, ly: 0 },
+              { key: "reviews", dx: 0, dy: -1, anchor: "middle", lx: 0, ly: -16 },
+              { key: "issues", dx: 1, dy: 0, anchor: "start", lx: 8, ly: 0 },
+              { key: "prs", dx: 0, dy: 1, anchor: "middle", lx: 0, ly: 16 },
+            ] as const
+          ).map(({ key, dx, dy, anchor, lx, ly }) => {
+            const pct = data.breakdown[key];
+            const len = Math.min(100, 26 + pct * 0.75);
+            const cx = 150;
+            const cy = 100;
+            const tx = cx + dx * len;
+            const ty = cy + dy * len;
+            const label = mix.find((m) => m.key === key)?.label ?? key;
             return (
-              <span
-                key={m.key}
-                className="gh-seg h-full"
-                style={{
-                  width: `${pct}%`,
-                  backgroundColor: `var(--gh-mix-${m.key})`,
-                }}
-                title={`${m.label}: ${data.breakdown[m.key]}%`}
-              />
+              <g key={key}>
+                <line
+                  className="mix-arm"
+                  x1={cx}
+                  y1={cy}
+                  x2={tx}
+                  y2={ty}
+                  pathLength={1}
+                  stroke={`var(--gh-mix-${key})`}
+                  strokeWidth={3}
+                  strokeLinecap="round"
+                />
+                <circle className="mix-tip" cx={tx} cy={ty} r={3.5} fill={`var(--gh-mix-${key})`} />
+                <text
+                  x={tx + lx}
+                  y={ty + ly + (dy === 0 ? -3 : dy === -1 ? 0 : 12)}
+                  textAnchor={anchor}
+                  className="fill-white-50 text-[11px] font-semibold"
+                >
+                  {pct}%
+                </text>
+                <text
+                  x={tx + lx}
+                  y={ty + ly + (dy === 0 ? 10 : dy === -1 ? 12 : 24)}
+                  textAnchor={anchor}
+                  className="fill-white-50/60 text-[10px]"
+                >
+                  {label}
+                </text>
+              </g>
             );
           })}
-        </div>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-white-50/70">
-          {mix.map((m) => (
-            <span key={m.key} className="inline-flex items-center gap-1.5">
-              <span
-                className="size-2 rounded-full"
-                style={{ backgroundColor: `var(--gh-mix-${m.key})` }}
-              />
-              {m.label} {data.breakdown[m.key]}%
-            </span>
-          ))}
-        </div>
+          <circle cx={150} cy={100} r={5} fill="var(--gh-mix-commits)" />
+          <circle cx={150} cy={100} r={9} fill="none" stroke="var(--gh-mix-commits)" strokeOpacity={0.35} />
+        </svg>
       </div>
 
       {/* weekday distribution — daily activity by day of the week */}

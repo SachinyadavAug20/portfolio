@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { motion } from "motion/react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { ArrowUpRight, Flame } from "lucide-react";
+import { ArrowUpRight, ArrowRight, Flame } from "lucide-react";
 import Heatmap, { HeatmapLegend } from "./Heatmap";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import type { LeetCodeActivity } from "../../lib/activity";
@@ -179,7 +179,7 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.1 }}
       transition={{ duration: 0.55, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-      className="card-border relative flex flex-col gap-5 rounded-xl p-5 sm:p-6"
+      className="card-border relative flex flex-col gap-5 overflow-hidden rounded-xl p-5 sm:p-6"
     >
       {/* profile header */}
       <div className="flex items-start gap-3 flex-wrap min-w-0">
@@ -344,7 +344,7 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex min-w-0 flex-col gap-2">
           {DIFFS.map((d) => {
             const q = questions[d.key];
             const pct = q.total ? (q.solved / q.total) * 100 : 0;
@@ -408,31 +408,46 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
         </div>
       </div>
 
-      {/* badges — LeetCode-style list: icon chips in a wrap, linked to the
-          user's badge page */}
+      {/* badges — LeetCode-style panel: header + count + arrow, an icon row,
+          and the most recent badge name. Each icon links to the badge page. */}
       {badges.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 pt-2">
-          {badges.map((b) => (
-            <a
-              key={b.name}
-              href={`https://leetcode.com/u/${profile.username}`}
-              target="_blank"
-              rel="noreferrer"
-              className="badge-chip group inline-flex items-center gap-2 rounded-full border border-black-50 bg-black-200 px-3 py-1.5 transition-colors hover:border-white-50/25 hover:bg-black-200/90"
-            >
-              {b.icon && (
-                <img
-                  src={b.icon}
-                  alt=""
-                  className="h-5 w-5 object-contain"
-                  loading="lazy"
-                />
-              )}
-              <span className="text-[11px] font-semibold text-white-50/90">
-                {b.displayName}
-              </span>
-            </a>
-          ))}
+        <div className="rounded-lg border border-black-50 bg-black-200/40 p-3">
+          <a
+            href={`https://leetcode.com/u/${profile.username}`}
+            target="_blank"
+            rel="noreferrer"
+            className="group flex items-start justify-between"
+          >
+            <div>
+              <div className="text-[11px] uppercase tracking-wider text-white-50/55">
+                Badges
+              </div>
+              <div className="text-lg font-semibold tabular-nums text-white-50">
+                {badges.length}
+              </div>
+            </div>
+            <ArrowRight className="size-4 text-white-50/60 transition-transform group-hover:translate-x-0.5" />
+          </a>
+          <div className="mt-2 flex items-center justify-center gap-5">
+            {badges.slice(0, 4).map((b) => (
+              <a
+                key={b.name}
+                href={`https://leetcode.com/u/${profile.username}`}
+                target="_blank"
+                rel="noreferrer"
+                title={b.displayName}
+                className="transition-transform hover:scale-110"
+              >
+                {b.icon && (
+                  <img src={b.icon} alt={b.displayName} className="h-10 w-10 object-contain" loading="lazy" />
+                )}
+              </a>
+            ))}
+          </div>
+          <div className="mt-2">
+            <div className="text-[10px] text-white-50/50">Most Recent Badge</div>
+            <div className="text-sm font-semibold text-white-50">{badges[0].displayName}</div>
+          </div>
         </div>
       )}
 
