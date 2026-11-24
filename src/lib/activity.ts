@@ -19,7 +19,22 @@ export interface GithubActivity {
   total: number;
   days: HeatmapDay[];
   streak: { current: number; longest: number; activeDays: number };
-  breakdown: { commits: number; prs: number; reviews: number; issues: number };
+  breakdown: {
+    commits: number;
+    prs: number;
+    reviews: number;
+    issues: number;
+    comments?: number;
+    interactions?: number;
+  };
+  metrics?: {
+    commits: number;
+    prs: number;
+    reviews: number;
+    comments: number;
+    issues: number;
+    interactions: number;
+  };
   repos: string[];
   otherRepos: number;
   orgs: string[];

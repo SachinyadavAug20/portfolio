@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import TitleHeader from "../components/TitleHeader";
 import GitHubCard from "../components/activity/GitHubCard";
 import LeetCodeCard from "../components/activity/LeetCodeCard";
+import { HeatmapSkeleton } from "../components/activity/Heatmap";
 import { useNearViewport } from "../hooks/useNearViewport";
 import {
   fetchGithubActivity,
@@ -16,18 +17,26 @@ import {
 
 type Status = "idle" | "loading" | "ready" | "error";
 
-/** One shimmering placeholder shaped roughly like a card. */
-const CardSkeleton = ({ tall = false }: { tall?: boolean }) => (
+/** High-fidelity shimmering card placeholder with authentic calendar skeleton */
+const CardSkeleton = ({
+  tall = false,
+  label = "GitHub",
+}: {
+  tall?: boolean;
+  label?: string;
+}) => (
   <div
-    className={`card-border rounded-xl p-6 ${tall ? "min-h-[560px]" : "min-h-[420px]"}`}
+    className={`card-border flex flex-col justify-between rounded-xl p-5 sm:p-6 ${
+      tall ? "min-h-[580px]" : "min-h-[460px]"
+    }`}
     aria-hidden
   >
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <div className="skeleton size-10 rounded-full bg-black-200" />
         <div className="flex flex-col gap-2">
-          <div className="skeleton h-4 w-24 rounded bg-black-200" />
-          <div className="skeleton h-3 w-32 rounded bg-black-200" />
+          <div className="skeleton h-4 w-28 rounded bg-black-200" />
+          <div className="skeleton h-3 w-36 rounded bg-black-200" />
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2.5">
@@ -36,7 +45,24 @@ const CardSkeleton = ({ tall = false }: { tall?: boolean }) => (
         ))}
       </div>
       <div className="skeleton h-32 rounded-lg bg-black-200" />
-      <div className="skeleton h-20 rounded-lg bg-black-200" />
+      <div className="grid grid-cols-3 gap-2">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="skeleton h-9 rounded-lg bg-black-200" />
+        ))}
+      </div>
+    </div>
+
+    {/* Heatmap calendar skeleton — never looks blank or dead while fetching */}
+    <div className="flex flex-col gap-2 border-t border-black-50 pt-4 mt-4">
+      <div className="flex items-center justify-between">
+        <div className="skeleton h-3 w-40 rounded bg-black-200" />
+        <div className="skeleton h-3 w-24 rounded bg-black-200" />
+      </div>
+      <HeatmapSkeleton label={label} />
+      <div className="flex items-center justify-between pt-1">
+        <div className="skeleton h-2.5 w-24 rounded bg-black-200" />
+        <div className="skeleton h-2.5 w-32 rounded bg-black-200" />
+      </div>
     </div>
   </div>
 );
@@ -51,19 +77,32 @@ const Activity = () => {
 
   const load = useCallback(() => {
     setStatus("loading");
-    Promise.allSettled([
-      fetchGithubActivity(),
-      fetchLeetCodeActivity(),
-      fetchGithubOss(),
-    ]).then(([g, l, o]) => {
-      if (g.status === "fulfilled") setGh(g.value);
-      if (l.status === "fulfilled") setLc(l.value);
-      if (o.status === "fulfilled") setOss(o.value);
-      setStatus(
-        g.status === "fulfilled" || l.status === "fulfilled"
-          ? "ready"
-          : "error",
-      );
+
+    // Fetch in parallel but settle progressively
+    const pGh = fetchGithubActivity()
+      .then((val) => {
+        setGh(val);
+        setStatus("ready");
+      })
+      .catch(() => null);
+
+    const pLc = fetchLeetCodeActivity()
+      .then((val) => {
+        setLc(val);
+        setStatus("ready");
+      })
+      .catch(() => null);
+
+    const pOss = fetchGithubOss()
+      .then((val) => {
+        setOss(val);
+      })
+      .catch(() => null);
+
+    Promise.allSettled([pGh, pLc, pOss]).then(([g, l]) => {
+      if (g.status === "rejected" && l.status === "rejected") {
+        setStatus("error");
+      }
     });
   }, []);
 
@@ -94,8 +133,8 @@ const Activity = () => {
         <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 md:items-stretch">
           {status === "loading" || status === "idle" ? (
             <>
-              <CardSkeleton tall />
-              <CardSkeleton tall />
+              <CardSkeleton tall label="GitHub" />
+              <CardSkeleton tall label="LeetCode" />
             </>
           ) : status === "error" ? (
             <motion.div
@@ -115,30 +154,12 @@ const Activity = () => {
               {gh ? (
                 <GitHubCard data={gh} oss={oss} />
               ) : (
-                <div className="card-border flex items-center justify-center rounded-xl p-6 text-sm text-white-50/55 min-h-[420px]">
-                  GitHub contributions unavailable
-                  <button
-                    type="button"
-                    onClick={retry}
-                    className="skeleton-retry"
-                  >
-                    Retry
-                  </button>
-                </div>
+                <CardSkeleton tall label="GitHub" />
               )}
               {lc ? (
                 <LeetCodeCard data={lc} />
               ) : (
-                <div className="card-border flex items-center justify-center rounded-xl p-6 text-sm text-white-50/55 min-h-[560px]">
-                  LeetCode stats unavailable
-                  <button
-                    type="button"
-                    onClick={retry}
-                    className="skeleton-retry"
-                  >
-                    Retry
-                  </button>
-                </div>
+                <CardSkeleton tall label="LeetCode" />
               )}
             </>
           )}

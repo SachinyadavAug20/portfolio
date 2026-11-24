@@ -526,7 +526,7 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
           unit="submission"
           label="LeetCode"
           href={`https://leetcode.com/u/${profile.username}/`}
-          getCellHref={() => `https://leetcode.com/u/${profile.username}/`}
+          getCellHref={(c) => `https://leetcode.com/u/${profile.username}/?date=${c.date}#activity`}
         />
         <div className="flex items-center justify-between">
           <HeatmapLegend href={`https://leetcode.com/u/${profile.username}/`} />

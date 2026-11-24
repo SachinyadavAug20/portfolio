@@ -1,6 +1,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { ArrowUpRight } from "lucide-react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import type { HeatmapDay } from "../../lib/activity";
@@ -8,16 +9,117 @@ import { GITHUB_USER } from "../../lib/activity";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** Format an ISO yyyy-mm-dd as "Mar 4" without timezone drift. */
+/** Format an ISO yyyy-mm-dd as "Mar 4, 2026" without timezone drift. */
 function shortDate(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
   return `${MONTHS[m - 1]} ${d}, ${y}`;
 }
 
 /**
+ * Animated Contribution Heatmap Skeleton
+ * Renders a full 52-week calendar with month & weekday headers and an organic
+ * wave shimmer pattern so the card NEVER looks dead or blank while loading.
+ */
+export const HeatmapSkeleton = ({
+  unit = "contribution",
+  label = "Activity",
+  showDayLabels = true,
+}: {
+  unit?: string;
+  label?: string;
+  showDayLabels?: boolean;
+}) => {
+  const weeks = 52;
+  const days = 7;
+  const skeletonMonths = [
+    { col: 0, label: "Jan" },
+    { col: 4, label: "Feb" },
+    { col: 8, label: "Mar" },
+    { col: 13, label: "Apr" },
+    { col: 17, label: "May" },
+    { col: 21, label: "Jun" },
+    { col: 26, label: "Jul" },
+    { col: 30, label: "Aug" },
+    { col: 35, label: "Sep" },
+    { col: 39, label: "Oct" },
+    { col: 43, label: "Nov" },
+    { col: 48, label: "Dec" },
+  ];
+
+  return (
+    <div className="w-full select-none" aria-label={`Loading ${label} ${unit} heatmap`}>
+      <div className="flex gap-1 sm:gap-1.5">
+        {showDayLabels && (
+          <div className="grid w-7 shrink-0 grid-rows-7 gap-[2px] pt-6 sm:w-8">
+            {["", "Mon", "", "Wed", "", "Fri", ""].map((d, i) => (
+              <span key={i} className="text-[9px] leading-[10px] text-white-50/40 text-right pr-1 select-none">
+                {d}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="overflow-x-auto pb-1 overscroll-contain">
+          <div className="relative w-max pt-6">
+            <div className="absolute top-1 left-0 h-4 pointer-events-none">
+              {skeletonMonths.map((m) => (
+                <span
+                  key={`${m.col}-${m.label}`}
+                  className="absolute top-0 text-[10px] leading-4 text-white-50/40"
+                  style={{ left: `${m.col * 12}px` }}
+                >
+                  {m.label}
+                </span>
+              ))}
+            </div>
+
+            <div
+              className="grid gap-[2px]"
+              style={{
+                gridTemplateColumns: `repeat(${weeks}, 10px)`,
+                gridTemplateRows: "repeat(7, 10px)",
+                gridAutoFlow: "column",
+              }}
+            >
+              {Array.from({ length: weeks * days }).map((_, idx) => {
+                const colIdx = Math.floor(idx / 7);
+                const rowIdx = idx % 7;
+                // Organic deterministic activity pattern
+                const seed = (colIdx * 17 + rowIdx * 11) % 19;
+                const isLit = seed > 6;
+                const tier = seed > 15 ? 3 : seed > 11 ? 2 : seed > 6 ? 1 : 0;
+                const delays = (colIdx * 0.03).toFixed(2);
+
+                return (
+                  <span
+                    key={idx}
+                    className="relative block w-[10px] h-[10px] rounded-[2px] border border-black-50/30 transition-all animate-pulse"
+                    style={{
+                      animationDelay: `${delays}s`,
+                      animationDuration: "1.8s",
+                      backgroundColor: isLit
+                        ? tier === 3
+                          ? "rgba(59, 130, 246, 0.40)"
+                          : tier === 2
+                          ? "rgba(59, 130, 246, 0.24)"
+                          : "rgba(59, 130, 246, 0.14)"
+                        : "var(--gh-0)",
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
  * GitHub-style contribution grid: columns are weeks, rows are weekdays.
  * Cells are laid out with CSS grid (auto-flow column) so the DOM order is
- * chronological — that lets GSAP sweep the reveal left-to-right by week.
+ * chronological. Each cell links directly to that day's activity timeline.
  */
 interface Props {
   days: HeatmapDay[];
@@ -29,7 +131,7 @@ interface Props {
   label: string;
   /** Where filled cells link to if getCellHref is not provided */
   href?: string;
-  /** Custom link generator per day */
+  /** Custom link generator per day to that day's activity */
   getCellHref?: (cell: HeatmapDay) => string;
 }
 
@@ -77,22 +179,19 @@ const Heatmap = ({
 
   const hovered = hoverIdx != null ? cells[hoverIdx] : null;
 
-  /* Tooltip coordinates inside the scroll container.
-     Clamped so it never overflows horizontally or gets clipped vertically. */
+  /* Tooltip coordinates inside the scroll container */
   const col = hoverIdx != null ? Math.floor(hoverIdx / 7) : 0;
   const row = hoverIdx != null ? hoverIdx % 7 : 0;
   const isBottomHalf = row >= 2;
   const rawLeft = col * 12 + 5;
-  const tipLeft = Math.max(54, Math.min(weekCount * 12 - 54, rawLeft));
-  /* Grid top starts at 24px (after month marks) */
+  const tipLeft = Math.max(72, Math.min(weekCount * 12 - 72, rawLeft));
   const cellY = 24 + row * 12;
-  const tipTop = isBottomHalf ? cellY - 4 : cellY + 14;
+  const tipTop = isBottomHalf ? cellY - 6 : cellY + 16;
 
   const defaultHref = href ?? `https://github.com/users/${GITHUB_USER}/contributions`;
 
-  /* Scroll to the END by default: the leading edge is mostly empty, while the
-     most recent (rightmost) week is the filled one worth seeing. Runs after
-     mount AND on the next frame — layout isn't guaranteed settled yet. */
+  /* Scroll to the END by default: the leading edge is older, while the
+     most recent (rightmost) week is the filled one worth seeing. */
   useLayoutEffect(() => {
     const el = heatRef.current;
     if (!el) return;
@@ -104,34 +203,37 @@ const Heatmap = ({
     return () => cancelAnimationFrame(raf);
   }, [cells.length, weekCount]);
 
+  /* Smooth wave reveal that NEVER hides cells if scroll trigger hasn't fired */
   useGSAP(
     () => {
       if (reduced) return;
-      const nodes = rootRef.current?.querySelectorAll<HTMLElement>(".hm-cell[data-filled]");
+      const nodes = rootRef.current?.querySelectorAll<HTMLElement>(".hm-cell");
       if (!nodes || nodes.length === 0) return;
 
-      /* Spectacular wave reveal: cells pop up left-to-right (chronological,
-         DOM order = week-by-week sweep) with a back.out bounce. */
       gsap.fromTo(
         nodes,
-        { opacity: 0, scale: 0, transformOrigin: "center center" },
+        { opacity: 0.45, scale: 0.85 },
         {
           opacity: 1,
           scale: 1,
-          duration: 0.35,
-          ease: "back.out(1.6)",
+          duration: 0.4,
+          ease: "power2.out",
           stagger: {
-            each: mobile ? 0.0007 : 0.0004,
+            each: mobile ? 0.0006 : 0.0003,
             from: "start",
             grid: "auto",
           },
-          clearProps: "transform",
-          scrollTrigger: { trigger: rootRef.current, start: "top 82%", once: true },
+          clearProps: "all",
+          scrollTrigger: { trigger: rootRef.current, start: "top 95%", once: true },
         },
       );
     },
     { scope: rootRef, dependencies: [reduced, mobile, cells.length], revertOnUpdate: true },
   );
+
+  if (days.length === 0) {
+    return <HeatmapSkeleton unit={unit} label={label} showDayLabels={showDayLabels} />;
+  }
 
   return (
     <div ref={rootRef} className="w-full">
@@ -151,8 +253,7 @@ const Heatmap = ({
           data-lenis-prevent="true"
           ref={heatRef}
         >
-          {/* Ruler + grid + tooltip share one scrolled, fixed-width wrapper so
-              they move together — no scroll-compensation glitches. */}
+          {/* Ruler + grid + tooltip share one scrolled, fixed-width wrapper */}
           <div className="relative w-max pt-6">
             <div className="absolute top-1 left-0 h-4 pointer-events-none">
               {monthMarks.map((m) => (
@@ -176,30 +277,38 @@ const Heatmap = ({
               role="group"
               aria-label={`${label} ${unit} heatmap`}
             >
-              {cells.map((cell, i) =>
-                cell ? (
+              {cells.map((cell, i) => {
+                if (!cell) {
+                  return <span key={`pad-${i}`} className="w-[10px] h-[10px] rounded-[2px] bg-black-200/40" />;
+                }
+
+                const targetUrl = getCellHref ? getCellHref(cell) : defaultHref;
+                const hasContrib = cell.count > 0;
+
+                return (
                   <a
                     key={cell.date}
-                    href={getCellHref ? getCellHref(cell) : defaultHref}
+                    href={targetUrl}
                     target="_blank"
                     rel="noreferrer"
-                    data-filled
-                    className="hm-cell relative block w-[10px] h-[10px] rounded-[2px] transition-transform duration-150 ease-out hover:scale-135 hover:z-20 hover:ring-1 hover:ring-white-50/40"
+                    className={`hm-cell relative block w-[10px] h-[10px] rounded-[2px] transition-transform duration-150 ease-out hover:scale-140 hover:z-20 hover:ring-1 hover:ring-white-50/60 ${
+                      hasContrib
+                        ? "border border-black-50/30 shadow-[0_0_2px_rgba(59,130,246,0.25)]"
+                        : "border border-black-50/40"
+                    }`}
                     style={{ backgroundColor: `var(--gh-${cell.level})` }}
-                    aria-label={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} on ${shortDate(cell.date)}`}
+                    aria-label={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} on ${shortDate(cell.date)} — click to view day's activity`}
                     title={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} on ${shortDate(cell.date)}`}
                     onPointerEnter={() => setHoverIdx(i)}
                     onPointerLeave={() => setHoverIdx(null)}
                     onFocus={() => setHoverIdx(i)}
                     onBlur={() => setHoverIdx(null)}
                   />
-                ) : (
-                  <span key={`pad-${i}`} className="w-[10px] h-[10px] rounded-[2px] bg-black-200" />
-                ),
-              )}
+                );
+              })}
             </div>
 
-            {/* Bubble tooltip — cleanly positioned without clipping or layout lag */}
+            {/* Bubble tooltip with click cue */}
             {hovered && (
               <div
                 className="pointer-events-none absolute z-30 transition-all duration-75 ease-out"
@@ -209,17 +318,23 @@ const Heatmap = ({
                   transform: isBottomHalf ? "translate(-50%, -100%)" : "translate(-50%, 0)",
                 }}
               >
-                <div className="flex items-center gap-1.5 whitespace-nowrap rounded-md border border-black-50 bg-black-100/95 px-2.5 py-1 text-[11px] text-white-50 shadow-xl backdrop-blur-md">
-                  <span
-                    className="size-2 rounded-full shrink-0"
-                    style={{ backgroundColor: `var(--gh-${hovered.level})` }}
-                  />
-                  <span className="font-semibold tabular-nums">
-                    {hovered.count}
-                  </span>
-                  <span>{hovered.count === 1 ? unit : `${unit}s`}</span>
-                  <span className="text-white-50/40">·</span>
-                  <span className="text-white-50/80">{shortDate(hovered.date)}</span>
+                <div className="flex flex-col gap-0.5 whitespace-nowrap rounded-lg border border-black-50/90 bg-black-100/95 px-2.5 py-1.5 text-[11px] text-white-50 shadow-2xl backdrop-blur-md">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="size-2 rounded-full shrink-0"
+                      style={{ backgroundColor: `var(--gh-${hovered.level})` }}
+                    />
+                    <span className="font-semibold tabular-nums text-white-50">
+                      {hovered.count}
+                    </span>
+                    <span className="text-white-50/80">{hovered.count === 1 ? unit : `${unit}s`}</span>
+                    <span className="text-white-50/40">·</span>
+                    <span className="text-white-50/90 font-medium">{shortDate(hovered.date)}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-[9.5px] text-blue-400 font-medium pt-0.5">
+                    <span>Click to view day&apos;s activity</span>
+                    <ArrowUpRight className="size-2.5 shrink-0" />
+                  </div>
                 </div>
               </div>
             )}
@@ -240,7 +355,11 @@ export const HeatmapLegend = ({ href }: { href?: string }) => (
   >
     <span>Less</span>
     {[0, 1, 2, 3, 4].map((l) => (
-      <span key={l} className="size-2.5 rounded-[2px]" style={{ backgroundColor: `var(--gh-${l})` }} />
+      <span
+        key={l}
+        className="size-2.5 rounded-[2px] border border-black-50/40"
+        style={{ backgroundColor: `var(--gh-${l})` }}
+      />
     ))}
     <span>More</span>
   </a>

@@ -163,7 +163,9 @@ section {
   --gh-mix-commits: #3b82f6;
   --gh-mix-prs: #60a5fa;
   --gh-mix-reviews: #818cf8;
+  --gh-mix-comments: #a78bfa;
   --gh-mix-issues: #93c5fd;
+  --gh-mix-interactions: #38bdf8;
   --gh-meta: #52525b;
   --gh-meta-muted: #9ca3af;
   --gh-border: #e5e7eb;
@@ -1440,15 +1442,17 @@ section {
   --counter-text: #f4f4f5;
   --counter-muted: #a1a1aa;
   /* activity section — GitHub heat scale (dark theme, all-blue) */
-  --gh-0: rgba(59, 130, 246, 0.08);
-  --gh-1: #1e3a8a;
+  --gh-0: rgba(255, 255, 255, 0.04);
+  --gh-1: #1e40af;
   --gh-2: #3b82f6;
   --gh-3: #60a5fa;
   --gh-4: #93c5fd;
   --gh-mix-commits: #3b82f6;
   --gh-mix-prs: #60a5fa;
   --gh-mix-reviews: #818cf8;
+  --gh-mix-comments: #a78bfa;
   --gh-mix-issues: #93c5fd;
+  --gh-mix-interactions: #38bdf8;
   --gh-meta: #a1a1aa;
   --gh-meta-muted: #71717a;
   --gh-border: #27272a;
