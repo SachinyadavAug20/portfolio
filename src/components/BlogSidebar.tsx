@@ -16,6 +16,7 @@ import {
   PanelLeftClose,
   Sparkles,
   ExternalLink,
+  Star,
 } from "lucide-react";
 import type { BlogPost } from "../blog/types";
 import { getPosts } from "../blog/posts";
@@ -120,9 +121,11 @@ const BlogSidebar = () => {
     const counts = new Map<string, { count: number; dir: string }>();
     posts.forEach((p) => {
       if (!p.dir) return;
+      if (p.dir.startsWith("_") || p.dir.includes("/_") || p.dir.toLowerCase().includes("attachement")) return;
       const parts = p.dir.split("/").filter(Boolean);
       // Key by the most descriptive segment (last segment)
       const folderName = parts[parts.length - 1] || p.dir;
+      if (folderName.startsWith("_")) return;
       const existing = counts.get(folderName);
       if (existing) {
         existing.count += 1;
@@ -139,13 +142,18 @@ const BlogSidebar = () => {
   // Sort notes for "Latest" or fallback to title order
   const latestPosts = useMemo(() => {
     if (!posts.length) return [];
+    const isPublic = (p: BlogPost) =>
+      !p.dir.startsWith("_") &&
+      !p.dir.includes("/_") &&
+      !p.dir.toLowerCase().includes("attachement");
+    const publicPosts = posts.filter(isPublic);
     if (Object.keys(latestDates).length > 0) {
-      const dated = posts
+      const dated = publicPosts
         .filter((p) => latestDates[p.fullSlug])
         .sort((a, b) => (latestDates[b.fullSlug] || "").localeCompare(latestDates[a.fullSlug] || ""));
       if (dated.length >= 5) return dated.slice(0, 8);
     }
-    return posts.slice(0, 8);
+    return publicPosts.slice(0, 8);
   }, [posts, latestDates]);
 
   // Filter notes when searching in sidebar
@@ -338,8 +346,17 @@ const BlogSidebar = () => {
         </button>
       </div>
 
-      {/* Bottom: Obsidian link */}
+      {/* Bottom: Star Repo & Obsidian link */}
       <div className="flex flex-col items-center gap-1.5 pt-2 border-t border-zinc-200/80 dark:border-zinc-800/80 w-full">
+        <a
+          href={GITHUB_REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Star Notes Repo on GitHub"
+          className="size-8 rounded-lg flex items-center justify-center text-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-500/10 transition-colors"
+        >
+          <Star className="size-3.5 fill-yellow-500" />
+        </a>
         <a
           href={GITHUB_REPO_URL}
           target="_blank"
@@ -698,16 +715,29 @@ const BlogSidebar = () => {
           <span>{loading ? "syncing notes..." : `${posts.length || 330} notes synced`}</span>
         </span>
 
-        <a
-          href={GITHUB_REPO_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
-          title="Open Obsidian Vault repository"
-        >
-          <span>Obsidian</span>
-          <ExternalLink className="size-3" />
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href={GITHUB_REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 transition-colors font-medium"
+            title="Star notes repository on GitHub"
+          >
+            <Star className="size-3 fill-yellow-500" />
+            <span>Star</span>
+          </a>
+          <span className="text-zinc-300 dark:text-zinc-700">·</span>
+          <a
+            href={GITHUB_REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+            title="Open Obsidian Vault repository"
+          >
+            <span>Obsidian</span>
+            <ExternalLink className="size-3" />
+          </a>
+        </div>
       </div>
     </div>
   );

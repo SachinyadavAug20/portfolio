@@ -3,7 +3,6 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ArrowUpRight } from "lucide-react";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
-import { useIsMobile } from "../../hooks/useIsMobile";
 import type { HeatmapDay } from "../../lib/activity";
 import { GITHUB_USER } from "../../lib/activity";
 
@@ -145,7 +144,6 @@ const Heatmap = ({
 }: Props) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const mobile = useIsMobile();
   const heatRef = useRef<HTMLDivElement>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
@@ -203,32 +201,18 @@ const Heatmap = ({
     return () => cancelAnimationFrame(raf);
   }, [cells.length, weekCount]);
 
-  /* Smooth wave reveal that NEVER hides cells if scroll trigger hasn't fired */
+  /* Smooth reveal that does not mutate individual cell inline properties */
   useGSAP(
     () => {
-      if (reduced) return;
-      const nodes = rootRef.current?.querySelectorAll<HTMLElement>(".hm-cell");
-      if (!nodes || nodes.length === 0) return;
-
-      gsap.fromTo(
-        nodes,
-        { opacity: 0.45, scale: 0.85 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.4,
-          ease: "power2.out",
-          stagger: {
-            each: mobile ? 0.0006 : 0.0003,
-            from: "start",
-            grid: "auto",
-          },
-          clearProps: "all",
-          scrollTrigger: { trigger: rootRef.current, start: "top 95%", once: true },
-        },
-      );
+      if (reduced || !rootRef.current) return;
+      gsap.from(rootRef.current, {
+        opacity: 0.25,
+        duration: 0.4,
+        ease: "power2.out",
+        scrollTrigger: { trigger: rootRef.current, start: "top 95%", once: true },
+      });
     },
-    { scope: rootRef, dependencies: [reduced, mobile, cells.length], revertOnUpdate: true },
+    { scope: rootRef, dependencies: [reduced, cells.length], revertOnUpdate: true },
   );
 
   if (days.length === 0) {
@@ -283,7 +267,8 @@ const Heatmap = ({
                 }
 
                 const targetUrl = getCellHref ? getCellHref(cell) : defaultHref;
-                const hasContrib = cell.count > 0;
+                const hasContrib = cell.count > 0 || cell.level > 0;
+                const effectiveLevel = cell.level > 0 ? cell.level : hasContrib ? 1 : 0;
 
                 return (
                   <a
@@ -291,12 +276,13 @@ const Heatmap = ({
                     href={targetUrl}
                     target="_blank"
                     rel="noreferrer"
+                    data-level={effectiveLevel}
                     className={`hm-cell relative block w-[10px] h-[10px] rounded-[2px] transition-transform duration-150 ease-out hover:scale-140 hover:z-20 hover:ring-1 hover:ring-white-50/60 ${
                       hasContrib
-                        ? "border border-black-50/30 shadow-[0_0_2px_rgba(59,130,246,0.25)]"
+                        ? "border border-blue-400/35 shadow-[0_0_2px_rgba(59,130,246,0.3)]"
                         : "border border-black-50/40"
                     }`}
-                    style={{ backgroundColor: `var(--gh-${cell.level})` }}
+                    style={{ backgroundColor: `var(--gh-${effectiveLevel})` }}
                     aria-label={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} on ${shortDate(cell.date)} — click to view day's activity`}
                     title={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} on ${shortDate(cell.date)}`}
                     onPointerEnter={() => setHoverIdx(i)}
@@ -357,8 +343,12 @@ export const HeatmapLegend = ({ href }: { href?: string }) => (
     {[0, 1, 2, 3, 4].map((l) => (
       <span
         key={l}
-        className="size-2.5 rounded-[2px] border border-black-50/40"
-        style={{ backgroundColor: `var(--gh-${l})` }}
+        className="size-2.5 rounded-[2px]"
+        style={{
+          backgroundColor: `var(--gh-${l})`,
+          border: l === 0 ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(59, 130, 246, 0.5)",
+          boxShadow: l > 0 ? "0 0 3px rgba(59, 130, 246, 0.3)" : "none",
+        }}
       />
     ))}
     <span>More</span>

@@ -647,6 +647,30 @@ section {
       filter 0.15s ease,
       box-shadow 0.15s ease;
   }
+  .hm-cell[data-level="0"] {
+    background-color: var(--gh-0) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+  .hm-cell[data-level="1"] {
+    background-color: var(--gh-1) !important;
+    border: 1px solid rgba(59, 130, 246, 0.45) !important;
+    box-shadow: 0 0 2px rgba(59, 130, 246, 0.25) !important;
+  }
+  .hm-cell[data-level="2"] {
+    background-color: var(--gh-2) !important;
+    border: 1px solid rgba(96, 165, 250, 0.55) !important;
+    box-shadow: 0 0 3px rgba(96, 165, 250, 0.3) !important;
+  }
+  .hm-cell[data-level="3"] {
+    background-color: var(--gh-3) !important;
+    border: 1px solid rgba(56, 189, 248, 0.65) !important;
+    box-shadow: 0 0 4px rgba(56, 189, 248, 0.35) !important;
+  }
+  .hm-cell[data-level="4"] {
+    background-color: var(--gh-4) !important;
+    border: 1px solid rgba(165, 243, 252, 0.75) !important;
+    box-shadow: 0 0 5px rgba(56, 189, 248, 0.45) !important;
+  }
   .hm-cell:hover {
     filter: brightness(1.3);
     z-index: 10;
@@ -1441,12 +1465,12 @@ section {
   --counter-border: #27272a;
   --counter-text: #f4f4f5;
   --counter-muted: #a1a1aa;
-  /* activity section — GitHub heat scale (dark theme, all-blue) */
-  --gh-0: rgba(255, 255, 255, 0.04);
-  --gh-1: #1e40af;
-  --gh-2: #3b82f6;
-  --gh-3: #60a5fa;
-  --gh-4: #93c5fd;
+  /* activity section — GitHub heat scale (dark theme, vibrant luminous blues) */
+  --gh-0: rgba(255, 255, 255, 0.05);
+  --gh-1: #3b82f6;
+  --gh-2: #60a5fa;
+  --gh-3: #38bdf8;
+  --gh-4: #a5f3fc;
   --gh-mix-commits: #3b82f6;
   --gh-mix-prs: #60a5fa;
   --gh-mix-reviews: #818cf8;

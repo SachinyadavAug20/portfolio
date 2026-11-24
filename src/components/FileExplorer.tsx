@@ -14,7 +14,7 @@ interface FileExplorerProps {
   dates?: Record<string, string>;
 }
 
-const EXCLUDED = new Set(["attachement", "attachements"]);
+const EXCLUDED = new Set(["attachement", "attachements", "_templates", "_utilities"]);
 const BATCH_SIZE = 20;
 
 /* vault-freshness cue: "today / 3d ago / 2w ago / Oct 7" */
@@ -33,7 +33,7 @@ const countFiles = (node: TreeNode): number => {
   if (node.type === "file") return 1;
   let sum = 0;
   for (const c of node.children ?? []) {
-    if (c.type === "folder" && EXCLUDED.has(c.name)) continue;
+    if (c.type === "folder" && (EXCLUDED.has(c.name) || c.name.startsWith("_"))) continue;
     sum += countFiles(c);
   }
   return sum;
@@ -109,7 +109,7 @@ const FileExplorer = ({ folder, currentPath, onNavigate, dates }: FileExplorerPr
   const children = useMemo(
     () =>
       folder.children?.filter(
-        (c) => !(c.type === "folder" && EXCLUDED.has(c.name)),
+        (c) => !(c.type === "folder" && (EXCLUDED.has(c.name) || c.name.startsWith("_"))),
       ) ?? [],
     [folder],
   );

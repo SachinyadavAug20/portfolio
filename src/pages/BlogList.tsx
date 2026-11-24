@@ -1,7 +1,24 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { X, Search, Network, FileText, Tags } from "lucide-react";
+import {
+  X,
+  Search,
+  Network,
+  FileText,
+  Tags,
+  Star,
+  ArrowUpRight,
+  Cpu,
+  Layers,
+  Terminal,
+  Globe,
+  Clock,
+  Sparkles,
+  BookOpen,
+  ChevronRight,
+  FolderTree,
+} from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import SEOHead from "../seo/SEOHead";
@@ -9,6 +26,8 @@ import { buildBlogSchema } from "../lib/schema";
 import { getPosts } from "../blog/posts";
 import { buildTree, getFolderAtPath } from "../blog/tree";
 import { getBlogDates } from "../blog/dates";
+
+const GITHUB_REPO_URL = "https://github.com/SachinyadavAug20/My-Obsidian-notes";
 
 const MotionLink = motion.create(Link);
 const PRESS = {
@@ -218,6 +237,80 @@ const BlogList = () => {
     };
   }, []);
 
+  // Core Engineering Tracks for quick discovery
+  const CORE_TRACKS = useMemo(
+    () => [
+      {
+        id: "system-design",
+        title: "System Design & Distributed Systems",
+        desc: "Replication, CRDTs, LSM Trees, Transactions, High Availability",
+        path: "Programing/Concepts/System design 2.0",
+        tag: "System design 2.0",
+        icon: Cpu,
+        count: 22,
+        accentBorder: "hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]",
+        iconBg: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+      },
+      {
+        id: "lld",
+        title: "Low-Level Design & Patterns",
+        desc: "GoF Design Patterns, Prototype, Mediator, State Pattern, SOLID",
+        path: "Programing/Concepts/LLD",
+        tag: "LLD",
+        icon: Layers,
+        count: 37,
+        accentBorder: "hover:border-purple-500/50 hover:shadow-[0_0_20px_rgba(168,85,247,0.15)]",
+        iconBg: "bg-purple-500/10 text-purple-400 border border-purple-500/20",
+      },
+      {
+        id: "backend",
+        title: "Enterprise Java & Cloud Backend",
+        desc: "SpringBoot 3, Java Concurrency, Docker, Linux, Kubernetes",
+        path: "Programing/languages/SpringBoot",
+        tag: "SpringBoot",
+        icon: Terminal,
+        count: 29,
+        accentBorder: "hover:border-emerald-500/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)]",
+        iconBg: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+      },
+      {
+        id: "webdev",
+        title: "Modern Web & Full-Stack Systems",
+        desc: "JavaScript Deep-Dive, Next.js, Node.js Internals, Event Loop",
+        path: "Programing/webdev",
+        tag: "webdev",
+        icon: Globe,
+        count: 89,
+        accentBorder: "hover:border-amber-500/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)]",
+        iconBg: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+      },
+    ],
+    [],
+  );
+
+  const recentNotes = useMemo(() => {
+    if (!posts.length) return [];
+    if (Object.keys(latestDates).length > 0) {
+      return posts
+        .filter((p) => latestDates[p.fullSlug] && !p.dir.startsWith("_") && !p.dir.toLowerCase().includes("attachement"))
+        .sort((a, b) => (latestDates[b.fullSlug] || "").localeCompare(latestDates[a.fullSlug] || ""))
+        .slice(0, 6);
+    }
+    return posts.filter((p) => !p.dir.startsWith("_") && !p.dir.toLowerCase().includes("attachement")).slice(0, 6);
+  }, [posts, latestDates]);
+
+  const formatRelDate = (iso?: string) => {
+    if (!iso) return "";
+    const diffDays = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+    if (diffDays <= 0) return "today";
+    if (diffDays === 1) return "1d ago";
+    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+    return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  };
+
+  const isRootView = !currentPath && !currentTag && !currentQuery;
+
   const filteredPosts = useMemo(() => {
     let result = posts;
     if (currentTag) {
@@ -311,25 +404,57 @@ const BlogList = () => {
       />
       <section className="section-padding pt-5 min-h-screen">
       <div ref={rootRef} className="w-full h-full md:px-10">
-        <div className="blog-intro">
-          <TitleHeader title="Blog" />
-        </div>
-        {!loading && !error && stats.notes > 0 && (
-          <p className="blog-intro text-center text-xs text-white-50/50 mt-3">
-            {stats.notes} notes · {stats.folders} folders · {stats.tags} tags
+        {/* Formal, Elegant Digital Garden Header */}
+        <div className="blog-intro text-center max-w-2xl mx-auto space-y-3.5 mb-7">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[11px] font-medium text-sky-500 dark:text-sky-400">
+            <BookOpen className="size-3.5" />
+            <span>Obsidian Digital Garden &amp; Technical Vault</span>
+          </div>
+
+          <TitleHeader title="Engineering Notes" />
+
+          <p className="text-xs sm:text-sm text-white-50/70 leading-relaxed font-normal max-w-xl mx-auto">
+            A structured second brain covering Distributed Systems, System Design, Low-Level Architecture,
+            Java/SpringBoot, and Computer Science fundamentals synced live from my Obsidian vault.
           </p>
-        )}
-        <div className="blog-intro flex justify-center mt-5">
-          <MotionLink
-            to="/graph"
-            className="chip inline-flex items-center gap-1.5 px-4 py-2 text-xs rounded-full bg-black-200 text-blue-50 border border-black-50 hover:bg-blue-500/15 hover:text-foreground transition-colors active:scale-95"
-            {...PRESS}
-          >
-            <Network className="size-3.5" />
-            Knowledge Graph
-          </MotionLink>
+
+          {/* Action Row */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+            {/* Star Notes Repo on GitHub */}
+            <a
+              href={GITHUB_REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-yellow-500/35 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 text-xs font-medium transition-all hover:border-yellow-500/60 hover:shadow-[0_0_14px_rgba(234,179,8,0.25)] active:scale-95"
+              title="Star My-Obsidian-notes on GitHub"
+            >
+              <Star className="size-3.5 fill-yellow-500 text-yellow-500 transition-transform group-hover:scale-125 group-hover:rotate-12 duration-200" />
+              <span>Star Notes Repo</span>
+              <span className="flex items-center gap-0.5 rounded-full bg-yellow-500/20 px-1.5 py-0.2 text-[10px] font-mono font-semibold">
+                GitHub <ArrowUpRight className="size-2.5" />
+              </span>
+            </a>
+
+            {/* Knowledge Graph Button */}
+            <MotionLink
+              to="/graph"
+              className="chip inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-full bg-black-200 text-blue-50 border border-black-50 hover:bg-blue-500/15 hover:text-foreground transition-colors active:scale-95"
+              {...PRESS}
+            >
+              <Network className="size-3.5 text-sky-400" />
+              <span>Knowledge Graph</span>
+            </MotionLink>
+
+            {/* Live Stats Pill */}
+            {!loading && !error && stats.notes > 0 && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full bg-black-200/70 text-white-50/60 border border-black-50/60">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{stats.notes} notes · {stats.folders} folders · {stats.tags} tags</span>
+              </span>
+            )}
+          </div>
         </div>
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           {loading ? (
             <div className="space-y-2 mt-8">
               {[1, 2, 3, 4, 5].map((i) => (
@@ -474,6 +599,116 @@ const BlogList = () => {
                   </button>
                 </div>
               )}
+              {/* Curated Core Knowledge Tracks & Recent Notes (Root View Only) */}
+              {isRootView && (
+                <div className="mb-10 space-y-9">
+                  {/* Tracks Section */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3.5">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="size-4 text-sky-400" />
+                        <h2 className="text-xs sm:text-sm font-semibold tracking-wide uppercase text-white-50/80">
+                          Curated Knowledge Tracks
+                        </h2>
+                      </div>
+                      <span className="text-[11px] text-white-50/40">Structured roadmaps &amp; deep dives</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {CORE_TRACKS.map((track) => {
+                        const Icon = track.icon;
+                        const noteCount =
+                          posts.filter((p) => p.fullSlug.startsWith(track.path) || p.dir.startsWith(track.path)).length ||
+                          track.count;
+                        return (
+                          <button
+                            key={track.id}
+                            type="button"
+                            onClick={() => handleNavigate(track.path)}
+                            className={`group text-left p-4 rounded-xl border border-black-50 bg-black-100/60 hover:bg-black-200/80 transition-all duration-200 ${track.accentBorder} flex flex-col justify-between`}
+                          >
+                            <div className="flex items-start justify-between gap-3 mb-2.5">
+                              <div className={`p-2 rounded-lg ${track.iconBg} shrink-0`}>
+                                <Icon className="size-4" />
+                              </div>
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black-200 text-white-50/60 border border-black-50 text-[11px] tabular-nums font-mono">
+                                {noteCount} notes
+                              </span>
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5 font-medium text-sm text-foreground group-hover:text-sky-400 transition-colors">
+                                <span>{track.title}</span>
+                                <ChevronRight className="size-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-sky-400" />
+                              </div>
+                              <p className="text-xs text-white-50/50 line-clamp-2 mt-1 leading-relaxed">
+                                {track.desc}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Recently Updated Notes */}
+                  {recentNotes.length > 0 && (
+                    <div>
+                      <div className="flex items-center justify-between mb-3.5">
+                        <div className="flex items-center gap-2">
+                          <Clock className="size-4 text-emerald-400" />
+                          <h2 className="text-xs sm:text-sm font-semibold tracking-wide uppercase text-white-50/80">
+                            Recently Updated Notes
+                          </h2>
+                        </div>
+                        <span className="text-[11px] text-emerald-400/90 font-mono flex items-center gap-1.5">
+                          <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Live Sync
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                        {recentNotes.map((note) => {
+                          const relDate = formatRelDate(latestDates[note.fullSlug]);
+                          const category = note.dir.split("/").pop() || "General";
+                          return (
+                            <Link
+                              key={note.fullSlug}
+                              to={`/blog/post/${note.fullSlug}`}
+                              className="group block p-3.5 rounded-xl border border-black-50 bg-black-100/50 hover:bg-black-200/80 hover:border-blue-500/40 transition-all duration-200"
+                            >
+                              <div className="flex items-center justify-between gap-2 mb-1.5">
+                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black-200 text-sky-400/85 truncate max-w-[130px]">
+                                  {category}
+                                </span>
+                                {relDate && (
+                                  <span className="text-[10px] text-white-50/40 font-mono shrink-0">
+                                    {relDate}
+                                  </span>
+                                )}
+                              </div>
+                              <h3 className="text-xs font-medium text-foreground group-hover:text-sky-400 transition-colors line-clamp-2 leading-snug">
+                                {note.title}
+                              </h3>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Vault Hierarchy Title */}
+                  <div className="pt-2 flex items-center justify-between border-t border-black-50/60">
+                    <div className="flex items-center gap-2">
+                      <FolderTree className="size-4 text-purple-400" />
+                      <h2 className="text-xs sm:text-sm font-semibold tracking-wide uppercase text-white-50/80">
+                        Explore Vault Directory
+                      </h2>
+                    </div>
+                    <span className="text-[11px] text-white-50/40">Complete file tree &amp; raw notes</span>
+                  </div>
+                </div>
+              )}
+
               {folder && (folder.children?.length ?? 0) > 0 ? (
                 <FileExplorer
                   folder={folder}

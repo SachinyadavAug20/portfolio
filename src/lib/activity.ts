@@ -125,8 +125,17 @@ const isGithubOss = (v: unknown): v is GithubOss =>
 /* ---------------------------------------------------------------- caching */
 
 const MEM_TTL = 30 * 60 * 1000;
-const DISK_KEY = "portfolio:activity";
+const DISK_KEY = "portfolio:activity:v5";
 const DISK_TTL = 6 * 60 * 60 * 1000;
+
+// Evict legacy cache keys from previous revisions
+if (typeof window !== "undefined") {
+  try {
+    ["portfolio:activity", "portfolio:activity:v1", "portfolio:activity:v2", "portfolio:activity:v3", "portfolio:activity:v4"].forEach(
+      (k) => localStorage.removeItem(k),
+    );
+  } catch {}
+}
 
 type Disk = { t: number; gh?: GithubActivity; lc?: LeetCodeActivity; oss?: GithubOss };
 type Entry<T> = { at: number; promise: Promise<T> };
@@ -197,10 +206,21 @@ function load<T>(
 }
 
 const isGithub = (v: unknown): v is GithubActivity =>
-  !!v && typeof (v as GithubActivity).total === "number" && Array.isArray((v as GithubActivity).days);
+  !!v &&
+  typeof (v as GithubActivity).total === "number" &&
+  (v as GithubActivity).total > 0 &&
+  Array.isArray((v as GithubActivity).days) &&
+  (v as GithubActivity).days.length > 0 &&
+  (v as GithubActivity).days.some((d) => d.count > 0 || d.level > 0);
 
 const isLeet = (v: unknown): v is LeetCodeActivity =>
-  !!v && typeof (v as LeetCodeActivity).solved === "number" && Array.isArray((v as LeetCodeActivity).badges);
+  !!v &&
+  typeof (v as LeetCodeActivity).solved === "number" &&
+  (v as LeetCodeActivity).solved > 0 &&
+  Array.isArray((v as LeetCodeActivity).badges) &&
+  Array.isArray((v as LeetCodeActivity).submissions?.days) &&
+  (v as LeetCodeActivity).submissions.days.length > 0 &&
+  (v as LeetCodeActivity).submissions.days.some((d) => d.count > 0 || d.level > 0);
 
 export const fetchGithubActivity = (): Promise<GithubActivity> =>
   load("gh", "/api/github/contributions", (d) => d?.gh, isGithub, (v) => writeDisk({ gh: v }));
