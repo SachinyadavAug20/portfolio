@@ -1,5 +1,4 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
-import { motion } from "motion/react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
@@ -28,20 +27,34 @@ interface Props {
   unit?: string;
   /** ARIA label prefix for the grid, e.g. "LeetCode submissions" */
   label: string;
-  /** Where every filled cell links to — defaults to the GitHub calendar */
+  /** Where filled cells link to if getCellHref is not provided */
   href?: string;
+  /** Custom link generator per day */
+  getCellHref?: (cell: HeatmapDay) => string;
 }
 
-const Heatmap = ({ days, showDayLabels = true, unit = "contribution", label, href }: Props) => {
+const Heatmap = ({
+  days,
+  showDayLabels = true,
+  unit = "contribution",
+  label,
+  href,
+  getCellHref,
+}: Props) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const mobile = useIsMobile();
   const heatRef = useRef<HTMLDivElement>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
-  const tipRef = useRef<HTMLDivElement>(null);
+
   /* Pad the leading edge so column 0 starts on a Sunday, matching GitHub. */
   const { cells, weekCount, monthMarks } = useMemo(() => {
-    if (days.length === 0) return { cells: [], weekCount: 0, monthMarks: [] as { col: number; label: string }[] };
+    if (days.length === 0)
+      return {
+        cells: [],
+        weekCount: 0,
+        monthMarks: [] as { col: number; label: string }[],
+      };
     const first = new Date(`${days[0].date}T00:00:00Z`).getUTCDay();
     const padded: (HeatmapDay | null)[] = Array.from({ length: first }, () => null);
     padded.push(...days);
@@ -63,27 +76,19 @@ const Heatmap = ({ days, showDayLabels = true, unit = "contribution", label, hre
   }, [days]);
 
   const hovered = hoverIdx != null ? cells[hoverIdx] : null;
-  /* Grid stride is a constant 12px (10px cell + 2px gap). The ruler and tooltip
-     live INSIDE the scrolled content, so they travel with the grid — no scroll
-     compensation, no jitter. */
-  const tipLeft = hoverIdx != null ? Math.floor(hoverIdx / 7) * 12 + 5 : 0;
-  const tipTop =
-    hoverIdx != null
-      ? 16 + ((hoverIdx % 7) >= 3 ? (hoverIdx % 7) * 12 - 26 : (hoverIdx % 7) * 12 + 8)
-      : 0;
-  const CAL_URL = href ?? `https://github.com/users/${GITHUB_USER}/contributions`;
 
-  /* GSAP hover: lift + glow the hovered cell, settle it back on leave. */
-  const onCellEnter = (e: React.PointerEvent<HTMLAnchorElement>, i: number) => {
-    setHoverIdx(i);
-    if (reduced) return;
-    gsap.to(e.currentTarget, { scale: 1.55, zIndex: 30, duration: 0.18, ease: "power2.out" });
-  };
-  const onCellLeave = (e: React.PointerEvent<HTMLAnchorElement>) => {
-    setHoverIdx(null);
-    if (reduced) return;
-    gsap.to(e.currentTarget, { scale: 1, zIndex: 0, duration: 0.22, ease: "power2.inOut" });
-  };
+  /* Tooltip coordinates inside the scroll container.
+     Clamped so it never overflows horizontally or gets clipped vertically. */
+  const col = hoverIdx != null ? Math.floor(hoverIdx / 7) : 0;
+  const row = hoverIdx != null ? hoverIdx % 7 : 0;
+  const isBottomHalf = row >= 2;
+  const rawLeft = col * 12 + 5;
+  const tipLeft = Math.max(54, Math.min(weekCount * 12 - 54, rawLeft));
+  /* Grid top starts at 24px (after month marks) */
+  const cellY = 24 + row * 12;
+  const tipTop = isBottomHalf ? cellY - 4 : cellY + 14;
+
+  const defaultHref = href ?? `https://github.com/users/${GITHUB_USER}/contributions`;
 
   /* Scroll to the END by default: the leading edge is mostly empty, while the
      most recent (rightmost) week is the filled one worth seeing. Runs after
@@ -124,63 +129,32 @@ const Heatmap = ({ days, showDayLabels = true, unit = "contribution", label, hre
           scrollTrigger: { trigger: rootRef.current, start: "top 82%", once: true },
         },
       );
-
-      /* Recent days get a gentle one-time fade — NOT an infinite loop, the
-         calendar reads best static; hover already provides interactivity. */
-      const recent = Array.from(
-        rootRef.current?.querySelectorAll<HTMLElement>(".hm-cell[data-filled]") ?? [],
-      ).slice(-40);
-      if (recent.length) {
-        gsap.fromTo(
-          recent,
-          { opacity: 0 },
-          {
-            opacity: 1,
-            delay: 0.45,
-            duration: 0.5,
-            stagger: 0.004,
-            clearProps: "opacity",
-            scrollTrigger: { trigger: rootRef.current, start: "top 82%", once: true },
-          },
-        );
-      }
     },
     { scope: rootRef, dependencies: [reduced, mobile, cells.length], revertOnUpdate: true },
-  );
-
-  /* Tooltip entrance: scale-in with a bounce when hovering a cell. */
-  useGSAP(
-    () => {
-      if (reduced) return;
-      const tip = tipRef.current;
-      if (!tip || !hovered) return;
-      gsap.fromTo(
-        tip,
-        { opacity: 0, scale: 0.9 },
-        { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.9)" },
-      );
-    },
-    { scope: rootRef, dependencies: [hoverIdx, reduced, hovered], revertOnUpdate: true },
   );
 
   return (
     <div ref={rootRef} className="w-full">
       <div className="flex gap-1 sm:gap-1.5">
         {showDayLabels && (
-          <div className="grid w-7 shrink-0 grid-rows-7 gap-[3px] pt-4 sm:w-8">
+          <div className="grid w-7 shrink-0 grid-rows-7 gap-[2px] pt-6 sm:w-8">
             {["", "Mon", "", "Wed", "", "Fri", ""].map((d, i) => (
-              <span key={i} className="text-[9px] leading-[11px] text-white-50/60 text-right pr-1">
+              <span key={i} className="text-[9px] leading-[10px] text-white-50/60 text-right pr-1 select-none">
                 {d}
               </span>
             ))}
           </div>
         )}
 
-        <div className="overflow-x-auto pb-1" ref={heatRef}>
+        <div
+          className="overflow-x-auto pb-1 overscroll-contain select-none"
+          data-lenis-prevent="true"
+          ref={heatRef}
+        >
           {/* Ruler + grid + tooltip share one scrolled, fixed-width wrapper so
               they move together — no scroll-compensation glitches. */}
-          <div className="relative w-max">
-            <div className="relative h-4">
+          <div className="relative w-max pt-6">
+            <div className="absolute top-1 left-0 h-4 pointer-events-none">
               {monthMarks.map((m) => (
                 <span
                   key={`${m.col}-${m.label}`}
@@ -206,15 +180,16 @@ const Heatmap = ({ days, showDayLabels = true, unit = "contribution", label, hre
                 cell ? (
                   <a
                     key={cell.date}
-                    href={CAL_URL}
+                    href={getCellHref ? getCellHref(cell) : defaultHref}
                     target="_blank"
                     rel="noreferrer"
                     data-filled
-                    className="hm-cell relative w-[10px] h-[10px] rounded-[2px]"
+                    className="hm-cell relative block w-[10px] h-[10px] rounded-[2px] transition-transform duration-150 ease-out hover:scale-135 hover:z-20 hover:ring-1 hover:ring-white-50/40"
                     style={{ backgroundColor: `var(--gh-${cell.level})` }}
                     aria-label={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} on ${shortDate(cell.date)}`}
-                    onPointerEnter={(e) => onCellEnter(e, i)}
-                    onPointerLeave={onCellLeave}
+                    title={`${cell.count} ${unit}${cell.count === 1 ? "" : "s"} on ${shortDate(cell.date)}`}
+                    onPointerEnter={() => setHoverIdx(i)}
+                    onPointerLeave={() => setHoverIdx(null)}
                     onFocus={() => setHoverIdx(i)}
                     onBlur={() => setHoverIdx(null)}
                   />
@@ -224,29 +199,30 @@ const Heatmap = ({ days, showDayLabels = true, unit = "contribution", label, hre
               )}
             </div>
 
-            {/* Bubble tooltip — Framer spring pop, positioned over the cell. */}
-            <div
-              ref={tipRef}
-              className="absolute pointer-events-none z-20"
-              style={{ left: tipLeft, top: tipTop, opacity: hoverIdx != null ? 1 : 0 }}
-            >
-              {hovered && (
-                <motion.div
-                  initial={{ opacity: 0, y: 6, scale: 0.85 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 28 }}
-                  className="whitespace-nowrap rounded-md border border-black-50 bg-black-100 px-2 py-1 text-[11px] text-white-50 shadow-md translate-x-[-50%]"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="size-2 rounded-full" style={{ backgroundColor: `var(--gh-${hovered.level})` }} />
-                    <span className="font-semibold tabular-nums">{hovered.count}</span>
-                    <span>{hovered.count === 1 ? unit : `${unit}s`}</span>
-                    <span className="text-white-50/50">·</span>
-                    <span>{shortDate(hovered.date)}</span>
-                  </div>
-                </motion.div>
-              )}
-            </div>
+            {/* Bubble tooltip — cleanly positioned without clipping or layout lag */}
+            {hovered && (
+              <div
+                className="pointer-events-none absolute z-30 transition-all duration-75 ease-out"
+                style={{
+                  left: `${tipLeft}px`,
+                  top: `${tipTop}px`,
+                  transform: isBottomHalf ? "translate(-50%, -100%)" : "translate(-50%, 0)",
+                }}
+              >
+                <div className="flex items-center gap-1.5 whitespace-nowrap rounded-md border border-black-50 bg-black-100/95 px-2.5 py-1 text-[11px] text-white-50 shadow-xl backdrop-blur-md">
+                  <span
+                    className="size-2 rounded-full shrink-0"
+                    style={{ backgroundColor: `var(--gh-${hovered.level})` }}
+                  />
+                  <span className="font-semibold tabular-nums">
+                    {hovered.count}
+                  </span>
+                  <span>{hovered.count === 1 ? unit : `${unit}s`}</span>
+                  <span className="text-white-50/40">·</span>
+                  <span className="text-white-50/80">{shortDate(hovered.date)}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -254,10 +230,10 @@ const Heatmap = ({ days, showDayLabels = true, unit = "contribution", label, hre
   );
 };
 
-/** Legend swatch row, shared by both cards. Links to the calendar it labels. */
-export const HeatmapLegend = () => (
+/** Legend swatch row, shared by both cards. Links to the calendar/profile it labels. */
+export const HeatmapLegend = ({ href }: { href?: string }) => (
   <a
-    href={`https://github.com/users/${GITHUB_USER}/contributions`}
+    href={href ?? `https://github.com/users/${GITHUB_USER}/contributions`}
     target="_blank"
     rel="noreferrer"
     className="flex items-center gap-1.5 text-[10px] text-white-50/70 transition-colors hover:text-white-50"

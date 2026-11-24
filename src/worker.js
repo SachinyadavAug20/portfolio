@@ -333,11 +333,22 @@ function leetcodePayload(d) {
       hard: bucket("Hard"),
       attempting: (failed.easy ?? 0) + (failed.medium ?? 0) + (failed.hard ?? 0),
     },
-    badges: (m?.badges ?? []).map((b) => ({
-      name: b.name ?? "",
-      displayName: b.displayName ?? b.name ?? "",
-      icon: (b.icon ?? "").startsWith("http") ? b.icon : `https://leetcode.com${b.icon ?? ""}`,
-    })),
+    badges: (m?.badges ?? []).map((b) => {
+      const isLevel =
+        (b.name || "").toLowerCase().includes("knight") ||
+        (b.name || "").toLowerCase().includes("guardian");
+      return {
+        id: b.id ?? "",
+        name: b.name ?? "",
+        displayName: b.displayName ?? b.name ?? "",
+        icon: (b.icon ?? "").startsWith("http")
+          ? b.icon
+          : `https://leetcode.com${b.icon ?? ""}`,
+        medalUrl: b.id
+          ? `https://leetcode.com/medal/?showImg=0&id=${b.id}&isLevel=${isLevel ? "true" : "false"}`
+          : `https://leetcode.com/u/b2mIkNz0h5`,
+      };
+    }),
     submissions,
     histogram,
     fetchedAt: Date.now(),
@@ -742,7 +753,7 @@ export default {
           profile{ realName userAvatar }
           submitStatsGlobal{ acSubmissionNum{ difficulty count } }
           submissionCalendar
-          badges{ name displayName icon }
+          badges{ id name displayName icon }
         }
         userProfileUserQuestionProgressV2(userSlug:"b2mIkNz0h5"){
           numAcceptedQuestions{ difficulty count }

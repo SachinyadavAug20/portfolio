@@ -6,9 +6,6 @@ import {
   ArrowUpRight,
   Flame,
   GitPullRequest,
-  GitCommit,
-  MessageSquare,
-  CircleDot,
   ListChecks,
   Award,
   CalendarDays,
@@ -37,12 +34,7 @@ const ago = (iso: string): string => {
   return months < 12 ? `${months}mo ago` : `${Math.floor(months / 12)}yr ago`;
 };
 
-/** Default repo per curated org, used when no merged PR is known for it. */
-const ORG_REPOS: Record<string, string> = {
-  jabref: "JabRef/jabref",
-  airflow: "apache/airflow",
-  meshery: "meshery/meshery",
-};
+
 
 /** Count-up + bar/tile entrance, all gated behind reduced-motion. */
 const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null }) => {
@@ -140,10 +132,10 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
   );
 
   const stats = [
-    { key: "contributions" as const, icon: ListChecks, label: "Contributions", value: data.total, iconColor: "var(--gh-mix-commits)" },
-    { key: "dayStreak" as const, icon: Flame, label: "Day streak", value: data.streak.current, iconColor: "var(--gh-mix-issues)" },
-    { key: "longestStreak" as const, icon: Award, label: "Longest streak", value: data.streak.longest, iconColor: "var(--gh-mix-commits)" },
-    { key: "activeDays" as const, icon: CalendarDays, label: "Active days", value: data.streak.activeDays, iconColor: "var(--gh-mix-prs)" },
+    { key: "contributions" as const, icon: ListChecks, label: "Total", value: data.total, iconColor: "var(--gh-mix-commits)" },
+    { key: "dayStreak" as const, icon: Flame, label: "Streak", value: data.streak.current, iconColor: "var(--gh-mix-issues)" },
+    { key: "longestStreak" as const, icon: Award, label: "Best", value: data.streak.longest, iconColor: "var(--gh-mix-commits)" },
+    { key: "activeDays" as const, icon: CalendarDays, label: "Active", value: data.streak.activeDays, iconColor: "var(--gh-mix-prs)" },
   ];
 
   const mix = [
@@ -154,18 +146,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
   ];
   const CAL_URL = `https://github.com/users/${GITHUB_USER}/contributions`;
 
-  /* Org chips: the curated set the user wants — jabref, airflow, meshery —
-     each linking to their PRs on that org's repo. When we have a merged PR
-     we use its real base repo (e.g. meshery/meshery); otherwise a sensible
-     default repo for the org. */
-  const orgs = useMemo(() => {
-    return ["jabref", "airflow", "meshery"].map((name) => {
-      const pull = oss?.mergedPulls.find((p) =>
-        p.baseRepo.toLowerCase().startsWith(`${name}/`),
-      );
-      return { name, repo: pull?.baseRepo ?? ORG_REPOS[name] };
-    });
-  }, [oss?.mergedPulls]);
+
 
   /* Weekday distribution — 7 bars, one per day of week, from the per-day
      data. This adds a second dimension to the calendar. */
@@ -238,30 +219,28 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
         href={CAL_URL}
         target="_blank"
         rel="noreferrer"
-        className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 cursor-pointer"
+        className="grid grid-cols-2 gap-2 sm:grid-cols-4 cursor-pointer"
       >
         {stats.map((s) => {
-          const isStreak = s.label.includes("streak");
+          const isStreak = s.key.includes("Streak") || s.key === "dayStreak";
           return (
             <motion.div
               key={s.key}
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              whileHover={{ y: -3, scale: 1.04 }}
-              transition={{ delay: isStreak ? 0.3 : 0.1, type: "spring", stiffness: 400, damping: 20 }}
-              className="gh-stat rounded-lg border border-black-50 bg-black-200/70 px-3 py-2.5"
+              whileHover={{ y: -2, scale: 1.02 }}
+              transition={{ delay: isStreak ? 0.2 : 0.05, type: "spring", stiffness: 400, damping: 20 }}
+              className="gh-stat flex flex-col justify-between rounded-lg border border-black-50 bg-black-200/70 p-2.5 sm:p-3"
             >
-              <div className="flex min-w-0 items-end gap-1.5">
+              <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-white-50/50">
                 <s.icon
-                  className={`size-3.5 shrink-0 transition-opacity ${s.key === "activeDays" ? "opacity-45 hover:opacity-70" : ""}`}
+                  className="size-3.5 shrink-0"
                   style={{ color: s.iconColor }}
                 />
-                <div className="min-w-0 truncate text-lg font-semibold tabular-nums text-white-50 sm:text-xl">
-                  <span data-count={s.value}>0</span>
-                </div>
+                <span>{s.label}</span>
               </div>
-              <div className="mt-0.5 truncate pl-5 text-[9px] uppercase tracking-wider text-white-50/45">
-                {s.label}
+              <div className="mt-1 text-base font-semibold tabular-nums text-white-50 sm:text-lg whitespace-nowrap">
+                <span data-count={s.value}>0</span>
               </div>
             </motion.div>
           );
@@ -270,16 +249,20 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
 
       {/* heatmap */}
       <div className="flex flex-col gap-2">
-        <Heatmap days={data.days} label="GitHub" />
+        <Heatmap
+          days={data.days}
+          label="GitHub"
+          getCellHref={(c) => `https://github.com/${GITHUB_USER}?tab=overview&from=${c.date}&to=${c.date}`}
+        />
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <HeatmapLegend />
+          <HeatmapLegend href={`https://github.com/users/${GITHUB_USER}/contributions`} />
           <span className="text-[10px] text-white-50/55">
             {data.from} → {data.to}
           </span>
         </div>
       </div>
 
-      {/* activity mix — the summary of the calendar it represents */}
+      {/* activity mix — dimensional overview with radar concentric rings and polygon */}
       <div className="flex flex-col gap-2">
         <a
           href={CAL_URL}
@@ -290,166 +273,182 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
           Activity mix
           <ArrowUpRight className="size-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </a>
-        {/* Cross / plus activity-overview (GitHub-style): center node with four
-            arms — Commits left, Code review top, Issues right, PRs bottom.
-            Arm length scales with the share. */}
-        <svg
-          viewBox="0 0 300 200"
-          className="mx-auto h-44 w-full max-w-[300px]"
-          role="img"
-          aria-label="Activity overview by type"
-        >
-          {(
-            [
-              { key: "commits", dx: -1, dy: 0, anchor: "end", lx: -8, ly: 0 },
-              { key: "reviews", dx: 0, dy: -1, anchor: "middle", lx: 0, ly: -16 },
-              { key: "issues", dx: 1, dy: 0, anchor: "start", lx: 8, ly: 0 },
-              { key: "prs", dx: 0, dy: 1, anchor: "middle", lx: 0, ly: 16 },
-            ] as const
-          ).map(({ key, dx, dy, anchor, lx, ly }) => {
+
+        {(() => {
+          const cx = 150;
+          const cy = 100;
+          const axes: {
+            key: "commits" | "reviews" | "issues" | "prs";
+            dx: number;
+            dy: number;
+            anchor: "start" | "middle" | "end";
+            lx: number;
+            ly: number;
+          }[] = [
+            { key: "commits", dx: -1, dy: 0, anchor: "end", lx: -8, ly: 0 },
+            { key: "reviews", dx: 0, dy: -1, anchor: "middle", lx: 0, ly: -16 },
+            { key: "issues", dx: 1, dy: 0, anchor: "start", lx: 8, ly: 0 },
+            { key: "prs", dx: 0, dy: 1, anchor: "middle", lx: 0, ly: 16 },
+          ];
+          const coords = axes.map(({ key, dx, dy }) => {
             const pct = data.breakdown[key];
-            const len = Math.min(100, 26 + pct * 0.75);
-            const cx = 150;
-            const cy = 100;
-            const tx = cx + dx * len;
-            const ty = cy + dy * len;
-            const label = mix.find((m) => m.key === key)?.label ?? key;
-            return (
-              <g key={key}>
-                <line
-                  className="mix-arm"
-                  x1={cx}
-                  y1={cy}
-                  x2={tx}
-                  y2={ty}
-                  pathLength={1}
-                  stroke={`var(--gh-mix-${key})`}
-                  strokeWidth={3}
-                  strokeLinecap="round"
+            const len = Math.min(95, 24 + pct * 0.72);
+            return { key, tx: cx + dx * len, ty: cy + dy * len, len, pct };
+          });
+          const polyPoints = coords.map((c) => `${c.tx.toFixed(1)},${c.ty.toFixed(1)}`).join(" ");
+
+          return (
+            <svg
+              viewBox="0 0 300 200"
+              className="mx-auto h-44 w-full max-w-[300px]"
+              role="img"
+              aria-label="Activity overview by type"
+            >
+              {/* Radar guide concentric rings giving dimension */}
+              {[25, 50, 75, 95].map((r) => (
+                <circle
+                  key={r}
+                  cx={cx}
+                  cy={cy}
+                  r={r}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeDasharray="2 3"
+                  className="text-white-50/10"
                 />
-                <circle className="mix-tip" cx={tx} cy={ty} r={3.5} fill={`var(--gh-mix-${key})`} />
-                <text
-                  x={tx + lx}
-                  y={ty + ly + (dy === 0 ? -3 : dy === -1 ? 0 : 12)}
-                  textAnchor={anchor}
-                  className="fill-white-50 text-[11px] font-semibold"
-                >
-                  {pct}%
-                </text>
-                <text
-                  x={tx + lx}
-                  y={ty + ly + (dy === 0 ? 10 : dy === -1 ? 12 : 24)}
-                  textAnchor={anchor}
-                  className="fill-white-50/60 text-[10px]"
-                >
-                  {label}
-                </text>
-              </g>
-            );
-          })}
-          <circle cx={150} cy={100} r={5} fill="var(--gh-mix-commits)" />
-          <circle cx={150} cy={100} r={9} fill="none" stroke="var(--gh-mix-commits)" strokeOpacity={0.35} />
-        </svg>
+              ))}
+
+              {/* Cross background axis lines */}
+              <line x1={cx - 95} y1={cy} x2={cx + 95} y2={cy} stroke="currentColor" className="text-white-50/15" strokeWidth={1} />
+              <line x1={cx} y1={cy - 95} x2={cx} y2={cy + 95} stroke="currentColor" className="text-white-50/15" strokeWidth={1} />
+
+              {/* Translucent radar polygon shape */}
+              <polygon
+                points={polyPoints}
+                fill="var(--gh-mix-commits)"
+                fillOpacity={0.12}
+                stroke="var(--gh-mix-commits)"
+                strokeOpacity={0.4}
+                strokeWidth={1.5}
+                strokeLinejoin="round"
+              />
+
+              {/* Four active arms with glowing tips */}
+              {axes.map(({ key, dy, anchor, lx, ly }) => {
+                const coord = coords.find((c) => c.key === key)!;
+                const label = mix.find((m) => m.key === key)?.label ?? key;
+                return (
+                  <g key={key}>
+                    <line
+                      className="mix-arm"
+                      x1={cx}
+                      y1={cy}
+                      x2={coord.tx}
+                      y2={coord.ty}
+                      pathLength={1}
+                      stroke={`var(--gh-mix-${key})`}
+                      strokeWidth={3}
+                      strokeLinecap="round"
+                    />
+                    <circle className="mix-tip" cx={coord.tx} cy={coord.ty} r={4} fill={`var(--gh-mix-${key})`} />
+                    <text
+                      x={coord.tx + lx}
+                      y={coord.ty + ly + (dy === 0 ? -3 : dy === -1 ? 0 : 12)}
+                      textAnchor={anchor}
+                      className="fill-white-50 text-[11px] font-semibold"
+                    >
+                      {coord.pct}%
+                    </text>
+                    <text
+                      x={coord.tx + lx}
+                      y={coord.ty + ly + (dy === 0 ? 10 : dy === -1 ? 12 : 24)}
+                      textAnchor={anchor}
+                      className="fill-white-50/60 text-[10px]"
+                    >
+                      {label}
+                    </text>
+                  </g>
+                );
+              })}
+
+              {/* Center core */}
+              <circle cx={cx} cy={cy} r={5} fill="var(--gh-mix-commits)" />
+              <circle cx={cx} cy={cy} r={9} fill="none" stroke="var(--gh-mix-commits)" strokeOpacity={0.35} />
+            </svg>
+          );
+        })()}
       </div>
 
       {/* weekday distribution — daily activity by day of the week */}
       <div className="flex flex-col gap-2">
-        <div className="text-[11px] uppercase tracking-wider text-white-50/55">
-          Activity by weekday
+        <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-white-50/55">
+          <span>Activity by weekday</span>
+          <span className="text-[10px] text-white-50/40">Sun → Sat</span>
         </div>
-        <div className="flex h-5 items-end gap-1.5">
-          {weekdayBars.map((b) => (
-            <a
-              key={b.label}
-              href={CAL_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="wk-bar group relative flex-1 cursor-pointer"
-            >
-              <motion.span
-                className="block h-full rounded-t-[2px]"
-                whileHover={{ scaleY: 1.3, scaleX: 1.15 }}
-                style={{
-                  height: `${Math.max(1, b.pct * 100)}%`,
-                  backgroundColor: "var(--gh-mix-prs)",
-                  transformOrigin: "bottom",
-                }}
+        <div className="flex h-14 items-end gap-1.5 sm:gap-2 pt-2">
+          {weekdayBars.map((b) => {
+            const barHeightPx = Math.max(4, Math.round(b.pct * 40));
+            return (
+              <a
+                key={b.label}
+                href={CAL_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="wk-bar group relative flex flex-1 flex-col items-center justify-end h-full cursor-pointer"
                 title={`${b.label}: ${b.count.toLocaleString("en-US")} contributions`}
-              />
-              <span className="absolute -top-3 text-[8px] text-white-50/45 leading-none">
-                {b.label}
-              </span>
-            </a>
-          ))}
+              >
+                <div
+                  className="w-full rounded-t-[3px] transition-all duration-200 group-hover:brightness-125 group-hover:scale-x-105"
+                  style={{
+                    height: `${barHeightPx}px`,
+                    backgroundColor: b.count > 0 ? "var(--gh-mix-prs)" : "rgba(255, 255, 255, 0.08)",
+                  }}
+                />
+                <span className="mt-1 text-[9px] text-white-50/45 group-hover:text-white-50 transition-colors">
+                  {b.label}
+                </span>
+              </a>
+            );
+          })}
         </div>
-        {weekdayBars.some((b) => b.pct === 0) && (
-          <div className="text-[9px] text-white-50/40">
-            Minimal on some weekdays — activity peaks inline with your calendar.
-          </div>
-        )}
       </div>
 
-      {/* badges — icon chips for commits, PRs, reviews, issues (like the
-          LeetCode card's badge row) */}
-      {(data.breakdown.commits ||
-        data.breakdown.prs ||
-        data.breakdown.reviews ||
-        data.breakdown.issues) && (
-        <div className="flex flex-wrap items-center gap-2 border-t border-black-50 pt-4">
-          <span className="text-[11px] uppercase tracking-wider text-white-50/55">
-            Badges
-          </span>
-          {(
-            [
-              { key: "commits", label: "Commits", icon: GitCommit },
-              { key: "prs", label: "Pull requests", icon: GitPullRequest },
-              { key: "reviews", label: "Code review", icon: MessageSquare },
-              { key: "issues", label: "Issues", icon: CircleDot },
-            ] as const
-          ).map(({ key, label, icon: Icon }) =>
-            data.breakdown[key] ? (
-              <span
-                key={key}
-                className="inline-flex items-center gap-1.5 rounded-md border border-black-50 bg-black-200 px-2 py-1 text-[11px] text-white-50/70"
-              >
-                <Icon className="size-3.5 text-[var(--gh-mix-commits)]" />
-                <span className="font-semibold tabular-nums">{data.breakdown[key]}%</span>
-                <span>{label}</span>
-              </span>
-            ) : null,
-          )}
+      {/* orgs — curated top 3: jabref, airflow, meshery */}
+      <div className="flex flex-col gap-2 border-t border-black-50 pt-4">
+        <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-white-50/55">
+          <span>Open source orgs</span>
+          <span className="text-[10px] text-white-50/40">Merged PRs</span>
         </div>
-      )}
-
-      {/* orgs — only the top 3; each links to the user's PRs tab on their
-          repo when we know one, else to the org page */}
-      {orgs.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 border-t border-black-50 pt-4">
-          <span className="text-[11px] uppercase tracking-wider text-white-50/55">
-            Orgs
-          </span>
-          {orgs.map(({ name, repo }) => (
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { name: "JabRef", repo: "JabRef/jabref", icon: "https://github.com/JabRef.png" },
+            { name: "Airflow", repo: "apache/airflow", icon: "https://github.com/apache.png" },
+            { name: "Meshery", repo: "meshery/meshery", icon: "https://github.com/meshery.png" },
+          ].map(({ name, repo, icon }) => (
             <motion.a
               key={name}
               href={`https://github.com/${repo}/pulls/${GITHUB_USER}`}
               target="_blank"
               rel="noreferrer"
               title={`My PRs on ${repo}`}
-              whileHover={{ y: -2, scale: 1.05 }}
-              whileTap={{ scale: 0.96 }}
-              className="inline-flex items-center gap-1.5 rounded-md border border-black-50 bg-black-200 px-2 py-0.5 text-[11px] text-white-50/65 transition-colors hover:text-white-50 hover:border-white-50/30"
+              whileHover={{ y: -2, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center justify-between rounded-lg border border-black-50 bg-black-200/70 p-2 text-xs text-white-50/80 transition-colors hover:border-white-50/30 hover:bg-black-200 hover:text-white-50"
             >
-              <img
-                src={`https://github.com/${repo.split("/")[0]}.png`}
-                alt=""
-                className="h-[14px] w-[14px] rounded-sm object-contain"
-                loading="lazy"
-              />
-              {name}
+              <div className="flex items-center gap-2 min-w-0">
+                <img
+                  src={icon}
+                  alt={name}
+                  className="size-5 rounded-md object-contain shrink-0 bg-black-300"
+                  loading="lazy"
+                />
+                <span className="truncate font-medium text-[11px]">{name}</span>
+              </div>
+              <ArrowUpRight className="size-3 text-white-50/40 shrink-0" />
             </motion.a>
           ))}
         </div>
-      )}
+      </div>
 
       {/* OSS activity — merged PRs + PR reviews from the Events feed. */}
       {oss && (oss.counts.mergedPulls > 0 || oss.counts.reviews > 0) && (

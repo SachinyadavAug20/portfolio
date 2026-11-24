@@ -13,6 +13,30 @@ const DIFFS = [
   { key: "hard" as const, label: "Hard", color: "var(--lc-hard)" },
 ];
 
+const KNOWN_BADGE_IDS: Record<string, string> = {
+  knight: "11006349",
+  "200 days badge 2026": "10943306",
+  "100 days badge 2026": "10552745",
+  "50 days badge 2026": "10381652",
+};
+
+function getBadgeMedalUrl(
+  badge: { id?: string; name: string; displayName: string; medalUrl?: string },
+  username: string,
+): string {
+  if (badge.medalUrl) return badge.medalUrl;
+  const key = (badge.displayName || badge.name).toLowerCase();
+  const id =
+    badge.id ||
+    KNOWN_BADGE_IDS[key] ||
+    Object.entries(KNOWN_BADGE_IDS).find(([k]) => key.includes(k))?.[1];
+  if (id) {
+    const isLevel = key.includes("knight") || key.includes("guardian");
+    return `https://leetcode.com/medal/?showImg=0&id=${id}&isLevel=${isLevel ? "true" : "false"}`;
+  }
+  return `https://leetcode.com/u/${username}`;
+}
+
 /** Build an SVG polyline + area path from contest rating history. */
 function ratingPaths(
   points: { rating: number }[],
@@ -287,70 +311,75 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
         </div>
       )}
 
-      {/* solved ring + difficulties */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
-        <div className="flex items-center gap-4">
-          <div className="relative size-24 shrink-0">
-            <svg viewBox="0 0 100 100" className="size-full -rotate-90">
-              <circle
-                cx="50"
-                cy="50"
-                r="42"
-                fill="none"
-                stroke="var(--lc-ring-track)"
-                strokeWidth="9"
-              />
-              <circle
-                className="lc-ring-fg"
-                cx="50"
-                cy="50"
-                r="42"
-                fill="none"
-                stroke="var(--lc-rating)"
-                strokeWidth="9"
-                strokeLinecap="round"
-                strokeDasharray={`${2 * Math.PI * 42}`}
-                strokeDashoffset={`${2 * Math.PI * 42 * (1 - solvedPct / 100)}`}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-lg font-semibold tabular-nums leading-none text-white-50">
-                <span data-count={questions.all.solved}>0</span>
-              </span>
-              <span className="text-[10px] text-white-50/55">
-                / {questions.all.total.toLocaleString("en-US")}
-              </span>
-            </div>
-          </div>
-          <div>
-            <div className="text-[11px] uppercase tracking-wider text-white-50/55">
-              Solved
-            </div>
-            <div className="mt-1 flex items-center gap-3 text-[11px] text-white-50/70">
-              {DIFFS.map((d) => (
-                <span key={d.key} className="inline-flex items-center gap-1">
-                  <span
-                    className="size-2 rounded-full"
-                    style={{ backgroundColor: d.color }}
-                  />
-                  {questions[d.key].solved}
+      {/* solved ring + difficulties — spacious layout that never clips Medium/bars */}
+      <div className="flex flex-col gap-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative size-16 shrink-0">
+              <svg viewBox="0 0 100 100" className="size-full -rotate-90">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="42"
+                  fill="none"
+                  stroke="var(--lc-ring-track)"
+                  strokeWidth="9"
+                />
+                <circle
+                  className="lc-ring-fg"
+                  cx="50"
+                  cy="50"
+                  r="42"
+                  fill="none"
+                  stroke="var(--lc-rating)"
+                  strokeWidth="9"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 42}`}
+                  strokeDashoffset={`${2 * Math.PI * 42 * (1 - solvedPct / 100)}`}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-base font-semibold tabular-nums leading-none text-white-50">
+                  <span data-count={questions.all.solved}>0</span>
                 </span>
-              ))}
-              <span className="inline-flex items-center gap-1 text-white-50/50">
-                <Flame className="size-3" />
-                {questions.attempting} attempting
-              </span>
+                <span className="text-[9px] text-white-50/50">
+                  /{questions.all.total.toLocaleString("en-US")}
+                </span>
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] uppercase tracking-wider text-white-50/55">
+                Solved
+              </div>
+              <div className="mt-0.5 flex flex-wrap items-center gap-2.5 text-[11px] text-white-50/75">
+                {DIFFS.map((d) => (
+                  <span key={d.key} className="inline-flex items-center gap-1 font-medium">
+                    <span
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: d.color }}
+                    />
+                    {questions[d.key].solved}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
+          <span className="inline-flex items-center gap-1 text-[11px] text-white-50/50">
+            <Flame className="size-3 text-[var(--lc-rating)]" />
+            {questions.attempting} attempting
+          </span>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-2">
+        <div className="flex w-full min-w-0 flex-col gap-2 pt-1">
           {DIFFS.map((d) => {
             const q = questions[d.key];
             const pct = q.total ? (q.solved / q.total) * 100 : 0;
             return (
-              <div key={d.key} className="flex items-center gap-2">
-                <span className="w-14 shrink-0 text-[11px] text-white-50/70">
+              <div key={d.key} className="flex items-center gap-2 text-xs">
+                <span
+                  className="w-14 shrink-0 font-medium text-[11px]"
+                  style={{ color: d.color }}
+                >
                   {d.label}
                 </span>
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-black-200">
@@ -359,8 +388,8 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
                     style={{ width: `${pct}%`, backgroundColor: d.color }}
                   />
                 </div>
-                <span className="w-16 shrink-0 text-right text-[11px] tabular-nums text-white-50/70">
-                  {q.solved}/{q.total}
+                <span className="shrink-0 text-right text-[11px] tabular-nums text-white-50/70 min-w-[64px]">
+                  {q.solved} <span className="text-white-50/40">/ {q.total}</span>
                 </span>
               </div>
             );
@@ -410,16 +439,10 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
         </div>
       </div>
 
-      {/* badges — LeetCode-style panel: header + count + arrow, an icon row,
-          and the most recent badge name. Each icon links to the badge page. */}
+      {/* badges — LeetCode-style showcase with direct medal links */}
       {badges.length > 0 && (
-        <div className="rounded-lg border border-black-50 bg-black-200/40 p-3">
-          <a
-            href={`https://leetcode.com/u/${profile.username}`}
-            target="_blank"
-            rel="noreferrer"
-            className="group flex items-start justify-between"
-          >
+        <div className="rounded-lg border border-black-50 bg-black-200/40 p-3 sm:p-4">
+          <div className="flex items-center justify-between">
             <div>
               <div className="text-[11px] uppercase tracking-wider text-white-50/55">
                 Badges
@@ -428,28 +451,60 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
                 {badges.length}
               </div>
             </div>
-            <ArrowRight className="size-4 text-white-50/60 transition-transform group-hover:translate-x-0.5" />
-          </a>
-          <div className="mt-2 flex items-center justify-center gap-5">
-            {badges.slice(0, 4).map((b) => (
-              <motion.a
-                key={b.name}
-                href={`https://leetcode.com/u/${profile.username}`}
-                target="_blank"
-                rel="noreferrer"
-                title={b.displayName}
-                whileHover={{ scale: 1.18, rotate: 6 }}
-                whileTap={{ scale: 0.92 }}
-              >
-                {b.icon && (
-                  <img src={b.icon} alt={b.displayName} className="h-10 w-10 object-contain" loading="lazy" />
-                )}
-              </motion.a>
-            ))}
+            <a
+              href={`https://leetcode.com/u/${profile.username}`}
+              target="_blank"
+              rel="noreferrer"
+              className="group inline-flex items-center gap-1 text-xs text-white-50/60 transition-colors hover:text-white-50"
+            >
+              All Badges
+              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            </a>
           </div>
-          <div className="mt-2">
-            <div className="text-[10px] text-white-50/50">Most Recent Badge</div>
-            <div className="text-sm font-semibold text-white-50">{badges[0].displayName}</div>
+
+          <div className="my-3 grid grid-cols-4 gap-2 sm:gap-3">
+            {badges.slice(0, 4).map((b) => {
+              const medalUrl = getBadgeMedalUrl(b, profile.username);
+              return (
+                <motion.a
+                  key={b.name + b.displayName}
+                  href={medalUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={`${b.displayName} · Click to view medal`}
+                  whileHover={{ y: -3, scale: 1.08 }}
+                  whileTap={{ scale: 0.94 }}
+                  className="group flex flex-col items-center justify-center rounded-lg border border-black-50/60 bg-black-200/60 p-2 transition-all hover:border-white-50/30 hover:bg-black-200"
+                >
+                  {b.icon ? (
+                    <img
+                      src={b.icon}
+                      alt={b.displayName}
+                      className="size-11 sm:size-12 object-contain drop-shadow transition-transform duration-200 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="size-11 rounded bg-black-300" />
+                  )}
+                  <span className="mt-1 text-center text-[10px] text-white-50/60 line-clamp-1 group-hover:text-white-50 transition-colors">
+                    {b.displayName.replace(/ 20\d\d$/, "")}
+                  </span>
+                </motion.a>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center justify-between border-t border-black-50/60 pt-2 text-xs">
+            <span className="text-[10px] text-white-50/50">Most Recent Badge</span>
+            <a
+              href={getBadgeMedalUrl(badges[0], profile.username)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 font-semibold text-white-50 hover:underline"
+            >
+              {badges[0].displayName}
+              <ArrowUpRight className="size-3 text-white-50/50" />
+            </a>
           </div>
         </div>
       )}
@@ -466,10 +521,18 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
             {submissions.maxStreak} max streak
           </span>
         </div>
-        <Heatmap days={submissions.days} unit="submission" label="LeetCode" href={`https://leetcode.com/u/${profile.username}/activity`} />
+        <Heatmap
+          days={submissions.days}
+          unit="submission"
+          label="LeetCode"
+          href={`https://leetcode.com/u/${profile.username}/`}
+          getCellHref={() => `https://leetcode.com/u/${profile.username}/`}
+        />
         <div className="flex items-center justify-between">
-          <HeatmapLegend />
-          <span className="text-[10px] text-white-50/55">last 12 months</span>
+          <HeatmapLegend href={`https://leetcode.com/u/${profile.username}/`} />
+          <span className="text-[10px] text-white-50/55">
+            {submissions.days[0]?.date} → {submissions.days[submissions.days.length - 1]?.date}
+          </span>
         </div>
       </div>
     </motion.div>

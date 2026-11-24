@@ -28,9 +28,11 @@ export interface GithubActivity {
 }
 
 export interface LeetBadge {
+  id?: string;
   name: string;
   displayName: string;
   icon: string;
+  medalUrl?: string;
 }
 
 export interface LeetCodeActivity {
