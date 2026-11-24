@@ -234,60 +234,110 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
             </a>
           </div>
         </div>
-        <div className="text-right min-w-0 sm:text-right">
-          <div className="text-lg font-semibold tabular-nums leading-none text-white-50 sm:text-2xl overflow-hidden overflow-ellipsis whitespace-nowrap">
+        <motion.a
+          href="https://leetcode.com/contest/"
+          target="_blank"
+          rel="noreferrer"
+          whileHover={{ scale: 1.05 }}
+          className="group block text-right min-w-0 transition-transform cursor-pointer"
+          title="View contest rating & rankings on LeetCode"
+        >
+          <div className="flex items-center justify-end gap-1 text-lg font-semibold tabular-nums leading-none text-white-50 sm:text-2xl overflow-hidden overflow-ellipsis whitespace-nowrap group-hover:text-[var(--lc-rating)] transition-colors">
             <span data-count={contest.rating} data-decimals="1">0</span>
+            <ArrowUpRight className="size-4 opacity-40 group-hover:opacity-100 transition-opacity" />
           </div>
-          <div className="mt-1 text-[10px] uppercase tracking-wider text-white-50/55">
+          <div className="mt-1 text-[10px] uppercase tracking-wider text-white-50/55 group-hover:text-white-50/80">
             Contest rating
           </div>
-        </div>
+        </motion.a>
       </div>
 
       {/* contest stats */}
       <div className="grid grid-cols-3 gap-2.5">
-        <div className="rounded-lg border border-black-50 bg-black-200/70 px-3 py-2.5">
-          <div className="text-lg font-semibold tabular-nums text-white-50">
-            Top <span data-count={contest.topPercentage} data-decimals="2">0</span>%
+        <motion.a
+          href="https://leetcode.com/contest/"
+          target="_blank"
+          rel="noreferrer"
+          title="View contest standings on LeetCode"
+          whileHover={{ y: -3, scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="group flex flex-col justify-between rounded-lg border border-black-50 bg-black-200/70 px-3 py-2.5 transition-colors hover:border-white-50/30 hover:bg-black-200 cursor-pointer"
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-lg font-semibold tabular-nums text-white-50 group-hover:text-[var(--lc-rating)] transition-colors">
+              Top <span data-count={contest.topPercentage} data-decimals="2">0</span>%
+            </div>
+            <ArrowUpRight className="size-3 text-white-50/30 opacity-0 group-hover:opacity-100 transition-all group-hover:text-white-50 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </div>
           <div className="mt-0.5 text-[10px] uppercase tracking-wider text-white-50/55">
             of {Math.round(contest.totalParticipants / 1000)}K participants
           </div>
-        </div>
-        <div className="rounded-lg border border-black-50 bg-black-200/70 px-3 py-2.5">
-          <a
-            href={`https://leetcode.com/u/${profile.username}`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-lg font-semibold tabular-nums text-white-50 transition-colors hover:text-white-50"
-          >
-            #{rankText}
-            <ArrowUpRight className="size-3" />
-          </a>
+        </motion.a>
+
+        <motion.a
+          href={`https://leetcode.com/u/${profile.username}`}
+          target="_blank"
+          rel="noreferrer"
+          title="View user global rank on LeetCode"
+          whileHover={{ y: -3, scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="group flex flex-col justify-between rounded-lg border border-black-50 bg-black-200/70 px-3 py-2.5 transition-colors hover:border-white-50/30 hover:bg-black-200 cursor-pointer"
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-lg font-semibold tabular-nums text-white-50 group-hover:text-white-50 transition-colors">
+              #{rankText}
+            </div>
+            <ArrowUpRight className="size-3 text-white-50/30 opacity-0 group-hover:opacity-100 transition-all group-hover:text-white-50 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </div>
           <div className="mt-0.5 text-[10px] uppercase tracking-wider text-white-50/55">
             est. global rank
           </div>
-        </div>
-        <div className="rounded-lg border border-black-50 bg-black-200/70 px-3 py-2.5">
-          <div className="text-lg font-semibold tabular-nums text-white-50">
-            <span data-count={contest.attended}>0</span>
+        </motion.a>
+
+        <motion.a
+          href="https://leetcode.com/contest/"
+          target="_blank"
+          rel="noreferrer"
+          title="View attended contests on LeetCode"
+          whileHover={{ y: -3, scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="group flex flex-col justify-between rounded-lg border border-black-50 bg-black-200/70 px-3 py-2.5 transition-colors hover:border-white-50/30 hover:bg-black-200 cursor-pointer"
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-lg font-semibold tabular-nums text-white-50 group-hover:text-[var(--lc-rating)] transition-colors">
+              <span data-count={contest.attended}>0</span>
+            </div>
+            <ArrowUpRight className="size-3 text-white-50/30 opacity-0 group-hover:opacity-100 transition-all group-hover:text-white-50 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </div>
           <div className="mt-0.5 text-[10px] uppercase tracking-wider text-white-50/55">
             contests attended
           </div>
-        </div>
+        </motion.a>
       </div>
 
       {/* rating history sparkline */}
       {paths && (
-        <div className="rounded-lg border border-black-50 bg-black-200/40 p-3">
+        <motion.a
+          href="https://leetcode.com/contest/"
+          target="_blank"
+          rel="noreferrer"
+          whileHover={{ y: -2, scale: 1.01 }}
+          className="group block rounded-lg border border-black-50 bg-black-200/40 p-3 transition-all hover:border-[var(--lc-rating)]/40 hover:bg-black-200/70 hover:shadow-[0_0_16px_rgba(255,161,22,0.12)] cursor-pointer"
+          title="View contest rating history on LeetCode"
+        >
           <div className="mb-1 flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider text-white-50/55">
+            <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-white-50/55 group-hover:text-white-50 transition-colors">
               Rating history
+              <ArrowUpRight className="size-3 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-[var(--lc-rating)]" />
             </span>
-            <span className="text-[11px] tabular-nums text-white-50/70">
-              {Math.round(paths.min)} – {Math.round(paths.max)}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-white-50/40 group-hover:text-[var(--lc-rating)] transition-colors">
+                Contests
+              </span>
+              <span className="text-[11px] tabular-nums text-white-50/70 group-hover:text-white-50 transition-colors">
+                {Math.round(paths.min)} – {Math.round(paths.max)}
+              </span>
+            </div>
           </div>
           <svg
             viewBox={`0 0 ${W} ${H}`}
@@ -308,14 +358,20 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
               vectorEffect="non-scaling-stroke"
             />
           </svg>
-        </div>
+        </motion.a>
       )}
 
       {/* solved ring + difficulties — spacious layout that never clips Medium/bars */}
       <div className="flex flex-col gap-3.5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="relative size-16 shrink-0">
+          <a
+            href={`https://leetcode.com/problemset/all/?status=SOLVED`}
+            target="_blank"
+            rel="noreferrer"
+            className="group flex items-center gap-3 cursor-pointer"
+            title="View solved problems on LeetCode"
+          >
+            <div className="relative size-16 shrink-0 transition-transform group-hover:scale-105">
               <svg viewBox="0 0 100 100" className="size-full -rotate-90">
                 <circle
                   cx="50"
@@ -339,7 +395,7 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-base font-semibold tabular-nums leading-none text-white-50">
+                <span className="text-base font-semibold tabular-nums leading-none text-white-50 group-hover:text-[var(--lc-rating)] transition-colors">
                   <span data-count={questions.all.solved}>0</span>
                 </span>
                 <span className="text-[9px] text-white-50/50">
@@ -348,8 +404,9 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
               </div>
             </div>
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-white-50/55">
+              <div className="flex items-center gap-1 text-[11px] uppercase tracking-wider text-white-50/55 group-hover:text-white-50 transition-colors">
                 Solved
+                <ArrowUpRight className="size-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               <div className="mt-0.5 flex flex-wrap items-center gap-2.5 text-[11px] text-white-50/75">
                 {DIFFS.map((d) => (
@@ -363,35 +420,57 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
                 ))}
               </div>
             </div>
-          </div>
-          <span className="inline-flex items-center gap-1 text-[11px] text-white-50/50">
+          </a>
+          <a
+            href={`https://leetcode.com/problemset/all/?status=TRIED`}
+            target="_blank"
+            rel="noreferrer"
+            className="group inline-flex items-center gap-1 text-[11px] text-white-50/50 hover:text-white-50 transition-colors cursor-pointer"
+            title="View attempted problems on LeetCode"
+          >
             <Flame className="size-3 text-[var(--lc-rating)]" />
             {questions.attempting} attempting
-          </span>
+            <ArrowUpRight className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </a>
         </div>
 
-        <div className="flex w-full min-w-0 flex-col gap-2 pt-1">
+        <div className="flex w-full min-w-0 flex-col gap-1.5 pt-1">
           {DIFFS.map((d) => {
             const q = questions[d.key];
             const pct = q.total ? (q.solved / q.total) * 100 : 0;
+            const diffUrl = `https://leetcode.com/problemset/all/?difficulty=${d.label.toUpperCase()}&status=SOLVED`;
             return (
-              <div key={d.key} className="flex items-center gap-2 text-xs">
+              <motion.a
+                key={d.key}
+                href={diffUrl}
+                target="_blank"
+                rel="noreferrer"
+                whileHover={{ x: 3 }}
+                className="group flex items-center gap-2.5 rounded-lg px-2 py-1.5 -mx-2 transition-all hover:bg-black-200/80 cursor-pointer text-xs"
+                title={`View ${d.label} solved problems (${q.solved} / ${q.total}) on LeetCode`}
+              >
                 <span
-                  className="w-14 shrink-0 font-medium text-[11px]"
+                  className="w-14 shrink-0 font-semibold text-[11px] transition-transform group-hover:scale-105"
                   style={{ color: d.color }}
                 >
                   {d.label}
                 </span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-black-200">
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-black-200 group-hover:bg-black-300/80">
                   <div
-                    className="lc-diff-bar h-full rounded-full"
-                    style={{ width: `${pct}%`, backgroundColor: d.color }}
+                    className="lc-diff-bar h-full rounded-full transition-all group-hover:brightness-125"
+                    style={{
+                      width: `${pct}%`,
+                      backgroundColor: d.color,
+                      boxShadow: `0 0 6px ${d.color}35`,
+                    }}
                   />
                 </div>
-                <span className="shrink-0 text-right text-[11px] tabular-nums text-white-50/70 min-w-[64px]">
-                  {q.solved} <span className="text-white-50/40">/ {q.total}</span>
-                </span>
-              </div>
+                <div className="flex items-center justify-end gap-1 shrink-0 text-right text-[11px] tabular-nums text-white-50/70 min-w-[72px]">
+                  <span className="group-hover:text-white-50 font-medium">{q.solved}</span>
+                  <span className="text-white-50/40">/ {q.total}</span>
+                  <ArrowUpRight className="size-2.5 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5" style={{ color: d.color }} />
+                </div>
+              </motion.a>
             );
           })}
         </div>
@@ -400,11 +479,18 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
       {/* rating distribution */}
       <div className="rounded-lg border border-black-50 bg-black-200/40 p-3">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-[11px] uppercase tracking-wider text-white-50/55">
-            Rating distribution
-          </span>
+          <a
+            href="https://leetcode.com/contest/"
+            target="_blank"
+            rel="noreferrer"
+            className="group inline-flex items-center gap-1 text-[11px] uppercase tracking-wider text-white-50/55 hover:text-white-50 transition-colors cursor-pointer"
+            title="View contest distribution & leaderboards"
+          >
+            <span>Rating distribution</span>
+            <ArrowUpRight className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </a>
           {bucketIndex >= 0 && (
-            <span className="text-[11px] text-[var(--lc-rating)]">
+            <span className="text-[11px] text-[var(--lc-rating)] font-medium">
               you are here · top {contest.topPercentage}%
             </span>
           )}
@@ -413,16 +499,16 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
           {histBars.map((b, i) => (
             <motion.a
               key={i}
-              href={`https://leetcode.com/u/${profile.username}`}
+              href={`https://leetcode.com/contest/`}
               target="_blank"
               rel="noreferrer"
-              className="group relative flex-1"
-              whileHover={{ scaleY: 1.15 }}
+              className="group relative flex-1 cursor-pointer"
+              whileHover={{ scaleY: 1.25 }}
               style={{ transformOrigin: "bottom" }}
-              title={`${Math.round(b.topPercentage)}% · ${histogram[i].userCount.toLocaleString("en-US")} users`}
+              title={`Top ${Math.round(b.topPercentage)}% bracket · ${histogram[i].userCount.toLocaleString("en-US")} users · Click to explore contests`}
             >
               <span
-                className="lc-hist-bar block rounded-t-[2px] transition-opacity"
+                className="lc-hist-bar block rounded-t-[2px] transition-all group-hover:brightness-135 group-hover:shadow-[0_0_8px_rgba(255,161,22,0.6)]"
                 style={{
                   height: b.px,
                   backgroundColor:
@@ -471,11 +557,12 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
                   href={medalUrl}
                   target="_blank"
                   rel="noreferrer"
-                  title={`${b.displayName} · Click to view medal`}
-                  whileHover={{ y: -3, scale: 1.08 }}
+                  title={`${b.displayName} · Click to view medal on LeetCode`}
+                  whileHover={{ y: -4, scale: 1.08 }}
                   whileTap={{ scale: 0.94 }}
-                  className="group flex flex-col items-center justify-center rounded-lg border border-black-50/60 bg-black-200/60 p-2 transition-all hover:border-white-50/30 hover:bg-black-200"
+                  className="group relative flex flex-col items-center justify-center rounded-lg border border-black-50/60 bg-black-200/60 p-2 transition-all hover:border-[var(--lc-rating)]/40 hover:bg-black-200 hover:shadow-[0_4px_16px_rgba(255,161,22,0.15)] cursor-pointer"
                 >
+                  <ArrowUpRight className="absolute top-1 right-1 size-2.5 text-white-50/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                   {b.icon ? (
                     <img
                       src={b.icon}
@@ -486,7 +573,7 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
                   ) : (
                     <div className="size-11 rounded bg-black-300" />
                   )}
-                  <span className="mt-1 text-center text-[10px] text-white-50/60 line-clamp-1 group-hover:text-white-50 transition-colors">
+                  <span className="mt-1 text-center text-[10px] text-white-50/60 line-clamp-1 group-hover:text-white-50 transition-colors font-medium">
                     {b.displayName.replace(/ 20\d\d$/, "")}
                   </span>
                 </motion.a>

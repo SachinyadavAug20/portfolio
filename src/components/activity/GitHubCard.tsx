@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -42,6 +42,7 @@ const ago = (iso: string): string => {
 const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null }) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
+  const [hoveredAxis, setHoveredAxis] = useState<string | null>(null);
 
   const fallbackMerged = useMemo(() => {
     return OPEN_SOURCE_PRS.filter((p) => p.state === "merged" && p.isExternal)
@@ -201,10 +202,10 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
   );
 
   const stats = [
-    { key: "contributions" as const, icon: ListChecks, label: "Total", value: data.total, iconColor: "var(--gh-mix-commits)" },
-    { key: "dayStreak" as const, icon: Flame, label: "Streak", value: data.streak.current, iconColor: "var(--gh-mix-issues)" },
-    { key: "longestStreak" as const, icon: Award, label: "Best", value: data.streak.longest, iconColor: "var(--gh-mix-commits)" },
-    { key: "activeDays" as const, icon: CalendarDays, label: "Active", value: data.streak.activeDays, iconColor: "var(--gh-mix-prs)" },
+    { key: "contributions" as const, icon: ListChecks, label: "Total", value: data.total, iconColor: "var(--gh-mix-commits)", url: `https://github.com/${GITHUB_USER}?tab=overview` },
+    { key: "dayStreak" as const, icon: Flame, label: "Streak", value: data.streak.current, iconColor: "var(--gh-mix-issues)", url: `https://github.com/${GITHUB_USER}?tab=overview` },
+    { key: "longestStreak" as const, icon: Award, label: "Best", value: data.streak.longest, iconColor: "var(--gh-mix-commits)", url: `https://github.com/${GITHUB_USER}?tab=overview` },
+    { key: "activeDays" as const, icon: CalendarDays, label: "Active", value: data.streak.activeDays, iconColor: "var(--gh-mix-prs)", url: `https://github.com/${GITHUB_USER}?tab=overview` },
   ];
 
   const CAL_URL = `https://github.com/users/${GITHUB_USER}/contributions`;
@@ -272,37 +273,40 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
       </div>
 
       {/* 2. Headline Stats */}
-      <a
-        href={CAL_URL}
-        target="_blank"
-        rel="noreferrer"
-        className="grid grid-cols-2 gap-2 sm:grid-cols-4 cursor-pointer"
-      >
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {stats.map((s) => {
           const isStreak = s.key.includes("Streak") || s.key === "dayStreak";
           return (
-            <motion.div
+            <motion.a
               key={s.key}
+              href={s.url}
+              target="_blank"
+              rel="noreferrer"
+              title={`${s.label}: ${s.value.toLocaleString()} on GitHub`}
               initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              whileHover={{ y: -2, scale: 1.02 }}
+              whileHover={{ y: -3, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               transition={{ delay: isStreak ? 0.2 : 0.05, type: "spring", stiffness: 400, damping: 20 }}
-              className="gh-stat flex flex-col justify-between rounded-lg border border-black-50 bg-black-200/70 p-2.5 sm:p-3"
+              className="gh-stat group relative flex flex-col justify-between rounded-lg border border-black-50 bg-black-200/70 p-2.5 sm:p-3 transition-colors hover:border-white-50/30 hover:bg-black-200 cursor-pointer"
             >
-              <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-white-50/50">
-                <s.icon
-                  className="size-3.5 shrink-0"
-                  style={{ color: s.iconColor }}
-                />
-                <span>{s.label}</span>
+              <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-wider text-white-50/50">
+                <div className="flex items-center gap-1.5">
+                  <s.icon
+                    className="size-3.5 shrink-0 transition-transform group-hover:scale-110"
+                    style={{ color: s.iconColor }}
+                  />
+                  <span>{s.label}</span>
+                </div>
+                <ArrowUpRight className="size-3 text-white-50/30 opacity-0 group-hover:opacity-100 transition-all group-hover:text-white-50 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
               <div className="mt-1 text-base font-semibold tabular-nums text-white-50 sm:text-lg whitespace-nowrap">
                 <span data-count={s.value}>0</span>
               </div>
-            </motion.div>
+            </motion.a>
           );
         })}
-      </a>
+      </div>
 
       {/* 3. Activity Mix — rich 6-dimensional developer radar HUD */}
       <div className="flex flex-col gap-2">
@@ -332,6 +336,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
             color: string;
             count: number;
             desc: string;
+            url: string;
           }[] = [
             {
               key: "commits",
@@ -340,7 +345,8 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
               angle: -90,
               color: "var(--gh-mix-commits)",
               count: data.metrics?.commits ?? Math.round(data.total * 0.96),
-              desc: "Authored & pushed",
+              desc: "Authored & pushed commits",
+              url: `https://github.com/${GITHUB_USER}?tab=overview`,
             },
             {
               key: "prs",
@@ -349,7 +355,8 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
               angle: -30,
               color: "var(--gh-mix-prs)",
               count: data.metrics?.prs ?? 42,
-              desc: "Open source & repo PRs",
+              desc: "Authored pull requests",
+              url: `https://github.com/pulls?q=is%3Apr+author%3A${GITHUB_USER}`,
             },
             {
               key: "reviews",
@@ -359,6 +366,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
               color: "var(--gh-mix-reviews)",
               count: data.metrics?.reviews ?? 28,
               desc: "Peer reviews & approvals",
+              url: `https://github.com/pulls?q=is%3Apr+reviewed-by%3A${GITHUB_USER}`,
             },
             {
               key: "comments",
@@ -368,6 +376,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
               color: "var(--gh-mix-comments)",
               count: data.metrics?.comments ?? 68,
               desc: "Review & issue discussions",
+              url: `https://github.com/pulls?q=is%3Apr+commenter%3A${GITHUB_USER}`,
             },
             {
               key: "issues",
@@ -376,7 +385,8 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
               angle: 150,
               color: "var(--gh-mix-issues)",
               count: data.metrics?.issues ?? 14,
-              desc: "Reported & triaged",
+              desc: "Reported & triaged issues",
+              url: `https://github.com/issues?q=is%3Aissue+author%3A${GITHUB_USER}`,
             },
             {
               key: "interactions",
@@ -385,7 +395,8 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
               angle: 210,
               color: "var(--gh-mix-interactions)",
               count: data.metrics?.interactions ?? 52,
-              desc: "Stars, forks & community",
+              desc: "Community repos & stars",
+              url: `https://github.com/${GITHUB_USER}?tab=repositories`,
             },
           ];
 
@@ -422,6 +433,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
           );
 
           const commitsCoord = coords.find((c) => c.key === "commits")!;
+          const activeCoord = coords.find((c) => c.key === hoveredAxis);
 
           return (
             <div className="relative overflow-hidden rounded-lg border border-black-50/70 bg-black-200/40 p-3">
@@ -446,7 +458,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                     <stop offset="100%" stopColor="#1e3a8a" stopOpacity="0.3" />
                   </radialGradient>
 
-                  {/* Outer drop-glow for polygon */}
+                  {/* Outer drop-glow for polygon and highlighted spoke */}
                   <filter id="ghRadarGlow" x="-30%" y="-30%" width="160%" height="160%">
                     <feGaussianBlur stdDeviation="3" result="blur" />
                     <feMerge>
@@ -478,9 +490,9 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                     x2={c.ox}
                     y2={c.oy}
                     stroke="currentColor"
-                    className="text-white-50/12"
-                    strokeWidth={0.8}
-                    strokeDasharray="2 3"
+                    className={hoveredAxis === c.key ? "text-white-50/40" : "text-white-50/12"}
+                    strokeWidth={hoveredAxis === c.key ? 1.2 : 0.8}
+                    strokeDasharray={hoveredAxis === c.key ? "none" : "2 3"}
                   />
                 ))}
 
@@ -490,7 +502,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                   fill="none"
                   stroke="var(--gh-mix-commits)"
                   strokeWidth={4}
-                  strokeOpacity={0.25}
+                  strokeOpacity={hoveredAxis ? 0.35 : 0.25}
                   filter="url(#ghRadarGlow)"
                 />
 
@@ -506,127 +518,424 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                 />
 
                 {/* Active radiating spoke arms connecting hub to values */}
-                {coords.map((c) => (
-                  <line
-                    key={`arm-${c.key}`}
-                    className="mix-arm"
-                    x1={cx}
-                    y1={cy}
-                    x2={c.tx}
-                    y2={c.ty}
-                    pathLength={1}
-                    stroke={c.color}
-                    strokeWidth={2.2}
-                    strokeLinecap="round"
+                {coords.map((c) => {
+                  const isHovered = hoveredAxis === c.key;
+                  const isOtherHovered = hoveredAxis != null && !isHovered;
+                  return (
+                    <line
+                      key={`arm-${c.key}`}
+                      className="mix-arm transition-all duration-200"
+                      x1={cx}
+                      y1={cy}
+                      x2={c.tx}
+                      y2={c.ty}
+                      pathLength={1}
+                      stroke={c.color}
+                      strokeWidth={isHovered ? 3.8 : 2.2}
+                      strokeLinecap="round"
+                      opacity={isOtherHovered ? 0.35 : 1}
+                      filter={isHovered ? "url(#ghRadarGlow)" : undefined}
+                    />
+                  );
+                })}
+
+                {/* Pulsing beacon on the dominant apex (Commits) when idle */}
+                {!hoveredAxis && (
+                  <circle
+                    className="animate-ping"
+                    cx={commitsCoord.tx}
+                    cy={commitsCoord.ty}
+                    r={7}
+                    fill="none"
+                    stroke="var(--gh-mix-commits)"
+                    strokeOpacity={0.7}
+                    style={{ animationDuration: "2.5s" }}
                   />
-                ))}
-
-                {/* Pulsing beacon on the dominant apex (Commits) */}
-                <circle
-                  className="animate-ping"
-                  cx={commitsCoord.tx}
-                  cy={commitsCoord.ty}
-                  r={7}
-                  fill="none"
-                  stroke="var(--gh-mix-commits)"
-                  strokeOpacity={0.7}
-                  style={{ animationDuration: "2.5s" }}
-                />
-
-                {/* Tip node markers with tooltip cues */}
-                {coords.map((c) => (
-                  <g key={`tip-${c.key}`} className="cursor-pointer">
-                    <circle
-                      className="mix-tip"
-                      cx={c.tx}
-                      cy={c.ty}
-                      r={c.pct > 60 ? 4.5 : 3.5}
-                      fill={c.color}
-                    />
-                    <circle
-                      cx={c.tx}
-                      cy={c.ty}
-                      r={c.pct > 60 ? 2 : 1.5}
-                      fill="#ffffff"
-                    />
-                    <title>{`${c.label}: ${c.count.toLocaleString()} (${c.desc}) — ${c.pct}% score`}</title>
-                  </g>
-                ))}
+                )}
 
                 {/* Center 3D Hub */}
                 <circle cx={cx} cy={cy} r={10} fill="var(--gh-mix-commits)" fillOpacity={0.15} stroke="var(--gh-mix-commits)" strokeOpacity={0.3} strokeWidth={1} />
                 <circle cx={cx} cy={cy} r={5.5} fill="url(#ghRadarHub)" />
                 <circle cx={cx} cy={cy} r={2} fill="#ffffff" />
 
-                {/* Peripheral HUD Labels for all 6 dimensions */}
+                {/* Interactive Clickable Spoke + Node Hit targets */}
+                {coords.map((c) => {
+                  const isHovered = hoveredAxis === c.key;
+                  const isOtherHovered = hoveredAxis != null && !isHovered;
+                  return (
+                    <a
+                      key={`interactive-${c.key}`}
+                      href={c.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="cursor-pointer group"
+                      onMouseEnter={() => setHoveredAxis(c.key)}
+                      onMouseLeave={() => setHoveredAxis(null)}
+                      onFocus={() => setHoveredAxis(c.key)}
+                      onBlur={() => setHoveredAxis(null)}
+                      aria-label={`${c.label}: ${c.count.toLocaleString()} (${c.desc}) — click to view on GitHub`}
+                    >
+                      {/* Wide invisible line & disc hit zones */}
+                      <line
+                        x1={cx}
+                        y1={cy}
+                        x2={c.ox}
+                        y2={c.oy}
+                        stroke="transparent"
+                        strokeWidth={22}
+                      />
+                      <circle
+                        cx={c.tx}
+                        cy={c.ty}
+                        r={18}
+                        fill="transparent"
+                      />
+
+                      {/* Active highlight ring on hover */}
+                      {isHovered && (
+                        <>
+                          <circle
+                            className="animate-ping"
+                            cx={c.tx}
+                            cy={c.ty}
+                            r={11}
+                            fill="none"
+                            stroke={c.color}
+                            strokeWidth={2}
+                            style={{ animationDuration: "1.6s" }}
+                          />
+                          <circle
+                            cx={c.tx}
+                            cy={c.ty}
+                            r={8}
+                            fill={c.color}
+                            fillOpacity={0.3}
+                            stroke={c.color}
+                            strokeWidth={1.5}
+                          />
+                        </>
+                      )}
+
+                      {/* Tip node marker */}
+                      <circle
+                        className="mix-tip transition-transform duration-150"
+                        cx={c.tx}
+                        cy={c.ty}
+                        r={isHovered ? 5.5 : c.pct > 60 ? 4.5 : 3.5}
+                        fill={c.color}
+                        opacity={isOtherHovered ? 0.35 : 1}
+                      />
+                      <circle
+                        cx={c.tx}
+                        cy={c.ty}
+                        r={isHovered ? 2.5 : c.pct > 60 ? 2 : 1.5}
+                        fill="#ffffff"
+                        opacity={isOtherHovered ? 0.35 : 1}
+                      />
+                    </a>
+                  );
+                })}
+
+                {/* Peripheral HUD Labels for all 6 dimensions (all clickable & interactive) */}
                 {/* 1. Commits (Top) */}
-                <text x={cx} y={cy - R - 13} textAnchor="middle" className="fill-white-50 text-[10.5px] font-bold tabular-nums">
-                  {coords[0].pct}% · {coords[0].count >= 1000 ? `${(coords[0].count / 1000).toFixed(1)}k` : coords[0].count}
-                </text>
-                <text x={cx} y={cy - R - 3} textAnchor="middle" className="fill-white-50/60 text-[9px]">
-                  Commits
-                </text>
+                <a
+                  href={coords[0].url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredAxis("commits")}
+                  onMouseLeave={() => setHoveredAxis(null)}
+                >
+                  <text
+                    x={cx}
+                    y={cy - R - 13}
+                    textAnchor="middle"
+                    className={clsx(
+                      "text-[10.5px] tabular-nums transition-colors",
+                      hoveredAxis === "commits" ? "fill-blue-400 font-extrabold" : "fill-white-50 font-bold"
+                    )}
+                  >
+                    {coords[0].pct}% · {coords[0].count >= 1000 ? `${(coords[0].count / 1000).toFixed(1)}k` : coords[0].count}
+                  </text>
+                  <text
+                    x={cx}
+                    y={cy - R - 3}
+                    textAnchor="middle"
+                    className={clsx(
+                      "text-[9px] transition-colors",
+                      hoveredAxis === "commits" ? "fill-white-50 font-semibold" : "fill-white-50/60"
+                    )}
+                  >
+                    Commits
+                  </text>
+                </a>
 
                 {/* 2. Pull requests (Top-Right) */}
-                <text x={cx + R * 0.866 + 8} y={cy - R * 0.5 - 2} textAnchor="start" className="fill-white-50 text-[10.5px] font-bold tabular-nums">
-                  {coords[1].pct}% · {coords[1].count}
-                </text>
-                <text x={cx + R * 0.866 + 8} y={cy - R * 0.5 + 9} textAnchor="start" className="fill-white-50/60 text-[9px]">
-                  Pull requests
-                </text>
+                <a
+                  href={coords[1].url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredAxis("prs")}
+                  onMouseLeave={() => setHoveredAxis(null)}
+                >
+                  <text
+                    x={cx + R * 0.866 + 8}
+                    y={cy - R * 0.5 - 2}
+                    textAnchor="start"
+                    className={clsx(
+                      "text-[10.5px] tabular-nums transition-colors",
+                      hoveredAxis === "prs" ? "fill-blue-400 font-extrabold" : "fill-white-50 font-bold"
+                    )}
+                  >
+                    {coords[1].pct}% · {coords[1].count}
+                  </text>
+                  <text
+                    x={cx + R * 0.866 + 8}
+                    y={cy - R * 0.5 + 9}
+                    textAnchor="start"
+                    className={clsx(
+                      "text-[9px] transition-colors",
+                      hoveredAxis === "prs" ? "fill-white-50 font-semibold" : "fill-white-50/60"
+                    )}
+                  >
+                    Pull requests
+                  </text>
+                </a>
 
                 {/* 3. Code review (Bottom-Right) */}
-                <text x={cx + R * 0.866 + 8} y={cy + R * 0.5 - 2} textAnchor="start" className="fill-white-50 text-[10.5px] font-bold tabular-nums">
-                  {coords[2].pct}% · {coords[2].count}
-                </text>
-                <text x={cx + R * 0.866 + 8} y={cy + R * 0.5 + 9} textAnchor="start" className="fill-white-50/60 text-[9px]">
-                  Code review
-                </text>
+                <a
+                  href={coords[2].url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredAxis("reviews")}
+                  onMouseLeave={() => setHoveredAxis(null)}
+                >
+                  <text
+                    x={cx + R * 0.866 + 8}
+                    y={cy + R * 0.5 - 2}
+                    textAnchor="start"
+                    className={clsx(
+                      "text-[10.5px] tabular-nums transition-colors",
+                      hoveredAxis === "reviews" ? "fill-indigo-400 font-extrabold" : "fill-white-50 font-bold"
+                    )}
+                  >
+                    {coords[2].pct}% · {coords[2].count}
+                  </text>
+                  <text
+                    x={cx + R * 0.866 + 8}
+                    y={cy + R * 0.5 + 9}
+                    textAnchor="start"
+                    className={clsx(
+                      "text-[9px] transition-colors",
+                      hoveredAxis === "reviews" ? "fill-white-50 font-semibold" : "fill-white-50/60"
+                    )}
+                  >
+                    Code review
+                  </text>
+                </a>
 
                 {/* 4. Comments (Bottom) */}
-                <text x={cx} y={cy + R + 14} textAnchor="middle" className="fill-white-50 text-[10.5px] font-bold tabular-nums">
-                  {coords[3].pct}% · {coords[3].count}
-                </text>
-                <text x={cx} y={cy + R + 24} textAnchor="middle" className="fill-white-50/60 text-[9px]">
-                  Comments
-                </text>
+                <a
+                  href={coords[3].url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredAxis("comments")}
+                  onMouseLeave={() => setHoveredAxis(null)}
+                >
+                  <text
+                    x={cx}
+                    y={cy + R + 14}
+                    textAnchor="middle"
+                    className={clsx(
+                      "text-[10.5px] tabular-nums transition-colors",
+                      hoveredAxis === "comments" ? "fill-purple-400 font-extrabold" : "fill-white-50 font-bold"
+                    )}
+                  >
+                    {coords[3].pct}% · {coords[3].count}
+                  </text>
+                  <text
+                    x={cx}
+                    y={cy + R + 24}
+                    textAnchor="middle"
+                    className={clsx(
+                      "text-[9px] transition-colors",
+                      hoveredAxis === "comments" ? "fill-white-50 font-semibold" : "fill-white-50/60"
+                    )}
+                  >
+                    Comments
+                  </text>
+                </a>
 
                 {/* 5. Issues (Bottom-Left) */}
-                <text x={cx - R * 0.866 - 8} y={cy + R * 0.5 - 2} textAnchor="end" className="fill-white-50 text-[10.5px] font-bold tabular-nums">
-                  {coords[4].pct}% · {coords[4].count}
-                </text>
-                <text x={cx - R * 0.866 - 8} y={cy + R * 0.5 + 9} textAnchor="end" className="fill-white-50/60 text-[9px]">
-                  Issues
-                </text>
+                <a
+                  href={coords[4].url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredAxis("issues")}
+                  onMouseLeave={() => setHoveredAxis(null)}
+                >
+                  <text
+                    x={cx - R * 0.866 - 8}
+                    y={cy + R * 0.5 - 2}
+                    textAnchor="end"
+                    className={clsx(
+                      "text-[10.5px] tabular-nums transition-colors",
+                      hoveredAxis === "issues" ? "fill-sky-400 font-extrabold" : "fill-white-50 font-bold"
+                    )}
+                  >
+                    {coords[4].pct}% · {coords[4].count}
+                  </text>
+                  <text
+                    x={cx - R * 0.866 - 8}
+                    y={cy + R * 0.5 + 9}
+                    textAnchor="end"
+                    className={clsx(
+                      "text-[9px] transition-colors",
+                      hoveredAxis === "issues" ? "fill-white-50 font-semibold" : "fill-white-50/60"
+                    )}
+                  >
+                    Issues
+                  </text>
+                </a>
 
                 {/* 6. Interactions (Top-Left) */}
-                <text x={cx - R * 0.866 - 8} y={cy - R * 0.5 - 2} textAnchor="end" className="fill-white-50 text-[10.5px] font-bold tabular-nums">
-                  {coords[5].pct}% · {coords[5].count}
-                </text>
-                <text x={cx - R * 0.866 - 8} y={cy - R * 0.5 + 9} textAnchor="end" className="fill-white-50/60 text-[9px]">
-                  Interactions
-                </text>
+                <a
+                  href={coords[5].url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredAxis("interactions")}
+                  onMouseLeave={() => setHoveredAxis(null)}
+                >
+                  <text
+                    x={cx - R * 0.866 - 8}
+                    y={cy - R * 0.5 - 2}
+                    textAnchor="end"
+                    className={clsx(
+                      "text-[10.5px] tabular-nums transition-colors",
+                      hoveredAxis === "interactions" ? "fill-cyan-400 font-extrabold" : "fill-white-50 font-bold"
+                    )}
+                  >
+                    {coords[5].pct}% · {coords[5].count}
+                  </text>
+                  <text
+                    x={cx - R * 0.866 - 8}
+                    y={cy - R * 0.5 + 9}
+                    textAnchor="end"
+                    className={clsx(
+                      "text-[9px] transition-colors",
+                      hoveredAxis === "interactions" ? "fill-white-50 font-semibold" : "fill-white-50/60"
+                    )}
+                  >
+                    Interactions
+                  </text>
+                </a>
               </svg>
 
-              {/* 6-metric summary pill row for instant clarity */}
-              <div className="mt-1 grid grid-cols-3 sm:grid-cols-6 gap-1.5 pt-2 border-t border-black-50/60 text-center">
-                {coords.map((c) => (
-                  <div
-                    key={c.key}
-                    className="flex flex-col items-center rounded bg-black-300/40 px-1 py-1"
-                    title={`${c.label}: ${c.count.toLocaleString()} (${c.desc})`}
+              {/* Dynamic Interactive Radar HUD Status Bar */}
+              <div className="mt-1 min-h-[36px] flex items-center justify-center">
+                {activeCoord ? (
+                  <motion.a
+                    href={activeCoord.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    initial={{ opacity: 0, y: 3 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex w-full items-center justify-between rounded-md border border-white-50/25 bg-black-100/95 px-3 py-1.5 text-xs backdrop-blur-md shadow-lg group hover:border-white-50/50 transition-all cursor-pointer"
+                    style={{ boxShadow: `0 0 16px ${activeCoord.color}35` }}
                   >
-                    <span className="text-[11px] font-semibold tabular-nums text-white-50">
-                      {c.count >= 1000 ? `${(c.count / 1000).toFixed(1)}k` : c.count}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className="size-2 rounded-full shrink-0 animate-pulse"
+                        style={{ backgroundColor: activeCoord.color }}
+                      />
+                      <span className="font-semibold text-white-50 truncate">
+                        {activeCoord.label}
+                      </span>
+                      <span className="text-white-50/40 text-[10px]">·</span>
+                      <span className="font-mono text-white-50 font-bold tabular-nums">
+                        {activeCoord.count.toLocaleString()}
+                      </span>
+                      <span className="text-[10px] text-white-50/55 hidden sm:inline truncate">
+                        ({activeCoord.desc})
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[10.5px] font-medium shrink-0 ml-2" style={{ color: activeCoord.color }}>
+                      <span>{activeCoord.pct}% score</span>
+                      <span className="text-white-50/40">·</span>
+                      <span className="underline-offset-2 group-hover:underline">Open on GitHub</span>
+                      <ArrowUpRight className="size-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </div>
+                  </motion.a>
+                ) : (
+                  <div className="flex w-full items-center justify-between rounded-md border border-black-50/50 bg-black-300/30 px-3 py-1.5 text-[10.5px] text-white-50/45">
+                    <span className="flex items-center gap-1.5">
+                      <span className="size-1.5 rounded-full bg-blue-400/80 animate-pulse" />
+                      Hover any spoke or dimension to inspect details
                     </span>
-                    <span
-                      className="text-[9px] font-medium truncate w-full"
-                      style={{ color: c.color }}
-                    >
-                      {c.shortLabel}
+                    <span className="flex items-center gap-1 text-[10px] text-white-50/40">
+                      <span>Click to open on GitHub</span>
+                      <ArrowUpRight className="size-2.5 opacity-60" />
                     </span>
                   </div>
-                ))}
+                )}
+              </div>
+
+              {/* 6-metric interactive summary pill row with bidirectional highlighting */}
+              <div className="mt-2 grid grid-cols-3 sm:grid-cols-6 gap-1.5 pt-2 border-t border-black-50/60 text-center">
+                {coords.map((c) => {
+                  const isHovered = hoveredAxis === c.key;
+                  return (
+                    <motion.a
+                      key={c.key}
+                      href={c.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      onMouseEnter={() => setHoveredAxis(c.key)}
+                      onMouseLeave={() => setHoveredAxis(null)}
+                      whileHover={{ y: -2, scale: 1.04 }}
+                      whileTap={{ scale: 0.96 }}
+                      className={clsx(
+                        "group relative flex flex-col items-center justify-center rounded-md px-1.5 py-1.5 transition-all duration-200 cursor-pointer border",
+                        isHovered
+                          ? "border-opacity-100 bg-black-100 shadow-md"
+                          : "border-black-50/60 bg-black-300/40 hover:border-black-50 hover:bg-black-200/80"
+                      )}
+                      style={{
+                        borderColor: isHovered ? c.color : undefined,
+                        boxShadow: isHovered ? `0 0 14px ${c.color}35` : undefined,
+                      }}
+                      title={`Open ${c.label} on GitHub: ${c.count.toLocaleString()} (${c.desc})`}
+                    >
+                      <div className="flex items-center gap-0.5">
+                        <span className="text-[11.5px] font-bold tabular-nums text-white-50">
+                          {c.count >= 1000 ? `${(c.count / 1000).toFixed(1)}k` : c.count}
+                        </span>
+                        <ArrowUpRight
+                          className={clsx(
+                            "size-2.5 transition-all duration-150",
+                            isHovered
+                              ? "opacity-100 translate-x-0.5 -translate-y-0.5"
+                              : "opacity-0 group-hover:opacity-100"
+                          )}
+                          style={{ color: c.color }}
+                        />
+                      </div>
+                      <span
+                        className="text-[9.5px] font-medium truncate w-full"
+                        style={{ color: c.color }}
+                      >
+                        {c.shortLabel}
+                      </span>
+                    </motion.a>
+                  );
+                })}
               </div>
             </div>
           );
@@ -645,27 +954,31 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
             return (
               <a
                 key={b.label}
-                href={CAL_URL}
+                href={`https://github.com/${GITHUB_USER}?tab=overview`}
                 target="_blank"
                 rel="noreferrer"
                 className="wk-bar group relative flex flex-1 flex-col items-center justify-end h-full cursor-pointer"
                 title={`${b.label}: ~${b.avgPerDay} contribs/day avg (${b.count.toLocaleString("en-US")} total over 52 weeks)`}
               >
                 {/* Floating exact daily average + yearly total tooltip */}
-                <div className="pointer-events-none absolute -top-11 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-150 group-hover:opacity-100 group-hover:-top-12 z-30">
-                  <div className="flex flex-col items-center whitespace-nowrap rounded-md border border-black-50/90 bg-black-100/95 px-2.5 py-1 text-center shadow-xl backdrop-blur-md">
+                <div className="pointer-events-none absolute -top-14 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-150 group-hover:opacity-100 group-hover:-top-15 z-30">
+                  <div className="flex flex-col items-center whitespace-nowrap rounded-md border border-black-50/90 bg-black-100/95 px-2.5 py-1 text-center shadow-2xl backdrop-blur-md">
                     <span className="text-[10.5px] font-semibold tabular-nums text-white-50">
                       ~{b.avgPerDay} contribs/day
                     </span>
                     <span className="text-[9px] text-white-50/50">
                       {b.pctOfYear}% of year · {b.count.toLocaleString()} total (52 wks)
                     </span>
+                    <div className="flex items-center gap-1 text-[8.5px] text-blue-400 font-medium pt-0.5">
+                      <span>View activity timeline</span>
+                      <ArrowUpRight className="size-2 shrink-0" />
+                    </div>
                   </div>
                 </div>
 
                 {/* Animated bar */}
                 <div
-                  className="wk-bar-fill w-full rounded-t-[3px] transition-all duration-200 group-hover:brightness-125 group-hover:scale-x-105"
+                  className="wk-bar-fill w-full rounded-t-[3px] transition-all duration-200 group-hover:brightness-135 group-hover:scale-x-110 group-hover:shadow-[0_0_8px_rgba(96,165,250,0.5)]"
                   style={{
                     height: `${barHeightPx}px`,
                     backgroundColor: b.count > 0 ? "var(--gh-mix-prs)" : "rgba(255, 255, 255, 0.08)",
@@ -673,7 +986,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                 />
 
                 {/* Weekday label */}
-                <span className="mt-1 text-[9px] text-white-50/45 group-hover:text-white-50 transition-colors">
+                <span className="mt-1 text-[9px] font-medium text-white-50/45 group-hover:text-white-50 transition-colors">
                   {b.label}
                 </span>
               </a>
@@ -700,20 +1013,20 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
               target="_blank"
               rel="noreferrer"
               title={`My PRs on ${repo}`}
-              whileHover={{ y: -2, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="gh-org-card flex items-center justify-between rounded-lg border border-black-50 bg-black-200/70 p-2 text-xs text-white-50/80 transition-colors hover:border-white-50/30 hover:bg-black-200 hover:text-white-50"
+              whileHover={{ y: -3, scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="gh-org-card group flex items-center justify-between rounded-lg border border-black-50 bg-black-200/70 p-2 text-xs text-white-50/80 transition-all hover:border-blue-400/40 hover:bg-black-200 hover:text-white-50 hover:shadow-[0_0_12px_rgba(59,130,246,0.15)] cursor-pointer"
             >
               <div className="flex items-center gap-2 min-w-0">
                 <img
                   src={icon}
                   alt={name}
-                  className="size-5 rounded-md object-contain shrink-0 bg-black-300"
+                  className="size-5 rounded-md object-contain shrink-0 bg-black-300 transition-transform group-hover:scale-105"
                   loading="lazy"
                 />
-                <span className="truncate font-medium text-[11px]">{name}</span>
+                <span className="truncate font-medium text-[11px] group-hover:text-white-50">{name}</span>
               </div>
-              <ArrowUpRight className="size-3 text-white-50/40 shrink-0" />
+              <ArrowUpRight className="size-3 text-white-50/40 group-hover:text-white-50 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 shrink-0" />
             </motion.a>
           ))}
         </div>
@@ -728,22 +1041,43 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
             </span>
             <div className="flex items-center gap-2 text-[10px] text-white-50/50">
               {mergedCount > 0 && (
-                <span className="inline-flex items-center gap-1">
+                <a
+                  href={`https://github.com/pulls?q=is%3Apr+author%3A${GITHUB_USER}+is%3Amerged`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 transition-all hover:border-purple-500/50 hover:bg-purple-500/20 text-purple-300 cursor-pointer"
+                  title="View all merged pull requests on GitHub"
+                >
                   <span className="size-1.5 rounded-full bg-purple-400" />
                   {mergedCount} merged
-                </span>
+                  <ArrowUpRight className="size-2 text-purple-400/60" />
+                </a>
               )}
               {reviewsCount > 0 && (
-                <span className="inline-flex items-center gap-1">
+                <a
+                  href={`https://github.com/pulls?q=is%3Apr+reviewed-by%3A${GITHUB_USER}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/20 text-emerald-300 cursor-pointer"
+                  title="View all reviewed pull requests on GitHub"
+                >
                   <span className="size-1.5 rounded-full bg-emerald-400" />
                   {reviewsCount} reviewed
-                </span>
+                  <ArrowUpRight className="size-2 text-emerald-400/60" />
+                </a>
               )}
               {pushesCount > 0 && (
-                <span className="inline-flex items-center gap-1">
+                <a
+                  href={`https://github.com/${GITHUB_USER}?tab=repositories`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 rounded-full border border-sky-500/20 bg-sky-500/10 px-2 py-0.5 transition-all hover:border-sky-500/50 hover:bg-sky-500/20 text-sky-300 cursor-pointer"
+                  title="View active repositories on GitHub"
+                >
                   <span className="size-1.5 rounded-full bg-sky-400" />
                   {pushesCount} pushed
-                </span>
+                  <ArrowUpRight className="size-2 text-sky-400/60" />
+                </a>
               )}
             </div>
           </div>
@@ -756,12 +1090,12 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                 ? p.url
                 : `https://github.com/${p.repo}/pull/${p.number}`;
               return (
-                <motion.li key={p.url || p.number} whileHover={{ x: 3 }}>
+                <motion.li key={p.url || p.number} whileHover={{ x: 4, scale: 1.01 }}>
                   <a
                     href={prUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="gh-oss-row group flex items-center justify-between gap-2.5 rounded-lg border border-black-50/70 bg-black-200/50 px-3 py-2 transition-all hover:border-white-50/30 hover:bg-black-200 cursor-pointer"
+                    className="gh-oss-row group flex items-center justify-between gap-2.5 rounded-lg border border-black-50/70 bg-black-200/50 px-3 py-2 transition-all hover:border-purple-400/40 hover:bg-black-100 hover:shadow-[0_2px_12px_rgba(0,0,0,0.5)] cursor-pointer"
                     title={`Open PR #${p.number} on ${p.repo}: ${title}`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
@@ -793,12 +1127,12 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                 ? r.url
                 : `https://github.com/${r.repo}/pull/${r.number}`;
               return (
-                <motion.li key={r.url || r.number} whileHover={{ x: 3 }}>
+                <motion.li key={r.url || r.number} whileHover={{ x: 4, scale: 1.01 }}>
                   <a
                     href={prUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="gh-oss-row group flex items-center justify-between gap-2.5 rounded-lg border border-black-50/70 bg-black-200/50 px-3 py-2 transition-all hover:border-white-50/30 hover:bg-black-200 cursor-pointer"
+                    className="gh-oss-row group flex items-center justify-between gap-2.5 rounded-lg border border-black-50/70 bg-black-200/50 px-3 py-2 transition-all hover:border-emerald-400/40 hover:bg-black-100 hover:shadow-[0_2px_12px_rgba(0,0,0,0.5)] cursor-pointer"
                     title={`Open PR #${r.number} on ${r.repo}: ${title}`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
