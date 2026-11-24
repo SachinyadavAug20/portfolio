@@ -172,12 +172,13 @@ function parseOssEvents(events) {
       const pr = e.payload?.pull_request;
       if (pr) {
         const base = pr.url?.match(/github\.com\/([^/]+\/[^/]+)/)?.[1];
+        const rName = repoBase(pr) || e.repo?.name || "";
         reviews.push({
           state: e.payload?.review?.state || "commented",
-          title: pr.title || `PR #${pr.number}`,
+          title: pr.title || (pr.number ? `PR #${pr.number}` : "Code review"),
           number: pr.number,
-          repo: repoBase(pr),
-          baseRepo: base || repoBase(pr),
+          repo: rName,
+          baseRepo: base || rName,
           url: pr.html_url || prHtmlUrl(pr.url),
           at: e.payload?.review?.submitted_at || e.created_at,
         });
