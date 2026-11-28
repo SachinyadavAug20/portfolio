@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ArrowUpRight } from "lucide-react";
@@ -148,24 +148,21 @@ const Heatmap = ({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const [tooltipWidth, setTooltipWidth] = useState(0);
-  const [containerWidth, setContainerWidth] = useState(0);
 
-  /* Measure the tooltip width so we can clamp it inside the container and
-     never let its text run off the left/right edge of the calendar. */
-  useLayoutEffect(() => {
-    const measure = () => {
-      if (tooltipRef.current) {
-        setTooltipWidth(tooltipRef.current.getBoundingClientRect().width);
-      }
-      if (heatRef.current) {
-        setContainerWidth(heatRef.current.getBoundingClientRect().width);
-      }
+  /* Measure the tooltip width when it mounts so we can clamp it inside the
+     calendar and never let its text run off the left/right edge. Re-measure
+     on window resize in case the font/zoom changes. */
+  const setTooltipRef = useCallback((el: HTMLDivElement | null) => {
+    tooltipRef.current = el;
+    if (el) setTooltipWidth(el.getBoundingClientRect().width);
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => {
+      if (tooltipRef.current) setTooltipWidth(tooltipRef.current.getBoundingClientRect().width);
     };
-    measure();
-    const ro = new ResizeObserver(() => measure());
-    if (tooltipRef.current) ro.observe(tooltipRef.current);
-    if (heatRef.current) ro.observe(heatRef.current);
-    return () => ro.disconnect();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   /* Pad the leading edge so column 0 starts on a Sunday, matching GitHub. */
@@ -206,12 +203,14 @@ const Heatmap = ({
   const cellY = 24 + row * 12;
   const tipTop = isBottomHalf ? cellY - 6 : cellY + 16;
 
-  /* Clamp horizontally so the tooltip never spills past the container's
-     left or right edge (same idea as the vertical clamp). */
+  /* Clamp horizontally so the tooltip never spills past the calendar's
+     left or right edge (same idea as the vertical clamp). Content width
+     is weekCount * 12px since each cell column is 10px + 2px gap. */
+  const contentWidth = weekCount * 12;
   const halfTip = tooltipWidth / 2 || 90; // fall back to an estimate before first measure
   const pad = 10;
   const minLeft = halfTip + pad;
-  const maxLeft = Math.max(minLeft + 1, containerWidth - halfTip - pad);
+  const maxLeft = Math.max(minLeft + 1, contentWidth - halfTip - pad);
   const tipLeft = Math.max(minLeft, Math.min(maxLeft, rawLeft));
 
   const defaultHref = href ?? `https://github.com/users/${GITHUB_USER}/contributions`;
@@ -325,7 +324,7 @@ const Heatmap = ({
             {/* Bubble tooltip with click cue */}
             {hovered && (
               <div
-                ref={tooltipRef}
+                ref={setTooltipRef}
                 className="pointer-events-none absolute z-30 transition-all duration-75 ease-out"
                 style={{
                   left: `${tipLeft}px`,
