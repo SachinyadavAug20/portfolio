@@ -145,7 +145,28 @@ const Heatmap = ({
   const rootRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const heatRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const [tooltipWidth, setTooltipWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  /* Measure the tooltip width so we can clamp it inside the container and
+     never let its text run off the left/right edge of the calendar. */
+  useLayoutEffect(() => {
+    const measure = () => {
+      if (tooltipRef.current) {
+        setTooltipWidth(tooltipRef.current.getBoundingClientRect().width);
+      }
+      if (heatRef.current) {
+        setContainerWidth(heatRef.current.getBoundingClientRect().width);
+      }
+    };
+    measure();
+    const ro = new ResizeObserver(() => measure());
+    if (tooltipRef.current) ro.observe(tooltipRef.current);
+    if (heatRef.current) ro.observe(heatRef.current);
+    return () => ro.disconnect();
+  }, []);
 
   /* Pad the leading edge so column 0 starts on a Sunday, matching GitHub. */
   const { cells, weekCount, monthMarks } = useMemo(() => {
@@ -182,9 +203,16 @@ const Heatmap = ({
   const row = hoverIdx != null ? hoverIdx % 7 : 0;
   const isBottomHalf = row >= 2;
   const rawLeft = col * 12 + 5;
-  const tipLeft = Math.max(72, Math.min(weekCount * 12 - 72, rawLeft));
   const cellY = 24 + row * 12;
   const tipTop = isBottomHalf ? cellY - 6 : cellY + 16;
+
+  /* Clamp horizontally so the tooltip never spills past the container's
+     left or right edge (same idea as the vertical clamp). */
+  const halfTip = tooltipWidth / 2 || 90; // fall back to an estimate before first measure
+  const pad = 10;
+  const minLeft = halfTip + pad;
+  const maxLeft = Math.max(minLeft + 1, containerWidth - halfTip - pad);
+  const tipLeft = Math.max(minLeft, Math.min(maxLeft, rawLeft));
 
   const defaultHref = href ?? `https://github.com/users/${GITHUB_USER}/contributions`;
 
@@ -297,6 +325,7 @@ const Heatmap = ({
             {/* Bubble tooltip with click cue */}
             {hovered && (
               <div
+                ref={tooltipRef}
                 className="pointer-events-none absolute z-30 transition-all duration-75 ease-out"
                 style={{
                   left: `${tipLeft}px`,
