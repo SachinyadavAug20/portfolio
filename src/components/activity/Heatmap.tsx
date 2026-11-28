@@ -148,6 +148,8 @@ const Heatmap = ({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const [tooltipWidth, setTooltipWidth] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   /* Measure the tooltip width when it mounts so we can clamp it inside the
      calendar and never let its text run off the left/right edge. Re-measure
@@ -163,6 +165,22 @@ const Heatmap = ({
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  /* Track the scroll container's visible position/size so the tooltip can be
+     clamped to what's actually on screen instead of the full content width. */
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    setScrollLeft(e.currentTarget.scrollLeft);
+  };
+
+  useLayoutEffect(() => {
+    if (!heatRef.current) return;
+    setContainerWidth(heatRef.current.getBoundingClientRect().width);
+    const ro = new ResizeObserver(() => {
+      setContainerWidth(heatRef.current!.getBoundingClientRect().width);
+    });
+    ro.observe(heatRef.current);
+    return () => ro.disconnect();
   }, []);
 
   /* Pad the leading edge so column 0 starts on a Sunday, matching GitHub. */
@@ -204,14 +222,16 @@ const Heatmap = ({
   const tipTop = isBottomHalf ? cellY - 6 : cellY + 16;
 
   /* Clamp horizontally so the tooltip never spills past the calendar's
-     left or right edge (same idea as the vertical clamp). Content width
-     is weekCount * 12px since each cell column is 10px + 2px gap. */
-  const contentWidth = weekCount * 12;
+     left or right edge (same idea as the vertical clamp). rawLeft is
+     content-relative; subtract scrollLeft to position against what's
+     actually visible, then clamp inside the viewport. */
   const halfTip = tooltipWidth / 2 || 90; // fall back to an estimate before first measure
   const pad = 10;
-  const minLeft = halfTip + pad;
-  const maxLeft = Math.max(minLeft + 1, contentWidth - halfTip - pad);
-  const tipLeft = Math.max(minLeft, Math.min(maxLeft, rawLeft));
+  const screenCenter = rawLeft - scrollLeft;
+  const minLeft = pad + halfTip;
+  const maxLeft = Math.max(minLeft + 1, containerWidth - halfTip - pad);
+  const clampedScreenCenter = Math.max(minLeft, Math.min(maxLeft, screenCenter));
+  const tipLeft = clampedScreenCenter + scrollLeft;
 
   const defaultHref = href ?? `https://github.com/users/${GITHUB_USER}/contributions`;
 
@@ -224,6 +244,7 @@ const Heatmap = ({
       el.scrollLeft = el.scrollWidth;
     };
     scroll();
+    setScrollLeft(el.scrollLeft);
     const raf = requestAnimationFrame(scroll);
     return () => cancelAnimationFrame(raf);
   }, [cells.length, weekCount]);
@@ -263,6 +284,7 @@ const Heatmap = ({
           className="overflow-x-auto pb-1 overscroll-contain select-none"
           data-lenis-prevent="true"
           ref={heatRef}
+          onScroll={handleScroll}
         >
           {/* Ruler + grid + tooltip share one scrolled, fixed-width wrapper */}
           <div className="relative w-max pt-6">
