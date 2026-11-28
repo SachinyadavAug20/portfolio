@@ -122,6 +122,32 @@ const isGithubOss = (v: unknown): v is GithubOss =>
   Array.isArray((v as GithubOss).mergedPulls) &&
   Array.isArray((v as GithubOss).reviews);
 
+/* ---------------------------------------------------------------- Codeforces */
+
+export interface CodeforcesContest {
+  name: string;
+  rank: number;
+  oldRating: number;
+  newRating: number;
+  at: string;
+}
+
+export interface CodeforcesActivity {
+  handle: string;
+  rating: number;
+  maxRating: number;
+  rank: string;
+  maxRank: string;
+  avatar: string;
+  contests: CodeforcesContest[];
+}
+
+const isCodeforces = (v: unknown): v is CodeforcesActivity =>
+  !!v &&
+  typeof (v as CodeforcesActivity).handle === "string" &&
+  typeof (v as CodeforcesActivity).rating === "number" &&
+  Array.isArray((v as CodeforcesActivity).contests);
+
 /* ---------------------------------------------------------------- caching */
 
 const MEM_TTL = 30 * 60 * 1000;
@@ -137,7 +163,7 @@ if (typeof window !== "undefined") {
   } catch {}
 }
 
-type Disk = { t: number; gh?: GithubActivity; lc?: LeetCodeActivity; oss?: GithubOss };
+type Disk = { t: number; gh?: GithubActivity; lc?: LeetCodeActivity; oss?: GithubOss; cf?: CodeforcesActivity };
 type Entry<T> = { at: number; promise: Promise<T> };
 
 const mem: Record<string, Entry<unknown>> = {};
@@ -165,12 +191,12 @@ function writeDisk(patch: Partial<Disk>) {
 }
 
 /** Drop the in-memory entry so a retry button can actually refetch. */
-export function invalidateActivity(kind: "gh" | "lc" | "oss") {
+export function invalidateActivity(kind: "gh" | "lc" | "oss" | "cf") {
   delete mem[kind];
 }
 
 function load<T>(
-  kind: "gh" | "lc" | "oss",
+  kind: "gh" | "lc" | "oss" | "cf",
   url: string,
   pick: (d: Disk | null) => T | undefined,
   accept: (v: unknown) => v is T,
@@ -231,19 +257,62 @@ export const fetchLeetCodeActivity = (): Promise<LeetCodeActivity> =>
 export const fetchGithubOss = (): Promise<GithubOss> =>
   load("oss", "/api/github/oss", (d) => d?.oss, isGithubOss, (v) => writeDisk({ oss: v }));
 
-/** Fire all three in parallel; each side fails independently. */
+export const fetchCodeforcesActivity = async (): Promise<CodeforcesActivity> => {
+  try {
+    return await load("cf", "/api/codeforces", (d) => d?.cf, isCodeforces, (v) => writeDisk({ cf: v }));
+  } catch {
+    /* Worker proxy unavailable (dev mode runs vite without wrangler) — hit
+       Codeforces API directly. codeforces.com sends Access-Control-Allow-Origin:
+       *, so CORS is fine from the browser. */
+    const handle = "sachinapr20";
+    const [infoRes, ratingRes] = await Promise.all([
+      fetch(`https://codeforces.com/api/user.info?handles=${handle}`),
+      fetch(`https://codeforces.com/api/user.rating?handle=${handle}`),
+    ]);
+    const info = await infoRes.json();
+    const rating = await ratingRes.json();
+    if (info.status !== "OK" || rating.status !== "OK") {
+      throw new Error("codeforces direct fetch failed");
+    }
+    const u = info.result?.[0] ?? {};
+    const payload: CodeforcesActivity = {
+      handle: u.handle ?? handle,
+      rating: typeof u.rating === "number" ? u.rating : 0,
+      maxRating: typeof u.maxRating === "number" ? u.maxRating : 0,
+      rank: typeof u.rank === "string" ? u.rank : "unrated",
+      maxRank: typeof u.maxRank === "string" ? u.maxRank : "unrated",
+      avatar: typeof u.avatar === "string" ? u.avatar : "",
+      contests: (Array.isArray(rating.result) ? rating.result : []).map((c: { contestName?: unknown; rank?: unknown; oldRating?: unknown; newRating?: unknown; ratingUpdateTimeSeconds?: unknown }) => ({
+        name: String(c?.contestName ?? ""),
+        rank: typeof c?.rank === "number" ? c.rank : 0,
+        oldRating: typeof c?.oldRating === "number" ? c.oldRating : 0,
+        newRating: typeof c?.newRating === "number" ? c.newRating : 0,
+        at: typeof c?.ratingUpdateTimeSeconds === "number"
+          ? new Date(c.ratingUpdateTimeSeconds * 1000).toISOString()
+          : "",
+      })),
+    };
+    writeDisk({ cf: payload });
+    return payload;
+  }
+};
+
+/** Fire all four in parallel; each side fails independently. */
 export function fetchActivity(): Promise<{
   gh: GithubActivity | null;
   lc: LeetCodeActivity | null;
   oss: GithubOss | null;
+  cf: CodeforcesActivity | null;
 }> {
   return Promise.allSettled([
     fetchGithubActivity(),
     fetchLeetCodeActivity(),
     fetchGithubOss(),
-  ]).then(([gh, lc, oss]) => ({
+    fetchCodeforcesActivity(),
+  ]).then(([gh, lc, oss, cf]) => ({
     gh: gh.status === "fulfilled" ? gh.value : null,
     lc: lc.status === "fulfilled" ? lc.value : null,
     oss: oss.status === "fulfilled" ? oss.value : null,
+    cf: cf.status === "fulfilled" ? cf.value : null,
   }));
 }

@@ -6,10 +6,12 @@ import LeetCodeCard from "../components/activity/LeetCodeCard";
 import { HeatmapSkeleton } from "../components/activity/Heatmap";
 import { useNearViewport } from "../hooks/useNearViewport";
 import {
+  fetchCodeforcesActivity,
   fetchGithubActivity,
   fetchGithubOss,
   fetchLeetCodeActivity,
   invalidateActivity,
+  type CodeforcesActivity,
   type GithubActivity,
   type GithubOss,
   type LeetCodeActivity,
@@ -74,6 +76,7 @@ const Activity = () => {
   const [gh, setGh] = useState<GithubActivity | null>(null);
   const [lc, setLc] = useState<LeetCodeActivity | null>(null);
   const [oss, setOss] = useState<GithubOss | null>(null);
+  const [cf, setCf] = useState<CodeforcesActivity | null>(null);
 
   const load = useCallback(() => {
     setStatus("loading");
@@ -99,7 +102,13 @@ const Activity = () => {
       })
       .catch(() => null);
 
-    Promise.allSettled([pGh, pLc, pOss]).then(([g, l]) => {
+    const pCf = fetchCodeforcesActivity()
+      .then((val) => {
+        setCf(val);
+      })
+      .catch(() => null);
+
+    Promise.allSettled([pGh, pLc, pOss, pCf]).then(([g, l]) => {
       if (g.status === "rejected" && l.status === "rejected") {
         setStatus("error");
       }
@@ -118,6 +127,7 @@ const Activity = () => {
     invalidateActivity("gh");
     invalidateActivity("lc");
     invalidateActivity("oss");
+    invalidateActivity("cf");
     load();
   };
 
@@ -157,7 +167,7 @@ const Activity = () => {
                 <CardSkeleton tall label="GitHub" />
               )}
               {lc ? (
-                <LeetCodeCard data={lc} />
+                <LeetCodeCard data={lc} codeforces={cf} />
               ) : (
                 <CardSkeleton tall label="LeetCode" />
               )}

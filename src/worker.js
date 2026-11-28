@@ -16,6 +16,7 @@ const SITE_FALLBACK = "https://portfolio.samtagon777.workers.dev";
    whole payload is edge-cached for 30 minutes. */
 
 const GH_USER = "SachinyadavAug20";
+const CF_HANDLE = "sachinapr20";
 const DAY_MS = 86400000;
 const ACTIVITY_TTL = 1800;
 
@@ -455,6 +456,28 @@ function submissionDays(calendar) {
   };
 }
 
+/* --- /api/codeforces --------------------------------------------------- */
+
+function codeforcesPayload(info, rating) {
+  const u = info?.result?.[0] ?? {};
+  return {
+    handle: u.handle ?? CF_HANDLE,
+    rating: u.rating ?? 0,
+    maxRating: u.maxRating ?? 0,
+    rank: u.rank ?? "unrated",
+    maxRank: u.maxRank ?? "unrated",
+    avatar: u.avatar ?? "",
+    contests: (rating?.result ?? []).map((c) => ({
+      name: c.contestName,
+      rank: c.rank,
+      oldRating: c.oldRating,
+      newRating: c.newRating,
+      at: new Date(c.ratingUpdateTimeSeconds * 1000).toISOString(),
+    })),
+    fetchedAt: Date.now(),
+  };
+}
+
 function leetcodePayload(d) {
   const rank = d.userContestRanking;
   const m = d.matchedUser;
@@ -485,24 +508,28 @@ function leetcodePayload(d) {
     topPercentage: b.topPercentage,
   }));
 
-  return {
-    profile: {
-      username: "b2mIkNz0h5",
-      name: m?.profile?.realName || "",
-      avatar: m?.profile?.userAvatar || "",
-    },
-    level,
-    solved: ac.all ?? 0,
-    contest: {
-      rating: rank?.rating ?? 0,
-      topPercentage,
-      attended: rank?.attendedContestsCount ?? 0,
-      totalParticipants,
-      rank: rankEstimate,
-      history: (d.userContestRankingHistory ?? [])
-        .filter((h) => h?.attended && typeof h.rating === "number")
-        .map((h) => ({ rating: h.rating, title: h.contest?.title ?? "", time: h.contest?.startTime ?? 0 })),
-    },
+    const historyRaw = d.userContestRankingHistory ?? [];
+    const history = historyRaw
+      .filter((h) => h?.attended && typeof h.rating === "number")
+      .map((h) => ({ rating: h.rating, title: h.contest?.title ?? "", time: h.contest?.startTime ?? 0 }));
+    const attendedFromHistory = historyRaw.filter((h) => h?.attended).length;
+
+    return {
+      profile: {
+        username: "b2mIkNz0h5",
+        name: m?.profile?.realName || "",
+        avatar: m?.profile?.userAvatar || "",
+      },
+      level,
+      solved: ac.all ?? 0,
+      contest: {
+        rating: rank?.rating ?? 0,
+        topPercentage,
+        attended: attendedFromHistory || rank?.attendedContestsCount ?? 0,
+        totalParticipants,
+        rank: rankEstimate,
+        history,
+      },
     questions: {
       all: bucket("All"),
       easy: bucket("Easy"),
@@ -895,6 +922,55 @@ export default {
             }),
           );
         } catch { /* best-effort */ }
+        return response;
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "unavailable", details: e?.message }), {
+          status: 502,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    /* Codeforces snapshot — rating, peak rating, rank and recent contests.
+       Public API allows CORS, but proxying keeps one edge cache for everyone. */
+    if (url.pathname === "/api/codeforces") {
+      const cache = caches.default;
+      const cacheKey = new Request(new URL("/api/codeforces?v=1", url.origin));
+      try {
+        const hit = await cache.match(cacheKey);
+        if (hit) return hit;
+      } catch {
+        /* cache unavailable — fall through */
+      }
+
+      try {
+        const headers = { "User-Agent": "portfolio-activity/1.0" };
+        const [infoRes, ratingRes] = await Promise.all([
+          fetch(`https://codeforces.com/api/user.info?handles=${CF_HANDLE}`, { headers }),
+          fetch(`https://codeforces.com/api/user.rating?handle=${CF_HANDLE}`, { headers }),
+        ]);
+        const info = await infoRes.json();
+        const rating = await ratingRes.json();
+        if (info.status !== "OK" || rating.status !== "OK") {
+          throw new Error("codeforces error");
+        }
+        const body = JSON.stringify(codeforcesPayload(info, rating));
+        const response = new Response(body, {
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": `public, max-age=${ACTIVITY_TTL}, stale-while-revalidate=86400`,
+          },
+        });
+        try {
+          await cache.put(
+            cacheKey,
+            new Response(body, {
+              headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${ACTIVITY_TTL}` },
+            }),
+          );
+        } catch {
+          /* best-effort */
+        }
         return response;
       } catch (e) {
         return new Response(JSON.stringify({ error: "unavailable", details: e?.message }), {

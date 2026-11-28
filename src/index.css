@@ -137,6 +137,7 @@ section {
   --nav-hairline: linear-gradient(90deg, transparent, rgba(2, 132, 199, 0.35), transparent);
   --nav-link-glow: none;
   --nav-underline-glow: none;
+  --nav-accent: #0ea5e9;
   --contact-glow: 0 10px 26px -12px rgba(2, 132, 199, 0.55);
   --contact-hover-text: #18181b;
   --drawer-link-hover-bg: rgba(0, 0, 0, 0.06);
@@ -344,26 +345,38 @@ section {
   }
 
   /* =========================================================================
-     Dynamic Minimal Island Navbar
+     Modern Minimal Navbar — clean bar, brand \| links \| actions, active underline
      ========================================================================= */
   .navbar {
-    will-change: transform, opacity;
+    will-change: transform, opacity, box-shadow;
   }
 
   .island-capsule {
-    will-change: transform, background-color, border-color, box-shadow;
+    will-change: transform, background-color, border-color, box-shadow, border-image;
+    border-image-slice: 1;
+  }
+
+  /* Hairline accent gradient across the top of the bar */
+  .island-capsule > [aria-hidden="true"] {
+    mix-blend-mode: plus-lighter;
+  }
+
+  /* Nav links */
+  .island-capsule a.nav-label {
+    transition: color 0.2s ease;
   }
 
   /* Command Palette chip/button */
   .nav-cmdk-btn {
-    @apply relative flex items-center justify-center gap-1.5 h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-full cursor-pointer transition-all;
+    @apply relative flex items-center justify-center gap-1.5 h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-full cursor-pointer transition-all select-none;
     background-color: var(--nav-hover-bg);
     border: 1px solid var(--nav-glass-border);
+    color: var(--nav-line);
   }
 
   .nav-cmdk-btn:hover {
     background-color: var(--nav-hover-bg-active);
-    border-color: color-mix(in srgb, var(--nav-underline) 25%, transparent);
+    border-color: color-mix(in srgb, var(--nav-accent) 35%, transparent);
     transform: scale(1.04);
   }
 
@@ -381,7 +394,7 @@ section {
 
   .gh-star:hover {
     background-color: var(--nav-hover-bg-active);
-    border-color: color-mix(in srgb, var(--nav-underline) 25%, transparent);
+    border-color: color-mix(in srgb, var(--nav-accent) 35%, transparent);
     transform: scale(1.04);
   }
 
@@ -405,14 +418,14 @@ section {
   }
 
   .theme-toggle-btn {
-    @apply relative flex items-center justify-center size-8 sm:size-8.5 rounded-full cursor-pointer border transition-all;
+    @apply relative flex items-center justify-center size-8 sm:size-8.5 rounded-full cursor-pointer border transition-all select-none;
     background-color: var(--nav-hover-bg);
     border-color: var(--nav-glass-border);
   }
 
   .theme-toggle-btn:hover {
     background-color: var(--nav-hover-bg-active);
-    border-color: color-mix(in srgb, var(--nav-underline) 25%, transparent);
+    border-color: color-mix(in srgb, var(--nav-accent) 35%, transparent);
   }
 
   .theme-toggle-btn:active {
@@ -449,7 +462,6 @@ section {
     transform: scale(1) rotate(0deg);
     opacity: 1;
   }
-
 
   .no-scrollbar {
     scrollbar-width: none;
@@ -1525,6 +1537,7 @@ section {
   );
   --nav-link-glow: 0 0 16px rgba(56, 189, 248, 0.5);
   --nav-underline-glow: 0 0 10px rgba(255, 255, 255, 0.75);
+  --nav-accent: #38bdf8;
   --contact-glow: 0 12px 30px -10px rgba(56, 189, 248, 0.65);
   --contact-hover-text: #ffffff;
   --drawer-link-hover-bg: rgba(255, 255, 255, 0.08);

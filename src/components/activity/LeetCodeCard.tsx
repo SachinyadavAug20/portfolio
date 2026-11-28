@@ -4,8 +4,9 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ArrowUpRight, ArrowRight, Flame } from "lucide-react";
 import Heatmap, { HeatmapLegend } from "./Heatmap";
+import CodeforcesBlock from "./CodeforcesBlock";
 import { useReducedMotion } from "../../hooks/useReducedMotion";
-import type { LeetCodeActivity } from "../../lib/activity";
+import type { CodeforcesActivity, LeetCodeActivity } from "../../lib/activity";
 
 const DIFFS = [
   { key: "easy" as const, label: "Easy", color: "var(--lc-easy)" },
@@ -52,7 +53,13 @@ function ratingPaths(
   return { line, area: `${line} L${w},${h} L0,${h} Z`, min, max };
 }
 
-const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
+const LeetCodeCard = ({
+  data,
+  codeforces,
+}: {
+  data: LeetCodeActivity;
+  codeforces: CodeforcesActivity | null;
+}) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
@@ -518,6 +525,9 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
           </span>
         </div>
       </div>
+
+      {/* Codeforces snapshot — balances the card height against GitHub */}
+      <CodeforcesBlock data={codeforces} />
     </motion.div>
   );
 };

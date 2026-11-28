@@ -24,6 +24,10 @@ import {
 
 const repoShort = (repo: string) => repo.split("/").slice(-1)[0] ?? repo;
 
+/** 2,675 → "2.7k", 42 → "42" — compact counts for radar labels. */
+const shortCount = (n: number): string =>
+  n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+
 /** Compact relative time: "2d", "5mo", "a yr" — for OSS activity rows. */
 const ago = (iso: string): string => {
   const secs = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
@@ -116,17 +120,28 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
         },
       );
 
-      /* contribution breakdown rows */
+      /* contribution-mix radar */
       gsap.fromTo(
-        scope.querySelectorAll(".gh-mix-row"),
-        { x: -10, opacity: 0 },
+        scope.querySelectorAll(".gh-radar-poly"),
+        { scale: 0.6, opacity: 0, transformOrigin: "center center" },
         {
-          x: 0,
+          scale: 1,
           opacity: 1,
+          duration: 0.7,
+          ease: "back.out(1.3)",
+          delay: 0.15,
+          scrollTrigger: { trigger: scope, start: "top 85%", once: true },
+        },
+      );
+      gsap.fromTo(
+        scope.querySelectorAll(".gh-radar-dot"),
+        { scale: 0, transformOrigin: "center center" },
+        {
+          scale: 1,
           duration: 0.4,
-          ease: "power3.out",
+          ease: "back.out(2)",
           stagger: 0.05,
-          clearProps: "transform,opacity",
+          delay: 0.3,
           scrollTrigger: { trigger: scope, start: "top 85%", once: true },
         },
       );
@@ -213,6 +228,44 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
     { key: "interactions", label: "Collaborations", color: "var(--gh-mix-interactions)", count: data.metrics?.interactions ?? 52, url: `https://github.com/${GITHUB_USER}?tab=repositories` },
   ];
 
+  /* Radar geometry — six axes, shape driven by the yearly breakdown. */
+  const radar = (() => {
+    const cx = 180;
+    const cy = 118;
+    const R = 66;
+    const angles = [-90, -30, 30, 90, 150, 210];
+    const points = mix.map((m, i) => {
+      const rad = (angles[i] * Math.PI) / 180;
+      const dx = Math.cos(rad);
+      const dy = Math.sin(rad);
+      const pct = data.breakdown[m.key as keyof GithubActivity["breakdown"]] ?? 50;
+      const len = 16 + (Math.max(0, Math.min(100, pct)) / 100) * (R - 16);
+      return {
+        ...m,
+        dx,
+        dy,
+        tx: cx + dx * len,
+        ty: cy + dy * len,
+        ox: cx + dx * R,
+        oy: cy + dy * R,
+        lx: cx + dx * (R + 16),
+        ly: cy + dy * (R + 16),
+      };
+    });
+    const ring = (radius: number) =>
+      points
+        .map((p) => `${(cx + p.dx * radius).toFixed(1)},${(cy + p.dy * radius).toFixed(1)}`)
+        .join(" ");
+    return {
+      cx,
+      cy,
+      points,
+      polygon: points.map((p) => `${p.tx.toFixed(1)},${p.ty.toFixed(1)}`).join(" "),
+      outer: ring(R),
+      inner: ring(R * 0.55),
+    };
+  })();
+
   return (
     <motion.div
       ref={rootRef}
@@ -284,7 +337,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
         })}
       </div>
 
-      {/* 3. Contribution breakdown — plain counts, no scores */}
+      {/* 3. Contribution mix — minimal 6-axis radar, counts only */}
       <div className="flex flex-col gap-2">
         <a
           href={CAL_URL}
@@ -292,43 +345,113 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
           rel="noreferrer"
           className="group flex items-center justify-between text-[11px] uppercase tracking-wider text-white-50/55 transition-colors hover:text-white-50"
         >
-          <span>Contribution breakdown</span>
+          <span>Contribution mix</span>
           <span className="flex items-center gap-1 normal-case tracking-normal text-[10px] text-white-50/40 transition-colors group-hover:text-white-50/70">
             View on GitHub
             <ArrowUpRight className="size-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         </a>
 
-        <div className="rounded-lg border border-black-50/70 bg-black-200/40 px-3 py-1.5 sm:px-4">
-          <ul className="divide-y divide-black-50/50">
-            {mix.map((m) => (
-              <li key={m.key}>
+        <div className="rounded-lg border border-black-50/70 bg-black-200/40 p-3">
+          <svg
+            viewBox="0 0 360 250"
+            className="mx-auto h-56 w-full max-w-[360px]"
+            role="img"
+            aria-label="Six-axis contribution mix: commits, pull requests, reviews, comments, issues and collaborations"
+          >
+            <defs>
+              <linearGradient id="ghMixFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--gh-mix-commits)" stopOpacity="0.35" />
+                <stop offset="100%" stopColor="var(--gh-mix-comments)" stopOpacity="0.08" />
+              </linearGradient>
+            </defs>
+
+            {/* guide rings */}
+            <polygon
+              points={radar.outer}
+              fill="none"
+              stroke="currentColor"
+              strokeDasharray="2 4"
+              strokeWidth={1}
+              className="text-white-50/15"
+            />
+            <polygon
+              points={radar.inner}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1}
+              className="text-white-50/8"
+            />
+
+            {/* spokes */}
+            {radar.points.map((p) => (
+              <line
+                key={`spoke-${p.key}`}
+                x1={radar.cx}
+                y1={radar.cy}
+                x2={p.ox}
+                y2={p.oy}
+                stroke="currentColor"
+                strokeDasharray="2 4"
+                strokeWidth={1}
+                className="text-white-50/12"
+              />
+            ))}
+
+            {/* filled shape */}
+            <polygon
+              className="gh-radar-poly"
+              points={radar.polygon}
+              fill="url(#ghMixFill)"
+              stroke="var(--gh-mix-commits)"
+              strokeOpacity={0.85}
+              strokeWidth={1.6}
+              strokeLinejoin="round"
+            />
+
+            {/* centre */}
+            <circle cx={radar.cx} cy={radar.cy} r={2.5} fill="var(--gh-mix-commits)" fillOpacity={0.7} />
+
+            {/* nodes + labels */}
+            {radar.points.map((p) => {
+              const anchor = p.dx > 0.3 ? "start" : p.dx < -0.3 ? "end" : "middle";
+              const nameY = p.dy > 0.5 ? p.ly : p.dy < -0.5 ? p.ly - 11 : p.ly - 1;
+              return (
                 <a
-                  href={m.url}
+                  key={p.key}
+                  href={p.url}
                   target="_blank"
                   rel="noreferrer"
-                  title={`${m.label}: ${m.count.toLocaleString()} on GitHub`}
-                  className="gh-mix-row group flex items-center justify-between gap-3 py-2"
+                  className="group cursor-pointer"
+                  aria-label={`${p.label}: ${p.count.toLocaleString()} — view on GitHub`}
                 >
-                  <span className="flex min-w-0 items-center gap-2.5">
-                    <span
-                      className="size-2 shrink-0 rounded-full"
-                      style={{ backgroundColor: m.color }}
-                    />
-                    <span className="truncate text-xs text-white-50/70 transition-colors group-hover:text-white-50">
-                      {m.label}
-                    </span>
-                  </span>
-                  <span className="flex shrink-0 items-center gap-1.5">
-                    <span className="text-xs font-semibold tabular-nums text-white-50">
-                      {m.count >= 1000 ? `${(m.count / 1000).toFixed(1)}k` : m.count}
-                    </span>
-                    <ArrowUpRight className="size-3 text-white-50/25 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white-50/70 group-hover:opacity-100" />
-                  </span>
+                  <circle
+                    className="gh-radar-dot opacity-80 transition-opacity group-hover:opacity-100"
+                    cx={p.tx}
+                    cy={p.ty}
+                    r={3.2}
+                    fill={p.color}
+                  />
+                  <text
+                    x={p.lx}
+                    y={nameY}
+                    textAnchor={anchor}
+                    className="fill-white-50/45 text-[8.5px] transition-colors group-hover:fill-white-50/75"
+                  >
+                    {p.label}
+                  </text>
+                  <text
+                    x={p.lx}
+                    y={nameY + 11}
+                    textAnchor={anchor}
+                    className="fill-white-50 text-[10px] font-semibold tabular-nums transition-colors group-hover:fill-white-50"
+                  >
+                    {shortCount(p.count)}
+                  </text>
                 </a>
-              </li>
-            ))}
-          </ul>
+              );
+            })}
+          </svg>
         </div>
       </div>
 
@@ -379,9 +502,9 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
         </div>
         <div className="grid grid-cols-3 gap-2">
           {[
-            { name: "JabRef", repo: "JabRef/jabref", icon: "https://github.com/JabRef.png" },
-            { name: "Airflow", repo: "apache/airflow", icon: "https://github.com/apache.png" },
             { name: "Meshery", repo: "meshery/meshery", icon: "https://github.com/meshery.png" },
+            { name: "Airflow", repo: "apache/airflow", icon: "https://github.com/apache.png" },
+            { name: "JabRef", repo: "JabRef/jabref", icon: "https://github.com/JabRef.png" },
           ].map(({ name, repo, icon }) => (
             <motion.a
               key={name}
