@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import { motion } from "motion/react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -42,7 +42,6 @@ const ago = (iso: string): string => {
 const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null }) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const [hoveredAxis, setHoveredAxis] = useState<string | null>(null);
 
   const fallbackMerged = useMemo(() => {
     return OPEN_SOURCE_PRS.filter((p) => p.state === "merged" && p.isExternal)
@@ -117,39 +116,17 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
         },
       );
 
-      /* activity-overview radar */
+      /* contribution breakdown rows */
       gsap.fromTo(
-        scope.querySelectorAll(".mix-arm"),
-        { strokeDasharray: 1, strokeDashoffset: 1 },
+        scope.querySelectorAll(".gh-mix-row"),
+        { x: -10, opacity: 0 },
         {
-          strokeDashoffset: 0,
-          duration: 0.9,
-          ease: "power3.out",
-          stagger: 0.08,
-          scrollTrigger: { trigger: scope, start: "top 85%", once: true },
-        },
-      );
-      gsap.fromTo(
-        scope.querySelectorAll(".mix-poly"),
-        { scale: 0, opacity: 0, transformOrigin: "center center" },
-        {
-          scale: 1,
+          x: 0,
           opacity: 1,
-          duration: 0.8,
-          ease: "back.out(1.4)",
-          delay: 0.2,
-          scrollTrigger: { trigger: scope, start: "top 85%", once: true },
-        },
-      );
-      gsap.fromTo(
-        scope.querySelectorAll(".mix-tip"),
-        { scale: 0, transformOrigin: "center center" },
-        {
-          scale: 1,
           duration: 0.4,
-          ease: "back.out(2)",
-          stagger: 0.08,
-          delay: 0.4,
+          ease: "power3.out",
+          stagger: 0.05,
+          clearProps: "transform,opacity",
           scrollTrigger: { trigger: scope, start: "top 85%", once: true },
         },
       );
@@ -210,32 +187,31 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
 
   const CAL_URL = `https://github.com/users/${GITHUB_USER}/contributions`;
 
-  /* Weekday distribution — 7 bars, one per day of week, from the per-day
-     data. Shows realistic 52-week daily averages and percentage of yearly total. */
+  /* Weekday totals — seven bars, one per day of the week. */
   const weekdayBars = useMemo(() => {
     const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const buckets = Array.from({ length: 7 }, () => 0);
-    const activeWeeks = Array.from({ length: 7 }, () => 0);
     for (const d of data.days) {
       const wd = new Date(`${d.date}T00:00:00Z`).getUTCDay();
       buckets[wd] += d.count;
-      if (d.count > 0) activeWeeks[wd]++;
     }
     const max = Math.max(1, ...buckets);
-    return labels.map((label, i) => {
-      const totalForDay = buckets[i];
-      const avgPerDay = (totalForDay / 52).toFixed(1);
-      const pctOfYear = Math.round((totalForDay / Math.max(1, data.total)) * 100);
-      return {
-        label,
-        pct: totalForDay / max,
-        count: totalForDay,
-        avgPerDay,
-        pctOfYear,
-        activeWeeks: activeWeeks[i],
-      };
-    });
-  }, [data.days, data.total]);
+    return labels.map((label, i) => ({
+      label,
+      pct: buckets[i] / max,
+      count: buckets[i],
+    }));
+  }, [data.days]);
+
+  /* Plain-language contribution split — counts only, no scores. */
+  const mix = [
+    { key: "commits", label: "Commits", color: "var(--gh-mix-commits)", count: data.metrics?.commits ?? Math.round(data.total * 0.96), url: `https://github.com/${GITHUB_USER}?tab=overview` },
+    { key: "prs", label: "Pull requests", color: "var(--gh-mix-prs)", count: data.metrics?.prs ?? 42, url: `https://github.com/pulls?q=is%3Apr+author%3A${GITHUB_USER}` },
+    { key: "reviews", label: "Reviews", color: "var(--gh-mix-reviews)", count: data.metrics?.reviews ?? 28, url: `https://github.com/pulls?q=is%3Apr+reviewed-by%3A${GITHUB_USER}` },
+    { key: "comments", label: "Comments", color: "var(--gh-mix-comments)", count: data.metrics?.comments ?? 68, url: `https://github.com/pulls?q=is%3Apr+commenter%3A${GITHUB_USER}` },
+    { key: "issues", label: "Issues", color: "var(--gh-mix-issues)", count: data.metrics?.issues ?? 14, url: `https://github.com/issues?q=is%3Aissue+author%3A${GITHUB_USER}` },
+    { key: "interactions", label: "Collaborations", color: "var(--gh-mix-interactions)", count: data.metrics?.interactions ?? 52, url: `https://github.com/${GITHUB_USER}?tab=repositories` },
+  ];
 
   return (
     <motion.div
@@ -308,690 +284,90 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
         })}
       </div>
 
-      {/* 3. Activity Mix — rich 6-dimensional developer radar HUD */}
+      {/* 3. Contribution breakdown — plain counts, no scores */}
       <div className="flex flex-col gap-2">
         <a
           href={CAL_URL}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center justify-between text-[11px] uppercase tracking-wider text-white-50/55 transition-colors hover:text-white-50"
+          className="group flex items-center justify-between text-[11px] uppercase tracking-wider text-white-50/55 transition-colors hover:text-white-50"
         >
-          <span className="flex items-center gap-1.5">
-            Activity mix
+          <span>Contribution breakdown</span>
+          <span className="flex items-center gap-1 normal-case tracking-normal text-[10px] text-white-50/40 transition-colors group-hover:text-white-50/70">
+            View on GitHub
             <ArrowUpRight className="size-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
-          <span className="text-[10px] text-white-50/40">6 engineering dimensions</span>
         </a>
 
-        {(() => {
-          const cx = 190;
-          const cy = 118;
-          const R = 72;
-
-          const axes: {
-            key: "commits" | "prs" | "reviews" | "comments" | "issues" | "interactions";
-            label: string;
-            shortLabel: string;
-            angle: number;
-            color: string;
-            count: number;
-            desc: string;
-            url: string;
-          }[] = [
-            {
-              key: "commits",
-              label: "Commits",
-              shortLabel: "Commits",
-              angle: -90,
-              color: "var(--gh-mix-commits)",
-              count: data.metrics?.commits ?? Math.round(data.total * 0.96),
-              desc: "Authored & pushed commits",
-              url: `https://github.com/${GITHUB_USER}?tab=overview`,
-            },
-            {
-              key: "prs",
-              label: "Pull requests",
-              shortLabel: "PRs",
-              angle: -30,
-              color: "var(--gh-mix-prs)",
-              count: data.metrics?.prs ?? 42,
-              desc: "Authored pull requests",
-              url: `https://github.com/pulls?q=is%3Apr+author%3A${GITHUB_USER}`,
-            },
-            {
-              key: "reviews",
-              label: "Code review",
-              shortLabel: "Reviews",
-              angle: 30,
-              color: "var(--gh-mix-reviews)",
-              count: data.metrics?.reviews ?? 28,
-              desc: "Peer reviews & approvals",
-              url: `https://github.com/pulls?q=is%3Apr+reviewed-by%3A${GITHUB_USER}`,
-            },
-            {
-              key: "comments",
-              label: "Comments",
-              shortLabel: "Comments",
-              angle: 90,
-              color: "var(--gh-mix-comments)",
-              count: data.metrics?.comments ?? 68,
-              desc: "Review & issue discussions",
-              url: `https://github.com/pulls?q=is%3Apr+commenter%3A${GITHUB_USER}`,
-            },
-            {
-              key: "issues",
-              label: "Issues",
-              shortLabel: "Issues",
-              angle: 150,
-              color: "var(--gh-mix-issues)",
-              count: data.metrics?.issues ?? 14,
-              desc: "Reported & triaged issues",
-              url: `https://github.com/issues?q=is%3Aissue+author%3A${GITHUB_USER}`,
-            },
-            {
-              key: "interactions",
-              label: "Interactions",
-              shortLabel: "Collabs",
-              angle: 210,
-              color: "var(--gh-mix-interactions)",
-              count: data.metrics?.interactions ?? 52,
-              desc: "Community repos & stars",
-              url: `https://github.com/${GITHUB_USER}?tab=repositories`,
-            },
-          ];
-
-          const coords = axes.map((a) => {
-            const rad = (a.angle * Math.PI) / 180;
-            const dx = Math.cos(rad);
-            const dy = Math.sin(rad);
-            const pct =
-              data.breakdown[a.key] ??
-              (a.key === "comments" ? 58 : a.key === "interactions" ? 50 : 50);
-            const len = Math.max(22, Math.min(R, 20 + (pct / 100) * (R - 20)));
-            return {
-              ...a,
-              dx,
-              dy,
-              tx: cx + dx * len,
-              ty: cy + dy * len,
-              ox: cx + dx * R,
-              oy: cy + dy * R,
-              len,
-              pct,
-            };
-          });
-
-          const polyPoints = coords.map((c) => `${c.tx.toFixed(1)},${c.ty.toFixed(1)}`).join(" ");
-
-          const hexRings = [20, 38, 56, 72].map((r) =>
-            axes
-              .map((a) => {
-                const rad = (a.angle * Math.PI) / 180;
-                return `${(cx + Math.cos(rad) * r).toFixed(1)},${(cy + Math.sin(rad) * r).toFixed(1)}`;
-              })
-              .join(" ")
-          );
-
-          const commitsCoord = coords.find((c) => c.key === "commits")!;
-          const activeCoord = coords.find((c) => c.key === hoveredAxis);
-
-          return (
-            <div className="relative overflow-hidden rounded-lg border border-black-50/70 bg-black-200/40 p-3">
-              <svg
-                viewBox="0 0 380 236"
-                className="mx-auto h-52 w-full max-w-[380px]"
-                role="img"
-                aria-label="6-dimensional activity radar including commits, PRs, reviews, comments, and interactions"
-              >
-                <defs>
-                  {/* Volumetric radial gradient inside the 6-sided polygon */}
-                  <radialGradient id="ghRadarGradient" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="var(--gh-mix-commits)" stopOpacity="0.45" />
-                    <stop offset="65%" stopColor="var(--gh-mix-prs)" stopOpacity="0.20" />
-                    <stop offset="100%" stopColor="var(--gh-mix-comments)" stopOpacity="0.05" />
-                  </radialGradient>
-
-                  {/* 3D Core hub gradient */}
-                  <radialGradient id="ghRadarHub" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#bfdbfe" stopOpacity="1" />
-                    <stop offset="50%" stopColor="var(--gh-mix-commits)" stopOpacity="0.9" />
-                    <stop offset="100%" stopColor="#1e3a8a" stopOpacity="0.3" />
-                  </radialGradient>
-
-                  {/* Outer drop-glow for polygon and highlighted spoke */}
-                  <filter id="ghRadarGlow" x="-30%" y="-30%" width="160%" height="160%">
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feMerge>
-                      <feMergeNode in="blur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-
-                {/* Hexagonal guide web rings */}
-                {hexRings.map((pts, idx) => (
-                  <polygon
-                    key={idx}
-                    points={pts}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeDasharray={idx === 3 ? "none" : "2 3"}
-                    className={idx === 3 ? "text-white-50/20" : "text-white-50/10"}
-                    strokeWidth={idx === 3 ? 1.2 : 0.8}
-                  />
-                ))}
-
-                {/* 6 Radiating spoke guide axes */}
-                {coords.map((c) => (
-                  <line
-                    key={`spoke-${c.key}`}
-                    x1={cx}
-                    y1={cy}
-                    x2={c.ox}
-                    y2={c.oy}
-                    stroke="currentColor"
-                    className={hoveredAxis === c.key ? "text-white-50/40" : "text-white-50/12"}
-                    strokeWidth={hoveredAxis === c.key ? 1.2 : 0.8}
-                    strokeDasharray={hoveredAxis === c.key ? "none" : "2 3"}
-                  />
-                ))}
-
-                {/* Ambient glow under-layer */}
-                <polygon
-                  points={polyPoints}
-                  fill="none"
-                  stroke="var(--gh-mix-commits)"
-                  strokeWidth={4}
-                  strokeOpacity={hoveredAxis ? 0.35 : 0.25}
-                  filter="url(#ghRadarGlow)"
-                />
-
-                {/* Volumetric gradient polygon area */}
-                <polygon
-                  className="mix-poly"
-                  points={polyPoints}
-                  fill="url(#ghRadarGradient)"
-                  stroke="var(--gh-mix-commits)"
-                  strokeWidth={2}
-                  strokeOpacity={0.9}
-                  strokeLinejoin="round"
-                />
-
-                {/* Active radiating spoke arms connecting hub to values */}
-                {coords.map((c) => {
-                  const isHovered = hoveredAxis === c.key;
-                  const isOtherHovered = hoveredAxis != null && !isHovered;
-                  return (
-                    <line
-                      key={`arm-${c.key}`}
-                      className="mix-arm transition-all duration-200"
-                      x1={cx}
-                      y1={cy}
-                      x2={c.tx}
-                      y2={c.ty}
-                      pathLength={1}
-                      stroke={c.color}
-                      strokeWidth={isHovered ? 3.8 : 2.2}
-                      strokeLinecap="round"
-                      opacity={isOtherHovered ? 0.35 : 1}
-                      filter={isHovered ? "url(#ghRadarGlow)" : undefined}
+        <div className="rounded-lg border border-black-50/70 bg-black-200/40 px-3 py-1.5 sm:px-4">
+          <ul className="divide-y divide-black-50/50">
+            {mix.map((m) => (
+              <li key={m.key}>
+                <a
+                  href={m.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={`${m.label}: ${m.count.toLocaleString()} on GitHub`}
+                  className="gh-mix-row group flex items-center justify-between gap-3 py-2"
+                >
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      className="size-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: m.color }}
                     />
-                  );
-                })}
-
-                {/* Pulsing beacon on the dominant apex (Commits) when idle */}
-                {!hoveredAxis && (
-                  <circle
-                    className="animate-ping"
-                    cx={commitsCoord.tx}
-                    cy={commitsCoord.ty}
-                    r={7}
-                    fill="none"
-                    stroke="var(--gh-mix-commits)"
-                    strokeOpacity={0.7}
-                    style={{ animationDuration: "2.5s" }}
-                  />
-                )}
-
-                {/* Center 3D Hub */}
-                <circle cx={cx} cy={cy} r={10} fill="var(--gh-mix-commits)" fillOpacity={0.15} stroke="var(--gh-mix-commits)" strokeOpacity={0.3} strokeWidth={1} />
-                <circle cx={cx} cy={cy} r={5.5} fill="url(#ghRadarHub)" />
-                <circle cx={cx} cy={cy} r={2} fill="#ffffff" />
-
-                {/* Interactive Clickable Spoke + Node Hit targets */}
-                {coords.map((c) => {
-                  const isHovered = hoveredAxis === c.key;
-                  const isOtherHovered = hoveredAxis != null && !isHovered;
-                  return (
-                    <a
-                      key={`interactive-${c.key}`}
-                      href={c.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="cursor-pointer group"
-                      onMouseEnter={() => setHoveredAxis(c.key)}
-                      onMouseLeave={() => setHoveredAxis(null)}
-                      onFocus={() => setHoveredAxis(c.key)}
-                      onBlur={() => setHoveredAxis(null)}
-                      aria-label={`${c.label}: ${c.count.toLocaleString()} (${c.desc}) — click to view on GitHub`}
-                    >
-                      {/* Wide invisible line & disc hit zones */}
-                      <line
-                        x1={cx}
-                        y1={cy}
-                        x2={c.ox}
-                        y2={c.oy}
-                        stroke="transparent"
-                        strokeWidth={22}
-                      />
-                      <circle
-                        cx={c.tx}
-                        cy={c.ty}
-                        r={18}
-                        fill="transparent"
-                      />
-
-                      {/* Active highlight ring on hover */}
-                      {isHovered && (
-                        <>
-                          <circle
-                            className="animate-ping"
-                            cx={c.tx}
-                            cy={c.ty}
-                            r={11}
-                            fill="none"
-                            stroke={c.color}
-                            strokeWidth={2}
-                            style={{ animationDuration: "1.6s" }}
-                          />
-                          <circle
-                            cx={c.tx}
-                            cy={c.ty}
-                            r={8}
-                            fill={c.color}
-                            fillOpacity={0.3}
-                            stroke={c.color}
-                            strokeWidth={1.5}
-                          />
-                        </>
-                      )}
-
-                      {/* Tip node marker */}
-                      <circle
-                        className="mix-tip transition-transform duration-150"
-                        cx={c.tx}
-                        cy={c.ty}
-                        r={isHovered ? 5.5 : c.pct > 60 ? 4.5 : 3.5}
-                        fill={c.color}
-                        opacity={isOtherHovered ? 0.35 : 1}
-                      />
-                      <circle
-                        cx={c.tx}
-                        cy={c.ty}
-                        r={isHovered ? 2.5 : c.pct > 60 ? 2 : 1.5}
-                        fill="#ffffff"
-                        opacity={isOtherHovered ? 0.35 : 1}
-                      />
-                    </a>
-                  );
-                })}
-
-                {/* Peripheral HUD Labels for all 6 dimensions (all clickable & interactive) */}
-                {/* 1. Commits (Top) */}
-                <a
-                  href={coords[0].url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="cursor-pointer"
-                  onMouseEnter={() => setHoveredAxis("commits")}
-                  onMouseLeave={() => setHoveredAxis(null)}
-                >
-                  <text
-                    x={cx}
-                    y={cy - R - 13}
-                    textAnchor="middle"
-                    className={clsx(
-                      "text-[10.5px] tabular-nums transition-colors",
-                      hoveredAxis === "commits" ? "fill-blue-400 font-extrabold" : "fill-white-50 font-bold"
-                    )}
-                  >
-                    {coords[0].pct}% · {coords[0].count >= 1000 ? `${(coords[0].count / 1000).toFixed(1)}k` : coords[0].count}
-                  </text>
-                  <text
-                    x={cx}
-                    y={cy - R - 3}
-                    textAnchor="middle"
-                    className={clsx(
-                      "text-[9px] transition-colors",
-                      hoveredAxis === "commits" ? "fill-white-50 font-semibold" : "fill-white-50/60"
-                    )}
-                  >
-                    Commits
-                  </text>
-                </a>
-
-                {/* 2. Pull requests (Top-Right) */}
-                <a
-                  href={coords[1].url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="cursor-pointer"
-                  onMouseEnter={() => setHoveredAxis("prs")}
-                  onMouseLeave={() => setHoveredAxis(null)}
-                >
-                  <text
-                    x={cx + R * 0.866 + 8}
-                    y={cy - R * 0.5 - 2}
-                    textAnchor="start"
-                    className={clsx(
-                      "text-[10.5px] tabular-nums transition-colors",
-                      hoveredAxis === "prs" ? "fill-blue-400 font-extrabold" : "fill-white-50 font-bold"
-                    )}
-                  >
-                    {coords[1].pct}% · {coords[1].count}
-                  </text>
-                  <text
-                    x={cx + R * 0.866 + 8}
-                    y={cy - R * 0.5 + 9}
-                    textAnchor="start"
-                    className={clsx(
-                      "text-[9px] transition-colors",
-                      hoveredAxis === "prs" ? "fill-white-50 font-semibold" : "fill-white-50/60"
-                    )}
-                  >
-                    Pull requests
-                  </text>
-                </a>
-
-                {/* 3. Code review (Bottom-Right) */}
-                <a
-                  href={coords[2].url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="cursor-pointer"
-                  onMouseEnter={() => setHoveredAxis("reviews")}
-                  onMouseLeave={() => setHoveredAxis(null)}
-                >
-                  <text
-                    x={cx + R * 0.866 + 8}
-                    y={cy + R * 0.5 - 2}
-                    textAnchor="start"
-                    className={clsx(
-                      "text-[10.5px] tabular-nums transition-colors",
-                      hoveredAxis === "reviews" ? "fill-indigo-400 font-extrabold" : "fill-white-50 font-bold"
-                    )}
-                  >
-                    {coords[2].pct}% · {coords[2].count}
-                  </text>
-                  <text
-                    x={cx + R * 0.866 + 8}
-                    y={cy + R * 0.5 + 9}
-                    textAnchor="start"
-                    className={clsx(
-                      "text-[9px] transition-colors",
-                      hoveredAxis === "reviews" ? "fill-white-50 font-semibold" : "fill-white-50/60"
-                    )}
-                  >
-                    Code review
-                  </text>
-                </a>
-
-                {/* 4. Comments (Bottom) */}
-                <a
-                  href={coords[3].url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="cursor-pointer"
-                  onMouseEnter={() => setHoveredAxis("comments")}
-                  onMouseLeave={() => setHoveredAxis(null)}
-                >
-                  <text
-                    x={cx}
-                    y={cy + R + 14}
-                    textAnchor="middle"
-                    className={clsx(
-                      "text-[10.5px] tabular-nums transition-colors",
-                      hoveredAxis === "comments" ? "fill-purple-400 font-extrabold" : "fill-white-50 font-bold"
-                    )}
-                  >
-                    {coords[3].pct}% · {coords[3].count}
-                  </text>
-                  <text
-                    x={cx}
-                    y={cy + R + 24}
-                    textAnchor="middle"
-                    className={clsx(
-                      "text-[9px] transition-colors",
-                      hoveredAxis === "comments" ? "fill-white-50 font-semibold" : "fill-white-50/60"
-                    )}
-                  >
-                    Comments
-                  </text>
-                </a>
-
-                {/* 5. Issues (Bottom-Left) */}
-                <a
-                  href={coords[4].url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="cursor-pointer"
-                  onMouseEnter={() => setHoveredAxis("issues")}
-                  onMouseLeave={() => setHoveredAxis(null)}
-                >
-                  <text
-                    x={cx - R * 0.866 - 8}
-                    y={cy + R * 0.5 - 2}
-                    textAnchor="end"
-                    className={clsx(
-                      "text-[10.5px] tabular-nums transition-colors",
-                      hoveredAxis === "issues" ? "fill-sky-400 font-extrabold" : "fill-white-50 font-bold"
-                    )}
-                  >
-                    {coords[4].pct}% · {coords[4].count}
-                  </text>
-                  <text
-                    x={cx - R * 0.866 - 8}
-                    y={cy + R * 0.5 + 9}
-                    textAnchor="end"
-                    className={clsx(
-                      "text-[9px] transition-colors",
-                      hoveredAxis === "issues" ? "fill-white-50 font-semibold" : "fill-white-50/60"
-                    )}
-                  >
-                    Issues
-                  </text>
-                </a>
-
-                {/* 6. Interactions (Top-Left) */}
-                <a
-                  href={coords[5].url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="cursor-pointer"
-                  onMouseEnter={() => setHoveredAxis("interactions")}
-                  onMouseLeave={() => setHoveredAxis(null)}
-                >
-                  <text
-                    x={cx - R * 0.866 - 8}
-                    y={cy - R * 0.5 - 2}
-                    textAnchor="end"
-                    className={clsx(
-                      "text-[10.5px] tabular-nums transition-colors",
-                      hoveredAxis === "interactions" ? "fill-cyan-400 font-extrabold" : "fill-white-50 font-bold"
-                    )}
-                  >
-                    {coords[5].pct}% · {coords[5].count}
-                  </text>
-                  <text
-                    x={cx - R * 0.866 - 8}
-                    y={cy - R * 0.5 + 9}
-                    textAnchor="end"
-                    className={clsx(
-                      "text-[9px] transition-colors",
-                      hoveredAxis === "interactions" ? "fill-white-50 font-semibold" : "fill-white-50/60"
-                    )}
-                  >
-                    Interactions
-                  </text>
-                </a>
-              </svg>
-
-              {/* Dynamic Interactive Radar HUD Status Bar */}
-              <div className="mt-1 min-h-[36px] flex items-center justify-center">
-                {activeCoord ? (
-                  <motion.a
-                    href={activeCoord.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    initial={{ opacity: 0, y: 3 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="flex w-full items-center justify-between rounded-md border border-white-50/25 bg-black-100/95 px-3 py-1.5 text-xs backdrop-blur-md shadow-lg group hover:border-white-50/50 transition-all cursor-pointer"
-                    style={{ boxShadow: `0 0 16px ${activeCoord.color}35` }}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span
-                        className="size-2 rounded-full shrink-0 animate-pulse"
-                        style={{ backgroundColor: activeCoord.color }}
-                      />
-                      <span className="font-semibold text-white-50 truncate">
-                        {activeCoord.label}
-                      </span>
-                      <span className="text-white-50/40 text-[10px]">·</span>
-                      <span className="font-mono text-white-50 font-bold tabular-nums">
-                        {activeCoord.count.toLocaleString()}
-                      </span>
-                      <span className="text-[10px] text-white-50/55 hidden sm:inline truncate">
-                        ({activeCoord.desc})
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[10.5px] font-medium shrink-0 ml-2" style={{ color: activeCoord.color }}>
-                      <span>{activeCoord.pct}% score</span>
-                      <span className="text-white-50/40">·</span>
-                      <span className="underline-offset-2 group-hover:underline">Open on GitHub</span>
-                      <ArrowUpRight className="size-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </div>
-                  </motion.a>
-                ) : (
-                  <div className="flex w-full items-center justify-between rounded-md border border-black-50/50 bg-black-300/30 px-3 py-1.5 text-[10.5px] text-white-50/45">
-                    <span className="flex items-center gap-1.5">
-                      <span className="size-1.5 rounded-full bg-blue-400/80 animate-pulse" />
-                      Hover any spoke or dimension to inspect details
+                    <span className="truncate text-xs text-white-50/70 transition-colors group-hover:text-white-50">
+                      {m.label}
                     </span>
-                    <span className="flex items-center gap-1 text-[10px] text-white-50/40">
-                      <span>Click to open on GitHub</span>
-                      <ArrowUpRight className="size-2.5 opacity-60" />
+                  </span>
+                  <span className="flex shrink-0 items-center gap-1.5">
+                    <span className="text-xs font-semibold tabular-nums text-white-50">
+                      {m.count >= 1000 ? `${(m.count / 1000).toFixed(1)}k` : m.count}
                     </span>
-                  </div>
-                )}
-              </div>
-
-              {/* 6-metric interactive summary pill row with bidirectional highlighting */}
-              <div className="mt-2 grid grid-cols-3 sm:grid-cols-6 gap-1.5 pt-2 border-t border-black-50/60 text-center">
-                {coords.map((c) => {
-                  const isHovered = hoveredAxis === c.key;
-                  return (
-                    <motion.a
-                      key={c.key}
-                      href={c.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      onMouseEnter={() => setHoveredAxis(c.key)}
-                      onMouseLeave={() => setHoveredAxis(null)}
-                      whileHover={{ y: -2, scale: 1.04 }}
-                      whileTap={{ scale: 0.96 }}
-                      className={clsx(
-                        "group relative flex flex-col items-center justify-center rounded-md px-1.5 py-1.5 transition-all duration-200 cursor-pointer border",
-                        isHovered
-                          ? "border-opacity-100 bg-black-100 shadow-md"
-                          : "border-black-50/60 bg-black-300/40 hover:border-black-50 hover:bg-black-200/80"
-                      )}
-                      style={{
-                        borderColor: isHovered ? c.color : undefined,
-                        boxShadow: isHovered ? `0 0 14px ${c.color}35` : undefined,
-                      }}
-                      title={`Open ${c.label} on GitHub: ${c.count.toLocaleString()} (${c.desc})`}
-                    >
-                      <div className="flex items-center gap-0.5">
-                        <span className="text-[11.5px] font-bold tabular-nums text-white-50">
-                          {c.count >= 1000 ? `${(c.count / 1000).toFixed(1)}k` : c.count}
-                        </span>
-                        <ArrowUpRight
-                          className={clsx(
-                            "size-2.5 transition-all duration-150",
-                            isHovered
-                              ? "opacity-100 translate-x-0.5 -translate-y-0.5"
-                              : "opacity-0 group-hover:opacity-100"
-                          )}
-                          style={{ color: c.color }}
-                        />
-                      </div>
-                      <span
-                        className="text-[9.5px] font-medium truncate w-full"
-                        style={{ color: c.color }}
-                      >
-                        {c.shortLabel}
-                      </span>
-                    </motion.a>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })()}
+                    <ArrowUpRight className="size-3 text-white-50/25 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white-50/70 group-hover:opacity-100" />
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
-      {/* 4. Activity by Weekday — with realistic daily averages & 52-wk context */}
+      {/* 4. Busiest days — one bar per weekday, with plain counts */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-white-50/55">
-          <span>Activity by weekday</span>
-          <span className="text-[10px] text-white-50/40">52-wk avg · Sun → Sat</span>
+          <span>Busiest days</span>
+          <span className="normal-case tracking-normal text-[10px] text-white-50/40">
+            last 52 weeks
+          </span>
         </div>
-        <div className="relative flex h-20 items-end gap-1.5 sm:gap-2 pt-8">
-          {weekdayBars.map((b) => {
-            const barHeightPx = Math.max(5, Math.round(b.pct * 42));
-            return (
-              <a
-                key={b.label}
-                href={`https://github.com/${GITHUB_USER}?tab=overview`}
-                target="_blank"
-                rel="noreferrer"
-                className="wk-bar group relative flex flex-1 flex-col items-center justify-end h-full cursor-pointer"
-                title={`${b.label}: ~${b.avgPerDay} contribs/day avg (${b.count.toLocaleString("en-US")} total over 52 weeks)`}
-              >
-                {/* Floating exact daily average + yearly total tooltip */}
-                <div className="pointer-events-none absolute -top-14 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-150 group-hover:opacity-100 group-hover:-top-15 z-30">
-                  <div className="flex flex-col items-center whitespace-nowrap rounded-md border border-black-50/90 bg-black-100/95 px-2.5 py-1 text-center shadow-2xl backdrop-blur-md">
-                    <span className="text-[10.5px] font-semibold tabular-nums text-white-50">
-                      ~{b.avgPerDay} contribs/day
-                    </span>
-                    <span className="text-[9px] text-white-50/50">
-                      {b.pctOfYear}% of year · {b.count.toLocaleString()} total (52 wks)
-                    </span>
-                    <div className="flex items-center gap-1 text-[8.5px] text-blue-400 font-medium pt-0.5">
-                      <span>View activity timeline</span>
-                      <ArrowUpRight className="size-2 shrink-0" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Animated bar */}
-                <div
-                  className="wk-bar-fill w-full rounded-t-[3px] transition-all duration-200 group-hover:brightness-135 group-hover:scale-x-110 group-hover:shadow-[0_0_8px_rgba(96,165,250,0.5)]"
+        <div className="flex items-end gap-1.5 sm:gap-2">
+          {weekdayBars.map((b) => (
+            <a
+              key={b.label}
+              href={`https://github.com/${GITHUB_USER}?tab=overview`}
+              target="_blank"
+              rel="noreferrer"
+              title={`${b.label}: ${b.count.toLocaleString("en-US")} contributions`}
+              className="group flex flex-1 flex-col items-center gap-1.5"
+            >
+              <span className="text-[9.5px] tabular-nums text-white-50/40 transition-colors group-hover:text-white-50/80">
+                {b.count >= 1000 ? `${(b.count / 1000).toFixed(1)}k` : b.count}
+              </span>
+              <span className="flex h-14 w-full items-end">
+                <span
+                  className="wk-bar-fill w-full rounded-t-[3px] transition-all duration-200 group-hover:brightness-125"
                   style={{
-                    height: `${barHeightPx}px`,
-                    backgroundColor: b.count > 0 ? "var(--gh-mix-prs)" : "rgba(255, 255, 255, 0.08)",
+                    height: `${Math.max(4, Math.round(b.pct * 56))}px`,
+                    backgroundColor:
+                      b.count > 0 ? "var(--gh-mix-prs)" : "rgba(255, 255, 255, 0.08)",
                   }}
                 />
-
-                {/* Weekday label */}
-                <span className="mt-1 text-[9px] font-medium text-white-50/45 group-hover:text-white-50 transition-colors">
-                  {b.label}
-                </span>
-              </a>
-            );
-          })}
+              </span>
+              <span className="text-[9px] font-medium text-white-50/45 transition-colors group-hover:text-white-50">
+                {b.label}
+              </span>
+            </a>
+          ))}
         </div>
       </div>
 
@@ -1021,7 +397,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                 <img
                   src={icon}
                   alt={name}
-                  className="size-5 rounded-md object-contain shrink-0 bg-black-300 transition-transform group-hover:scale-105"
+                  className="size-5 rounded-md object-contain shrink-0 bg-black-200 transition-transform group-hover:scale-105"
                   loading="lazy"
                 />
                 <span className="truncate font-medium text-[11px] group-hover:text-white-50">{name}</span>
@@ -1039,18 +415,17 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
             <span className="text-[11px] uppercase tracking-wider text-white-50/55">
               OSS activity
             </span>
-            <div className="flex items-center gap-2 text-[10px] text-white-50/50">
+            <div className="flex items-center gap-3 text-[10px] text-white-50/45">
               {mergedCount > 0 && (
                 <a
                   href={`https://github.com/pulls?q=is%3Apr+author%3A${GITHUB_USER}+is%3Amerged`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 transition-all hover:border-purple-500/50 hover:bg-purple-500/20 text-purple-300 cursor-pointer"
+                  className="inline-flex items-center gap-1 transition-colors hover:text-purple-300"
                   title="View all merged pull requests on GitHub"
                 >
                   <span className="size-1.5 rounded-full bg-purple-400" />
                   {mergedCount} merged
-                  <ArrowUpRight className="size-2 text-purple-400/60" />
                 </a>
               )}
               {reviewsCount > 0 && (
@@ -1058,12 +433,11 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                   href={`https://github.com/pulls?q=is%3Apr+reviewed-by%3A${GITHUB_USER}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/20 text-emerald-300 cursor-pointer"
+                  className="inline-flex items-center gap-1 transition-colors hover:text-emerald-300"
                   title="View all reviewed pull requests on GitHub"
                 >
                   <span className="size-1.5 rounded-full bg-emerald-400" />
                   {reviewsCount} reviewed
-                  <ArrowUpRight className="size-2 text-emerald-400/60" />
                 </a>
               )}
               {pushesCount > 0 && (
@@ -1071,12 +445,11 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                   href={`https://github.com/${GITHUB_USER}?tab=repositories`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-full border border-sky-500/20 bg-sky-500/10 px-2 py-0.5 transition-all hover:border-sky-500/50 hover:bg-sky-500/20 text-sky-300 cursor-pointer"
+                  className="inline-flex items-center gap-1 transition-colors hover:text-sky-300"
                   title="View active repositories on GitHub"
                 >
                   <span className="size-1.5 rounded-full bg-sky-400" />
                   {pushesCount} pushed
-                  <ArrowUpRight className="size-2 text-sky-400/60" />
                 </a>
               )}
             </div>
@@ -1110,7 +483,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                     <div className="flex items-center gap-2 shrink-0 text-[10px] text-white-50/50">
                       <span className="font-mono text-white-50/70">{repo}</span>
                       <span className="text-white-50/40">#{p.number}</span>
-                      <span className="rounded bg-black-300/80 px-1 py-0.5 text-[9px] text-white-50/55">{ago(p.at)}</span>
+                      <span className="rounded bg-black-200/80 px-1 py-0.5 text-[9px] text-white-50/55">{ago(p.at)}</span>
                       <ArrowUpRight className="size-3 text-white-50/30 transition-transform group-hover:text-white-50 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </div>
                   </a>
@@ -1158,7 +531,7 @@ const GitHubCard = ({ data, oss }: { data: GithubActivity; oss: GithubOss | null
                     <div className="flex items-center gap-2 shrink-0 text-[10px] text-white-50/50">
                       <span className="font-mono text-white-50/70">{repo}</span>
                       <span className="text-white-50/40">#{r.number}</span>
-                      <span className="rounded bg-black-300/80 px-1 py-0.5 text-[9px] text-white-50/55">{ago(r.at)}</span>
+                      <span className="rounded bg-black-200/80 px-1 py-0.5 text-[9px] text-white-50/55">{ago(r.at)}</span>
                       <ArrowUpRight className="size-3 text-white-50/30 transition-transform group-hover:text-white-50 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </div>
                   </a>

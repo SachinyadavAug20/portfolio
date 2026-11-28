@@ -330,6 +330,12 @@ export const techStackImgs: techStackImgProps[] = [
 
 export interface techStackIconsProps {
   name: string;
+  /** One-line summary of what this role covers. */
+  role: string;
+  /** Key tools used in this role — shown as small pills. */
+  tags: string[];
+  /** Accent colour used for the card's hover glow and fill. */
+  accent: string;
   modelPath: string;
   scale: number;
   rotation: [x: number, y: number, z: number];
@@ -338,30 +344,45 @@ export interface techStackIconsProps {
 export const techStackIcons: techStackIconsProps[] = [
   {
     name: "React Developer",
+    role: "Interfaces & design systems",
+    tags: ["React", "TypeScript", "Tailwind"],
+    accent: "#61dafb",
     modelPath: "/models/react_logo-transformed.glb",
     scale: 1,
     rotation: [0, 0, 0],
   },
   {
     name: "Python Developer",
+    role: "APIs, automation & data",
+    tags: ["Python", "FastAPI", "Pandas"],
+    accent: "#ffd43b",
     modelPath: "/models/python-transformed.glb",
     scale: 0.8,
     rotation: [0, 0, 0],
   },
   {
     name: "Backend Developer",
+    role: "Services, APIs & databases",
+    tags: ["Node.js", "Postgres", "Redis"],
+    accent: "#68a063",
     modelPath: "/models/node-transformed.glb",
     scale: 5,
     rotation: [0, -Math.PI / 2, 0],
   },
   {
-    name: "Interactive 3D Developer",
+    name: "Interactive 3D",
+    role: "WebGL scenes & motion",
+    tags: ["Three.js", "GLSL", "GSAP"],
+    accent: "#a5b4fc",
     modelPath: "/models/three.js-transformed.glb",
     scale: 0.05,
     rotation: [0, 0, 0],
   },
   {
-    name: "Project handling",
+    name: "Project Delivery",
+    role: "Version control & shipping",
+    tags: ["Git", "CI/CD", "Docker"],
+    accent: "#f05033",
     modelPath: "/models/git-svg-transformed.glb",
     scale: 0.05,
     rotation: [0, -Math.PI / 4, 0],

@@ -963,46 +963,123 @@ section {
     }
   }
 
-  /* Positioned so the fill below is scoped to the card — without this it
-     anchors to the initial containing block and paints a full-width sheet
-     over the page (the mobile "dark block" glitch). */
-  .tech-card {
-    @apply relative;
+  /* Flex-wrap instead of a fixed grid: with five cards the orphaned last row
+     stays centred rather than hugging the left edge. */
+  .tech-grid {
+    --tech-gap: 0.75rem;
+    @apply mx-auto mt-8 flex max-w-6xl flex-wrap justify-center sm:mt-10;
+    gap: var(--tech-gap);
   }
 
+  .tech-card {
+    @apply relative flex-none overflow-hidden rounded-xl border border-black-50 bg-black-100;
+    flex-basis: calc((100% - var(--tech-gap)) / 2);
+  }
+
+  .tech-card::after {
+    content: "";
+    @apply pointer-events-none absolute inset-x-0 top-0 z-20 h-px opacity-0;
+    background: var(--tech-accent);
+    box-shadow: 0 0 12px var(--tech-accent);
+    transition: opacity 0.3s ease;
+  }
+
+  /* Accent-tinted wash on hover, replacing the old solid sheet fill. */
   .tech-card-animated-bg {
-    @apply absolute left-0 bottom-0 w-full h-full;
-    background: var(--tech-card-bg);
-    transform: translateY(101%);
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    @apply pointer-events-none absolute inset-0 z-0 opacity-0;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--tech-accent) 16%, transparent),
+      transparent 75%
+    );
+    transition: opacity 0.45s ease;
+  }
+
+  @media (min-width: 768px) {
+    .tech-grid {
+      --tech-gap: 1.25rem;
+    }
+    .tech-card {
+      flex-basis: calc((100% - var(--tech-gap) * 2) / 3);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .tech-grid {
+      --tech-gap: 1.5rem;
+    }
+    .tech-card {
+      flex-basis: calc((100% - var(--tech-gap) * 4) / 5);
+    }
   }
 
   @media (hover: hover) {
-    .group:hover .tech-card-animated-bg {
-      transform: translateY(0);
-    }
     .tech-card {
-      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      transition:
+        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
     }
     .tech-card:hover {
       transform: translateY(-4px);
+      border-color: color-mix(in srgb, var(--tech-accent) 45%, var(--flip-black-50));
+      box-shadow: 0 16px 36px -20px color-mix(in srgb, var(--tech-accent) 60%, transparent);
+    }
+    .tech-card:hover .tech-card-animated-bg {
+      opacity: 1;
+    }
+    .tech-card:hover::after {
+      opacity: 0.9;
     }
   }
 
   .tech-card-content {
-    @apply flex flex-col md:justify-center items-center xl:gap-3 xl:h-[32vh] xl:min-h-[220px] overflow-hidden relative z-10 group-hover:cursor-grab;
-
-    & p {
-      @apply text-base 2xl:text-xl pb-3 xl:pb-0 font-semibold text-white-50 text-center;
-    }
+    @apply relative z-10 flex h-full flex-col items-center px-3 pb-5 pt-6 text-center sm:px-4;
   }
 
-  .tech-grid {
-    @apply grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 xl:gap-8 mt-8 sm:mt-12;
+  .tech-card-index {
+    @apply absolute left-3 top-3 z-20 font-mono text-[10px] tracking-[0.18em] text-white-50/25;
   }
 
   .tech-icon-wrapper {
-    @apply flex justify-center items-center w-full max-w-44 h-32 sm:h-40 relative;
+    @apply relative flex h-28 w-full max-w-44 items-center justify-center sm:h-32;
+    isolation: isolate;
+  }
+
+  .tech-icon-wrapper::before {
+    content: "";
+    @apply pointer-events-none absolute inset-0 opacity-60;
+    z-index: -1;
+    background: radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--tech-accent) 16%, transparent),
+      transparent 68%
+    );
+    transition: opacity 0.3s ease;
+  }
+
+  .tech-card:hover .tech-icon-wrapper::before {
+    opacity: 1;
+  }
+
+  .tech-card-title {
+    @apply mt-3 text-sm font-semibold text-white-50 sm:text-base;
+  }
+
+  .tech-card-role {
+    @apply mt-1 text-[11px] leading-snug text-white-50/50;
+  }
+
+  .tech-tags {
+    @apply mt-3 flex flex-wrap justify-center gap-1;
+  }
+
+  .tech-tag {
+    @apply whitespace-nowrap rounded-full border border-black-50/80 bg-black-200/60 px-1.5 py-0.5 text-[9.5px] font-medium text-white-50/60 transition-colors;
+  }
+
+  .tech-card:hover .tech-tag {
+    @apply text-white-50/85;
   }
 
   form {

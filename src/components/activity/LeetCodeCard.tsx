@@ -56,27 +56,11 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
-  const { contest, questions, submissions, badges, histogram, profile } = data;
+  const { contest, questions, submissions, badges, profile } = data;
   const solvedPct = questions.all.total
     ? (questions.all.solved / questions.all.total) * 100
     : 0;
 
-  /* which histogram bucket does this user's top-% fall into (for the marker) */
-  const bucketIndex = histogram.findIndex(
-    (b, i) =>
-      b.topPercentage >= contest.topPercentage &&
-      (i + 1 === histogram.length ||
-        histogram[i + 1].topPercentage < contest.topPercentage),
-  );
-  const histMax = Math.max(...histogram.map((b) => b.userCount), 1);
-  /* Bars need explicit pixel heights — a % height resolves to 0 because the
-     flex-1 parents have no definite height, which is why the distribution
-     was invisible. */
-  const HIST_H = 80; // px, matches the h-20 container
-  const histBars = histogram.map((b) => ({
-    topPercentage: b.topPercentage,
-    px: Math.max(3, Math.round((b.userCount / histMax) * HIST_H)),
-  }));
   /* Est. global rank is an estimate (exact rank needs a session); shorten
      long numbers so they never run outside the box. */
   const rankText =
@@ -177,21 +161,6 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
           scrollTrigger: { trigger: scope, start: "top 85%", once: true },
         },
       );
-
-      /* histogram bars grow up */
-      gsap.fromTo(
-        scope.querySelectorAll(".lc-hist-bar"),
-        { scaleY: 0 },
-        {
-          scaleY: 1,
-          duration: 0.6,
-          ease: "power3.out",
-          stagger: 0.025,
-          transformOrigin: "bottom center",
-          clearProps: "transform",
-          scrollTrigger: { trigger: scope, start: "top 85%", once: true },
-        },
-      );
     },
     { scope: rootRef, dependencies: [reduced, solvedPct], revertOnUpdate: true },
   );
@@ -255,22 +224,22 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
       {/* contest stats */}
       <div className="grid grid-cols-3 gap-2.5">
         <motion.a
-          href="https://leetcode.com/contest/"
+          href="https://leetcode.com/problemset/all/?status=SOLVED"
           target="_blank"
           rel="noreferrer"
-          title="View contest standings on LeetCode"
+          title="View solved problems on LeetCode"
           whileHover={{ y: -3, scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="group flex flex-col justify-between rounded-lg border border-black-50 bg-black-200/70 px-3 py-2.5 transition-colors hover:border-white-50/30 hover:bg-black-200 cursor-pointer"
         >
           <div className="flex items-center justify-between">
             <div className="text-lg font-semibold tabular-nums text-white-50 group-hover:text-[var(--lc-rating)] transition-colors">
-              Top <span data-count={contest.topPercentage} data-decimals="2">0</span>%
+              <span data-count={questions.all.solved}>0</span>
             </div>
             <ArrowUpRight className="size-3 text-white-50/30 opacity-0 group-hover:opacity-100 transition-all group-hover:text-white-50 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </div>
           <div className="mt-0.5 text-[10px] uppercase tracking-wider text-white-50/55">
-            of {Math.round(contest.totalParticipants / 1000)}K participants
+            problems solved
           </div>
         </motion.a>
 
@@ -332,10 +301,7 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
             </span>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-white-50/40 group-hover:text-[var(--lc-rating)] transition-colors">
-                Contests
-              </span>
-              <span className="text-[11px] tabular-nums text-white-50/70 group-hover:text-white-50 transition-colors">
-                {Math.round(paths.min)} – {Math.round(paths.max)}
+                last {contest.history.length} contests
               </span>
             </div>
           </div>
@@ -455,7 +421,7 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
                 >
                   {d.label}
                 </span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-black-200 group-hover:bg-black-300/80">
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-black-200 group-hover:bg-black-200/80">
                   <div
                     className="lc-diff-bar h-full rounded-full transition-all group-hover:brightness-125"
                     style={{
@@ -476,79 +442,23 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
         </div>
       </div>
 
-      {/* rating distribution */}
-      <div className="rounded-lg border border-black-50 bg-black-200/40 p-3">
-        <div className="mb-2 flex items-center justify-between">
-          <a
-            href="https://leetcode.com/contest/"
-            target="_blank"
-            rel="noreferrer"
-            className="group inline-flex items-center gap-1 text-[11px] uppercase tracking-wider text-white-50/55 hover:text-white-50 transition-colors cursor-pointer"
-            title="View contest distribution & leaderboards"
-          >
-            <span>Rating distribution</span>
-            <ArrowUpRight className="size-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </a>
-          {bucketIndex >= 0 && (
-            <span className="text-[11px] text-[var(--lc-rating)] font-medium">
-              you are here · top {contest.topPercentage}%
-            </span>
-          )}
-        </div>
-        <div className="flex h-20 items-end gap-[3px]">
-          {histBars.map((b, i) => (
-            <motion.a
-              key={i}
-              href={`https://leetcode.com/contest/`}
-              target="_blank"
-              rel="noreferrer"
-              className="group relative flex-1 cursor-pointer"
-              whileHover={{ scaleY: 1.25 }}
-              style={{ transformOrigin: "bottom" }}
-              title={`Top ${Math.round(b.topPercentage)}% bracket · ${histogram[i].userCount.toLocaleString("en-US")} users · Click to explore contests`}
-            >
-              <span
-                className="lc-hist-bar block rounded-t-[2px] transition-all group-hover:brightness-135 group-hover:shadow-[0_0_8px_rgba(255,161,22,0.6)]"
-                style={{
-                  height: b.px,
-                  backgroundColor:
-                    i === bucketIndex ? "var(--lc-rating)" : "var(--lc-hist)",
-                  opacity: bucketIndex >= 0 && i !== bucketIndex ? 0.55 : 1,
-                }}
-              />
-            </motion.a>
-          ))}
-        </div>
-        <div className="mt-1 flex justify-between text-[9px] text-white-50/45">
-          <span>higher rated</span>
-          <span>lower rated</span>
-        </div>
-      </div>
-
-      {/* badges — LeetCode-style showcase with direct medal links */}
+      {/* badges — one clean row, direct medal links */}
       {badges.length > 0 && (
-        <div className="rounded-lg border border-black-50 bg-black-200/40 p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-white-50/55">
-                Badges
-              </div>
-              <div className="text-lg font-semibold tabular-nums text-white-50">
-                {badges.length}
-              </div>
-            </div>
+        <div className="flex flex-col gap-2.5">
+          <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-white-50/55">
+            <span>Badges</span>
             <a
               href={`https://leetcode.com/u/${profile.username}`}
               target="_blank"
               rel="noreferrer"
-              className="group inline-flex items-center gap-1 text-xs text-white-50/60 transition-colors hover:text-white-50"
+              className="group inline-flex items-center gap-1 normal-case tracking-normal text-[10px] text-white-50/45 transition-colors hover:text-white-50"
             >
-              All Badges
-              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+              View all
+              <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
             </a>
           </div>
 
-          <div className="my-3 grid grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-4 gap-2">
             {badges.slice(0, 4).map((b) => {
               const medalUrl = getBadgeMedalUrl(b, profile.username);
               return (
@@ -557,41 +467,27 @@ const LeetCodeCard = ({ data }: { data: LeetCodeActivity }) => {
                   href={medalUrl}
                   target="_blank"
                   rel="noreferrer"
-                  title={`${b.displayName} · Click to view medal on LeetCode`}
-                  whileHover={{ y: -4, scale: 1.08 }}
-                  whileTap={{ scale: 0.94 }}
-                  className="group relative flex flex-col items-center justify-center rounded-lg border border-black-50/60 bg-black-200/60 p-2 transition-all hover:border-[var(--lc-rating)]/40 hover:bg-black-200 hover:shadow-[0_4px_16px_rgba(255,161,22,0.15)] cursor-pointer"
+                  title={`${b.displayName} · view medal on LeetCode`}
+                  whileHover={{ y: -3, scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="group flex flex-col items-center gap-1.5 rounded-lg border border-black-50/60 bg-black-200/40 p-2 transition-colors hover:border-[var(--lc-rating)]/40 hover:bg-black-200/70"
                 >
-                  <ArrowUpRight className="absolute top-1 right-1 size-2.5 text-white-50/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                   {b.icon ? (
                     <img
                       src={b.icon}
                       alt={b.displayName}
-                      className="size-11 sm:size-12 object-contain drop-shadow transition-transform duration-200 group-hover:scale-105"
+                      className="size-10 object-contain transition-transform duration-200 group-hover:scale-105 sm:size-11"
                       loading="lazy"
                     />
                   ) : (
-                    <div className="size-11 rounded bg-black-300" />
+                    <div className="size-10 rounded bg-black-200" />
                   )}
-                  <span className="mt-1 text-center text-[10px] text-white-50/60 line-clamp-1 group-hover:text-white-50 transition-colors font-medium">
+                  <span className="w-full truncate text-center text-[9.5px] font-medium text-white-50/55 transition-colors group-hover:text-white-50">
                     {b.displayName.replace(/ 20\d\d$/, "")}
                   </span>
                 </motion.a>
               );
             })}
-          </div>
-
-          <div className="flex items-center justify-between border-t border-black-50/60 pt-2 text-xs">
-            <span className="text-[10px] text-white-50/50">Most Recent Badge</span>
-            <a
-              href={getBadgeMedalUrl(badges[0], profile.username)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 font-semibold text-white-50 hover:underline"
-            >
-              {badges[0].displayName}
-              <ArrowUpRight className="size-3 text-white-50/50" />
-            </a>
           </div>
         </div>
       )}
