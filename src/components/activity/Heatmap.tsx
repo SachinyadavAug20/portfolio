@@ -304,7 +304,7 @@ const Heatmap = ({
                   transform: isBottomHalf ? "translate(-50%, -100%)" : "translate(-50%, 0)",
                 }}
               >
-                <div className="flex flex-col gap-0.5 whitespace-nowrap rounded-lg border border-black-50/90 bg-black-100/95 px-2.5 py-1.5 text-[11px] text-white-50 shadow-2xl backdrop-blur-md">
+                <div className="flex flex-col gap-0.5 whitespace-nowrap rounded-lg border border-black-50/90 bg-black-200/95 px-2.5 py-1.5 text-[11px] text-white-50 shadow-2xl">
                   <div className="flex items-center gap-1.5">
                     <span
                       className="size-2 rounded-full shrink-0"
